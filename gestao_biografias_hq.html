@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestão de Biografias · Fernando Peçanha · OHE</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --ouro: #c9a84c;
+  --ouro-claro: #e8cc7a;
+  --ouro-escuro: #7a5f1a;
+  --creme: #f5edd8;
+  --prata: #6a7d90;
+  --verde: #00c853;
+  --vermelho: #d32f2f;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--preto);
+  color: var(--creme);
+  font-family: 'Crimson Pro', Georgia, serif;
+  min-height: 100vh;
+}
+
+/* TOPO */
+.topo {
+  background: rgba(4,8,15,0.97);
+  border-bottom: 1px solid rgba(201,168,76,0.15);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topo-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  color: var(--ouro);
+  letter-spacing: 0.15em;
+}
+.topo-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.2em;
+  color: var(--prata);
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+
+/* CONFIG GITHUB */
+.config-box {
+  background: rgba(201,168,76,0.05);
+  border: 1px solid rgba(201,168,76,0.15);
+  padding: 1.5rem;
+  margin: 1.5rem 2rem;
+}
+.config-titulo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
+  color: var(--ouro);
+  opacity: 0.6;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.8rem;
+}
+.fg { display: flex; flex-direction: column; gap: 0.3rem; }
+.fl {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.45rem;
+  letter-spacing: 0.15em;
+  color: var(--prata);
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+.fi, .fs {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.12);
+  color: var(--creme);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.8rem;
+  outline: none;
+  transition: border 0.3s;
+  width: 100%;
+}
+.fi:focus { border-color: rgba(201,168,76,0.4); }
+.fs option { background: var(--preto-mid); }
+.config-aviso {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.1em;
+  color: #ff9800;
+  margin-top: 0.8rem;
+  line-height: 1.6;
+}
+
+/* CONTAINER */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+}
+
+/* HEADER SEÇÃO */
+.sec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(201,168,76,0.08);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.sec-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.3em;
+  color: var(--ouro);
+  opacity: 0.45;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.sec-titulo {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  color: var(--creme);
+  letter-spacing: 0.05em;
+  font-weight: 400;
+}
+.sec-titulo em { color: var(--ouro); font-style: italic; font-family: 'Crimson Pro', serif; }
+
+/* BOTÕES */
+.btn-p {
+  background: linear-gradient(135deg, var(--ouro-escuro), var(--ouro));
+  color: var(--preto);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  clip-path: polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px));
+}
+.btn-p:hover { opacity: 0.85; }
+.btn-s {
+  background: transparent;
+  color: var(--ouro);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid rgba(201,168,76,0.25);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.btn-s:hover { border-color: var(--ouro); }
+
+/* LISTA DE AUTORES */
+.autores-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.autor-item {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.08);
+  padding: 1rem 1.2rem;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.autor-item:hover { border-color: rgba(201,168,76,0.3); }
+.autor-item.selecionado { border-color: var(--ouro); background: rgba(201,168,76,0.06); }
+.autor-eixo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.2em;
+  color: var(--ouro);
+  opacity: 0.5;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+.autor-nome {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  color: var(--creme);
+  margin-bottom: 0.2rem;
+}
+.autor-obras-cnt {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.45rem;
+  letter-spacing: 0.1em;
+  color: var(--prata);
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+.autor-status {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.4rem;
+  letter-spacing: 0.1em;
+  padding: 0.15rem 0.4rem;
+  border: 1px solid rgba(0,200,83,0.3);
+  color: var(--verde);
+  text-transform: uppercase;
+  float: right;
+  margin-top: -1.2rem;
+}
+.autor-status.pendente { border-color: rgba(255,152,0,0.3); color: #ff9800; }
+
+/* EDITOR DE BIOGRAFIA */
+.editor-bio {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.15);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  display: none;
+}
+.editor-bio.aberto { display: block; }
+.editor-titulo {
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  color: var(--ouro);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(201,168,76,0.1);
+}
+.editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.full { grid-column: 1/-1; }
+.fta {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.12);
+  color: var(--creme);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.95rem;
+  padding: 0.6rem 0.8rem;
+  outline: none;
+  transition: border 0.3s;
+  width: 100%;
+  resize: vertical;
+  min-height: 100px;
+}
+.fta:focus { border-color: rgba(201,168,76,0.4); }
+
+/* LISTA DE OBRAS NO EDITOR */
+.obras-editor {
+  margin-top: 1rem;
+}
+.obras-editor-titulo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.2em;
+  color: var(--ouro);
+  opacity: 0.5;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+.obra-editor-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.obra-editor-item .fi { flex: 1; }
+.btn-remover-obra {
+  background: rgba(211,47,47,0.15);
+  border: 1px solid rgba(211,47,47,0.3);
+  color: #ff6b6b;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.45rem;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+.btn-remover-obra:hover { background: rgba(211,47,47,0.3); }
+.btn-add-obra {
+  background: rgba(0,200,83,0.08);
+  border: 1px solid rgba(0,200,83,0.2);
+  color: var(--verde);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.1em;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  margin-top: 0.5rem;
+}
+.btn-add-obra:hover { background: rgba(0,200,83,0.15); }
+
+/* STATUS DE PUBLICAÇÃO */
+.pub-status {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.08);
+  padding: 1rem 1.5rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.pub-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pub-dot.ok { background: var(--verde); }
+.pub-dot.erro { background: var(--vermelho); }
+.pub-dot.publicando { background: #ff9800; animation: pisca 1s ease-in-out infinite; }
+@keyframes pisca { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.pub-txt {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  color: var(--prata);
+  text-transform: uppercase;
+  flex: 1;
+}
+
+/* NOTIFICAÇÕES */
+#notif {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 700;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 320px;
+}
+.notif-item {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-left: 3px solid var(--ouro);
+  padding: 0.8rem 1rem;
+  animation: slideIn 0.3s ease;
+}
+.notif-item.ok { border-left-color: var(--verde); }
+.notif-item.erro { border-left-color: var(--vermelho); }
+@keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+.notif-tit {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  color: var(--ouro);
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+.notif-item.ok .notif-tit { color: var(--verde); }
+.notif-item.erro .notif-tit { color: #ff6b6b; }
+.notif-txt { font-size: 0.82rem; color: var(--creme); line-height: 1.4; }
+
+@media (max-width: 768px) {
+  .config-grid { grid-template-columns: 1fr; }
+  .editor-grid { grid-template-columns: 1fr; }
+  .autores-grade { grid-template-columns: 1fr; }
+  .container, .config-box { padding: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="topo">
+  <div>
+    <div class="topo-logo">GESTÃO DE BIOGRAFIAS</div>
+    <div class="topo-sub">Fernando Peçanha · OHE-Peçanha · Painel HQ</div>
+  </div>
+  <div style="display:flex;gap:0.8rem;">
+    <button class="btn-s" onclick="history.back()">← VOLTAR AO HQ</button>
+  </div>
+</div>
+
+<!-- CONFIGURAÇÃO GITHUB -->
+<div class="config-box">
+  <div class="config-titulo">// CONFIGURAÇÃO GITHUB API — SINCRONIZAÇÃO COM CELEIRO LITERÁRIO</div>
+  <div class="config-grid">
+    <div class="fg">
+      <label class="fl">Token GitHub (Personal Access Token)</label>
+      <input type="password" class="fi" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+    </div>
+    <div class="fg">
+      <label class="fl">Repositório (owner/repo)</label>
+      <input type="text" class="fi" id="gh-repo" value="sitedasletras/CeleiroLiterario">
+    </div>
+    <div class="fg">
+      <label class="fl">Branch</label>
+      <input type="text" class="fi" id="gh-branch" value="main">
+    </div>
+  </div>
+  <div class="config-aviso">
+    ⚠ O Token GitHub deve ter permissão de escrita (repo). Acesse github.com → Settings → Developer settings → Personal access tokens → Generate new token → marque "repo". O token é salvo localmente e nunca enviado a terceiros.
+  </div>
+  <div style="margin-top:1rem;">
+    <button class="btn-p" onclick="salvarConfig()">SALVAR CONFIGURAÇÃO</button>
+    <button class="btn-s" style="margin-left:0.5rem;" onclick="testarConexao()">TESTAR CONEXÃO</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- LISTA DE AUTORES -->
+  <div class="sec-header">
+    <div>
+      <div class="sec-label">// AUTORES DO CATÁLOGO</div>
+      <h2 class="sec-titulo">Selecione o <em>Autor</em></h2>
+    </div>
+    <div style="display:flex;gap:0.6rem;align-items:center;">
+      <input type="text" class="fi" id="busca-autor" placeholder="Buscar autor..." style="min-width:200px;" oninput="filtrarAutores()">
+    </div>
+  </div>
+
+  <div class="autores-grade" id="grade-autores"></div>
+
+  <!-- EDITOR DE BIOGRAFIA -->
+  <div class="editor-bio" id="editor-bio">
+    <div class="editor-titulo" id="editor-nome">— Selecione um autor —</div>
+
+    <div class="editor-grid">
+      <div class="fg full">
+        <label class="fl">Biografia pública (aparece no Celeiro Literário)</label>
+        <textarea class="fta" id="ed-bio" style="min-height:150px;" placeholder="Texto da biografia institucional pública..."></textarea>
+      </div>
+      <div class="fg full">
+        <label class="fl">Especialidade temática (resumo público — sem expor DNA)</label>
+        <textarea class="fta" id="ed-especialidade" placeholder="Ex: Escreve terror com foco em Chupa-Cabras e Lobisomens..."></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl">Eixo literário</label>
+        <select class="fs" id="ed-eixo">
+          <option value="prosa">Prosa</option>
+          <option value="poesia">Poesia</option>
+          <option value="hibrido">Híbrido</option>
+          <option value="cordel">Cordel</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Naturalidade / Origem</label>
+        <input type="text" class="fi" id="ed-origem" placeholder="Ex: Nascido em Campinas, SP">
+      </div>
+    </div>
+
+    <!-- OBRAS -->
+    <div class="obras-editor">
+      <div class="obras-editor-titulo">// OBRAS PUBLICADAS</div>
+      <div id="lista-obras-editor"></div>
+      <button class="btn-add-obra" onclick="adicionarObra()">+ ADICIONAR NOVA OBRA</button>
+    </div>
+
+    <!-- STATUS E AÇÕES -->
+    <div class="pub-status" id="pub-status">
+      <div class="pub-dot ok" id="pub-dot"></div>
+      <div class="pub-txt" id="pub-txt">Pronto para publicar</div>
+    </div>
+
+    <div style="display:flex;gap:0.8rem;margin-top:1rem;flex-wrap:wrap;">
+      <button class="btn-p" onclick="publicarBiografia()">📤 PUBLICAR NO CELEIRO LITERÁRIO</button>
+      <button class="btn-s" onclick="salvarRascunho()">💾 SALVAR RASCUNHO</button>
+      <button class="btn-s" onclick="fecharEditor()">FECHAR</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="notif"></div>
+
+<script>
+// ===== AUTORES =====
+const AUTORES = [
+  { id:'aj-santos', nome:'A.J. dos Santos', eixo:'hibrido', origem:'Itapecerica, MG' },
+  { id:'amanda-fisher', nome:'Amanda Fernanda Fisher Leão', eixo:'hibrido', origem:'Caraguatatuba, SP' },
+  { id:'amelie-hanna', nome:'Amélie Maia Hanna', eixo:'poesia', origem:'Praia Grande / Bertioga, SP' },
+  { id:'anisio-teixeira', nome:'Anísio Teixeira', eixo:'hibrido', origem:'Sorocaba, SP' },
+  { id:'articus-persida', nome:'Articus da Pérsida', eixo:'hibrido', origem:'Acre, Terra Santa (1274)' },
+  { id:'aurora-wings', nome:'Aurora Wings', eixo:'hibrido', origem:'Caribe (2022)' },
+  { id:'padre-benedicttus', nome:'Padre Benedicttus Konstantinos', eixo:'hibrido', origem:'Catânia, Itália' },
+  { id:'birihani-tesifa', nome:'Birihani Selami Ina Tesifa', eixo:'poesia', origem:'Malásia' },
+  { id:'caliope-papazissis', nome:'Calíope Papazissis', eixo:'hibrido', origem:'Hortolândia, SP' },
+  { id:'chesco-irlanda', nome:'Chesco Irlanda', eixo:'prosa', origem:'Duartina, SP' },
+  { id:'claudiney-diaz', nome:'Claudiney Aristides Diaz', eixo:'aberto', origem:'Nova Russas, CE' },
+  { id:'creone-porfiro', nome:'Creone Porfírio', eixo:'hibrido', origem:'Ceilândia, DF' },
+  { id:'cristovao-duarte', nome:'Cristovão Duarte', eixo:'prosa', origem:'Interior de SP' },
+  { id:'daniel-fernandes', nome:'Daniel Fernandes', eixo:'poesia', origem:'São Paulo, SP' },
+  { id:'darius-vamus', nome:'Dárius Ninus Vamus', eixo:'hibrido', origem:'São Paulo, SP' },
+  { id:'demetrius-varas', nome:'Demetrius Varas', eixo:'prosa', origem:'São Roque, SP' },
+  { id:'din-kin-lin', nome:'Din Kin Lin', eixo:'hibrido', origem:'Xangai / São Paulo, SP' },
+  { id:'diogenes-alencar', nome:'Diógenes Bueno de Alencar', eixo:'hibrido', origem:'Sobradinho, DF' },
+  { id:'hama-amarin', nome:'Hama Amarin', eixo:'poesia', origem:'Guararema, SP' },
+  { id:'hernesto-bevilacqua', nome:'Hernesto Bevilácqua', eixo:'poesia', origem:'Serra Negra, SP' },
+  { id:'horando-prado', nome:'Horando Almeida Prado', eixo:'hibrido', origem:'Itanhaém, SP' },
+  { id:'icabode-kahpote', nome:'Icabode Kahpote', eixo:'hibrido', origem:'Campos do Jordão, SP' },
+  { id:'imediato-thompson', nome:'Imediato Thompson', eixo:'hibrido', origem:'Nova Escócia, Canadá' },
+  { id:'jl-gomes', nome:'J.L. Gomes', eixo:'hibrido', origem:'Bauru, SP' },
+  { id:'jorge-cavalcanti', nome:'Jorge Cavalcanti', eixo:'cordel', origem:'Campos do Jordão, SP' },
+  { id:'juka-pituskaq', nome:'Juka Pituskaq', eixo:'poesia', origem:'Mairinque, SP (1890)' },
+  { id:'julia-abdalla', nome:'Julia Abdalla', eixo:'prosa', origem:'São Paulo, SP' },
+  { id:'mario-sabino', nome:'Mário Célio Sabino', eixo:'hibrido', origem:'Mairinque, SP' },
+  { id:'michelangelo-miguel', nome:'Michelangelo Miguel', eixo:'poesia', origem:'Mogi das Cruzes, SP' },
+  { id:'pyetra-luyza', nome:'Pyetra Luyza', eixo:'hibrido', origem:'Santo André, SP' },
+  { id:'raimundo-nonato', nome:'Raimundo José da Silva Nonato', eixo:'hibrido', origem:'Peruíbe, SP' },
+  { id:'renat-kolotov', nome:'Renat Kolotov', eixo:'prosa', origem:'Campina das Missões, RS' },
+  { id:'rovonilson-bautista', nome:'Rovonilson Reigns Bautista', eixo:'hibrido', origem:'Santo André, SP' },
+  { id:'henrich-jones', nome:'Henrich Jones', eixo:'prosa', origem:'Brasília, DF' },
+  { id:'sebastiao-anjos', nome:'Sebastião Ferreira dos Anjos', eixo:'poesia', origem:'Santo Antônio do Monte, MG' },
+  { id:'valter-marques', nome:'Valter Marques', eixo:'hibrido', origem:'Recife, PE / São Roque, SP' },
+  { id:'victor-pereira', nome:'Victor A. Pereira', eixo:'prosa', origem:'Bragança Paulista, SP' },
+  { id:'wilson-silva', nome:'Wilson Silva', eixo:'hibrido', origem:'São Paulo, SP' },
+  { id:'yago-mattos', nome:'Yago Mattos', eixo:'hibrido', origem:'Praia Grande, SP' },
+  { id:'wagner-planas', nome:'Wagner Planas', eixo:'hibrido', origem:'São Paulo, SP' },
+  { id:'noraya-sakamoto', nome:'Noraya Sakamoto', eixo:'poesia', origem:'São Paulo, SP' },
+  { id:'vladislava-karnstein', nome:'Vladislava Karnstein', eixo:'hibrido', origem:'Transilvânia (1642)' },
+  { id:'dona-catarina', nome:'Dona Catarina Trovante', eixo:'poesia', origem:'Curitiba, PR' },
+  { id:'santiago-poetrix', nome:'Santiago Poetrix', eixo:'hibrido', origem:'Santos, SP' },
+  { id:'irmao-ezequias', nome:'Irmão Ezequias Luz', eixo:'hibrido', origem:'Fortaleza, CE' },
+  { id:'marina-vozes', nome:'Marina das Vozes', eixo:'hibrido', origem:'São Paulo, SP' },
+  { id:'helena-valenca', nome:'Helena Duarte Valença', eixo:'prosa', origem:'Campinas, SP' },
+  { id:'marina-torres', nome:'Marina Torres Azevedo', eixo:'poesia', origem:'Juiz de Fora, MG' },
+  { id:'clara-rios', nome:'Clara Mendes Rios', eixo:'hibrido', origem:'Sorocaba, SP' },
+];
+
+// ===== CONFIG =====
+function salvarConfig() {
+  localStorage.setItem('gh_token', document.getElementById('gh-token').value);
+  localStorage.setItem('gh_repo', document.getElementById('gh-repo').value);
+  localStorage.setItem('gh_branch', document.getElementById('gh-branch').value);
+  notif('CONFIGURAÇÃO SALVA', 'Token e repositório salvos localmente.', 'ok');
+}
+
+function carregarConfig() {
+  const token = localStorage.getItem('gh_token');
+  const repo = localStorage.getItem('gh_repo');
+  const branch = localStorage.getItem('gh_branch');
+  if (token) document.getElementById('gh-token').value = token;
+  if (repo) document.getElementById('gh-repo').value = repo;
+  if (branch) document.getElementById('gh-branch').value = branch;
+}
+
+async function testarConexao() {
+  const token = document.getElementById('gh-token').value;
+  const repo = document.getElementById('gh-repo').value;
+  if (!token || !repo) { notif('ERRO', 'Preencha token e repositório.', 'erro'); return; }
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (res.ok) notif('CONEXÃO OK', `Repositório ${repo} acessível.`, 'ok');
+    else notif('ERRO DE CONEXÃO', `Status: ${res.status}. Verifique o token e o repositório.`, 'erro');
+  } catch(e) {
+    notif('ERRO', 'Falha na conexão com o GitHub.', 'erro');
+  }
+}
+
+// ===== DADOS LOCAIS =====
+function carregarBios() {
+  const raw = localStorage.getItem('sigmal_biografias');
+  return raw ? JSON.parse(raw) : {};
+}
+function salvarBiosLocal(bios) {
+  localStorage.setItem('sigmal_biografias', JSON.stringify(bios));
+}
+
+let bios = carregarBios();
+let autorAtivo = null;
+let obrasAtivas = [];
+
+// ===== RENDERIZAÇÃO =====
+function renderizarAutores(lista) {
+  const grade = document.getElementById('grade-autores');
+  grade.innerHTML = lista.map(a => {
+    const bio = bios[a.id] || {};
+    const obras = bio.obras || [];
+    const temBio = !!bio.bio;
+    return `
+      <div class="autor-item ${autorAtivo?.id === a.id ? 'selecionado' : ''}"
+           onclick="selecionarAutor('${a.id}')">
+        <div class="autor-status ${temBio ? '' : 'pendente'}">${temBio ? 'PUBLICADO' : 'PENDENTE'}</div>
+        <div class="autor-eixo">${a.eixo.toUpperCase()}</div>
+        <div class="autor-nome">${a.nome}</div>
+        <div class="autor-obras-cnt">${obras.length} obra${obras.length !== 1 ? 's' : ''} · ${a.origem}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function filtrarAutores() {
+  const busca = document.getElementById('busca-autor').value.toLowerCase();
+  const lista = busca ? AUTORES.filter(a => a.nome.toLowerCase().includes(busca)) : AUTORES;
+  renderizarAutores(lista);
+}
+
+// ===== EDITOR =====
+function selecionarAutor(id) {
+  autorAtivo = AUTORES.find(a => a.id === id);
+  if (!autorAtivo) return;
+  const bio = bios[id] || {};
+  document.getElementById('editor-nome').textContent = autorAtivo.nome;
+  document.getElementById('ed-bio').value = bio.bio || '';
+  document.getElementById('ed-especialidade').value = bio.especialidade || '';
+  document.getElementById('ed-eixo').value = bio.eixo || autorAtivo.eixo;
+  document.getElementById('ed-origem').value = bio.origem || autorAtivo.origem || '';
+  obrasAtivas = [...(bio.obras || [])];
+  renderizarObrasEditor();
+  document.getElementById('editor-bio').classList.add('aberto');
+  document.getElementById('editor-bio').scrollIntoView({ behavior: 'smooth' });
+  setPubStatus('ok', 'Pronto para publicar');
+  renderizarAutores(AUTORES);
+}
+
+function fecharEditor() {
+  document.getElementById('editor-bio').classList.remove('aberto');
+  autorAtivo = null;
+  renderizarAutores(AUTORES);
+}
+
+function renderizarObrasEditor() {
+  const el = document.getElementById('lista-obras-editor');
+  if (!obrasAtivas.length) {
+    el.innerHTML = `<div style="font-style:italic;font-size:0.8rem;color:var(--prata);opacity:0.5;padding:0.5rem 0;">Nenhuma obra cadastrada ainda.</div>`;
+    return;
+  }
+  el.innerHTML = obrasAtivas.map((o, i) => `
+    <div class="obra-editor-item">
+      <input type="text" class="fi" value="${o}" onchange="obrasAtivas[${i}]=this.value" style="font-size:0.85rem;">
+      <button class="btn-remover-obra" onclick="removerObra(${i})">✕ REMOVER</button>
+    </div>
+  `).join('');
+}
+
+function adicionarObra() {
+  obrasAtivas.push('');
+  renderizarObrasEditor();
+  const inputs = document.querySelectorAll('.obra-editor-item .fi');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+}
+
+function removerObra(i) {
+  obrasAtivas.splice(i, 1);
+  renderizarObrasEditor();
+}
+
+function salvarRascunho() {
+  if (!autorAtivo) return;
+  const dadosBio = {
+    bio: document.getElementById('ed-bio').value,
+    especialidade: document.getElementById('ed-especialidade').value,
+    eixo: document.getElementById('ed-eixo').value,
+    origem: document.getElementById('ed-origem').value,
+    obras: obrasAtivas.filter(o => o.trim()),
+    atualizado: new Date().toLocaleDateString('pt-BR')
+  };
+  bios[autorAtivo.id] = dadosBio;
+  salvarBiosLocal(bios);
+  notif('RASCUNHO SALVO', `Biografia de ${autorAtivo.nome} salva localmente.`, 'ok');
+  renderizarAutores(AUTORES);
+}
+
+// ===== PUBLICAÇÃO GITHUB =====
+function setPubStatus(tipo, txt) {
+  const dot = document.getElementById('pub-dot');
+  const txtEl = document.getElementById('pub-txt');
+  dot.className = `pub-dot ${tipo}`;
+  txtEl.textContent = txt;
+}
+
+async function publicarBiografia() {
+  if (!autorAtivo) return;
+  const token = localStorage.getItem('gh_token') || document.getElementById('gh-token').value;
+  const repo = localStorage.getItem('gh_repo') || document.getElementById('gh-repo').value;
+  const branch = localStorage.getItem('gh_branch') || 'main';
+
+  if (!token) { notif('ERRO', 'Configure o Token GitHub antes de publicar.', 'erro'); return; }
+
+  salvarRascunho();
+
+  const dadosBio = bios[autorAtivo.id];
+  setPubStatus('publicando', 'Publicando no Celeiro Literário...');
+
+  try {
+    // Gera o HTML da página individual do autor
+    const htmlIndividual = gerarHtmlIndividual(autorAtivo, dadosBio);
+    const caminhoIndividual = `biografia_${autorAtivo.id}.html`;
+
+    // Verifica se arquivo já existe para pegar o SHA
+    const shaIndividual = await getSHA(token, repo, branch, caminhoIndividual);
+
+    // Publica página individual
+    await publicarArquivo(token, repo, branch, caminhoIndividual, htmlIndividual, shaIndividual,
+      `Atualiza biografia de ${autorAtivo.nome}`);
+
+    // Atualiza o índice geral de biografias
+    await atualizarIndice(token, repo, branch);
+
+    setPubStatus('ok', `Publicado com sucesso em ${new Date().toLocaleTimeString('pt-BR')}`);
+    notif('PUBLICADO!', `Biografia de ${autorAtivo.nome} está no ar no Celeiro Literário.`, 'ok');
+    renderizarAutores(AUTORES);
+
+  } catch(e) {
+    setPubStatus('erro', `Erro: ${e.message}`);
+    notif('ERRO NA PUBLICAÇÃO', e.message, 'erro');
+  }
+}
+
+async function getSHA(token, repo, branch, caminho) {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}?ref=${branch}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data.sha;
+    }
+    return null;
+  } catch { return null; }
+}
+
+async function publicarArquivo(token, repo, branch, caminho, conteudo, sha, mensagem) {
+  const body = {
+    message: mensagem,
+    content: btoa(unescape(encodeURIComponent(conteudo))),
+    branch
+  };
+  if (sha) body.sha = sha;
+
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `token ${token}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || `Erro ${res.status}`);
+  }
+  return res.json();
+}
+
+async function atualizarIndice(token, repo, branch) {
+  const htmlIndice = gerarHtmlIndice();
+  const sha = await getSHA(token, repo, branch, 'site_editorial_biografias.html');
+  await publicarArquivo(token, repo, branch, 'site_editorial_biografias.html', htmlIndice, sha,
+    'Atualiza índice de biografias');
+}
+
+// ===== GERAÇÃO DE HTML =====
+function eixoLabel(e) {
+  const l = { prosa:'Prosa', poesia:'Poesia', hibrido:'Híbrido', cordel:'Cordel', aberto:'Em construção' };
+  return l[e] || e;
+}
+
+function corEixo(e) {
+  const c = { prosa:'#1565c0', poesia:'#ad1457', hibrido:'#e65100', cordel:'#2e7d32', aberto:'#757575' };
+  return c[e] || '#c9a84c';
+}
+
+function gerarHtmlIndividual(autor, bio) {
+  const obras = (bio.obras || []).filter(o => o.trim());
+  const cor = corEixo(bio.eixo || autor.eixo);
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${autor.nome} · Biografia · Site das Letras</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#07182b;--azul-mid:#10294a;--ouro:#d6b354;--ouro-claro:#f5d87a;--papel:#fff8df;--tinta:#1a1208;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--papel);color:var(--tinta);font-family:'Libre Baskerville',Georgia,serif;min-height:100vh;}
+.cabecalho{background:var(--azul);padding:2rem 3rem;border-bottom:3px solid var(--ouro);}
+.cab-nav{display:flex;gap:1rem;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;}
+.cab-nav a{font-family:'Space Mono',monospace;font-size:0.55rem;letter-spacing:0.15em;color:rgba(213,179,84,0.5);text-decoration:none;text-transform:uppercase;}
+.cab-nav a:hover{color:var(--ouro);}
+.cab-nav span{color:rgba(213,179,84,0.2);font-size:0.5rem;}
+.eixo-badge{display:inline-block;font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.2em;padding:0.25rem 0.7rem;border:1px solid;text-transform:uppercase;margin-bottom:0.8rem;}
+.autor-nome{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(2rem,5vw,3.5rem);color:var(--ouro);line-height:1.1;margin-bottom:0.3rem;}
+.autor-origem{font-family:'Space Mono',monospace;font-size:0.55rem;letter-spacing:0.15em;color:rgba(213,179,84,0.4);text-transform:uppercase;}
+.conteudo{max-width:800px;margin:0 auto;padding:3rem;}
+.secao-label{font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.3em;color:var(--ouro);opacity:0.6;text-transform:uppercase;margin-bottom:0.8rem;}
+.linha-ouro{width:50px;height:2px;background:linear-gradient(to right,var(--ouro),transparent);margin:1rem 0 2rem;}
+.bio-texto{font-size:1.05rem;line-height:1.9;color:#2a1a08;margin-bottom:2.5rem;}
+.especialidade{background:rgba(213,179,84,0.06);border-left:3px solid var(--ouro);padding:1rem 1.5rem;margin-bottom:2.5rem;font-style:italic;font-size:0.95rem;color:#3a2a10;line-height:1.7;}
+.obras-lista{list-style:none;display:flex;flex-direction:column;gap:0.5rem;}
+.obra-item{display:flex;align-items:baseline;gap:0.8rem;padding:0.6rem 0;border-bottom:1px solid rgba(213,179,84,0.1);font-size:0.95rem;color:#2a1a08;}
+.obra-item::before{content:'—';color:rgba(213,179,84,0.4);flex-shrink:0;}
+.rodape{background:var(--azul);padding:2rem 3rem;margin-top:4rem;text-align:center;border-top:1px solid rgba(213,179,84,0.15);}
+.rodape-txt{font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.15em;color:rgba(213,179,84,0.3);text-transform:uppercase;line-height:2;}
+.rodape-link{color:rgba(213,179,84,0.5);text-decoration:none;}
+.rodape-link:hover{color:var(--ouro);}
+.atualizado{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.12em;color:rgba(213,179,84,0.25);text-transform:uppercase;text-align:right;margin-top:3rem;}
+@media(max-width:768px){.cabecalho,.conteudo{padding:1.5rem;}.autor-nome{font-size:2rem;}}
+</style>
+</head>
+<body>
+<div class="cabecalho">
+  <div class="cab-nav">
+    <a href="portal_instituto_celeiro_literario.html">Celeiro Literário</a>
+    <span>/</span>
+    <a href="site_das_letras_edicoes_literarias.html">Site das Letras</a>
+    <span>/</span>
+    <a href="site_editorial_biografias.html">Biografias</a>
+    <span>/</span>
+    <a href="#" style="color:var(--ouro);">${autor.nome}</a>
+  </div>
+  <div class="eixo-badge" style="border-color:${cor};color:${cor};">// ${eixoLabel(bio.eixo || autor.eixo)}</div>
+  <div class="autor-nome">${autor.nome}</div>
+  <div class="autor-origem">${bio.origem || autor.origem || ''}</div>
+</div>
+
+<div class="conteudo">
+  ${bio.bio ? `
+  <div class="secao-label">// BIOGRAFIA</div>
+  <div class="linha-ouro"></div>
+  <div class="bio-texto">${bio.bio}</div>
+  ` : ''}
+
+  ${bio.especialidade ? `
+  <div class="especialidade">${bio.especialidade}</div>
+  ` : ''}
+
+  ${obras.length ? `
+  <div class="secao-label">// OBRAS PUBLICADAS</div>
+  <div class="linha-ouro"></div>
+  <ul class="obras-lista">
+    ${obras.map(o => `<li class="obra-item">${o}</li>`).join('')}
+  </ul>
+  ` : ''}
+
+  <div class="atualizado">Última atualização: ${bio.atualizado || new Date().toLocaleDateString('pt-BR')}</div>
+</div>
+
+<div class="rodape">
+  <div class="rodape-txt">
+    Site das Letras Edições Literárias & Multimídia<br>
+    SIGMAL — São Roque International Global Music, Arts & Letters Academy<br>
+    <a href="site_editorial_biografias.html" class="rodape-link">← Voltar às Biografias</a>
+  </div>
+</div>
+</body>
+</html>`;
+}
+
+function gerarHtmlIndice() {
+  const autoresComBio = AUTORES.filter(a => bios[a.id]?.bio);
+
+  const cards = autoresComBio.map(a => {
+    const bio = bios[a.id];
+    const cor = corEixo(bio.eixo || a.eixo);
+    const obras = (bio.obras || []).filter(o => o.trim());
+    return `
+    <a href="biografia_${a.id}.html" class="bio-card">
+      <div class="bio-faixa" style="background:${cor};"></div>
+      <div class="bio-corpo">
+        <div class="bio-eixo" style="color:${cor};">${eixoLabel(bio.eixo || a.eixo).toUpperCase()}</div>
+        <div class="bio-nome">${a.nome}</div>
+        <div class="bio-origem">${bio.origem || a.origem || ''}</div>
+        ${bio.especialidade ? `<div class="bio-espec">${bio.especialidade.substring(0, 120)}${bio.especialidade.length > 120 ? '...' : ''}</div>` : ''}
+        <div class="bio-obras">${obras.length} obra${obras.length !== 1 ? 's' : ''} publicada${obras.length !== 1 ? 's' : ''}</div>
+      </div>
+    </a>`;
+  }).join('');
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biografias · Site das Letras</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#07182b;--azul-mid:#10294a;--ouro:#d6b354;--papel:#fff8df;--tinta:#1a1208;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--papel);color:var(--tinta);font-family:'Libre Baskerville',Georgia,serif;min-height:100vh;}
+.cabecalho{background:var(--azul);padding:2.5rem 3rem;border-bottom:3px solid var(--ouro);}
+.cab-nav{display:flex;gap:1rem;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;}
+.cab-nav a{font-family:'Space Mono',monospace;font-size:0.55rem;letter-spacing:0.15em;color:rgba(213,179,84,0.5);text-decoration:none;text-transform:uppercase;}
+.cab-nav a:hover{color:var(--ouro);}
+.cab-nav span{color:rgba(213,179,84,0.2);}
+.cab-titulo{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(2rem,5vw,3rem);color:var(--ouro);margin-bottom:0.5rem;}
+.cab-desc{font-family:'Libre Baskerville',serif;font-style:italic;font-size:0.85rem;color:rgba(213,179,84,0.45);max-width:600px;line-height:1.7;}
+.busca-container{background:var(--azul-mid);padding:1rem 3rem;border-bottom:1px solid rgba(213,179,84,0.1);position:sticky;top:0;z-index:100;}
+.busca{background:rgba(213,179,84,0.05);border:1px solid rgba(213,179,84,0.15);color:#f5edd8;font-family:'Libre Baskerville',serif;font-size:0.85rem;padding:0.6rem 1rem;outline:none;width:100%;max-width:400px;}
+.busca::placeholder{color:rgba(213,179,84,0.3);font-style:italic;}
+.busca:focus{border-color:var(--ouro);}
+.container{max-width:1300px;margin:0 auto;padding:2.5rem 3rem;}
+.cnt{font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.15em;color:rgba(213,179,84,0.3);text-transform:uppercase;margin-bottom:1.5rem;}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;}
+.bio-card{background:white;border:1px solid rgba(122,95,26,0.12);text-decoration:none;color:var(--tinta);display:block;transition:all 0.3s;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.bio-card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,0.12);border-color:rgba(213,179,84,0.3);}
+.bio-faixa{height:3px;width:100%;}
+.bio-corpo{padding:1.2rem 1.5rem;}
+.bio-eixo{font-family:'Space Mono',monospace;font-size:0.42rem;letter-spacing:0.22em;text-transform:uppercase;margin-bottom:0.3rem;}
+.bio-nome{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.15rem;color:var(--tinta);margin-bottom:0.2rem;line-height:1.2;}
+.bio-origem{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.1em;color:#8899aa;text-transform:uppercase;margin-bottom:0.7rem;}
+.bio-espec{font-style:italic;font-size:0.78rem;color:#3a2a10;line-height:1.5;margin-bottom:0.7rem;}
+.bio-obras{font-family:'Space Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:rgba(122,95,26,0.5);text-transform:uppercase;}
+.rodape{background:var(--azul);padding:2rem 3rem;margin-top:3rem;text-align:center;border-top:1px solid rgba(213,179,84,0.1);}
+.rodape-txt{font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.15em;color:rgba(213,179,84,0.25);text-transform:uppercase;line-height:2;}
+.rodape-link{color:rgba(213,179,84,0.4);text-decoration:none;}
+.rodape-link:hover{color:var(--ouro);}
+.vazio{text-align:center;padding:4rem;color:#8899aa;font-style:italic;}
+@media(max-width:768px){.cabecalho,.container,.busca-container{padding:1.2rem;}.grade{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="cabecalho">
+  <div class="cab-nav">
+    <a href="portal_instituto_celeiro_literario.html">Celeiro Literário</a>
+    <span>/</span>
+    <a href="site_das_letras_edicoes_literarias.html">Site das Letras</a>
+    <span>/</span>
+    <a href="site_editorial.html">Sala Editorial</a>
+    <span>/</span>
+    <a href="#" style="color:var(--ouro);">Biografias</a>
+  </div>
+  <div class="cab-titulo">Biografias dos Escritores</div>
+  <div class="cab-desc">Conheça os autores do Site das Letras Edições Literárias. Cada biografia é atualizada a cada nova obra publicada.</div>
+</div>
+
+<div class="busca-container">
+  <input type="text" class="busca" id="busca" placeholder="Buscar por nome ou especialidade..." oninput="filtrar()">
+</div>
+
+<div class="container">
+  <div class="cnt" id="cnt">${autoresComBio.length} autor${autoresComBio.length !== 1 ? 'es' : ''} no catálogo</div>
+  <div class="grade" id="grade">
+    ${cards || '<div class="vazio">Nenhuma biografia publicada ainda.</div>'}
+  </div>
+</div>
+
+<div class="rodape">
+  <div class="rodape-txt">
+    Site das Letras Edições Literárias & Multimídia<br>
+    SIGMAL — São Roque International Global Music, Arts & Letters Academy<br>
+    <a href="site_editorial.html" class="rodape-link">← Voltar à Sala Editorial</a>
+  </div>
+</div>
+
+<script>
+const cards = document.querySelectorAll('.bio-card');
+function filtrar() {
+  const busca = document.getElementById('busca').value.toLowerCase();
+  let vis = 0;
+  cards.forEach(c => {
+    const txt = c.textContent.toLowerCase();
+    const show = !busca || txt.includes(busca);
+    c.style.display = show ? 'block' : 'none';
+    if (show) vis++;
+  });
+  document.getElementById('cnt').textContent = vis + ' autor' + (vis !== 1 ? 'es' : '') + ' no catálogo';
+}
+<\/script>
+</body>
+</html>`;
+}
+
+// ===== NOTIFICAÇÕES =====
+function notif(titulo, texto, tipo='ok') {
+  const c = document.getElementById('notif');
+  const el = document.createElement('div');
+  el.className = `notif-item ${tipo}`;
+  el.innerHTML = `<div class="notif-tit">${titulo}</div><div class="notif-txt">${texto}</div>`;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 6000);
+}
+
+// ===== INIT =====
+carregarConfig();
+renderizarAutores(AUTORES);
+</script>
+</body>
+</html>
