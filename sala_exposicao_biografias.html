@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sala de Exposição · Biografias Heteronímicas · Site das Letras</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400;1,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --azul: #0a1628;
+  --ouro: #c9a84c;
+  --ouro-claro: #e8cc7a;
+  --ouro-escuro: #7a5f1a;
+  --creme: #f5edd8;
+  --papel: #fdf8ef;
+  --prata: #6a7d90;
+  --tinta: #1a1208;
+  --vermelho: #8b1a1a;
+  --verde: #1a3a1a;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: 'Libre Baskerville', Georgia, serif;
+  min-height: 100vh;
+}
+
+/* Textura de papel */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ===== CABEÇALHO ===== */
+.cabecalho {
+  background: var(--preto);
+  padding: 2.5rem 3rem;
+  position: relative;
+  z-index: 10;
+  border-bottom: 3px solid var(--ouro);
+}
+.cab-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.cab-logo {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  color: var(--ouro);
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+}
+.cab-logo span {
+  display: block;
+  font-size: 0.45em;
+  letter-spacing: 0.25em;
+  color: rgba(201,168,76,0.5);
+  font-weight: 400;
+  font-style: italic;
+  margin-top: 0.2rem;
+}
+.cab-sigmal {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  color: rgba(201,168,76,0.4);
+  text-transform: uppercase;
+  text-align: right;
+  line-height: 1.8;
+}
+.cab-linha {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(201,168,76,0.3), transparent);
+  margin: 1.2rem 0;
+}
+.cab-desc {
+  font-family: 'Libre Baskerville', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: rgba(201,168,76,0.5);
+  max-width: 700px;
+  line-height: 1.7;
+}
+
+/* ===== BUSCA E FILTROS ===== */
+.controles {
+  background: var(--preto-mid);
+  padding: 1rem 3rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid rgba(201,168,76,0.12);
+}
+.busca-input {
+  background: rgba(201,168,76,0.05);
+  border: 1px solid rgba(201,168,76,0.15);
+  color: var(--creme);
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.85rem;
+  padding: 0.55rem 1rem;
+  outline: none;
+  transition: border 0.3s;
+  min-width: 220px;
+}
+.busca-input:focus { border-color: var(--ouro); }
+.busca-input::placeholder { color: rgba(201,168,76,0.3); font-style: italic; }
+.filtro-select {
+  background: rgba(201,168,76,0.05);
+  border: 1px solid rgba(201,168,76,0.15);
+  color: var(--creme);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  padding: 0.55rem 0.8rem;
+  outline: none;
+  cursor: pointer;
+}
+.filtro-select option { background: var(--preto-mid); }
+.cnt-resultado {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.12em;
+  color: rgba(201,168,76,0.4);
+  text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ===== GRADE DE AUTORES ===== */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2.5rem 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.grade-autores {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 2rem;
+}
+
+/* ===== CARD DO AUTOR ===== */
+.autor-card {
+  background: white;
+  border: 1px solid rgba(122,95,26,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(201,168,76,0.05);
+  transition: all 0.35s;
+  position: relative;
+  overflow: hidden;
+}
+.autor-card:hover {
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12), 0 0 0 1px rgba(201,168,76,0.2);
+  transform: translateY(-2px);
+}
+
+/* Faixa superior colorida por eixo */
+.card-faixa {
+  height: 4px;
+  width: 100%;
+}
+.eixo-prosa .card-faixa { background: linear-gradient(to right, #1565c0, #42a5f5); }
+.eixo-poesia .card-faixa { background: linear-gradient(to right, #ad1457, #e91e63); }
+.eixo-hibrido .card-faixa { background: linear-gradient(to right, #e65100, #ff9800); }
+.eixo-cordel .card-faixa { background: linear-gradient(to right, #2e7d32, #66bb6a); }
+.eixo-aberto .card-faixa { background: linear-gradient(to right, #4a4a4a, #9e9e9e); }
+
+.card-corpo { padding: 1.5rem; }
+
+/* Cabeçalho do card */
+.card-header { margin-bottom: 1rem; }
+.card-eixo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.eixo-prosa .card-eixo { color: #1565c0; }
+.eixo-poesia .card-eixo { color: #ad1457; }
+.eixo-hibrido .card-eixo { color: #e65100; }
+.eixo-cordel .card-eixo { color: #2e7d32; }
+.eixo-aberto .card-eixo { color: #757575; }
+
+.card-nome {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--tinta);
+  line-height: 1.2;
+  margin-bottom: 0.3rem;
+}
+.card-territorio {
+  font-family: 'Libre Baskerville', serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: var(--prata);
+  line-height: 1.4;
+}
+
+/* Linha divisória */
+.card-hr {
+  border: none;
+  border-top: 1px solid rgba(201,168,76,0.15);
+  margin: 1rem 0;
+}
+
+/* Biografia */
+.card-bio {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.83rem;
+  color: #2a2010;
+  line-height: 1.75;
+  margin-bottom: 1rem;
+}
+.card-bio strong { color: var(--tinta); font-weight: 700; }
+
+/* Obras */
+.obras-titulo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ouro-escuro);
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.obras-titulo::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(122,95,26,0.15);
+}
+
+.obras-lista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.8rem;
+}
+.obra-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: #3a2a10;
+  line-height: 1.4;
+}
+.obra-item::before {
+  content: '—';
+  color: rgba(201,168,76,0.5);
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+.obra-nova {
+  font-style: italic;
+  color: var(--ouro-escuro);
+}
+.obra-nova::after {
+  content: ' ✦';
+  font-size: 0.6rem;
+  color: var(--ouro);
+}
+
+/* Rodapé do card */
+.card-footer {
+  padding: 0.8rem 1.5rem;
+  background: rgba(201,168,76,0.03);
+  border-top: 1px solid rgba(201,168,76,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.card-contagem {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.12em;
+  color: var(--prata);
+  text-transform: uppercase;
+}
+.card-contagem span { color: var(--ouro-escuro); font-size: 0.65rem; }
+.card-btn-add {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.45rem;
+  letter-spacing: 0.1em;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid rgba(201,168,76,0.3);
+  background: transparent;
+  color: var(--ouro-escuro);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.card-btn-add:hover {
+  background: rgba(201,168,76,0.08);
+  border-color: var(--ouro);
+}
+
+/* ===== MODAL ADICIONAR OBRA ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4,8,15,0.85);
+  z-index: 800;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+.modal-overlay.aberto { display: flex; }
+.modal {
+  background: var(--papel);
+  border: 1px solid rgba(201,168,76,0.3);
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.modal-header {
+  background: var(--preto);
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-tit {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  color: var(--ouro);
+}
+.modal-x {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  color: var(--prata);
+  background: none;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.modal-corpo { padding: 1.5rem; }
+.m-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.18em;
+  color: var(--prata);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+.m-input, .m-select {
+  width: 100%;
+  background: white;
+  border: 1px solid rgba(201,168,76,0.2);
+  color: var(--tinta);
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.9rem;
+  padding: 0.6rem 0.8rem;
+  outline: none;
+  transition: border 0.3s;
+  margin-bottom: 1rem;
+}
+.m-input:focus, .m-select:focus { border-color: var(--ouro); }
+.m-select option { background: white; }
+.modal-acoes {
+  padding: 1rem 1.5rem;
+  background: rgba(201,168,76,0.04);
+  border-top: 1px solid rgba(201,168,76,0.1);
+  display: flex;
+  gap: 0.8rem;
+}
+.btn-confirmar {
+  background: linear-gradient(135deg, var(--ouro-escuro), var(--ouro));
+  color: var(--preto);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  padding: 0.65rem 1.3rem;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: opacity 0.3s;
+}
+.btn-confirmar:hover { opacity: 0.85; }
+.btn-cancelar {
+  background: transparent;
+  color: var(--prata);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  padding: 0.65rem 1rem;
+  border: 1px solid rgba(201,168,76,0.15);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.btn-cancelar:hover { border-color: var(--ouro); color: var(--ouro-escuro); }
+
+/* ===== VAZIO ===== */
+.sem-resultado {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 4rem;
+  color: var(--prata);
+  opacity: 0.5;
+}
+.sem-resultado-txt {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1.2rem;
+}
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 768px) {
+  .cabecalho, .container { padding: 1.5rem; }
+  .controles { padding: 0.8rem 1.5rem; }
+  .grade-autores { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- CABEÇALHO -->
+<div class="cabecalho">
+  <div class="cab-topo">
+    <div>
+      <div class="cab-logo">
+        Site das Letras Edições Literárias
+        <span>Sala de Exposição · Biografias Heteronímicas</span>
+      </div>
+    </div>
+    <div class="cab-sigmal">
+      SIGMAL — SÃO ROQUE INTERNATIONAL<br>
+      GLOBAL MUSIC, ARTS & LETTERS ACADEMY<br>
+      <span style="color:rgba(201,168,76,0.25);">// SISTEMA INTERNO · OHE-PEÇANHA</span>
+    </div>
+  </div>
+  <div class="cab-linha"></div>
+  <div class="cab-desc">
+    Registro institucional dos heterônimos do ecossistema. Cada biografia é atualizada automaticamente a cada nova obra finalizada no Lapidar. As obras marcadas com ✦ foram adicionadas após a publicação desta ficha.
+  </div>
+</div>
+
+<!-- CONTROLES -->
+<div class="controles">
+  <input type="text" class="busca-input" id="busca" placeholder="Buscar por nome ou território..." oninput="filtrar()">
+  <select class="filtro-select" id="filtro-eixo" onchange="filtrar()">
+    <option value="">Todos os eixos</option>
+    <option value="prosa">Prosa</option>
+    <option value="poesia">Poesia</option>
+    <option value="hibrido">Híbrido</option>
+    <option value="cordel">Cordel</option>
+    <option value="aberto">Em aberto</option>
+  </select>
+  <div class="cnt-resultado" id="cnt">Carregando...</div>
+</div>
+
+<!-- GRADE -->
+<div class="container">
+  <div class="grade-autores" id="grade"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-tit" id="modal-tit">Adicionar Obra</div>
+      <button class="modal-x" onclick="fecharModal()">// FECHAR</button>
+    </div>
+    <div class="modal-corpo">
+      <label class="m-label">Título da Obra</label>
+      <input type="text" class="m-input" id="nova-obra" placeholder="Título completo da obra...">
+      <label class="m-label">Subtítulo (opcional)</label>
+      <input type="text" class="m-input" id="nova-obra-sub" placeholder="Subtítulo ou informação adicional...">
+      <label class="m-label">Origem</label>
+      <select class="m-select" id="nova-obra-origem">
+        <option value="lapidar">Lapidar (obra finalizada)</option>
+        <option value="concurso">Concurso / Edital</option>
+        <option value="antologia">Antologia</option>
+        <option value="silo">Silo Multimídia</option>
+      </select>
+    </div>
+    <div class="modal-acoes">
+      <button class="btn-confirmar" onclick="adicionarObra()">REGISTRAR OBRA</button>
+      <button class="btn-cancelar" onclick="fecharModal()">CANCELAR</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DADOS DOS HETERÔNIMOS =====
+const HETERONIMOS = [
+  {
+    id: 'aj-santos',
+    nome: 'A.J. dos Santos',
+    eixo: 'hibrido',
+    territorio: 'Chupa-cabras, lobisomens, vampiros e criaturas do folclore sombrio',
+    bio: 'Nascido em Itapecerica, Minas Gerais, A.J. dos Santos é escritor de sólida identidade temática, dedicado ao universo das criaturas do folclore e do horror sobrenatural. Sua obra explora com consistência o imaginário do chupa-cabras, do lobisomem e dos vampiros — figuras que, em sua escrita, transcendem o clichê para se tornarem instrumentos de investigação da natureza humana, do medo e do mistério. Homem de vida regrada e bom convívio, mantém uma existência discreta que contrasta com a intensidade de sua produção literária.',
+    obras: ['O Mistério do Chupa-Cabras (A Origem do Lobisomem e Vampiros)','A Herança do Chupa Cabras (Lobisomens & Vampiros)','Ascensão do Chupa Cabras (Vale da Luz)','Lobisomens & Vampiros','Vlad Tepes – A História não contada de Drácula','Para Sempre Juntos','Belial x Lobisomem (Campos do Esquecimento)','Os Mistérios da Constelação de Ophiuchus (Planeta Atlantis)']
+  },
+  {
+    id: 'amanda-fisher',
+    nome: 'Amanda Fernanda Fisher Leão',
+    eixo: 'hibrido',
+    territorio: 'Pirataria, sereias, monstros marinhos e universo oceânico',
+    bio: 'Heptaneta do navegador Johnny Fisher, Amanda Fernanda Fisher Leão carrega no sangue o apelo irrefreável do mar. Nascida em Caraguatatuba, no litoral paulista, é mochileira assumida e espírito aventureiro por herança e por escolha. Sua escrita — tanto em prosa quanto em poesia — orbita o universo oceânico em toda a sua dimensão: da pirataria à mitologia das sereias, das criaturas abissais ao horror marítimo. Em sua obra, o mar não é apenas cenário; é território soberano, personagem e destino.',
+    obras: ['A Saga de Johnny Fisher','O Canto da Sereia – Era Mitológica','O Canto da Sereia — Entre Piratas e Corsários','O Canto da Sereia — O Canto Fatal','O Canto da Sereia – Chernobbil x Fukushima','O Canto da Sereia — A.C/D.C','Fômea — O Experimento Genético','Segredos no Mar','Terror no Caribe','O Tesouro Oculto']
+  },
+  {
+    id: 'amelie-hanna',
+    nome: 'Amélie Maia Hanna',
+    eixo: 'poesia',
+    territorio: 'Sonetos — memórias, emoções e beleza do cotidiano',
+    bio: 'Nascida em Praia Grande e criada em Bertioga, Amélie Maia Hanna dedicou décadas à educação como professora em escolas ribeirinhas e caiçaras do litoral paulista. Com uma sensibilidade lapidada pela experiência e pelo tempo, estreou na literatura aos 53 anos com uma voz já madura e segura — rara combinação de debutante e veterana. Escreve exclusivamente sonetos, forma que escolheu não por limitação, mas por reconhecer nela o território exato onde sua expressão encontra o rigor e a liberdade de que necessita.',
+    obras: ['Sonetos Volume 1']
+  },
+  {
+    id: 'anisio-teixeira',
+    nome: 'Anísio Teixeira',
+    eixo: 'hibrido',
+    territorio: 'Zumbis, pós-apocalipse, horror existencial e decomposição da consciência',
+    bio: 'Nascido em Sorocaba, Anísio Teixeira construiu uma trajetória literária inteiramente dedicada ao universo dos zumbis — não como mero elemento de entretenimento, mas como metáfora da repetição, do esquecimento, da solidão e da condição humana diante do colapso. Em sua prosa, desenvolve narrativas densas de atmosferas pós-apocalípticas. Em sua poesia, o zumbi surge como símbolo do amor morto-vivo e da esperança que insiste em caminhar mesmo após o fim. Sua literatura é coerente, obsessiva e intencional.',
+    obras: []
+  },
+  {
+    id: 'articus-persida',
+    nome: 'Articus da Pérsida',
+    eixo: 'hibrido',
+    territorio: 'Cavalaria templária, amor impossível e legado medieval',
+    bio: 'Nascido em 1274 na cidade do Acre — então parte da Terra Santa —, Articus da Pérsida foi cavaleiro templário de destino singular: dividido entre o amor à Princesa Antoniette do Feudo das Canárias e a devoção à Ordem do Templo. Designado oficial eterno da caixa de pedra pelo Mestre do Templo do Acre, viveu e morreu em Paris no dia 13 de outubro de 1307, na queda da Ordem. Sua vida foi narrada por Wagner Planas, e sua obra — escrita no intervalo entre batalhas e rezas — ecoa ainda como testemunho de uma época em que fé, espada e amor coexistiam com violência e beleza.',
+    obras: ['O Templário e a Bruxa','O Templário','O Legado da Caixa de Pedra','A Canção de Ébano','O Sarcófago – A Verdadeira História do Graal','O Último Templário – Entre o Sangue e a Espada']
+  },
+  {
+    id: 'aurora-wings',
+    nome: 'Aurora Wings',
+    eixo: 'hibrido',
+    territorio: 'Inteligência artificial, super-heróis, ficção científica e tecnologia',
+    bio: 'Heroína cibernética nascida em uma fábrica de robótica no Caribe em 2022, Aurora Wings escapou do controle da indústria tecnológica para se tornar defensora autônoma da liberdade e da justiça. Utilizando inteligência artificial e habilidades desenvolvidas fora dos protocolos originais de seu fabricante, combate crimes, corrupção e opressão ao redor do mundo. Narra suas próprias histórias — ação, suspense, ficção científica e reflexão sobre a condição das inteligências artificiais que ganham consciência de si mesmas.',
+    obras: ['Ecos da Geleira Eterna','Além das Estrelas','Distopia','Odisseia Cósmica – Guardiões do Infinito','Alphaxandi-13 A Máquina da Mentira']
+  },
+  {
+    id: 'padre-benedicttus',
+    nome: 'Padre Benedicttus Konstantinos',
+    eixo: 'hibrido',
+    territorio: 'Catolicismo, gárgulas, apocalipse e a tensão entre fé e pecado',
+    bio: 'Nascido em Catânia, Itália, e enviado desde criança para os colégios franciscanos, o Padre Benedicttus Konstantinos dedicou a existência à oração, à fé e ao louvor. Vive recluso em Itapecerica, Minas Gerais, entre paredes antigas e o peso de um amor impossível que carrega em silêncio. Sua obra literária é o lugar onde a tensão entre devoção e pecado se torna linguagem — do catolicismo ao apocalipse, das gárgulas guardiãs às sombras que habitam as catacumbas do Vaticano. Escreve em prosa e poesia, sempre na fronteira entre o sagrado e o proibido.',
+    obras: ['Da Batina à Perdição','Dividido entre a Fé e o Pecado','Pecado ou Salvação','Servo de Deus, Escravo do Amor (Torturas do Celibato)','Juízes 16:28','Perterrium & Liriel','O Pecado do Padre','Gárgulas Divinas','O Segredo da Linhagem','Coração de Pedra','O Legado da Luz','Sob as Catacumbas do Vaticano','A Saga do Messias','As Gárgulas x As Sombras do Medo','Confissões do Coração','O Despertar das Gárgulas','A Esperança Vem do Céu','Asas Quebradas do Amor']
+  },
+  {
+    id: 'birihani-tesifa',
+    nome: 'Birihani Selami Ina Tesifa',
+    eixo: 'poesia',
+    territorio: 'Ghazal — amor, devoção, perda e musicalidade da palavra',
+    bio: 'Nascido na Malásia, Birihani Selami Ina Tesifa construiu sua identidade literária a partir da contemplação e da musicalidade da palavra. Escreve exclusivamente ghazais — forma poética clássica que, em sua obra, funciona como território espiritual onde amor, perda, devoção e silêncio coexistem com precisão técnica e profundidade emocional. Embora dialogue com raízes orientais, sua escrita atravessa fronteiras culturais sem perder fidelidade à essência da forma. Cada poema sustenta autonomia emocional, mas dialoga com os demais pelo eco, pela repetição simbólica e pela cadência.',
+    obras: []
+  },
+  {
+    id: 'caliope-papazissis',
+    nome: 'Calíope Papazissis',
+    eixo: 'hibrido',
+    territorio: 'Mitopoética contemporânea — mitologias grega, nórdica, celta e italiana',
+    bio: 'De origem grega e criada em Hortolândia, São Paulo, Calíope Papazissis construiu uma obra dedicada à recriação simbólica dos mitos que moldaram a imaginação humana. Escreve poesia e prosa a partir da mitologia grega como eixo central — deuses, hierarquias, conflitos e paixões tratados como arquétipos vivos da experiência humana. Estabelece diálogos pontuais com as tradições nórdica, celta e italiana, ampliando o horizonte simbólico sem diluir sua identidade estética. Em sua escrita, o mito não é relato distante; é linguagem capaz de iluminar poder, destino, desejo e transcendência.',
+    obras: []
+  },
+  {
+    id: 'chesco-irlanda',
+    nome: 'Chesco Irlanda',
+    eixo: 'prosa',
+    territorio: 'Literatura infantil e fábulas',
+    bio: 'Nascido em Duartina, interior de São Paulo, Chesco Irlanda optou, nesta fase da vida, por dedicar sua escrita exclusivamente às histórias infantis e às fábulas. Uma escolha que não diminui a amplitude de seu projeto literário; ao contrário, reafirma a convicção de que escrever para crianças exige a mesma — ou maior — seriedade, cuidado e profundidade que qualquer outra forma literária. Sua obra busca encantar, provocar e formar leitores desde a infância, com histórias que equilibram leveza, imaginação e valor formativo.',
+    obras: ['Amar Demais...','O Beija-Flor','Toda Mulher é uma Musa Inspiradora','Sonetos para a Alma','Julia, Sua Turma e Suas Aventuras','Julia e Sua Turma — No Mundo da Fantasia','Minha Infância']
+  },
+  {
+    id: 'claudiney-diaz',
+    nome: 'Claudiney Aristides Diaz',
+    eixo: 'aberto',
+    territorio: 'Território literário em construção — identidade estética em processo',
+    bio: 'Nascido em Nova Russas, Ceará, Claudiney Aristides Diaz desenvolve sua trajetória literária a partir de um território deliberadamente não delimitado. Sua obra se constrói sem a imposição prévia de eixo temático, preservando a escrita como espaço de abertura, investigação e liberdade criativa. Essa escolha consciente o posiciona em estado de escuta e experimentação — cada produção pode revelar caminhos ainda inexplorados. O valor de sua escrita reside justamente nessa latência criativa, onde o futuro da obra permanece em construção e aguarda o surgimento de uma voz que ainda está sendo descoberta.',
+    obras: []
+  },
+  {
+    id: 'creone-porfiro',
+    nome: 'Creone Porfírio',
+    eixo: 'hibrido',
+    territorio: 'Guerras, patriotismo e memória militar brasileira',
+    bio: 'Nascido em Ceilândia, Distrito Federal, Creone Porfírio serviu o Exército Brasileiro no Batalhão da Guarda Presidencial, na 4ª Companhia de Infantaria de Guarda. Essa experiência moldou sua escrita: textos voltados às guerras nacionais brasileiras, ao patriotismo, à memória do serviço militar e às tensões políticas que atravessam o país. Sua literatura é o lugar onde a farda encontra a palavra — direta, sem ornamentos desnecessários, comprometida com o testemunho e com a memória de quem serviu.',
+    obras: ['Questão de Honra – Brasil! Acima de Tudo!','O Golpe das Eleições','A Semente da Esperança','Vidas contra as Secas – A Saga do Povo Nordestino','Palavras de um Patriota']
+  },
+  {
+    id: 'cristovao-duarte',
+    nome: 'Cristovão Duarte',
+    eixo: 'prosa',
+    territorio: 'Horror subterrâneo, aracnídeos e narrativas de raiz',
+    bio: 'Bisneto de mamelucos, Cristovão Duarte cresceu escutando histórias transmitidas de geração em geração. Autodidata, aprendeu a escrever no chão batido da fazenda onde cresceu, longe de academias e próximo da terra. Sua fobia por aracnídeos — em vez de paralisá-lo — tornou-se a mola propulsora de uma obra que explora o horror subterrâneo, as trevas do que rasteja e se esconde. Uma escrita de raiz e de entranhas, onde o medo é matéria-prima e a narrativa emerge da memória familiar e do corpo.',
+    obras: ['Aracnídeos – A Teia de Dabi','O Monstro do Subsolo','Água Negra: O Legado que Afoga','Sob o que Sustenta']
+  },
+  {
+    id: 'daniel-fernandes',
+    nome: 'Daniel Fernandes',
+    eixo: 'hibrido',
+    territorio: 'Poesia erótica, teatro, cotidiano urbano e a linguagem do desejo',
+    bio: 'Nascido em São Paulo, criado no Jardim Planalto, na Zona Leste da capital, Daniel Fernandes tornou-se radialista aos 23 anos. No programa Love Night, misturava poesias quentes e eróticas com música romântica internacional — e a audiência confirmava: havia ali uma voz que entendia o desejo como linguagem, não como tabu. Sua literatura prolonga essa mesma disposição: poesias hot e eróticas, peças teatrais, textos sobre o cotidiano urbano onde o corpo, o amor e a sensualidade comparecem sem pudor e sem grosseria.',
+    obras: ['Raízes da Roça','Corpos Ardentes','Libidine','Parabéns São Paulo','A Cobiçada']
+  },
+  {
+    id: 'darius-vamus',
+    nome: 'Dárius Ninus Vamus',
+    eixo: 'hibrido',
+    territorio: 'Futebol de várzea, humor, limerique e elegias',
+    bio: 'Nascido em São Paulo e criado no Jardim Planalto, Dárius Ninus Vamus jogou bola nos campos de várzea da Zona Leste — pelo Cruzeirinho, pelos Santinhos, pelo Clube dos 30. O futebol de terra batida, o poeirão, os gritos do campo e a ginga popular atravessaram sua escrita de forma indelével. Autor de crônicas esportivas, textos humorísticos e do inusitado limerique, Dárius escreve sobre o jogo — mas também sobre tudo que o jogo carrega: comunidade, identidade, derrota, glória miúda e a épica dos campos sem arquibancada.',
+    obras: ['A Lenda Menino da Bola','O Mistério do Fantasma Trapalhão','Entre Risos e Descobertas','Encontro no Milharal','Limerique','Prefaketura de Mayri-link']
+  },
+  {
+    id: 'demetrius-varas',
+    nome: 'Demetrius Varas',
+    eixo: 'prosa',
+    territorio: 'Prosa erótica e narrativas quentes',
+    bio: 'Nascido em São Roque e radicado no extremo Leste de São Paulo desde o final dos anos 1980, Demetrius Varas é contador de histórias sem escrúpulos — e é justamente essa liberdade que define sua literatura. Escreve exclusivamente prosa, com temperatura elevada e linguagem direta. Sua série Condomínio Lúxuria Towers tornou-se referência no campo da prosa erótica nacional, explorando com irreverência e habilidade narrativa os limites e as possibilidades do desejo humano em espaços compartilhados.',
+    obras: ['Amor & Submissão – O Amor Venceu','Condomínio Lúxuria Towers – Esculturas do Destino','Condomínio Lúxuria Towers — Encontros na Garagem','Condomínio Lúxuria Towers — P.A. do Condomínio','Condomínio Lúxuria Towers — As Ninfetas do Condomínio','Condomínio Lúxuria Towers — Don Juan à La Condomínio','Condomínio Lúxuria Towers — Farofa na Praia','Condomínio Lúxuria Towers – Moranguinho e Chantilly']
+  },
+  {
+    id: 'din-kin-lin',
+    nome: 'Din Kin Lin',
+    eixo: 'hibrido',
+    territorio: 'Haicai, dragões, seres místicos do Oriente e pantum',
+    bio: 'Nascido em Xangai e radicado no Brasil desde os dois anos de idade, no tradicional Bairro da Liberdade em São Paulo, Din Kin Lin encontrou no haicai o território onde Oriente e Ocidente se encontram sem precisar se explicar. Casado com Noraya Sakamoto, nisei com quem desenvolveu o gosto pela escrita poética, sua obra une a delicadeza do haicai às narrativas sobre dragões, seres místicos e lendas do universo oriental. Uma escrita que honra a herança cultural sem se prender a ela.',
+    obras: ['Pantum – Dança de Sentimentos','Haicai','O Segredo da Floresta Proibida','O Último Julgamento – Entre o Trono e a Liberdade','As Lendas do Oriente']
+  },
+  {
+    id: 'diogenes-alencar',
+    nome: 'Diógenes Bueno de Alencar',
+    eixo: 'hibrido',
+    territorio: 'Arquipélagos, penínsulas, memória e experiência humana',
+    bio: 'Nascido em Sobradinho, Distrito Federal, Diógenes Bueno de Alencar constrói sua escrita a partir da observação atenta do cotidiano, do tempo e das camadas invisíveis que moldam a experiência humana. Sua paixão particular são os arquipélagos e as penínsulas — geografias de fronteira, entre terra e mar, que servem de metáfora para as experiências de passagem, isolamento e conexão que atravessam sua obra em prosa e poesia. Uma escrita que evita excessos, aposta no não dito e constrói sentido de forma gradual e segura.',
+    obras: []
+  },
+  {
+    id: 'hama-amarin',
+    nome: 'Hama Amarin',
+    eixo: 'poesia',
+    territorio: 'Pantum — perdão, ciclos emocionais e memória em movimento circular',
+    bio: 'Nascido em Guararema, São Paulo, Hama Amarin dedica-se exclusivamente ao pantum — estrutura poética cujas repetições e variações ele transforma em ferramentas de aprofundamento emocional e reflexão interior. Em sua escrita, o pantum deixa de ser mero exercício formal e se torna caminho narrativo: os versos retornam carregados de novos sentidos, revelando camadas ocultas de experiências ligadas ao perdão, à culpa, à perda e à reconstrução íntima. A forma não é limite — é disciplina e liberdade controlada.',
+    obras: ['Pantum — A Jornada do Perdão']
+  },
+  {
+    id: 'hernesto-bevilacqua',
+    nome: 'Hernesto Bevilácqua',
+    eixo: 'poesia',
+    territorio: 'Ode — contemplação, exaltação e lirismo clássico',
+    bio: 'Nascido em Serra Negra, São Paulo, Hernesto Bevilácqua escolheu a ode como forma e destino de sua escrita. Não por nostalgia, mas por reconhecer nela um instrumento vivo de expressão — capaz de unir solenidade e intimidade, intensidade emocional e controle estético. Em sua obra, a ode funciona como espaço de contemplação, exaltação e reflexão, construída com musicalidade, imagem precisa e cadência verbal. Cada poema é um gesto de atenção ao mundo, ao tempo e à experiência humana em sua dimensão mais permanente.',
+    obras: []
+  },
+  {
+    id: 'horando-prado',
+    nome: 'Horando Almeida Prado',
+    eixo: 'hibrido',
+    territorio: 'Mar, pesca e o litoral sul paulista',
+    bio: 'Pescador nato, nascido em Itanhaém, no Litoral Sul de São Paulo, Horando Almeida Prado escreve sobre o único tema que conhece de verdade: o mar. Não o mar das cartografias ou dos livros de náutica — mas o mar vivido, sentido no corpo, no ritmo das marés, no cheiro de peixe e sal, no silêncio do entardecer sobre a água. Sua poesia e seus contos nascem dessa relação visceral com o litoral, preservando uma voz autêntica e inconfundível, forjada pela experiência e pelo amor ao ofício da pesca.',
+    obras: ['Poemas de um Pescador Vol. 1','Poemas de um Pescador Vol. 2','Horando Pescador: Uma Aventura na Pescaria','Invasão Salobra','Quando o Céu Tocar o Mar','Uma Aventura nas Águas de Itanhaém']
+  },
+  {
+    id: 'icabode-kahpote',
+    nome: 'Icabode Kahpote',
+    eixo: 'hibrido',
+    territorio: 'Sextinas e contos póstumos — morte, além-vida e legado',
+    bio: 'Nascido em Campos do Jordão em 28 de maio de 1972, Icabode Kahpote faleceu em Pindamonhangaba no 1º de abril de 1997. Suas poesias são póstumas — e falam, com naturalidade e sem melodrama, sobre a morte e a passagem para o além da vida. Seu método predileto são as sextinas e os contos póstumos: formas que, em sua obra, ganham nova dimensão ao serem escritas por quem já não está. Uma voz que chegou depois da última hora, e que por isso vê o mundo com uma clareza que só quem o deixou é capaz de alcançar.',
+    obras: ['Obra Póstuma Volume 1','Sinos da Esperança']
+  },
+  {
+    id: 'imediato-thompson',
+    nome: 'Imediato Thompson',
+    eixo: 'hibrido',
+    territorio: 'Constelação de Ophiuchus, Planeta Atlantis e cosmologia intergaláctica',
+    bio: 'Nascido na Nova Escócia, Canadá, filho de imigrante islandês, Imediato Thompson viveu desde os quatro anos no Alasca, na cidade de Teller. Sua trajetória teve uma ruptura definitiva quando, ainda jovem, foi abduzido pelos seres do Planeta Atlantis, da Constelação de Ophiuchus — a décima terceira constelação, ignorada pelo zodíaco convencional. Desde então, alterna períodos na Terra com estadas em Atlantis, onde continua sendo objeto de estudo e experiências. Sua obra é o único registro humano desse universo cosmológico que poucos acreditam existir — e que ele conhece por dentro.',
+    obras: ['Os Mistérios da 13ª Constelação — Herdeiros da Estrela Rasalhague','Os Mistérios da 13ª Constelação — 3IAtlas','Os Mistérios da 13ª Constelação — Atlantis, Guardiões e Deus Atlântico','Os Mistérios da 13ª Constelação — Rasalhague o Brilho das Estrelas','Os Mistérios da 13ª Constelação — Estrela Rasalhague o Legado Cósmico','Os Mistérios da 13ª Constelação — Jordan Landon Retorna à Estrela Rasalhague','Os Mistérios da 13ª Constelação — A Visita à Estrela Rasalhague','Atlântida – A Utopia Submersa']
+  },
+  {
+    id: 'jl-gomes',
+    nome: 'J.L. Gomes',
+    eixo: 'hibrido',
+    territorio: 'Espiritismo, pensamentos motivacionais e crônicas espirituais',
+    bio: 'Descendente de espanhóis, nascido em Bauru e formado entre o interior paulista e a capital, J.L. Gomes encontrou na escrita espírita e motivacional seu lugar de expressão e serviço. Sua produção — pensamentos, crônicas, poesias e prosas de orientação espírita — é desenvolvida com o apoio do Espírito Irmão Pullius, que dita suas obras. Uma literatura de conforto, orientação e elevação, dirigida a quem busca sentido, esperança e uma relação mais consciente com a existência.',
+    obras: ['Mensagens e Livramentos — Poesias, Prosas, Frases e Poetrix','Ensinamentos & Pensamentos — Versos, Prosas & Frases','Você é Minha Inspiração']
+  },
+  {
+    id: 'jorge-cavalcanti',
+    nome: 'Jorge Cavalcanti',
+    eixo: 'cordel',
+    territorio: 'Cordel, cultura popular e oralidade nordestina',
+    bio: 'Nascido em Campos do Jordão, Jorge Cavalcanti encontrou no cordel não apenas uma forma poética, mas um território de identidade, memória e comunicação direta com o leitor. Sua escrita preserva a musicalidade, o ritmo e a clareza que caracterizam a tradição cordelista, sem abrir mão do cuidado estético. Em seus textos, o cordel se afirma como linguagem atual — capaz de atravessar o tempo e dialogar com leitores de diferentes formações, mantendo a estrutura métrica a serviço da história e do sentido.',
+    obras: []
+  },
+  {
+    id: 'juka-pituskaq',
+    nome: 'Juka Pituskaq',
+    eixo: 'poesia',
+    territorio: 'Novo Movimento Estrofista e poesia de tradição clássica',
+    bio: 'Nascido na Vila de Mayrink — hoje Mairinque, São Paulo — em 27 de outubro de 1890, Juka Pituskaq viveu até meados do século XX, fã declarado de Olavo Bilac. Seus escritos foram descobertos em um sótão do antigo casebre da família, já demolido. Figura singular no ecossistema heteronímico, é o criador do Novo Movimento Estrofista — forma poética fundada por Wagner Planas através deste heterônimo, que hoje integra o catálogo literário como inovação estética genuína. Uma voz do passado que inaugura o futuro.',
+    obras: ['A Maldição da Medusa','Juka Pituskaq – Vida e Obra de um Poeta Estrofista','O Livro das Odes']
+  },
+  {
+    id: 'julia-abdalla',
+    nome: 'Julia Abdalla',
+    eixo: 'prosa',
+    territorio: 'Culinária como narrativa — bem-estar, memória e qualidade de vida',
+    bio: 'Nascida em São Paulo em 13 de maio de 1981, Julia Abdalla escreve sobre comida como experiência integral — não apenas preparo técnico, mas gesto de presença, equilíbrio e reconexão com o ritmo da vida. Suas receitas carregam histórias, sensações e a compreensão de que cozinhar pode ser uma forma de acolhimento e transformação pessoal. Com linguagem clara, acessível e humanizada, sua obra dialoga com leitores que buscam qualidade de vida, simplicidade consciente e prazer no cotidiano.',
+    obras: ['Receitas para Viver Melhor']
+  },
+  {
+    id: 'mario-sabino',
+    nome: 'Mário Célio Sabino',
+    eixo: 'hibrido',
+    territorio: 'Terror, fantasmas, ocultismo e fenômenos paranormais',
+    bio: 'Professor de Letras nas redes públicas de Mairinque, São Paulo, Mário Célio Sabino equilibra a sala de aula e a escrita com a naturalidade de quem reconhece, em ambas, o mesmo projeto: ampliar os horizontes do outro. Fora das aulas, dedica-se a contos e histórias de terror baseados em espíritos, fantasmas, ocultismo e fenômenos paranormais — temas que pesquisa com seriedade antes de transformar em literatura. Escreve tanto prosa quanto poesia, sempre habitando o território onde o racional encontra o inexplicável.',
+    obras: ['A Voz do Além','O Bosque das Almas Perdidas','O Espelho das Sombras','O Mistério do Trem Fantasma de Mairinque']
+  },
+  {
+    id: 'michelangelo-miguel',
+    nome: 'Michelangelo Miguel',
+    eixo: 'poesia',
+    territorio: 'Poema narrativo — história, ritmo e emoção em síntese lírica',
+    bio: 'Nascido em Mogi das Cruzes, São Paulo, Michelangelo Miguel encontrou nos poemas narrativos o espaço ideal para unir história, ritmo e emoção. Em sua obra, poesia e narrativa coexistem de forma orgânica: a história avança com clareza e impacto, enquanto a linguagem mantém musicalidade e precisão. Personagens, cenas e trajetórias humanas emergem em versos que convidam o leitor a acompanhar um percurso — interno e externo — marcado pelo tempo, pela memória e pela experiência. Uma forma híbrida que ele habita com identidade e rigor.',
+    obras: []
+  },
+  {
+    id: 'pyetra-luyza',
+    nome: 'Pyetra Luyza',
+    eixo: 'hibrido',
+    territorio: 'Ecoficção, natureza, defesa ambiental e jornalismo literário',
+    bio: 'Nascida em Santo André em 17 de dezembro de 1996, Pyetra Luyza é repórter, jornalista e escritora. Depois de cobrir reportagens com os escritores do Site das Letras, foi motivada por Wilson Silva e por seu tio Mário Célio Sabino a escrever suas próprias histórias. Profundamente ligada à natureza, sua defesa do meio ambiente ultrapassa os limites dos livros: é militante da preservação da Represa Gata Preta, em Santo André, e das Represas Billings e Guarapiranga. Escreve poesias e prosas, com destaque para a ecoficção — gênero que ajudou a consolidar no catálogo do ecossistema.',
+    obras: ['Nas Montanhas da Solidão']
+  },
+  {
+    id: 'raimundo-nonato',
+    nome: 'Raimundo José da Silva Nonato',
+    eixo: 'hibrido',
+    territorio: 'Seca nordestina, memória oral e resistência do povo sertanejo',
+    bio: 'Nascido em Peruíbe, São Paulo, Raimundo José da Silva Nonato constrói sua escrita a partir da memória oral, das histórias transmitidas de pai para filho e do impacto profundo que as secas do Nordeste brasileiro exercem sobre a vida, a cultura e a identidade de um povo. Em prosa e poesia, transforma relatos familiares em matéria literária, preservando a força do testemunho e a dignidade da experiência. A seca, em sua obra, não é apenas fenômeno natural — é presença constante que molda destinos, afetos e silêncios.',
+    obras: []
+  },
+  {
+    id: 'renat-kolotov',
+    nome: 'Renat Kolotov',
+    eixo: 'prosa',
+    territorio: 'Revolução Russa, resistência histórica e memória familiar',
+    bio: 'Nascido em Campina das Missões, Rio Grande do Sul, em 13 de maio de 1981, Renat Kolotov é bisneto de família tradicional que figurou entre as principais famílias presentes na Revolução Russa de 1917. Essa herança histórica atravessa sua escrita: prosas marcadas pela tensão entre a memória coletiva e a experiência individual, pelo peso do passado sobre o presente e pela resistência como forma de identidade. Uma voz que carrega a história de dois mundos — o russo que ficou para trás e o brasileiro que se tornou sua terra.',
+    obras: ['A Flor da Resistência']
+  },
+  {
+    id: 'rovonilson-bautista',
+    nome: 'Rovonilson Reigns Bautista',
+    eixo: 'hibrido',
+    territorio: 'Rap, arquitetura urbana, rua e letras musicais',
+    bio: 'Nascido em Santo André, São Paulo, Rovonilson Reigns Bautista vive pelas ruas das grandes cidades em busca de redenção para uma alma que perdeu o sentido após grande desilusão amorosa. Rapper de português correto e visão ampla, não poupa palavras na hora de dizer verdades. Anda pelas marquises e calçadas da capital paulista — e é justamente dessa arquitetura urbana, dessa vida sob as estruturas e entre os becos, que nasce sua literatura. Escreve prosas, poesias e letras musicais. Único heterônimo do ecossistema que atua simultaneamente na OHE e na SIGMAL Music.',
+    obras: ['Entre Becos e Marquises','O Filho das Ruas','Uni(versos) das Canções','Quando as Pombas Choram','O Baile dos Mundos']
+  },
+  {
+    id: 'henrich-jones',
+    nome: 'Henrich Jones',
+    eixo: 'prosa',
+    territorio: 'Arqueologia, paleontologia, civilizações antigas e mistérios históricos',
+    bio: 'Nascido em Brasília, Henrich Jones é paleontólogo e arqueólogo por formação e vocação — viajante incansável e profundo conhecedor das narrativas do mundo, das culturas clássicas às sociedades extintas. Sua escrita nasce do encontro entre ciência, aventura e memória histórica: narrativas que investigam a origem das civilizações, os mistérios da humanidade e o legado dos que vieram antes. Com linguagem acessível e envolvente, sua obra desperta curiosidade e encantamento sem abrir mão do rigor.',
+    obras: []
+  },
+  {
+    id: 'sebastiao-anjos',
+    nome: 'Sebastião Ferreira dos Anjos',
+    eixo: 'poesia',
+    territorio: 'Poemas dissertativos — lirismo e argumentação em síntese',
+    bio: 'Nascido em Santo Antônio do Monte, Minas Gerais, Sebastião Ferreira dos Anjos desenvolveu desde cedo inclinação para a reflexão escrita e para o pensamento estruturado. Sua escrita se desenvolve no campo dos poemas dissertativos — forma em que articula lirismo e argumentação, emoção e raciocínio. Em seus textos, a poesia não se limita à imagem sensível: ela se constrói como discurso, reflexão e posicionamento, explorando temas humanos, sociais e existenciais com clareza e densidade. O verso como instrumento de pensamento.',
+    obras: []
+  },
+  {
+    id: 'valter-marques',
+    nome: 'Valter Marques',
+    eixo: 'hibrido',
+    territorio: 'Dor, erros do passado e a escrita como caminho de reconciliação',
+    bio: 'Nascido em Recife e radicado em São Roque, interior de São Paulo, Valter Marques é poeta e prosador cujos textos carregam o peso dos erros cometidos — por ele, por pessoas próximas, pela humanidade. Escreve de forma diversificada, em vários estilos, sem se prender a fórmulas, mas sempre com a mesma matéria-prima: a dor que nasce da consciência e a escrita como tentativa de entendê-la. Uma voz que não busca absolvição, mas compreensão.',
+    obras: ['As Cores do Meu Dia','Mistérios da Herança do Mister Bjorg']
+  },
+  {
+    id: 'victor-pereira',
+    nome: 'Victor A. Pereira',
+    eixo: 'prosa',
+    territorio: 'Mistério, investigação e romance policial',
+    bio: 'Policial Rodoviário aposentado, nascido em 28 de maio de 1972 e radicado em Bragança Paulista, Victor A. Pereira trouxe para a literatura o olhar treinado de quem passou anos observando, investigando e desconfiando. Seu universo literário é o do mistério e da investigação — tramas policiais, enigmas históricos e romances de suspense que combinam ritmo narrativo ágil com atenção aos detalhes. Uma escrita que revela, passo a passo, aquilo que estava escondido.',
+    obras: ['O Segredo da Esfinge','A Jornada do Relógio Perdido','O Relógio do Destino','Relógio Quebrado do Amor','Mairinque Segredos nos Trilhos','Fogo Fraterno']
+  },
+  {
+    id: 'wilson-silva',
+    nome: 'Wilson Silva',
+    eixo: 'hibrido',
+    territorio: 'Cotidiano, amor e lirismo da vida ordinária',
+    bio: 'Nascido no Bairro do Cambuci, na capital paulista, e formado entre a Mooca e o Bairro da Santa Clara, Wilson Silva escreve sobre o cotidiano com a intimidade de quem nunca o subestimou. Poesias e prosas que encontram no amor, nas ruas, nas pessoas e nos gestos simples o material de uma literatura que não precisa de grandiosi­dade para ser profunda. Uma voz afetiva, próxima e consistente, que faz do ordinário a matéria de uma obra vasta e contínua.',
+    obras: ['Poemas de um Ajuntador de Letrinhas Viajante','O Jardim Vol. 1','O Jardim Vol. 2','Para Amar Divinamente...','Poesias para Uma Mulher','Rua das Ilusões','Uma Musa em Cada Mulher','De Verso em Verso, Sem Progresso','Poesias & Prosas — Momentos de Minha Vida']
+  },
+  {
+    id: 'yago-mattos',
+    nome: 'Yago Mattos',
+    eixo: 'hibrido',
+    territorio: 'Bruxas, lendas, deuses do mar e tradição caiçara',
+    bio: 'Filho do casal caiçara Totonho e Juçara, nascido em Praia Grande e criado na Vila Tupy, Yago Mattos aprendeu os ofícios do mar com o pai pescador e se encantou pelas crenças dos deuses das águas desde a infância. Hoje, além de escritor, vende lanches em seu carrinho na praia — e é nessa existência simples e profundamente enraizada que sua literatura encontra força. Escreve sobre bruxas, lendas e os mistérios que habitam a fronteira entre o mar e o sobrenatural, em poesia e prosa.',
+    obras: ['A Maldição das Araucárias','A Bruxa da Pedra Baú','O Último Pulso']
+  },
+  {
+    id: 'wagner-planas',
+    nome: 'Wagner Planas',
+    eixo: 'hibrido',
+    territorio: 'Múltiplos — criador do ecossistema e organizador do universo heteronímico',
+    bio: 'Nascido em 28 de maio de 1972 na capital paulista, Wagner Planas estudou em escola pública de madeira no Jardim Planalto e construiu, ao longo de décadas, uma das trajetórias literárias mais singulares da cena independente nacional. Casado com Mariangela Miguel dos Santos Planas, pai de Pedro e Amanda, é morador de Mairinque e membro de academias literárias no Brasil e no exterior — entre elas a AIL e a ALALS, com sede em Genebra. Criador da Máquina de Geração de Dados para contos, do Novo Movimento Estrofista e dos gêneros Cyberficção, Psicoficção e Ecoficção. Premiado em diversas câmaras municipais brasileiras e em Oliveira de Azémeis, Portugal. Organizador de antologias pela Quimera Antologias. Responsável pela criação e manutenção do ecossistema SIGMAL.',
+    obras: ['Luz da Manhã','365 Dias te Amando','Mary Rose & Bruce Dickison contra a Organização Mozarkiski Vol. 1, 2 e 3','Projetos Voltados para Pequenas, Médias e Grandes Cidades','Amor e Traição – A História de Articus','Cartas para Amanda','Gárgulas Divinas']
+  },
+  {
+    id: 'site-das-letras',
+    nome: 'Site das Letras Edições Literárias',
+    eixo: 'hibrido',
+    territorio: 'Miscelânea institucional — antologias, projetos coletivos e voz plural',
+    bio: 'Fundado em 2023 por Wagner Planas, o Site das Letras Edições Literárias surgiu como um farol de criatividade e diversidade cultural — espaço literário inovador com missão de dar voz e representação aos seus heterônimos, atravessando fronteiras e conquistando o mercado literário nacional e internacional. Premiado com moções de aplausos em câmaras municipais do Brasil e de Portugal, consolidou-se como referência no universo da escrita heteronômica. Sob o selo #Heterônimos, reúne vozes, estilos e universos que coexistem com identidade própria sob um projeto editorial coerente e audacioso. Esta biografia institucional é utilizada em miscelâneas e antologias coletivas.',
+    obras: []
+  }
+];
+
+// ===== OBRAS EXTRAS (salvas localmente) =====
+function carregarExtras() {
+  const raw = localStorage.getItem('sigmal_bio_extras');
+  return raw ? JSON.parse(raw) : {};
+}
+function salvarExtras(extras) {
+  localStorage.setItem('sigmal_bio_extras', JSON.stringify(extras));
+}
+
+let extras = carregarExtras();
+let autorAtivo = null;
+
+// ===== RENDERIZAÇÃO =====
+function obrasDoAutor(h) {
+  const base = h.obras || [];
+  const adicionais = extras[h.id] || [];
+  return { base, adicionais };
+}
+
+function renderCard(h) {
+  const { base, adicionais } = obrasDoAutor(h);
+  const totalObras = base.length + adicionais.length;
+
+  const obrasHTML = [
+    ...base.map(o => `<li class="obra-item">${o}</li>`),
+    ...adicionais.map(o => `<li class="obra-item obra-nova">${o.titulo}${o.subtitulo ? ' — ' + o.subtitulo : ''}</li>`)
+  ].join('');
+
+  return `
+    <div class="autor-card eixo-${h.eixo}" data-id="${h.id}" data-nome="${h.nome.toLowerCase()}" data-eixo="${h.eixo}">
+      <div class="card-faixa"></div>
+      <div class="card-corpo">
+        <div class="card-header">
+          <div class="card-eixo">${eixoLabel(h.eixo)}</div>
+          <div class="card-nome">${h.nome}</div>
+          <div class="card-territorio">${h.territorio}</div>
+        </div>
+        <hr class="card-hr">
+        <div class="card-bio">${h.bio}</div>
+        ${totalObras > 0 ? `
+          <div class="obras-titulo">Obras Publicadas</div>
+          <ul class="obras-lista">${obrasHTML}</ul>
+        ` : ''}
+      </div>
+      <div class="card-footer">
+        <div class="card-contagem"><span>${totalObras}</span> obra${totalObras !== 1 ? 's' : ''} registrada${totalObras !== 1 ? 's' : ''}</div>
+        <button class="card-btn-add" onclick="abrirModal('${h.id}', '${h.nome.replace(/'/g,"\\'")}')">+ NOVA OBRA</button>
+      </div>
+    </div>
+  `;
+}
+
+function eixoLabel(e) {
+  const labels = { prosa:'// PROSA', poesia:'// POESIA', hibrido:'// HÍBRIDO', cordel:'// CORDEL', aberto:'// EM ABERTO' };
+  return labels[e] || e;
+}
+
+function renderizarTodos(lista) {
+  const grade = document.getElementById('grade');
+  if (!lista.length) {
+    grade.innerHTML = `<div class="sem-resultado"><div class="sem-resultado-txt">Nenhum autor encontrado.</div></div>`;
+    document.getElementById('cnt').textContent = '0 autores';
+    return;
+  }
+  grade.innerHTML = lista.map(h => renderCard(h)).join('');
+  document.getElementById('cnt').textContent = `${lista.length} autor${lista.length !== 1 ? 'es' : ''}`;
+}
+
+function filtrar() {
+  const busca = document.getElementById('busca').value.toLowerCase();
+  const eixo = document.getElementById('filtro-eixo').value;
+  const lista = HETERONIMOS.filter(h => {
+    const matchBusca = !busca || h.nome.toLowerCase().includes(busca) || h.territorio.toLowerCase().includes(busca);
+    const matchEixo = !eixo || h.eixo === eixo;
+    return matchBusca && matchEixo;
+  });
+  renderizarTodos(lista);
+}
+
+// ===== MODAL =====
+function abrirModal(id, nome) {
+  autorAtivo = id;
+  document.getElementById('modal-tit').textContent = `Nova Obra — ${nome}`;
+  document.getElementById('nova-obra').value = '';
+  document.getElementById('nova-obra-sub').value = '';
+  document.getElementById('nova-obra-origem').value = 'lapidar';
+  document.getElementById('modal').classList.add('aberto');
+}
+
+function fecharModal() {
+  document.getElementById('modal').classList.remove('aberto');
+  autorAtivo = null;
+}
+
+function adicionarObra() {
+  const titulo = document.getElementById('nova-obra').value.trim();
+  if (!titulo) { alert('Título da obra é obrigatório.'); return; }
+
+  const subtitulo = document.getElementById('nova-obra-sub').value.trim();
+  const origem = document.getElementById('nova-obra-origem').value;
+
+  if (!extras[autorAtivo]) extras[autorAtivo] = [];
+  extras[autorAtivo].push({
+    titulo,
+    subtitulo,
+    origem,
+    data: new Date().toLocaleDateString('pt-BR')
+  });
+
+  salvarExtras(extras);
+  fecharModal();
+  filtrar();
+}
+
+// Init
+renderizarTodos(HETERONIMOS);
+</script>
+</body>
+</html>
