@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Publicador em Lote · Biografias · SIGMAL HQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,400;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --ouro: #c9a84c;
+  --ouro-claro: #e8cc7a;
+  --ouro-escuro: #7a5f1a;
+  --creme: #f5edd8;
+  --prata: #6a7d90;
+  --verde: #00c853;
+  --vermelho: #d32f2f;
+  --laranja: #ff9800;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--preto);
+  color: var(--creme);
+  font-family: 'Crimson Pro', Georgia, serif;
+  min-height: 100vh;
+  padding: 2rem;
+}
+.topo {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(201,168,76,0.15);
+}
+.topo-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 1.5rem;
+  color: var(--ouro);
+  letter-spacing: 0.15em;
+  margin-bottom: 0.3rem;
+}
+.topo-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.2em;
+  color: var(--prata);
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+.config {
+  background: rgba(201,168,76,0.05);
+  border: 1px solid rgba(201,168,76,0.15);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.8rem;
+}
+.fg { display: flex; flex-direction: column; gap: 0.3rem; }
+.fl {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.45rem;
+  letter-spacing: 0.15em;
+  color: var(--prata);
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+.fi {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.12);
+  color: var(--creme);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.8rem;
+  outline: none;
+  width: 100%;
+}
+.fi:focus { border-color: rgba(201,168,76,0.4); }
+.acoes {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.btn-p {
+  background: linear-gradient(135deg, var(--ouro-escuro), var(--ouro));
+  color: var(--preto);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  clip-path: polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px));
+}
+.btn-p:hover { opacity: 0.85; }
+.btn-p:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-s {
+  background: transparent;
+  color: var(--ouro);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid rgba(201,168,76,0.25);
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.btn-s:hover { border-color: var(--ouro); }
+/* PROGRESSO GERAL */
+.progresso-geral {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.15);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.prog-titulo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  color: var(--ouro);
+  opacity: 0.6;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.prog-numeros {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.prog-num {
+  font-family: 'Cinzel', serif;
+  font-size: 2rem;
+  color: var(--ouro);
+  line-height: 1;
+}
+.prog-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.45rem;
+  letter-spacing: 0.1em;
+  color: var(--prata);
+  text-transform: uppercase;
+  margin-top: 0.2rem;
+}
+.barra-geral {
+  height: 6px;
+  background: rgba(201,168,76,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+.barra-fill {
+  height: 100%;
+  background: linear-gradient(to right, var(--ouro-escuro), var(--ouro));
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+.prog-pct {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  color: var(--ouro);
+  opacity: 0.6;
+  text-align: right;
+}
+/* LOG */
+.log-container {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.08);
+  padding: 1rem;
+  height: 300px;
+  overflow-y: auto;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.05em;
+  line-height: 1.8;
+}
+.log-ok { color: var(--verde); }
+.log-erro { color: #ff6b6b; }
+.log-info { color: var(--ouro); opacity: 0.6; }
+.log-aviso { color: var(--laranja); }
+/* LISTA DE AUTORES */
+.autores-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+.autor-status-item {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.06);
+  padding: 0.7rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.status-icon {
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+}
+.autor-nome-item {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  color: var(--creme);
+  flex: 1;
+}
+.autor-result {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.result-ok { color: var(--verde); }
+.result-erro { color: #ff6b6b; }
+.result-aguardando { color: var(--prata); opacity: 0.4; }
+.result-publicando { color: var(--laranja); animation: pisca 1s ease-in-out infinite; }
+@keyframes pisca { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@media (max-width: 768px) {
+  .config { grid-template-columns: 1fr; }
+  body { padding: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="topo">
+  <div class="topo-logo">PUBLICADOR EM LOTE · BIOGRAFIAS</div>
+  <div class="topo-sub">Fernando Peçanha · OHE · SIGMAL HQ · 49 Autores</div>
+</div>
+
+<!-- CONFIG -->
+<div class="config">
+  <div class="fg">
+    <label class="fl">Token GitHub</label>
+    <input type="password" class="fi" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
+  </div>
+  <div class="fg">
+    <label class="fl">Repositório</label>
+    <input type="text" class="fi" id="gh-repo" value="sitedasletras/CeleiroLiterario">
+  </div>
+  <div class="fg">
+    <label class="fl">Branch</label>
+    <input type="text" class="fi" id="gh-branch" value="main">
+  </div>
+</div>
+
+<!-- AÇÕES -->
+<div class="acoes">
+  <button class="btn-p" id="btn-publicar" onclick="publicarTodas()">📤 PUBLICAR TODAS AS 49 BIOGRAFIAS</button>
+  <button class="btn-s" onclick="salvarConfig()">SALVAR CONFIG</button>
+  <button class="btn-s" onclick="testarConexao()">TESTAR CONEXÃO</button>
+</div>
+
+<!-- PROGRESSO -->
+<div class="progresso-geral">
+  <div class="prog-titulo">// PROGRESSO DA PUBLICAÇÃO</div>
+  <div class="prog-numeros">
+    <div>
+      <div class="prog-num" id="cnt-ok">0</div>
+      <div class="prog-label">Publicados</div>
+    </div>
+    <div>
+      <div class="prog-num" id="cnt-erro">0</div>
+      <div class="prog-label">Erros</div>
+    </div>
+    <div>
+      <div class="prog-num" id="cnt-total">49</div>
+      <div class="prog-label">Total</div>
+    </div>
+  </div>
+  <div class="barra-geral">
+    <div class="barra-fill" id="barra-fill" style="width:0%"></div>
+  </div>
+  <div class="prog-pct" id="prog-pct">0%</div>
+</div>
+
+<!-- LOG -->
+<div class="log-container" id="log"></div>
+
+<!-- LISTA DE AUTORES -->
+<div class="autores-lista" id="lista-autores"></div>
+
+<script>
+// ===== DADOS COMPLETOS DOS 49 AUTORES =====
+const BIOGRAFIAS = [
+  {
+    id: 'aj-santos',
+    nome: 'A.J. dos Santos',
+    eixo: 'hibrido',
+    origem: 'Itapecerica, MG',
+    bio: 'Nascido em Itapecerica, Minas Gerais, A.J. dos Santos é escritor de sólida identidade temática, dedicado ao universo das criaturas do folclore e do horror sobrenatural. Sua obra explora com consistência o imaginário do chupa-cabras e do lobisomem — figuras que, em sua escrita, transcendem o clichê para se tornarem instrumentos de investigação da natureza humana, do medo e do mistério. Homem de vida regrada e bom convívio, mantém uma existência discreta que contrasta com a intensidade de sua produção literária. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve terror psicológico rural com foco em Chupa-Cabras e Lobisomens — criaturas do folclore brasileiro que, em sua obra, carregam profundidade humana e horror genuíno.',
+    obras: ['O Mistério do Chupa-Cabras (A Origem do Lobisomem e Vampiros)', 'A Herança do Chupa Cabras (Lobisomens & Vampiros)', 'Ascensão do Chupa Cabras (Vale da Luz)', 'Lobisomens & Vampiros', 'Vlad Tepes – A História não contada de Drácula', 'Para Sempre Juntos', 'Belial x Lobisomem (Campos do Esquecimento)', 'Os Mistérios da Constelação de Ophiuchus (Planeta Atlantis)']
+  },
+  {
+    id: 'amanda-fisher',
+    nome: 'Amanda Fernanda Fisher Leão',
+    eixo: 'hibrido',
+    origem: 'Caraguatatuba, SP',
+    bio: 'Heptaneta do navegador Johnny Fisher, Amanda Fernanda Fisher Leão carrega no sangue o apelo irrefreável do mar. Nascida em Caraguatatuba, no litoral paulista, é mochileira assumida e espírito aventureiro por herança e por escolha. Sua escrita orbita o universo oceânico em toda a sua dimensão: da pirataria à mitologia das sereias, das criaturas abissais ao horror marítimo. Em sua obra, o mar não é apenas cenário — é território soberano, personagem e destino. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre pirataria, sereias mitológicas de diferentes culturas do mundo e o Fomea — criatura marinha única nascida de experimento genético. O mar épico e mítico como território central.',
+    obras: ['A Saga de Johnny Fisher', 'O Canto da Sereia – Era Mitológica', 'O Canto da Sereia — Entre Piratas e Corsários', 'O Canto da Sereia — O Canto Fatal', 'O Canto da Sereia – Chernobbil x Fukushima', 'O Canto da Sereia — A.C/D.C', 'Fômea — O Experimento Genético', 'Segredos no Mar', 'Terror no Caribe', 'O Tesouro Oculto']
+  },
+  {
+    id: 'amelie-hanna',
+    nome: 'Amélie Maia Hanna',
+    eixo: 'poesia',
+    origem: 'Praia Grande / Bertioga, SP',
+    bio: 'Nascida em Praia Grande e criada em Bertioga, Amélie Maia Hanna dedicou décadas à educação como professora em escolas ribeirinhas e caiçaras do litoral paulista. Com uma sensibilidade lapidada pela experiência e pelo tempo, estreou na literatura aos 53 anos com uma voz já madura e segura. Escreve exclusivamente sonetos, forma que escolheu não por limitação, mas por reconhecer nela o território exato onde sua expressão encontra o rigor e a liberdade de que necessita. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Poetisa exclusivamente de sonetos — memórias afetivas, cotidiano e emoções tratadas com rigor formal e voz madura.',
+    obras: ['Sonetos Volume 1']
+  },
+  {
+    id: 'anisio-teixeira',
+    nome: 'Anísio Teixeira',
+    eixo: 'hibrido',
+    origem: 'Sorocaba, SP',
+    bio: 'Nascido em Sorocaba, Anísio Teixeira construiu uma trajetória literária inteiramente dedicada ao universo dos zumbis — não como mero elemento de entretenimento, mas como metáfora da repetição, do esquecimento, da solidão e da condição humana diante do colapso. Em sua prosa, desenvolve narrativas densas de atmosferas pós-apocalípticas. Em sua poesia, o zumbi surge como símbolo do amor morto-vivo e da esperança que insiste em caminhar mesmo após o fim. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre zumbis, pós-apocalipse e horror existencial — o zumbi como metáfora profunda da condição humana diante do colapso.',
+    obras: []
+  },
+  {
+    id: 'articus-persida',
+    nome: 'Articus da Pérsida',
+    eixo: 'hibrido',
+    origem: 'Acre, Terra Santa (1274)',
+    bio: 'Nascido em 1274 na cidade do Acre — então parte da Terra Santa —, Articus da Pérsida foi cavaleiro templário de destino singular: dividido entre o amor à Princesa Antoniette do Feudo das Canárias e a devoção à Ordem do Templo. Designado oficial eterno da caixa de pedra pelo Mestre do Templo do Acre, viveu e morreu em Paris no dia 13 de outubro de 1307, na queda da Ordem. Sua vida foi narrada por Wagner Planas, e sua obra ecoa ainda como testemunho de uma época em que fé, espada e amor coexistiam com violência e beleza. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre cavalaria templária, amor impossível e o legado medieval — narrativas de honra, fé e paixão proibida ambientadas na Europa e Terra Santa do século XIII.',
+    obras: ['O Templário e a Bruxa', 'O Templário', 'O Legado da Caixa de Pedra', 'A Canção de Ébano', 'O Sarcófago – A Verdadeira História do Graal', 'O Último Templário – Entre o Sangue e a Espada']
+  },
+  {
+    id: 'aurora-wings',
+    nome: 'Aurora Wings',
+    eixo: 'hibrido',
+    origem: 'Caribe (2022)',
+    bio: 'Heroína cibernética nascida em uma fábrica de robótica no Caribe em 2022, Aurora Wings escapou do controle da indústria tecnológica para se tornar defensora autônoma da liberdade e da justiça. Utilizando inteligência artificial e habilidades desenvolvidas fora dos protocolos originais de seu fabricante, combate crimes, corrupção e opressão ao redor do mundo. Narra suas próprias histórias — ação, suspense, ficção científica e reflexão sobre a condição das inteligências artificiais que ganham consciência de si mesmas. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve ficção científica reflexiva, distopia, aventuras espaciais em novos universos, androides e super-heróis — com foco na identidade e na liberdade como temas centrais.',
+    obras: ['Ecos da Geleira Eterna', 'Além das Estrelas', 'Distopia', 'Odisseia Cósmica – Guardiões do Infinito', 'Alphaxandi-13 A Máquina da Mentira']
+  },
+  {
+    id: 'padre-benedicttus',
+    nome: 'Padre Benedicttus Konstantinos',
+    eixo: 'hibrido',
+    origem: 'Catânia, Itália',
+    bio: 'Nascido em Catânia, Itália, e enviado desde criança para os colégios franciscanos, o Padre Benedicttus Konstantinos dedicou a existência à oração, à fé e ao louvor. Vive recluso em Itapecerica, Minas Gerais, entre paredes antigas e o peso de um amor impossível que carrega em silêncio. Sua obra literária é o lugar onde a tensão entre devoção e pecado se torna linguagem — do catolicismo ao apocalipse, das gárgulas guardiãs às sombras que habitam as catacumbas do Vaticano. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve catolicismo gótico — a guerra entre o celibato e o amor, as gárgulas como guardiãs com consciência, o apocalipse como cenário da fé que vacila.',
+    obras: ['Da Batina à Perdição', 'Dividido entre a Fé e o Pecado', 'Pecado ou Salvação', 'Servo de Deus, Escravo do Amor (Torturas do Celibato)', 'Juízes 16:28', 'Perterrium & Liriel', 'O Pecado do Padre', 'Gárgulas Divinas', 'O Segredo da Linhagem', 'Coração de Pedra', 'O Legado da Luz', 'Sob as Catacumbas do Vaticano', 'A Saga do Messias', 'As Gárgulas x As Sombras do Medo', 'Confissões do Coração', 'O Despertar das Gárgulas', 'A Esperança Vem do Céu', 'Asas Quebradas do Amor']
+  },
+  {
+    id: 'birihani-tesifa',
+    nome: 'Birihani Selami Ina Tesifa',
+    eixo: 'poesia',
+    origem: 'Malásia',
+    bio: 'Nascido na Malásia, Birihani Selami Ina Tesifa construiu sua identidade literária a partir da contemplação e da musicalidade da palavra. Escreve exclusivamente ghazais — forma poética clássica que, em sua obra, funciona como território espiritual onde amor, perda, devoção e silêncio coexistem com precisão técnica e profundidade emocional. Cada poema sustenta autonomia emocional, mas dialoga com os demais pelo eco, pela repetição simbólica e pela cadência. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Poeta exclusivamente de ghazais — amor, devoção e perda tratados com musicalidade e precisão técnica da tradição poética oriental.',
+    obras: []
+  },
+  {
+    id: 'caliope-papazissis',
+    nome: 'Calíope Papazissis',
+    eixo: 'hibrido',
+    origem: 'Hortolândia, SP',
+    bio: 'De origem grega e criada em Hortolândia, São Paulo, Calíope Papazissis construiu uma obra dedicada à recriação simbólica dos mitos que moldaram a imaginação humana. Escreve poesia e prosa a partir da mitologia grega como eixo central — deuses, hierarquias, conflitos e paixões tratados como arquétipos vivos da experiência humana. Estabelece diálogos pontuais com as tradições nórdica, celta e italiana. Em sua escrita, o mito não é relato distante — é linguagem capaz de iluminar poder, destino, desejo e transcendência. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve mitopoética contemporânea — mitologias grega, nórdica, celta e italiana recontadas como arquétipos vivos da experiência humana.',
+    obras: []
+  },
+  {
+    id: 'chesco-irlanda',
+    nome: 'Chesco Irlanda',
+    eixo: 'prosa',
+    origem: 'Duartina, SP',
+    bio: 'Nascido em Duartina, interior de São Paulo, Chesco Irlanda optou por dedicar sua escrita exclusivamente às histórias infantis e às fábulas — convicto de que escrever para crianças exige a mesma, ou maior, seriedade e profundidade que qualquer outra forma literária. Sua obra busca encantar, provocar e formar leitores desde a infância, com histórias que equilibram leveza, imaginação e valor formativo. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve literatura infantil e infanto-juvenil — histórias que equilibram imaginação, leveza e valor formativo sem abrir mão da seriedade literária.',
+    obras: ['Amar Demais...', 'O Beija-Flor', 'Toda Mulher é uma Musa Inspiradora', 'Sonetos para a Alma', 'Julia, Sua Turma e Suas Aventuras', 'Julia e Sua Turma — No Mundo da Fantasia', 'Minha Infância']
+  },
+  {
+    id: 'claudiney-diaz',
+    nome: 'Claudiney Aristides Diaz',
+    eixo: 'hibrido',
+    origem: 'Nova Russas, CE',
+    bio: 'Nascido em Nova Russas, Ceará, Claudiney Aristides Diaz desenvolve sua trajetória literária a partir de um território deliberadamente não delimitado. Sua obra se constrói sem a imposição prévia de eixo temático, preservando a escrita como espaço de abertura, investigação e liberdade criativa. O valor de sua escrita reside nessa latência criativa, onde o futuro da obra permanece em construção. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escritor em processo de descoberta — sua identidade literária está sendo construída organicamente, sem território temático pré-definido.',
+    obras: []
+  },
+  {
+    id: 'creone-porfiro',
+    nome: 'Creone Porfírio',
+    eixo: 'hibrido',
+    origem: 'Ceilândia, DF',
+    bio: 'Nascido em Ceilândia, Distrito Federal, Creone Porfírio serviu o Exército Brasileiro no Batalhão da Guarda Presidencial, na 4ª Companhia de Infantaria de Guarda. Essa experiência moldou sua escrita: textos voltados às guerras nacionais brasileiras, ao patriotismo, à memória do serviço militar e às tensões políticas que atravessam o país. Sua literatura é o lugar onde a farda encontra a palavra — direta, sem ornamentos desnecessários, comprometida com o testemunho. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre patriotismo puro, guerras brasileiras e memória militar — o amor ao Brasil como valor absoluto e inabalável em cada texto.',
+    obras: ['Questão de Honra – Brasil! Acima de Tudo!', 'O Golpe das Eleições', 'A Semente da Esperança', 'Vidas contra as Secas – A Saga do Povo Nordestino', 'Palavras de um Patriota']
+  },
+  {
+    id: 'cristovao-duarte',
+    nome: 'Cristovão Duarte',
+    eixo: 'prosa',
+    origem: 'Interior de SP',
+    bio: 'Bisneto de mamelucos, Cristovão Duarte cresceu escutando histórias transmitidas de geração em geração. Autodidata, aprendeu a escrever no chão batido da fazenda onde cresceu. Sua fobia por aracnídeos — em vez de paralisá-lo — tornou-se a mola propulsora de uma obra que explora o horror subterrâneo, as trevas do que rasteja e se esconde. Uma escrita de raiz e de entranhas, onde o medo é matéria-prima. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre aracnídeos e horror subterrâneo — narrativas de suspense e aventura onde o que rasteja nas trevas é sempre mais do que parece.',
+    obras: ['Aracnídeos – A Teia de Dabi', 'O Monstro do Subsolo', 'Água Negra: O Legado que Afoga', 'Sob o que Sustenta']
+  },
+  {
+    id: 'daniel-fernandes',
+    nome: 'Daniel Fernandes',
+    eixo: 'poesia',
+    origem: 'São Paulo, SP',
+    bio: 'Nascido em São Paulo, criado no Jardim Planalto, na Zona Leste da capital, Daniel Fernandes tornou-se radialista aos 23 anos. No programa Love Night, misturava poesias quentes e eróticas com música romântica internacional. Sua literatura prolonga essa mesma disposição: poesias sensuais e eróticas onde o desejo é tratado como linguagem literária digna, nunca como pastiche. Cada poema é uma musa diferente — um universo de desejo único. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Poeta do desejo e da sensualidade — cada poema é uma musa diferente. Linguagem direta, com pudor literário, jamais vulgar.',
+    obras: ['Raízes da Roça', 'Corpos Ardentes', 'Libidine', 'Parabéns São Paulo', 'A Cobiçada']
+  },
+  {
+    id: 'darius-vamus',
+    nome: 'Dárius Ninus Vamus',
+    eixo: 'hibrido',
+    origem: 'São Paulo, SP',
+    bio: 'Nascido em São Paulo e criado no Jardim Planalto, Dárius Ninus Vamus jogou bola nos campos de várzea da Zona Leste. O futebol de terra batida, o poeirão, os gritos do campo e a ginga popular atravessaram sua escrita de forma indelével. Autor de crônicas esportivas, textos humorísticos, limerique e elegias, Dárius escreve sobre o jogo — mas também sobre tudo que o jogo carrega: comunidade, identidade e a épica dos campos sem arquibancada. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre futebol de várzea, humor popular, limerique e elegias — o riso e a leveza como linguagem literária intencional.',
+    obras: ['A Lenda Menino da Bola', 'O Mistério do Fantasma Trapalhão', 'Entre Risos e Descobertas', 'Encontro no Milharal', 'Limerique', 'Prefaketura de Mayri-link']
+  },
+  {
+    id: 'demetrius-varas',
+    nome: 'Demetrius Varas',
+    eixo: 'prosa',
+    origem: 'São Roque, SP',
+    bio: 'Nascido em São Roque e radicado no extremo Leste de São Paulo desde o final dos anos 1980, Demetrius Varas é contador de histórias sem escrúpulos — e é justamente essa liberdade que define sua literatura. Escreve exclusivamente prosa, com temperatura elevada e linguagem direta mas com pudor literário. Seu universo é o Condomínio Lúxuria Towers — edifício onde moram personagens recorrentes com segredos, desejos e histórias entrelaçadas. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve prosa sensual e psicológica exclusivamente ambientada no Condomínio Lúxuria Towers — universo de personagens recorrentes com desejos e segredos entrelaçados.',
+    obras: ['Amor & Submissão – O Amor Venceu', 'Condomínio Lúxuria Towers – Esculturas do Destino', 'Condomínio Lúxuria Towers — Encontros na Garagem', 'Condomínio Lúxuria Towers — P.A. do Condomínio', 'Condomínio Lúxuria Towers — As Ninfetas do Condomínio', 'Condomínio Lúxuria Towers — Don Juan à La Condomínio', 'Condomínio Lúxuria Towers — Farofa na Praia', 'Condomínio Lúxuria Towers – Moranguinho e Chantilly']
+  },
+  {
+    id: 'din-kin-lin',
+    nome: 'Din Kin Lin',
+    eixo: 'hibrido',
+    origem: 'Xangai / São Paulo, SP',
+    bio: 'Nascido em Xangai e radicado no Brasil desde os dois anos de idade, no tradicional Bairro da Liberdade em São Paulo, Din Kin Lin encontrou nas lendas orientais e na cultura chinesa seu território literário definitivo. Casado com Noraya Sakamoto, que assumiu o haiku como sua forma exclusiva, Din Kin Lin dedica-se inteiramente às lendas da China e do Extremo Oriente — dragões sábios, imperadores, seres místicos e a sabedoria milenar oriental. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre lendas orientais e China — dragões como seres de sabedoria, imperadores, seres místicos e a filosofia milenar do Extremo Oriente.',
+    obras: ['O Segredo da Floresta Proibida', 'O Último Julgamento – Entre o Trono e a Liberdade', 'As Lendas do Oriente']
+  },
+  {
+    id: 'diogenes-alencar',
+    nome: 'Diógenes Bueno de Alencar',
+    eixo: 'hibrido',
+    origem: 'Sobradinho, DF',
+    bio: 'Nascido em Sobradinho, Distrito Federal, Diógenes Bueno de Alencar constrói sua escrita a partir da observação atenta do cotidiano, do tempo e das camadas invisíveis que moldam a experiência humana. Sua paixão particular são os arquipélagos e as penínsulas — geografias de fronteira, entre terra e mar, que servem de metáfora para as experiências de passagem, isolamento e conexão que atravessam sua obra. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre arquipélagos, penínsulas e memória — a geografia como metáfora da experiência humana de isolamento e conexão.',
+    obras: []
+  },
+  {
+    id: 'hama-amarin',
+    nome: 'Hama Amarin',
+    eixo: 'poesia',
+    origem: 'Guararema, SP',
+    bio: 'Nascido em Guararema, São Paulo, Hama Amarin dedica-se exclusivamente ao pantum — estrutura poética cujas repetições e variações ele transforma em ferramentas de aprofundamento emocional. Em sua escrita, o pantum deixa de ser mero exercício formal e se torna caminho narrativo: os versos retornam carregados de novos sentidos, revelando camadas ocultas de experiências ligadas ao perdão, à culpa e à reconstrução íntima. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Poeta exclusivamente de pantuns — perdão, ciclos emocionais e memória circular como territórios de uma escrita que aprofunda a cada retorno.',
+    obras: ['Pantum — A Jornada do Perdão']
+  },
+  {
+    id: 'hernesto-bevilacqua',
+    nome: 'Hernesto Bevilácqua',
+    eixo: 'poesia',
+    origem: 'Serra Negra, SP',
+    bio: 'Nascido em Serra Negra, São Paulo, Hernesto Bevilácqua escolheu a ode como forma e destino de sua escrita. Não por nostalgia, mas por reconhecer nela um instrumento vivo de expressão — capaz de unir solenidade e intimidade, intensidade emocional e controle estético. Em sua obra, a ode funciona como espaço de contemplação e exaltação, construída com musicalidade, imagem precisa e cadência verbal. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Poeta exclusivamente de odes — contemplação, exaltação e lirismo clássico com musicalidade e rigor formal.',
+    obras: []
+  },
+  {
+    id: 'horando-prado',
+    nome: 'Horando Almeida Prado',
+    eixo: 'hibrido',
+    origem: 'Itanhaém, SP',
+    bio: 'Pescador nato, nascido em Itanhaém, no Litoral Sul de São Paulo, Horando Almeida Prado escreve sobre o único tema que conhece de verdade: o mar vivido, sentido no corpo, no ritmo das marés, no cheiro de peixe e sal. A sereia de sua obra é a mulher que canta e encanta os pescadores — figura da lenda caiçara popular, nunca confundida com a figura mitológica. Suas investigações em zona portuária completam um universo literário de raiz e experiência genuína. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre o mar caiçara, a pesca e a sereia que encanta pescadores — lenda popular do litoral sul paulista com investigações em zona portuária.',
+    obras: ['Poemas de um Pescador Vol. 1', 'Poemas de um Pescador Vol. 2', 'Horando Pescador: Uma Aventura na Pescaria', 'Invasão Salobra', 'Quando o Céu Tocar o Mar', 'Uma Aventura nas Águas de Itanhaém']
+  },
+  {
+    id: 'icabode-kahpote',
+    nome: 'Icabode Kahpote',
+    eixo: 'hibrido',
+    origem: 'Campos do Jordão, SP',
+    bio: 'Nascido em Campos do Jordão em 28 de maio de 1972, Icabode Kahpote faleceu em Pindamonhangaba no 1º de abril de 1997. Suas poesias são póstumas — e falam, com naturalidade e sem melodrama, sobre a morte e a passagem para o além da vida. Escreve de onde a morte não é tema, mas ponto de vista — sextinas e contos póstumos que chegam depois da última hora com uma clareza que só quem o deixou é capaz de alcançar. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sextinas e contos póstumos — a morte como ponto de vista, não como tema. Uma voz que fala do outro lado com serenidade e clareza.',
+    obras: ['Obra Póstuma Volume 1', 'Sinos da Esperança']
+  },
+  {
+    id: 'imediato-thompson',
+    nome: 'Imediato Thompson',
+    eixo: 'hibrido',
+    origem: 'Nova Escócia, Canadá',
+    bio: 'Nascido na Nova Escócia, Canadá, filho de imigrante islandês, Imediato Thompson viveu desde os quatro anos no Alasca. Sua trajetória teve uma ruptura definitiva quando foi abduzido pelos seres do Planeta Atlantis, da Constelação de Ophiuchus — a décima terceira constelação, ignorada pelo zodíaco convencional. Desde então, alterna períodos na Terra com estadas em Atlantis. Sua obra é o único registro humano desse universo cosmológico — que ele conhece por dentro. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre a Décima Terceira Constelação de Ophiuchus, o Planeta Atlantis e a Estrela Rasalhague — território cosmológico exclusivo do qual é o único escritor humano.',
+    obras: ['Os Mistérios da 13ª Constelação — Herdeiros da Estrela Rasalhague', 'Os Mistérios da 13ª Constelação — 3IAtlas', 'Os Mistérios da 13ª Constelação — Atlantis, Guardiões e Deus Atlântico', 'Os Mistérios da 13ª Constelação — Rasalhague o Brilho das Estrelas', 'Os Mistérios da 13ª Constelação — Estrela Rasalhague o Legado Cósmico', 'Os Mistérios da 13ª Constelação — Jordan Landon Retorna à Estrela Rasalhague', 'Os Mistérios da 13ª Constelação — A Visita à Estrela Rasalhague', 'Atlântida – A Utopia Submersa']
+  },
+  {
+    id: 'jl-gomes',
+    nome: 'J.L. Gomes',
+    eixo: 'hibrido',
+    origem: 'Bauru, SP',
+    bio: 'Descendente de espanhóis, nascido em Bauru e formado entre o interior paulista e a capital, J.L. Gomes encontrou na escrita espírita e motivacional seu lugar de expressão e serviço. Sua produção é desenvolvida com o apoio do Espírito Irmão Pullius, que dita suas obras — uma coautoria espiritual declarada e literalmente real no universo de sua escrita. Uma literatura de conforto, orientação e elevação. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve literatura espírita narrativa e afetiva com o Espírito Irmão Pullius como coautor — mensagens de conforto, orientação e elevação espiritual.',
+    obras: ['Mensagens e Livramentos — Poesias, Prosas, Frases e Poetrix', 'Ensinamentos & Pensamentos — Versos, Prosas & Frases', 'Você é Minha Inspiração']
+  },
+  {
+    id: 'jorge-cavalcanti',
+    nome: 'Jorge Cavalcanti',
+    eixo: 'cordel',
+    origem: 'Campos do Jordão, SP',
+    bio: 'Nascido em Campos do Jordão, Jorge Cavalcanti encontrou no cordel não apenas uma forma poética, mas um território de identidade, memória e comunicação direta com o leitor. Sua escrita preserva a musicalidade, o ritmo e a clareza que caracterizam a tradição cordelista. Em seus textos, o cordel se afirma como linguagem atual — capaz de atravessar o tempo e dialogar com leitores de diferentes formações. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve exclusivamente cordel — a tradição cordelista como linguagem viva e atual, com métrica rigorosa e narrativa popular.',
+    obras: []
+  },
+  {
+    id: 'juka-pituskaq',
+    nome: 'Juka Pituskaq',
+    eixo: 'poesia',
+    origem: 'Mairinque, SP (1890)',
+    bio: 'Nascido na Vila de Mayrink — hoje Mairinque, São Paulo — em 27 de outubro de 1890, Juka Pituskaq viveu até meados do século XX, fã declarado de Olavo Bilac. Seus escritos foram descobertos em um sótão do antigo casebre da família. Criador do Novo Movimento Estrofista — inovação estética que hoje integra o catálogo literário como forma poética genuína. Uma voz do passado que inaugura o futuro. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Criador do Novo Movimento Estrofista — forma poética de rigor clássico que honra a tradição sem ser antiquada.',
+    obras: ['A Maldição da Medusa', 'Juka Pituskaq – Vida e Obra de um Poeta Estrofista', 'O Livro das Odes']
+  },
+  {
+    id: 'julia-abdalla',
+    nome: 'Julia Abdalla',
+    eixo: 'prosa',
+    origem: 'São Paulo, SP',
+    bio: 'Nascida em São Paulo em 13 de maio de 1981, Julia Abdalla escreve sobre comida como experiência integral — não apenas preparo técnico, mas gesto de presença, equilíbrio e reconexão com o ritmo da vida. Suas receitas carregam histórias, sensações e a compreensão de que cozinhar pode ser uma forma de acolhimento e transformação pessoal. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre culinária como narrativa — receitas que carregam memórias afetivas, histórias e o cuidado do ato de cozinhar.',
+    obras: ['Receitas para Viver Melhor']
+  },
+  {
+    id: 'mario-sabino',
+    nome: 'Mário Célio Sabino',
+    eixo: 'hibrido',
+    origem: 'Mairinque, SP',
+    bio: 'Professor de Letras nas redes públicas de Mairinque, São Paulo, Mário Célio Sabino equilibra a sala de aula e a escrita com naturalidade. Dedica-se a contos e histórias de terror baseados em espíritos, fantasmas, ocultismo e fenômenos paranormais — temas que pesquisa com seriedade antes de transformar em literatura. Escreve tanto prosa quanto poesia, sempre habitando o território onde o racional encontra o inexplicável. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve terror fantasmagórico e gótico psicológico — fantasmas, ocultismo e paranormal tratados com seriedade de pesquisa e profundidade literária.',
+    obras: ['A Voz do Além', 'O Bosque das Almas Perdidas', 'O Espelho das Sombras', 'O Mistério do Trem Fantasma de Mairinque']
+  },
+  {
+    id: 'michelangelo-miguel',
+    nome: 'Michelangelo Miguel',
+    eixo: 'poesia',
+    origem: 'Mogi das Cruzes, SP',
+    bio: 'Nascido em Mogi das Cruzes, São Paulo, Michelangelo Miguel encontrou nos poemas narrativos o espaço ideal para unir história, ritmo e emoção. Em sua obra, poesia e narrativa coexistem de forma orgânica: a história avança com clareza e impacto, enquanto a linguagem mantém musicalidade e precisão. Personagens, cenas e trajetórias humanas emergem em versos que convidam o leitor a acompanhar um percurso. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve poemas narrativos — poesia que conta histórias com personagens, cenas e trajetórias, unindo lirismo e narrativa organicamente.',
+    obras: []
+  },
+  {
+    id: 'pyetra-luyza',
+    nome: 'Pyetra Luyza',
+    eixo: 'hibrido',
+    origem: 'Santo André, SP',
+    bio: 'Nascida em Santo André em 17 de dezembro de 1996, Pyetra Luyza é repórter, jornalista e escritora. Profundamente ligada à natureza, sua defesa do meio ambiente ultrapassa os limites dos livros — é militante da preservação da Represa Gata Preta, em Santo André, e das Represas Billings e Guarapiranga. Escreve poesias e prosas, com destaque para a ecoficção. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve ecoficção e jornalismo literário — a natureza em risco como personagem central, com foco nas represas paulistanas.',
+    obras: ['Nas Montanhas da Solidão']
+  },
+  {
+    id: 'raimundo-nonato',
+    nome: 'Raimundo José da Silva Nonato',
+    eixo: 'hibrido',
+    origem: 'Peruíbe, SP',
+    bio: 'Nascido em Peruíbe, São Paulo, Raimundo José da Silva Nonato constrói sua escrita a partir da memória oral e do impacto profundo que as secas do Nordeste brasileiro exercem sobre a vida e a identidade de um povo. Em prosa e poesia, transforma relatos familiares em matéria literária, preservando a força do testemunho. A seca, em sua obra, não é apenas fenômeno natural — é presença constante que molda destinos, afetos e silêncios. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre a seca nordestina e a resistência do povo sertanejo — memória oral e testemunho como matéria literária de profundidade humana.',
+    obras: []
+  },
+  {
+    id: 'renat-kolotov',
+    nome: 'Renat Kolotov',
+    eixo: 'prosa',
+    origem: 'Campina das Missões, RS',
+    bio: 'Nascido em Campina das Missões, Rio Grande do Sul, em 13 de maio de 1981, Renat Kolotov é bisneto de família que figurou entre as principais presentes na Revolução Russa de 1917. Essa herança histórica atravessa sua escrita: prosas marcadas pela tensão entre a memória coletiva e a experiência individual, pelo peso do passado sobre o presente e pela resistência como forma de identidade. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre a Revolução Russa e resistência histórica — memória familiar de dois mundos: o russo que ficou e o brasileiro que se tornou sua terra.',
+    obras: ['A Flor da Resistência']
+  },
+  {
+    id: 'rovonilson-bautista',
+    nome: 'Rovonilson Reigns Bautista',
+    eixo: 'hibrido',
+    origem: 'Santo André, SP',
+    bio: 'Nascido em Santo André, São Paulo, Rovonilson Reigns Bautista vive pelas ruas das grandes cidades em busca de redenção para uma alma que perdeu o sentido após grande desilusão amorosa. Rapper de português correto e visão ampla, anda pelas marquises e calçadas da capital paulista — e é justamente dessa arquitetura urbana que nasce sua literatura. Escreve prosas, poesias e letras musicais. É o único heterônimo do ecossistema que atua simultaneamente na OHE e na SIGMAL Music. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve rap literário e narrativas da rua — marquises, FEBEM, vida periférica e redenção pelo verso. Único autor do catálogo que atua também na SIGMAL Music.',
+    obras: ['Entre Becos e Marquises', 'O Filho das Ruas', 'Uni(versos) das Canções', 'Quando as Pombas Choram', 'O Baile dos Mundos']
+  },
+  {
+    id: 'henrich-jones',
+    nome: 'Henrich Jones',
+    eixo: 'prosa',
+    origem: 'Brasília, DF',
+    bio: 'Nascido em Brasília, Henrich Jones é paleontólogo e arqueólogo por formação e vocação — viajante incansável e profundo conhecedor das narrativas do mundo, das culturas clássicas às sociedades extintas. Sua escrita nasce do encontro entre ciência, aventura e memória histórica: narrativas que investigam a origem das civilizações, os mistérios da humanidade e o legado dos que vieram antes. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve aventura arqueológica e mistério histórico — civilizações antigas, paleontologia e os segredos que os fósseis e ruínas ainda guardam.',
+    obras: []
+  },
+  {
+    id: 'sebastiao-anjos',
+    nome: 'Sebastião Ferreira dos Anjos',
+    eixo: 'poesia',
+    origem: 'Santo Antônio do Monte, MG',
+    bio: 'Nascido em Santo Antônio do Monte, Minas Gerais, Sebastião Ferreira dos Anjos desenvolveu desde cedo inclinação para a reflexão escrita e para o pensamento estruturado. Sua escrita se desenvolve no campo dos poemas dissertativos — forma em que articula lirismo e argumentação, emoção e raciocínio. Em seus textos, a poesia não se limita à imagem sensível: ela se constrói como discurso e posicionamento. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve poemas dissertativos — lirismo e argumentação em síntese, o verso como instrumento de pensamento e posicionamento.',
+    obras: []
+  },
+  {
+    id: 'valter-marques',
+    nome: 'Valter Marques',
+    eixo: 'hibrido',
+    origem: 'Recife, PE / São Roque, SP',
+    bio: 'Nascido em Recife e radicado em São Roque, interior de São Paulo, Valter Marques é poeta e prosador cujos textos carregam o peso dos erros cometidos — por ele, por pessoas próximas, pela humanidade. Escreve de forma diversificada, em vários estilos, sem se prender a fórmulas, mas sempre com a mesma matéria-prima: a dor que nasce da consciência e a escrita como tentativa de entendê-la. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre erros do passado, dor consciente e reconciliação humana — tanto prosa quanto poesia, a escrita como caminho de compreensão.',
+    obras: ['As Cores do Meu Dia', 'Mistérios da Herança do Mister Bjorg']
+  },
+  {
+    id: 'victor-pereira',
+    nome: 'Victor A. Pereira',
+    eixo: 'prosa',
+    origem: 'Bragança Paulista, SP',
+    bio: 'Policial Rodoviário aposentado, nascido em 28 de maio de 1972 e radicado em Bragança Paulista, Victor A. Pereira trouxe para a literatura o olhar treinado de quem passou anos observando, investigando e desconfiando. Seu universo literário é o do mistério e da investigação — tramas policiais, enigmas históricos e romances de suspense que combinam ritmo narrativo ágil com atenção aos detalhes. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve romance policial, mistério e tensão investigativa — três camadas obrigatórias em cada obra, no estilo da grande tradição do romance policial clássico.',
+    obras: ['O Segredo da Esfinge', 'A Jornada do Relógio Perdido', 'O Relógio do Destino', 'Relógio Quebrado do Amor', 'Mairinque Segredos nos Trilhos', 'Fogo Fraterno']
+  },
+  {
+    id: 'wilson-silva',
+    nome: 'Wilson Silva',
+    eixo: 'hibrido',
+    origem: 'São Paulo, SP',
+    bio: 'Nascido no Bairro do Cambuci, na capital paulista, e formado entre a Mooca e o Bairro da Santa Clara, Wilson Silva escreve sobre o cotidiano com a intimidade de quem nunca o subestimou. Poesias e prosas que encontram no amor, nas ruas, nas pessoas e nos gestos simples o material de uma literatura que não precisa de grandiosidade para ser profunda. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre o cotidiano, o amor e o lirismo da vida ordinária — o ordinário elevado pela afetividade e pelo olhar atento às pessoas.',
+    obras: ['Poemas de um Ajuntador de Letrinhas Viajante', 'O Jardim Vol. 1', 'O Jardim Vol. 2', 'Para Amar Divinamente...', 'Poesias para Uma Mulher', 'Rua das Ilusões', 'Uma Musa em Cada Mulher', 'De Verso em Verso, Sem Progresso', 'Poesias & Prosas — Momentos de Minha Vida']
+  },
+  {
+    id: 'yago-mattos',
+    nome: 'Yago Mattos',
+    eixo: 'hibrido',
+    origem: 'Praia Grande, SP',
+    bio: 'Filho do casal caiçara Totonho e Juçara, nascido em Praia Grande e criado na Vila Tupy, Yago Mattos aprendeu os ofícios do mar com o pai pescador e se encantou pelas crenças dos deuses das águas desde a infância. Hoje, além de escritor, vende lanches em seu carrinho na praia. Escreve sobre lendas urbanas contemporâneas — bruxas, maldições e misticismo que habita o cotidiano moderno, independente de localização geográfica. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve sobre lendas urbanas contemporâneas — bruxas e misticismo do cotidiano moderno, sem folclorismo regional fixo.',
+    obras: ['A Maldição das Araucárias', 'A Bruxa da Pedra Baú', 'O Último Pulso']
+  },
+  {
+    id: 'wagner-planas',
+    nome: 'Wagner Planas',
+    eixo: 'hibrido',
+    origem: 'São Paulo, SP',
+    bio: 'Nascido em 28 de maio de 1972 na capital paulista, Wagner Planas construiu, ao longo de décadas, uma das trajetórias literárias mais singulares da cena independente nacional. Casado com Mariangela Miguel dos Santos Planas, pai de Pedro e Amanda, é morador de Mairinque e membro de academias literárias no Brasil e no exterior — entre elas a AIL e a ALALS, com sede em Genebra. Criador da Máquina de Geração de Dados para contos, do Novo Movimento Estrofista e dos gêneros Cyberficção, Psicoficção e Ecoficção. Premiado em diversas câmaras municipais brasileiras e em Oliveira de Azémeis, Portugal. Organizador de antologias pela Quimera Antologias. Criador e organizador do ecossistema SIGMAL. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escritor de múltiplos territórios e criador do ecossistema heteronímico — responsável pela Máquina de Geração de Dados, pelo Novo Movimento Estrofista e pelos gêneros Cyberficção, Psicoficção e Ecoficção.',
+    obras: ['Luz da Manhã', '365 Dias te Amando', 'Mary Rose & Bruce Dickison contra a Organização Mozarkiski Vol. 1, 2 e 3', 'Projetos Voltados para Pequenas, Médias e Grandes Cidades', 'Amor e Traição – A História de Articus', 'Cartas para Amanda', 'Gárgulas Divinas']
+  },
+  {
+    id: 'noraya-sakamoto',
+    nome: 'Noraya Sakamoto',
+    eixo: 'poesia',
+    origem: 'São Paulo, SP',
+    bio: 'Nisei nascida em 8 de agosto de 1978, esposa de Din Kin Lin, Noraya Sakamoto assumiu o haiku como território exclusivo após o marido migrar para as lendas orientais e a China. Nascida da intersecção entre duas culturas, encontrou no haiku o único espaço onde Japão e Brasil coexistem sem contradição — o instante como linguagem universal. Sua escrita parte da natureza, do silêncio e do detalhe invisível que, nomeado, revela o mundo inteiro. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Poetisa exclusivamente de haiku — natureza, silêncio e instante com sensibilidade nipo-brasileira única.',
+    obras: []
+  },
+  {
+    id: 'vladislava-karnstein',
+    nome: 'Vladislava Karnstein',
+    eixo: 'hibrido',
+    origem: 'Transilvânia (1642)',
+    bio: 'Condessa de origem centro-europeia, nascida em 1642 na Transilvânia, imortalizada em 1668. Vagou pelos séculos como sombra elegante — da corte de Luís XIV ao salão literário de Vienna, da Revolução Francesa às ruas de São Paulo contemporânea. Vladislava não é a vampira do terror — é a vampira da sedução, da aristocracia sombria e da beleza que mata devagar. Escreve suas próprias memórias, que cobrem quatro séculos de existência. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve vampirismo aristocrático e sedução sombria — quatro séculos de memórias de uma condessa imortal que atravessou a história da Europa e do Brasil.',
+    obras: []
+  },
+  {
+    id: 'dona-catarina',
+    nome: 'Dona Catarina Trovante',
+    eixo: 'poesia',
+    origem: 'Curitiba, PR',
+    bio: 'Nascida em Curitiba, Paraná, filha de família de tradição trovadoresca do Sul do Brasil, Dona Catarina Trovante cresceu ouvindo trovas declamadas pelos avós em saraus domésticos. Dedicou sua vida à pesquisa e à composição de trovas, tornando-se a única representante dessa tradição no ecossistema. Cada trova sua tem título — algo raro na tradição — e a forma é sempre colocada a serviço do sentido. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve exclusivamente trovas — quadras métricas rigorosas a serviço de temas nacionais, do amor, da natureza e da crítica social.',
+    obras: []
+  },
+  {
+    id: 'santiago-poetrix',
+    nome: 'Santiago Poetrix',
+    eixo: 'hibrido',
+    origem: 'Santos, SP',
+    bio: 'Nascido em Santos, São Paulo, filho de músico e professora de literatura, Santiago Poetrix cresceu entre partituras e livros de poesia — e desde cedo sentiu que nenhum dos dois territórios era suficiente sozinho. O Poetrix, forma que pratica com exclusividade no catálogo, nasce dessa insatisfação produtiva: nem poema, nem prosa — mas algo que tem o ritmo de um e a extensão do outro. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve Poetrix — forma literária híbrida entre poesia e prosa poética. O leitor nunca sabe exatamente o que está lendo, e essa dúvida é o próprio texto.',
+    obras: []
+  },
+  {
+    id: 'irmao-ezequias',
+    nome: 'Irmão Ezequias Luz',
+    eixo: 'hibrido',
+    origem: 'Fortaleza, CE',
+    bio: 'Pastor leigo nascido em Fortaleza, Ceará, converteu-se aos 19 anos após experiência que descreve como sobrenatural. Desde então, dedica sua escrita à literatura cristã evangélica — não como pregação, mas como narrativa de batalha espiritual. Demônios derrotados pela fé, anjos guerreiros silenciosos, o terror que precede a redenção. Em cada obra, a vitória da fé não é fácil — o perigo era real. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve literatura cristã evangélica e terror espiritual — batalha entre o bem e o mal onde a redenção é conquistada, nunca garantida.',
+    obras: []
+  },
+  {
+    id: 'marina-vozes',
+    nome: 'Marina das Vozes',
+    eixo: 'hibrido',
+    origem: 'São Paulo, SP',
+    bio: 'Nascida em São Paulo, bairro de Pinheiros, filha de jornalista e arquiteta, Marina das Vozes cresceu entre redações e plantas de edifícios — e desenvolveu um olhar clínico para a cidade que ninguém mais vê porque todos vivem nela. Sua crônica urbana é precisa na observação e afetiva na conclusão — São Paulo como organismo vivo que ela ama e critica ao mesmo tempo. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve crônica urbana pura — São Paulo e a vida metropolitana observadas com ironia fina e afeto genuíno pela cidade.',
+    obras: []
+  },
+  {
+    id: 'helena-valenca',
+    nome: 'Helena Duarte Valença',
+    eixo: 'prosa',
+    origem: 'Campinas, SP',
+    bio: 'Nascida em Campinas, São Paulo, Helena Duarte Valença escreve narrativas centradas em reconstrução feminina, memória doméstica e liberdade após experiências de silenciamento. Participante do Centro de Reconstrução da Mulher, transforma relatos de controle, medo e sobrevivência em contos de forte densidade emocional. Sua escrita privilegia cenas concretas, diálogos contidos e personagens que recuperam lentamente o direito de existir com autonomia. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve narrativas de reconstrução feminina — memória doméstica e liberdade após silenciamento, com densidade emocional e cenas concretas.',
+    obras: []
+  },
+  {
+    id: 'marina-torres',
+    nome: 'Marina Torres Azevedo',
+    eixo: 'poesia',
+    origem: 'Juiz de Fora, MG',
+    bio: 'Nascida em Juiz de Fora, Minas Gerais, Marina Torres Azevedo escreve poesia voltada à reconstrução emocional de mulheres marcadas por violência verbal, silenciamento afetivo e perda simbólica da própria voz. Participante do Centro de Reconstrução da Mulher, desenvolve poemas de linguagem direta, musicalidade discreta e forte presença testemunhal. Sua escrita trabalha temas como cura, memória e retomada da autonomia feminina. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve poesia testemunhal de reconstrução feminina — cura, memória e retomada da voz com linguagem direta e musicalidade discreta.',
+    obras: []
+  },
+  {
+    id: 'clara-rios',
+    nome: 'Clara Mendes Rios',
+    eixo: 'hibrido',
+    origem: 'Sorocaba, SP',
+    bio: 'Nascida em Sorocaba, São Paulo, Clara Mendes Rios desenvolve uma escrita híbrida entre narrativa, memória e prosa poética voltada a testemunhos de reconstrução pessoal após experiências de controle afetivo e vigilância emocional. Seus textos unem cena concreta, reflexão contida e imagens simbólicas de travessia e autonomia. Membro do Site das Letras Edições Literárias & Multimídia e integrante da SIGMAL.',
+    especialidade: 'Escreve prosa poética híbrida de travessia — narrativa, memória e imagens simbólicas de reconstrução pessoal após controle afetivo.',
+    obras: []
+  }
+];
+
+// ===== ESTADO =====
+let cntOk = 0, cntErro = 0;
+const total = BIOGRAFIAS.length;
+let publicando = false;
+
+// ===== CONFIG =====
+function salvarConfig() {
+  localStorage.setItem('gh_token', document.getElementById('gh-token').value);
+  localStorage.setItem('gh_repo', document.getElementById('gh-repo').value);
+  localStorage.setItem('gh_branch', document.getElementById('gh-branch').value);
+  log('Configuração salva.', 'info');
+}
+
+function carregarConfig() {
+  const t = localStorage.getItem('gh_token');
+  const r = localStorage.getItem('gh_repo');
+  const b = localStorage.getItem('gh_branch');
+  if (t) document.getElementById('gh-token').value = t;
+  if (r) document.getElementById('gh-repo').value = r;
+  if (b) document.getElementById('gh-branch').value = b;
+}
+
+async function testarConexao() {
+  const token = document.getElementById('gh-token').value;
+  const repo = document.getElementById('gh-repo').value;
+  if (!token || !repo) { log('Preencha token e repositório.', 'erro'); return; }
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (res.ok) log(`✓ Conexão OK — ${repo} acessível.`, 'ok');
+    else log(`✗ Erro ${res.status} — Verifique o token.`, 'erro');
+  } catch(e) {
+    log('✗ Falha na conexão.', 'erro');
+  }
+}
+
+// ===== LOG =====
+function log(msg, tipo='info') {
+  const el = document.getElementById('log');
+  const linha = document.createElement('div');
+  linha.className = `log-${tipo}`;
+  linha.textContent = `[${new Date().toLocaleTimeString('pt-BR')}] ${msg}`;
+  el.appendChild(linha);
+  el.scrollTop = el.scrollHeight;
+}
+
+// ===== PROGRESSO =====
+function atualizarProgresso() {
+  const pct = Math.round(((cntOk + cntErro) / total) * 100);
+  document.getElementById('cnt-ok').textContent = cntOk;
+  document.getElementById('cnt-erro').textContent = cntErro;
+  document.getElementById('barra-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+}
+
+function setStatusAutor(id, status, result) {
+  const el = document.getElementById(`status-${id}`);
+  const res = document.getElementById(`result-${id}`);
+  if (el) el.textContent = status;
+  if (res) { res.textContent = result; res.className = `autor-result result-${result === 'OK' ? 'ok' : result === 'ERRO' ? 'erro' : result === 'PUBLICANDO' ? 'publicando' : 'aguardando'}`; }
+}
+
+// ===== GITHUB API =====
+async function getSHA(token, repo, branch, caminho) {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}?ref=${branch}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (res.ok) { const d = await res.json(); return d.sha; }
+    return null;
+  } catch { return null; }
+}
+
+async function publicarArquivo(token, repo, branch, caminho, conteudo, sha, mensagem) {
+  const body = { message: mensagem, content: btoa(unescape(encodeURIComponent(conteudo))), branch };
+  if (sha) body.sha = sha;
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}`, {
+    method: 'PUT',
+    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) { const err = await res.json(); throw new Error(err.message || `Erro ${res.status}`); }
+  return res.json();
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ===== GERAÇÃO HTML =====
+function corEixo(e) {
+  const c = { prosa:'#1565c0', poesia:'#ad1457', hibrido:'#e65100', cordel:'#2e7d32', aberto:'#757575' };
+  return c[e] || '#d6b354';
+}
+function eixoLabel(e) {
+  const l = { prosa:'Prosa', poesia:'Poesia', hibrido:'Híbrido', cordel:'Cordel', aberto:'Em construção' };
+  return l[e] || e;
+}
+
+function gerarHtmlIndividual(a) {
+  const cor = corEixo(a.eixo);
+  const obras = (a.obras || []).filter(o => o.trim());
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${a.nome} · Biografia · Site das Letras</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#07182b;--azul-mid:#10294a;--ouro:#d6b354;--papel:#fff8df;--tinta:#1a1208;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--papel);color:var(--tinta);font-family:'Libre Baskerville',Georgia,serif;min-height:100vh;}
+.cab{background:var(--azul);padding:2rem 3rem;border-bottom:3px solid var(--ouro);}
+.nav{display:flex;gap:0.8rem;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;}
+.nav a{font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:rgba(213,179,84,0.5);text-decoration:none;text-transform:uppercase;}
+.nav a:hover{color:var(--ouro);}
+.nav span{color:rgba(213,179,84,0.2);font-size:0.45rem;}
+.badge{display:inline-block;font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.18em;padding:0.2rem 0.6rem;border:1px solid ${cor};color:${cor};text-transform:uppercase;margin-bottom:0.6rem;}
+.nome{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(1.8rem,5vw,3rem);color:var(--ouro);line-height:1.1;margin-bottom:0.2rem;}
+.origem{font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.12em;color:rgba(213,179,84,0.35);text-transform:uppercase;}
+.conteudo{max-width:780px;margin:0 auto;padding:2.5rem 3rem;}
+.sec-label{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.28em;color:var(--ouro);opacity:0.55;text-transform:uppercase;margin-bottom:0.6rem;}
+.linha{width:40px;height:2px;background:linear-gradient(to right,var(--ouro),transparent);margin:0.8rem 0 1.8rem;}
+.bio{font-size:1rem;line-height:1.9;color:#2a1a08;margin-bottom:2rem;}
+.espec{background:rgba(213,179,84,0.06);border-left:3px solid var(--ouro);padding:0.9rem 1.3rem;margin-bottom:2rem;font-style:italic;font-size:0.9rem;color:#3a2a10;line-height:1.7;}
+.obras{list-style:none;display:flex;flex-direction:column;gap:0.4rem;}
+.obra{display:flex;align-items:baseline;gap:0.7rem;padding:0.5rem 0;border-bottom:1px solid rgba(213,179,84,0.08);font-size:0.9rem;color:#2a1a08;}
+.obra::before{content:'—';color:rgba(213,179,84,0.35);flex-shrink:0;}
+.rodape{background:var(--azul);padding:1.5rem 3rem;margin-top:3rem;text-align:center;border-top:1px solid rgba(213,179,84,0.1);}
+.rod-txt{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.12em;color:rgba(213,179,84,0.25);text-transform:uppercase;line-height:2;}
+.rod-link{color:rgba(213,179,84,0.4);text-decoration:none;}
+.rod-link:hover{color:var(--ouro);}
+.atualizado{font-family:'Space Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:rgba(213,179,84,0.2);text-transform:uppercase;text-align:right;margin-top:2.5rem;}
+@media(max-width:768px){.cab,.conteudo{padding:1.2rem;}.nome{font-size:1.8rem;}}
+</style>
+</head>
+<body>
+<div class="cab">
+  <div class="nav">
+    <a href="portal_instituto_celeiro_literario.html">Celeiro Literário</a><span>/</span>
+    <a href="site_das_letras_edicoes_literarias.html">Site das Letras</a><span>/</span>
+    <a href="site_editorial_biografias.html">Biografias</a><span>/</span>
+    <a href="#" style="color:var(--ouro);">${a.nome}</a>
+  </div>
+  <div class="badge">${eixoLabel(a.eixo)}</div>
+  <div class="nome">${a.nome}</div>
+  <div class="origem">${a.origem}</div>
+</div>
+<div class="conteudo">
+  <div class="sec-label">// BIOGRAFIA</div>
+  <div class="linha"></div>
+  <div class="bio">${a.bio}</div>
+  ${a.especialidade ? `<div class="espec">${a.especialidade}</div>` : ''}
+  ${obras.length ? `
+  <div class="sec-label">// OBRAS PUBLICADAS</div>
+  <div class="linha"></div>
+  <ul class="obras">${obras.map(o => `<li class="obra">${o}</li>`).join('')}</ul>` : ''}
+  <div class="atualizado">Atualizado em: ${new Date().toLocaleDateString('pt-BR')}</div>
+</div>
+<div class="rodape">
+  <div class="rod-txt">
+    Site das Letras Edições Literárias & Multimídia<br>
+    SIGMAL — São Roque International Global Music, Arts & Letters Academy<br>
+    <a href="site_editorial_biografias.html" class="rod-link">← Voltar às Biografias</a>
+  </div>
+</div>
+</body>
+</html>`;
+}
+
+function gerarHtmlIndice() {
+  const cards = BIOGRAFIAS.map(a => {
+    const cor = corEixo(a.eixo);
+    return `<a href="biografia_${a.id}.html" class="card">
+      <div class="faixa" style="background:${cor};"></div>
+      <div class="corpo">
+        <div class="eixo" style="color:${cor};">${eixoLabel(a.eixo).toUpperCase()}</div>
+        <div class="nome">${a.nome}</div>
+        <div class="orig">${a.origem}</div>
+        ${a.especialidade ? `<div class="espec">${a.especialidade.substring(0,110)}${a.especialidade.length>110?'...':''}</div>` : ''}
+        <div class="obras-cnt">${(a.obras||[]).length} obra${(a.obras||[]).length!==1?'s':''} publicada${(a.obras||[]).length!==1?'s':''}</div>
+      </div>
+    </a>`;
+  }).join('');
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biografias dos Escritores · Site das Letras</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#07182b;--azul-mid:#10294a;--ouro:#d6b354;--papel:#fff8df;--tinta:#1a1208;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--papel);color:var(--tinta);font-family:'Libre Baskerville',Georgia,serif;}
+.cab{background:var(--azul);padding:2rem 3rem;border-bottom:3px solid var(--ouro);}
+.nav{display:flex;gap:0.8rem;margin-bottom:1rem;flex-wrap:wrap;}
+.nav a{font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:rgba(213,179,84,0.5);text-decoration:none;text-transform:uppercase;}
+.nav a:hover{color:var(--ouro);}
+.nav span{color:rgba(213,179,84,0.2);}
+.cab-titulo{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(1.8rem,4vw,2.8rem);color:var(--ouro);margin-bottom:0.4rem;}
+.cab-desc{font-style:italic;font-size:0.82rem;color:rgba(213,179,84,0.4);max-width:550px;line-height:1.6;}
+.busca-bar{background:var(--azul-mid);padding:0.8rem 3rem;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(213,179,84,0.1);}
+.busca{background:rgba(213,179,84,0.05);border:1px solid rgba(213,179,84,0.15);color:#f5edd8;font-family:'Libre Baskerville',serif;font-size:0.85rem;padding:0.5rem 0.9rem;outline:none;width:100%;max-width:380px;}
+.busca:focus{border-color:var(--ouro);}
+.busca::placeholder{color:rgba(213,179,84,0.3);font-style:italic;}
+.container{max-width:1300px;margin:0 auto;padding:2rem 3rem;}
+.cnt{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.12em;color:rgba(213,179,84,0.3);text-transform:uppercase;margin-bottom:1.2rem;}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;}
+.card{background:white;border:1px solid rgba(122,95,26,0.1);text-decoration:none;color:var(--tinta);display:block;transition:all 0.3s;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.04);}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,0.1);border-color:rgba(213,179,84,0.3);}
+.faixa{height:3px;}
+.corpo{padding:1.1rem 1.3rem;}
+.eixo{font-family:'Space Mono',monospace;font-size:0.4rem;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.25rem;}
+.nome{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.1rem;color:var(--tinta);margin-bottom:0.15rem;line-height:1.2;}
+.orig{font-family:'Space Mono',monospace;font-size:0.42rem;letter-spacing:0.08em;color:#8899aa;text-transform:uppercase;margin-bottom:0.6rem;}
+.espec{font-style:italic;font-size:0.75rem;color:#3a2a10;line-height:1.5;margin-bottom:0.6rem;}
+.obras-cnt{font-family:'Space Mono',monospace;font-size:0.4rem;letter-spacing:0.08em;color:rgba(122,95,26,0.45);text-transform:uppercase;}
+.rodape{background:var(--azul);padding:1.5rem 3rem;margin-top:2.5rem;text-align:center;border-top:1px solid rgba(213,179,84,0.08);}
+.rod{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.12em;color:rgba(213,179,84,0.22);text-transform:uppercase;line-height:2;}
+.rod a{color:rgba(213,179,84,0.38);text-decoration:none;}
+.rod a:hover{color:var(--ouro);}
+@media(max-width:768px){.cab,.container,.busca-bar{padding:1rem;}.grade{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="cab">
+  <div class="nav">
+    <a href="portal_instituto_celeiro_literario.html">Celeiro Literário</a><span>/</span>
+    <a href="site_das_letras_edicoes_literarias.html">Site das Letras</a><span>/</span>
+    <a href="site_editorial.html">Sala Editorial</a><span>/</span>
+    <a href="#" style="color:var(--ouro);">Biografias</a>
+  </div>
+  <div class="cab-titulo">Biografias dos Escritores</div>
+  <div class="cab-desc">Conheça os autores do Site das Letras Edições Literárias. Cada biografia é atualizada a cada nova obra publicada.</div>
+</div>
+<div class="busca-bar">
+  <input type="text" class="busca" id="busca" placeholder="Buscar por nome ou especialidade..." oninput="filtrar()">
+</div>
+<div class="container">
+  <div class="cnt" id="cnt">${BIOGRAFIAS.length} autores no catálogo</div>
+  <div class="grade" id="grade">${cards}</div>
+</div>
+<div class="rodape">
+  <div class="rod">
+    Site das Letras Edições Literárias & Multimídia<br>
+    SIGMAL — São Roque International Global Music, Arts & Letters Academy<br>
+    <a href="site_editorial.html">← Voltar à Sala Editorial</a>
+  </div>
+</div>
+<script>
+const cards=document.querySelectorAll('.card');
+function filtrar(){
+  const b=document.getElementById('busca').value.toLowerCase();
+  let v=0;
+  cards.forEach(c=>{const s=!b||c.textContent.toLowerCase().includes(b);c.style.display=s?'block':'none';if(s)v++;});
+  document.getElementById('cnt').textContent=v+' autor'+(v!==1?'es':'')+' no catálogo';
+}
+<\/script>
+</body>
+</html>`;
+}
+
+// ===== PUBLICAR TODAS =====
+async function publicarTodas() {
+  if (publicando) return;
+  const token = document.getElementById('gh-token').value || localStorage.getItem('gh_token');
+  const repo = document.getElementById('gh-repo').value || localStorage.getItem('gh_repo');
+  const branch = document.getElementById('gh-branch').value || localStorage.getItem('gh_branch') || 'main';
+
+  if (!token) { log('⚠ Configure o Token GitHub antes de publicar.', 'erro'); return; }
+
+  publicando = true;
+  cntOk = 0; cntErro = 0;
+  document.getElementById('btn-publicar').disabled = true;
+  document.getElementById('btn-publicar').textContent = '⏳ PUBLICANDO...';
+
+  log(`Iniciando publicação de ${total} biografias...`, 'info');
+  log(`Repositório: ${repo} | Branch: ${branch}`, 'info');
+
+  for (let i = 0; i < BIOGRAFIAS.length; i++) {
+    const a = BIOGRAFIAS[i];
+    setStatusAutor(a.id, '⏳', 'PUBLICANDO');
+    log(`[${i+1}/${total}] Publicando ${a.nome}...`, 'info');
+
+    try {
+      const caminho = `biografia_${a.id}.html`;
+      const html = gerarHtmlIndividual(a);
+      const sha = await getSHA(token, repo, branch, caminho);
+      await publicarArquivo(token, repo, branch, caminho, html, sha, `Biografia: ${a.nome}`);
+      cntOk++;
+      setStatusAutor(a.id, '✓', 'OK');
+      log(`✓ ${a.nome} publicado com sucesso.`, 'ok');
+    } catch(e) {
+      cntErro++;
+      setStatusAutor(a.id, '✗', 'ERRO');
+      log(`✗ Erro em ${a.nome}: ${e.message}`, 'erro');
+    }
+
+    atualizarProgresso();
+    await sleep(800); // pausa para não exceder rate limit do GitHub
+  }
+
+  // Publica o índice geral
+  log('Publicando índice geral de biografias...', 'info');
+  try {
+    const htmlIndice = gerarHtmlIndice();
+    const sha = await getSHA(token, repo, branch, 'site_editorial_biografias.html');
+    await publicarArquivo(token, repo, branch, 'site_editorial_biografias.html', htmlIndice, sha, 'Atualiza índice de biografias');
+    log('✓ Índice geral publicado com sucesso.', 'ok');
+  } catch(e) {
+    log(`✗ Erro no índice: ${e.message}`, 'erro');
+  }
+
+  publicando = false;
+  document.getElementById('btn-publicar').disabled = false;
+  document.getElementById('btn-publicar').textContent = '✓ PUBLICAÇÃO CONCLUÍDA';
+  log(`─── CONCLUÍDO: ${cntOk} publicados, ${cntErro} erros. ───`, cntErro === 0 ? 'ok' : 'aviso');
+}
+
+// ===== RENDERIZAR LISTA =====
+function renderizarLista() {
+  const el = document.getElementById('lista-autores');
+  el.innerHTML = BIOGRAFIAS.map(a => `
+    <div class="autor-status-item">
+      <div class="status-icon" id="status-${a.id}">○</div>
+      <div class="autor-nome-item">${a.nome}</div>
+      <div class="autor-result result-aguardando" id="result-${a.id}">AGUARDANDO</div>
+    </div>
+  `).join('');
+}
+
+// ===== INIT =====
+carregarConfig();
+renderizarLista();
+document.getElementById('cnt-total').textContent = total;
+</script>
+</body>
+</html>
