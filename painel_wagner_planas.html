@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Wagner Planas — Acesso Total | triploohesigmalbpl</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --azul:#07101d;--azul2:#0f1c2e;
+  --ouro:#c9a646;--ouro2:#f4dc88;--cobre:#b87333;
+  --verm:#c0392b;--roxo:#3b1f6e;--roxo2:#7a60b8;
+  --verde:#1f7a42;
+  --linha:rgba(201,166,70,.2);--r:18px;
+  --s:0 14px 40px rgba(0,0,0,.3);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Libre Baskerville',Georgia,serif;
+  background:linear-gradient(170deg,#030d18,#07101d 60%,#040d18);
+  color:white;min-height:100vh;
+}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(3,13,24,.98);border-bottom:2px solid var(--ouro);backdrop-filter:blur(10px)}
+.top-in{max-width:1300px;margin:auto;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.marca{font-family:'DM Mono',monospace;color:var(--ouro2);font-size:13px;font-weight:700}
+.marca small{display:block;font-size:10px;color:rgba(244,220,136,.4);letter-spacing:.08em}
+.tnav{display:flex;gap:5px;flex-wrap:wrap}
+.tnav a{font-family:'DM Mono',monospace;font-size:11px;color:#c8c0ae;text-decoration:none;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.1);transition:.15s}
+.tnav a:hover{color:var(--ouro2);border-color:var(--ouro);background:rgba(201,166,70,.12)}
+
+/* HERO */
+.hero{
+  background:
+    radial-gradient(ellipse 60% 50% at 10% 15%,rgba(109,26,42,.3),transparent),
+    radial-gradient(ellipse 40% 60% at 90% 85%,rgba(59,31,110,.25),transparent),
+    linear-gradient(148deg,#020a16,#07101d 50%,#030d14);
+  padding:50px 20px 40px;border-bottom:4px solid var(--ouro);
+  text-align:center;position:relative;overflow:hidden;
+}
+.hero::before{content:'WP';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Playfair Display',serif;font-size:380px;font-weight:900;color:rgba(201,166,70,.025);line-height:1;pointer-events:none}
+.hero-badge{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;border:1px solid rgba(201,166,70,.4);color:rgba(201,166,70,.75);padding:6px 16px;border-radius:999px;display:inline-block;margin-bottom:18px}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(36px,6vw,80px);background:linear-gradient(160deg,var(--ouro2),var(--ouro) 40%,var(--cobre));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;line-height:1}
+.hero-sub{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.3em;color:rgba(201,166,70,.5);margin-bottom:14px;text-transform:uppercase}
+.hero-desc{font-size:16px;color:rgba(240,236,224,.7);max-width:600px;margin:0 auto 24px;line-height:1.65;font-style:italic}
+
+/* CONTADORES */
+.contadores{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:0}
+.cnt{text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(201,166,70,.18);border-radius:14px;padding:12px 20px;min-width:100px}
+.cnt .cn{font-family:'Playfair Display',serif;font-size:32px;color:var(--ouro2);font-weight:900;display:block}
+.cnt .cl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:rgba(201,166,70,.45);text-transform:uppercase}
+
+/* WRAP */
+.wrap{max-width:1300px;margin:auto;padding:32px 20px 70px;display:flex;flex-direction:column;gap:28px}
+
+/* ABAS */
+.abas{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid rgba(201,166,70,.2);padding-bottom:14px}
+.aba{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:9px 18px;border-radius:12px;border:1px solid rgba(201,166,70,.2);color:rgba(201,166,70,.5);cursor:pointer;transition:.15s;background:rgba(255,255,255,.03)}
+.aba:hover{color:var(--ouro2);border-color:var(--ouro)}
+.aba.ativa{background:rgba(201,166,70,.15);color:var(--ouro2);border-color:var(--ouro)}
+.painel{display:none}
+.painel.ativo{display:block}
+
+/* CARDS DE OBRA */
+.obra-card{
+  background:rgba(10,24,40,.95);border:1px solid rgba(201,166,70,.12);
+  border-radius:var(--r);overflow:hidden;margin-bottom:14px;transition:.18s;
+}
+.obra-card:hover{border-color:rgba(201,166,70,.3)}
+.obra-header{
+  padding:16px 20px 12px;display:flex;align-items:flex-start;
+  justify-content:space-between;gap:14px;flex-wrap:wrap;
+  border-bottom:1px solid rgba(201,166,70,.08);cursor:pointer;
+}
+.obra-info h3{font-family:'Playfair Display',serif;font-size:18px;color:var(--ouro2);margin-bottom:4px}
+.obra-meta{font-family:'DM Mono',monospace;font-size:10px;color:rgba(201,166,70,.4);letter-spacing:.06em}
+.obra-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.otag{font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:999px;border:1px solid}
+.t-prosa{border-color:rgba(100,180,255,.35);color:#80c8ff;background:rgba(100,180,255,.07)}
+.t-poesia{border-color:rgba(255,150,200,.35);color:#ffb0d8;background:rgba(255,150,200,.07)}
+.t-hibrido{border-color:rgba(200,150,255,.35);color:#d0b0ff;background:rgba(200,150,255,.07)}
+.t-cordel{border-color:rgba(255,200,80,.35);color:#ffd060;background:rgba(255,200,80,.07)}
+.t-masmorra{border-color:rgba(192,57,43,.45);color:#ff9080;background:rgba(192,57,43,.08)}
+.t-calabouco{border-color:rgba(31,122,66,.45);color:#80e8a0;background:rgba(31,122,66,.08)}
+.t-fila{border-color:rgba(201,166,70,.45);color:var(--ouro2);background:rgba(201,166,70,.08)}
+.obra-acoes{display:flex;gap:8px;flex-shrink:0;align-items:flex-start}
+.btn-ver{background:rgba(201,166,70,.12);color:var(--ouro2);border:1px solid rgba(201,166,70,.3);border-radius:10px;padding:7px 13px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;transition:.15s}
+.btn-ver:hover{background:rgba(201,166,70,.22)}
+.btn-copiar{background:rgba(31,122,66,.2);color:#80e8a0;border:1px solid rgba(31,122,66,.35);border-radius:10px;padding:7px 13px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;transition:.15s}
+.btn-copiar:hover{background:rgba(31,122,66,.35)}
+.btn-export{background:rgba(59,31,110,.2);color:#d0b0ff;border:1px solid rgba(59,31,110,.35);border-radius:10px;padding:7px 13px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;transition:.15s}
+.btn-export:hover{background:rgba(59,31,110,.35)}
+.btn-mover{background:rgba(192,57,43,.2);color:#ff9080;border:1px solid rgba(192,57,43,.35);border-radius:10px;padding:7px 13px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;transition:.15s}
+.btn-mover:hover{background:rgba(192,57,43,.35)}
+
+/* CONTEÚDO EXPANDIDO */
+.obra-conteudo{display:none;padding:18px 20px;border-top:1px solid rgba(201,166,70,.08)}
+.obra-conteudo.aberto{display:block}
+.texto-obra{
+  font-size:15px;line-height:1.8;color:rgba(240,236,224,.85);
+  white-space:pre-wrap;background:rgba(7,16,29,.6);
+  border:1px solid rgba(201,166,70,.1);border-radius:12px;
+  padding:18px;max-height:400px;overflow-y:auto;
+  font-family:'Libre Baskerville',Georgia,serif;
+}
+.texto-obra::-webkit-scrollbar{width:6px}
+.texto-obra::-webkit-scrollbar-track{background:rgba(7,16,29,.5)}
+.texto-obra::-webkit-scrollbar-thumb{background:rgba(201,166,70,.3);border-radius:3px}
+
+/* VAZIO */
+.vazio{
+  text-align:center;padding:44px 20px;
+  font-family:'DM Mono',monospace;font-size:13px;color:rgba(201,166,70,.3);
+  border:1px dashed rgba(201,166,70,.12);border-radius:var(--r);
+}
+.vazio .vi{font-size:40px;margin-bottom:14px;display:block}
+
+/* BARRA DE BUSCA */
+.busca-barra{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.busca-barra input{
+  flex:1;min-width:200px;border:1px solid rgba(201,166,70,.25);border-radius:10px;
+  padding:10px 14px;font-family:'DM Mono',monospace;font-size:13px;
+  background:rgba(7,16,29,.8);color:var(--ouro2);outline:none;
+}
+.busca-barra input::placeholder{color:rgba(201,166,70,.3)}
+.busca-barra input:focus{border-color:var(--ouro)}
+
+/* MODAL LEITURA COMPLETA */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(3,13,24,.95);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-ov.aberto{display:flex}
+.modal-leitura{
+  background:linear-gradient(135deg,#07101d,#0f1c2e);
+  border:2px solid var(--ouro);border-radius:24px;
+  padding:32px;max-width:780px;width:100%;
+  max-height:90vh;overflow-y:auto;position:relative;
+}
+.modal-leitura h2{font-family:'Playfair Display',serif;font-size:26px;color:var(--ouro2);margin-bottom:4px}
+.modal-leitura .ml-meta{font-family:'DM Mono',monospace;font-size:11px;color:rgba(201,166,70,.45);margin-bottom:20px}
+.modal-leitura .ml-texto{font-size:16px;line-height:1.85;color:rgba(240,236,224,.9);white-space:pre-wrap;font-family:'Libre Baskerville',Georgia,serif}
+.ml-close{position:absolute;top:16px;right:18px;background:0;border:0;color:rgba(201,166,70,.4);font-size:22px;cursor:pointer;line-height:1}
+.ml-close:hover{color:var(--ouro)}
+.ml-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;padding-top:18px;border-top:1px solid rgba(201,166,70,.15)}
+
+/* SCANNER */
+.scanner-card{background:rgba(10,24,40,.95);border:2px solid rgba(201,166,70,.2);border-radius:var(--r);padding:26px;margin-bottom:20px}
+.scanner-card h3{font-family:'Playfair Display',serif;font-size:22px;color:var(--ouro2);margin-bottom:8px}
+.scanner-card p{font-size:14px;color:rgba(240,236,224,.6);line-height:1.6;margin-bottom:18px;font-family:'DM Mono',monospace}
+.keys-lista{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.key-pill{font-family:'DM Mono',monospace;font-size:11px;padding:5px 12px;border-radius:999px;border:1px solid rgba(201,166,70,.25);color:rgba(201,166,70,.6);background:rgba(201,166,70,.05);cursor:pointer;transition:.15s}
+.key-pill:hover{border-color:var(--ouro);color:var(--ouro2)}
+.key-pill.com-dados{border-color:rgba(31,122,66,.5);color:#80e8a0;background:rgba(31,122,66,.08)}
+
+/* EXPORTAR TUDO */
+.export-card{background:linear-gradient(135deg,rgba(59,31,110,.25),rgba(7,16,29,.97));border:2px solid rgba(155,109,255,.3);border-radius:var(--r);padding:26px}
+.export-card h3{font-family:'Playfair Display',serif;font-size:22px;color:#d0b0ff;margin-bottom:8px}
+.export-card p{font-size:14px;color:rgba(240,236,224,.65);line-height:1.6;margin-bottom:18px}
+
+/* BOTÕES */
+.btn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:999px;padding:12px 20px;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;box-shadow:0 4px 12px rgba(0,0,0,.2);text-decoration:none}
+.btn:hover{transform:translateY(-1px)}
+.b-ouro{background:var(--ouro);color:var(--azul)}
+.b-ouro:hover{background:var(--ouro2)}
+.b-verde{background:var(--verde);color:white}
+.b-verde:hover{background:#165c31}
+.b-roxo{background:var(--roxo);color:white}
+.b-roxo:hover{background:#2a1050}
+.b-esc{background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.12)}
+.b-esc:hover{background:rgba(255,255,255,.1)}
+.btns-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+
+footer{background:rgba(0,0,0,.5);border-top:3px solid var(--ouro);padding:26px 20px;text-align:center;color:rgba(200,192,178,.5)}
+footer strong{color:var(--ouro2)}
+footer p{font-size:13px;line-height:1.8}
+
+@media(max-width:700px){.obra-header{flex-direction:column}.obra-acoes{width:100%;justify-content:flex-start}.busca-barra{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="top-in">
+    <div class="marca">PAINEL WAGNER PLANAS — ACESSO TOTAL<small>TRIPLOOHESIGMALBPL · RESTRITO</small></div>
+    <nav class="tnav">
+      <a href="#fila">Fila OHE</a>
+      <a href="#masmorra">Masmorra</a>
+      <a href="#calabouco">Calabouço</a>
+      <a href="#sigmal">SIGMAL Music</a>
+      <a href="#scanner">Scanner</a>
+      <a href="https://triploohesigmalbpl.vercel.app/" target="_blank">↗ SIGMAL HQ</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="hero-badge">🔐 ACESSO TOTAL · WAGNER PLANAS · RESTRITO</div>
+  <h1>Painel Wagner Planas</h1>
+  <div class="hero-sub">LEITURA · CÓPIA · EXPORTAÇÃO · CONTROLE TOTAL</div>
+  <p class="hero-desc">Tudo que Fernando Peçanha produziu, o que está na Masmorra e no Calabouço — visível, legível e copiável. Nada fica inacessível.</p>
+  <div class="contadores">
+    <div class="cnt"><span class="cn" id="cntFila">0</span><span class="cl">Na fila OHE</span></div>
+    <div class="cnt"><span class="cn" id="cntMasmorra">0</span><span class="cl">Na Masmorra</span></div>
+    <div class="cnt"><span class="cn" id="cntCalabouço">0</span><span class="cl">No Calabouço</span></div>
+    <div class="cnt"><span class="cn" id="cntSigmal">0</span><span class="cl">SIGMAL Music</span></div>
+    <div class="cnt"><span class="cn" id="cntTotal">0</span><span class="cl">Total geral</span></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ABAS -->
+  <div class="abas">
+    <div class="aba ativa" onclick="mudarAba('fila')">📬 Fila OHE</div>
+    <div class="aba" onclick="mudarAba('masmorra')">⛓️ Masmorra</div>
+    <div class="aba" onclick="mudarAba('calabouco')">📚 Calabouço</div>
+    <div class="aba" onclick="mudarAba('sigmal')">🎵 SIGMAL Music</div>
+    <div class="aba" onclick="mudarAba('nucleo')">🎬 Núcleo N</div>
+    <div class="aba" onclick="mudarAba('scanner')">🔍 Scanner</div>
+    <div class="aba" onclick="mudarAba('exportar')">📦 Exportar tudo</div>
+  </div>
+
+  <!-- PAINEL FILA OHE -->
+  <div class="painel ativo" id="painel-fila">
+    <div class="busca-barra">
+      <input type="text" placeholder="Buscar na fila..." oninput="buscar('fila',this.value)">
+    </div>
+    <div id="lista-fila"></div>
+  </div>
+
+  <!-- PAINEL MASMORRA -->
+  <div class="painel" id="painel-masmorra">
+    <div class="busca-barra">
+      <input type="text" placeholder="Buscar na Masmorra..." oninput="buscar('masmorra',this.value)">
+    </div>
+    <div id="lista-masmorra"></div>
+  </div>
+
+  <!-- PAINEL CALABOUÇO -->
+  <div class="painel" id="painel-calabouco">
+    <div class="busca-barra">
+      <input type="text" placeholder="Buscar no Calabouço..." oninput="buscar('calabouco',this.value)">
+    </div>
+    <div id="lista-calabouco"></div>
+  </div>
+
+  <!-- PAINEL SIGMAL MUSIC -->
+  <div class="painel" id="painel-sigmal">
+    <div class="busca-barra">
+      <input type="text" placeholder="Buscar em SIGMAL Music..." oninput="buscar('sigmal',this.value)">
+    </div>
+    <div id="lista-sigmal"></div>
+  </div>
+
+  <!-- PAINEL NÚCLEO N -->
+  <div class="painel" id="painel-nucleo">
+    <div class="busca-barra">
+      <input type="text" placeholder="Buscar no Núcleo N..." oninput="buscar('nucleo',this.value)">
+    </div>
+    <div id="lista-nucleo"></div>
+  </div>
+
+  <!-- PAINEL SCANNER — lê qualquer chave do localStorage -->
+  <div class="painel" id="painel-scanner">
+    <div class="scanner-card">
+      <h3>🔍 Scanner de localStorage</h3>
+      <p>Todas as chaves encontradas no localStorage deste domínio. Clique em qualquer chave para ver o conteúdo. As que têm dados aparecem em verde.</p>
+      <div class="btns-row" style="margin-top:0;margin-bottom:18px">
+        <button class="btn b-ouro" onclick="escanear()">↺ Escanear agora</button>
+        <button class="btn b-esc" onclick="limparVazios()">Ocultar vazios</button>
+      </div>
+      <div class="keys-lista" id="keys-lista">
+        <span style="font-family:'DM Mono',monospace;font-size:12px;color:rgba(201,166,70,.3)">Clique em "Escanear agora" para ver todas as chaves.</span>
+      </div>
+    </div>
+    <div id="scanner-resultado"></div>
+  </div>
+
+  <!-- PAINEL EXPORTAR TUDO -->
+  <div class="painel" id="painel-exportar">
+    <div class="export-card">
+      <h3>📦 Exportar todo o acervo</h3>
+      <p>Gera um arquivo JSON com todo o conteúdo do localStorage — fila OHE, Masmorra, Calabouço, SIGMAL Music e Núcleo N. Guarde como backup ou abra em qualquer editor de texto.</p>
+      <div class="btns-row">
+        <button class="btn b-roxo" onclick="exportarTudo()">📦 Baixar tudo em JSON</button>
+        <button class="btn b-verde" onclick="exportarTexto()">📄 Baixar só os textos em TXT</button>
+        <button class="btn b-ouro" onclick="copiarTudo()">📋 Copiar tudo para área de transferência</button>
+      </div>
+    </div>
+
+    <div style="margin-top:22px;background:rgba(10,24,40,.95);border:1px solid rgba(201,166,70,.15);border-radius:var(--r);padding:22px">
+      <h3 style="font-family:'Playfair Display',serif;font-size:20px;color:var(--ouro2);margin-bottom:10px">⚠️ Ferramentas de gestão</h3>
+      <p style="font-size:14px;color:rgba(240,236,224,.6);line-height:1.6;margin-bottom:16px;font-family:'DM Mono',monospace">Operações irreversíveis — use com cuidado.</p>
+      <div class="btns-row">
+        <button class="btn" style="background:rgba(192,57,43,.2);color:#ff9080;border:1px solid rgba(192,57,43,.35)" onclick="limparFila()">🗑 Limpar fila OHE processada</button>
+        <button class="btn" style="background:rgba(192,57,43,.15);color:#ffb0a0;border:1px solid rgba(192,57,43,.25)" onclick="moverMasmorraCalabouço()">→ Mover liberados da Masmorra para o Calabouço</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL LEITURA COMPLETA -->
+<div class="modal-ov" id="modalOv">
+  <div class="modal-leitura">
+    <button class="ml-close" onclick="fecharModal()">✕</button>
+    <h2 id="ml-titulo">—</h2>
+    <div class="ml-meta" id="ml-meta">—</div>
+    <div class="ml-texto" id="ml-texto">—</div>
+    <div class="ml-btns">
+      <button class="btn b-verde" onclick="copiarModal()">📋 Copiar texto</button>
+      <button class="btn b-roxo" onclick="exportarModal()">📄 Baixar como TXT</button>
+      <button class="btn b-esc" onclick="fecharModal()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p><strong>Painel Wagner Planas</strong> · Acesso total · triploohesigmalbpl</p>
+  <p>Fernando Peçanha · Masmorra · Calabouço · SIGMAL Music · Núcleo N</p>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// MAPEAMENTO DE TODAS AS CHAVES DO TRIPLOOHESIGMALBPL
+// ══════════════════════════════════════════════════════════
+const CHAVES_OHE = [
+  'ohe_fila','ohe_processados','ohe_fila_itens','fernando_fila',
+  'pecanha_fila','ohe_entradas','sigmal_fila','pecanha_obras',
+  'ohe_queue','fila_ohe','fila_processamento'
+]
+const CHAVES_MASMORRA = [
+  'masmorra_itens','masmorra_obras','masmorra_quarentena',
+  'torre_masmorra','masmorra_750','quarentena_itens',
+  'masmorra','obras_quarentena'
+]
+const CHAVES_CALABOUCO = [
+  'calabouco_obras','calabouco','patrimonio_literario',
+  'obras_consolidadas','calabouco_itens','livros_calabouco',
+  'acervo_calabouco','obras_finais'
+]
+const CHAVES_SIGMAL = [
+  'sigmal_studios','sigmal_singles','sigmal_artistas',
+  'sigmal_music_gerados','sigmal_music_convs','sigmal_lps',
+  'silo_music_gerados','silo_music_convs','estudio_sigmal',
+  'sigmal_producoes','condor_repertorio','maestro_interpretes'
+]
+const CHAVES_NUCLEO = [
+  'nucleo_producoes','nucleo_elenco','charlton_producoes',
+  'bpl_convocacoes','bpl_artistas_gerados','nucleo_n',
+  'elenco_producoes','nucleon_itens'
+]
+
+let modalTextoAtual = ''
+let modalTituloAtual = ''
+
+// ── LÊ UMA LISTA DE CHAVES E RETORNA TODOS OS ITENS ──
+function lerChaves(chaves) {
+  const itens = []
+  chaves.forEach(k => {
+    try {
+      const raw = localStorage.getItem(k)
+      if (!raw) return
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) {
+        parsed.forEach(item => {
+          if (item && typeof item === 'object') itens.push({...item, _chave: k})
+          else if (typeof item === 'string') itens.push({titulo: item, conteudo: item, _chave: k})
+        })
+      } else if (typeof parsed === 'object' && parsed !== null) {
+        itens.push({...parsed, _chave: k})
+      } else if (typeof parsed === 'string') {
+        itens.push({titulo: k, conteudo: parsed, _chave: k})
+      }
+    } catch(e) {
+      const raw = localStorage.getItem(k)
+      if (raw) itens.push({titulo: k, conteudo: raw, _chave: k})
+    }
+  })
+  return itens
+}
+
+// ── EXTRAI O MELHOR TÍTULO ──
+function titulo(item) {
+  return item.titulo || item.title || item.nome || item.name ||
+         item.obra || item.assunto || item.tema || item.id ||
+         item._chave || 'Sem título'
+}
+
+// ── EXTRAI O MELHOR CONTEÚDO TEXTUAL ──
+function conteudo(item) {
+  return item.conteudo || item.texto || item.content || item.body ||
+         item.letra || item.obra || item.material || item.resultado ||
+         item.resposta || item.output || item.generated ||
+         JSON.stringify(item, null, 2)
+}
+
+// ── EXTRAI METADADOS ──
+function meta(item) {
+  const partes = []
+  if (item.heteronimo || item.autor) partes.push('Autoria: ' + (item.heteronimo || item.autor))
+  if (item.categoria || item.category || item.tipo) partes.push('Categoria: ' + (item.categoria || item.category || item.tipo))
+  if (item.destino) partes.push('Destino: ' + item.destino)
+  if (item.em || item.data || item.created_at || item.timestamp) partes.push('Data: ' + (item.em || item.data || item.created_at || item.timestamp))
+  if (item._chave) partes.push('Chave: ' + item._chave)
+  return partes.join(' · ') || item._chave || '—'
+}
+
+// ── GERA TAGS ──
+function tags(item) {
+  const t = []
+  const cat = (item.categoria || item.category || item.tipo || '').toLowerCase()
+  if (cat.includes('prosa')) t.push('<span class="otag t-prosa">Prosa</span>')
+  if (cat.includes('poesia') || cat.includes('poem')) t.push('<span class="otag t-poesia">Poesia</span>')
+  if (cat.includes('hibrido') || cat.includes('híbrido')) t.push('<span class="otag t-hibrido">Híbrido</span>')
+  if (cat.includes('cordel')) t.push('<span class="otag t-cordel">Cordel</span>')
+  if (item.destino?.toLowerCase().includes('masmorra')) t.push('<span class="otag t-masmorra">Masmorra</span>')
+  if (item.destino?.toLowerCase().includes('calabouco') || item.destino?.toLowerCase().includes('calabouço')) t.push('<span class="otag t-calabouco">Calabouço</span>')
+  return t.join('')
+}
+
+// ── RENDERIZA LISTA DE ITENS ──
+function renderLista(containerId, itens, tipo) {
+  const el = document.getElementById(containerId)
+  if (!itens.length) {
+    el.innerHTML = `<div class="vazio"><span class="vi">${tipo==='masmorra'?'⛓️':tipo==='calabouco'?'📚':tipo==='sigmal'?'🎵':'📬'}</span>Nenhum conteúdo encontrado nesta seção ainda.<br><br><span style="font-size:11px;opacity:.6">O conteúdo aparece aqui assim que Fernando Peçanha gerar obras no SIGMAL HQ.</span></div>`
+    return
+  }
+  el.innerHTML = itens.map((item, idx) => `
+    <div class="obra-card">
+      <div class="obra-header" onclick="toggleConteudo('${tipo}-${idx}')">
+        <div class="obra-info">
+          <h3>${titulo(item)}</h3>
+          <div class="obra-meta">${meta(item)}</div>
+          <div class="obra-tags">${tags(item)}</div>
+        </div>
+        <div class="obra-acoes">
+          <button class="btn-ver" onclick="event.stopPropagation();abrirModal('${tipo}-${idx}')">📖 Ler</button>
+          <button class="btn-copiar" onclick="event.stopPropagation();copiarItem('${tipo}-${idx}')">📋 Copiar</button>
+          <button class="btn-export" onclick="event.stopPropagation();exportarItem('${tipo}-${idx}')">📄 TXT</button>
+        </div>
+      </div>
+      <div class="obra-conteudo" id="conteudo-${tipo}-${idx}">
+        <div class="texto-obra">${conteudo(item)}</div>
+      </div>
+    </div>
+  `).join('')
+
+  // Guarda referência para modal
+  window._itens = window._itens || {}
+  window._itens[tipo] = itens
+}
+
+function toggleConteudo(id) {
+  const el = document.getElementById('conteudo-' + id)
+  if (el) el.classList.toggle('aberto')
+}
+
+function abrirModal(id) {
+  const [tipo, idx] = id.split('-')
+  const item = window._itens?.[tipo]?.[parseInt(idx)]
+  if (!item) return
+  modalTextoAtual = conteudo(item)
+  modalTituloAtual = titulo(item)
+  document.getElementById('ml-titulo').textContent = modalTituloAtual
+  document.getElementById('ml-meta').textContent = meta(item)
+  document.getElementById('ml-texto').textContent = modalTextoAtual
+  document.getElementById('modalOv').classList.add('aberto')
+}
+
+function fecharModal() {
+  document.getElementById('modalOv').classList.remove('aberto')
+}
+
+function copiarItem(id) {
+  const [tipo, idx] = id.split('-')
+  const item = window._itens?.[tipo]?.[parseInt(idx)]
+  if (!item) return
+  const txt = `${titulo(item)}\n${meta(item)}\n\n${conteudo(item)}`
+  navigator.clipboard.writeText(txt).then(() => alert('✅ Copiado!'))
+}
+
+function exportarItem(id) {
+  const [tipo, idx] = id.split('-')
+  const item = window._itens?.[tipo]?.[parseInt(idx)]
+  if (!item) return
+  const txt = `${titulo(item)}\n${'─'.repeat(50)}\n${meta(item)}\n\n${conteudo(item)}`
+  baixarArquivo(txt, titulo(item).replace(/\s+/g, '_') + '.txt', 'text/plain')
+}
+
+function copiarModal() {
+  const txt = `${modalTituloAtual}\n\n${modalTextoAtual}`
+  navigator.clipboard.writeText(txt).then(() => alert('✅ Copiado!'))
+}
+
+function exportarModal() {
+  const txt = `${modalTituloAtual}\n${'─'.repeat(50)}\n\n${modalTextoAtual}`
+  baixarArquivo(txt, modalTituloAtual.replace(/\s+/g, '_') + '.txt', 'text/plain')
+}
+
+function buscar(tipo, q) {
+  const mapa = {fila:CHAVES_OHE, masmorra:CHAVES_MASMORRA, calabouco:CHAVES_CALABOUCO, sigmal:CHAVES_SIGMAL, nucleo:CHAVES_NUCLEO}
+  const tudo = lerChaves(mapa[tipo] || [])
+  const filtrado = q ? tudo.filter(i => JSON.stringify(i).toLowerCase().includes(q.toLowerCase())) : tudo
+  renderLista('lista-' + tipo, filtrado, tipo)
+}
+
+// ── SCANNER ──
+function escanear() {
+  const lista = document.getElementById('keys-lista')
+  const keys = Object.keys(localStorage)
+  if (!keys.length) {
+    lista.innerHTML = '<span style="font-family:\'DM Mono\',monospace;font-size:12px;color:rgba(201,166,70,.3)">localStorage vazio neste domínio.</span>'
+    return
+  }
+  lista.innerHTML = keys.map(k => {
+    const val = localStorage.getItem(k)
+    const temDados = val && val !== '[]' && val !== '{}' && val !== 'null'
+    return `<span class="key-pill ${temDados?'com-dados':''}" onclick="verChave('${k}')">${k} ${temDados?'●':''}</span>`
+  }).join('')
+}
+
+function verChave(k) {
+  const raw = localStorage.getItem(k)
+  const el = document.getElementById('scanner-resultado')
+  let conteudoFormatado = raw
+  try { conteudoFormatado = JSON.stringify(JSON.parse(raw), null, 2) } catch(e){}
+  el.innerHTML = `
+    <div class="obra-card" style="margin-top:16px">
+      <div class="obra-header">
+        <div class="obra-info">
+          <h3 style="color:var(--ouro2)">${k}</h3>
+          <div class="obra-meta">${raw?.length || 0} caracteres</div>
+        </div>
+        <div class="obra-acoes">
+          <button class="btn-copiar" onclick="navigator.clipboard.writeText(document.getElementById('scanner-txt').textContent).then(()=>alert('Copiado!'))">📋 Copiar</button>
+          <button class="btn-export" onclick="baixarArquivo(document.getElementById('scanner-txt').textContent,'${k}.txt','text/plain')">📄 TXT</button>
+        </div>
+      </div>
+      <div class="obra-conteudo aberto">
+        <div class="texto-obra" id="scanner-txt">${conteudoFormatado || '(vazio)'}</div>
+      </div>
+    </div>`
+}
+
+function limparVazios() {
+  const lista = document.getElementById('keys-lista')
+  const pills = lista.querySelectorAll('.key-pill:not(.com-dados)')
+  pills.forEach(p => p.style.display = 'none')
+}
+
+// ── EXPORTAR TUDO ──
+function exportarTudo() {
+  const tudo = {}
+  Object.keys(localStorage).forEach(k => {
+    try { tudo[k] = JSON.parse(localStorage.getItem(k)) }
+    catch(e) { tudo[k] = localStorage.getItem(k) }
+  })
+  baixarArquivo(JSON.stringify(tudo, null, 2), 'triploohesigmalbpl_backup_' + new Date().toISOString().split('T')[0] + '.json', 'application/json')
+}
+
+function exportarTexto() {
+  const todas = [
+    ...lerChaves(CHAVES_OHE),
+    ...lerChaves(CHAVES_MASMORRA),
+    ...lerChaves(CHAVES_CALABOUCO),
+    ...lerChaves(CHAVES_SIGMAL),
+    ...lerChaves(CHAVES_NUCLEO),
+  ]
+  if (!todas.length) { alert('Nenhum texto encontrado para exportar.'); return }
+  const txt = todas.map(item =>
+    `${'═'.repeat(60)}\n${titulo(item)}\n${meta(item)}\n${'─'.repeat(60)}\n${conteudo(item)}\n`
+  ).join('\n\n')
+  baixarArquivo(txt, 'acervo_completo_' + new Date().toISOString().split('T')[0] + '.txt', 'text/plain')
+}
+
+function copiarTudo() {
+  const todas = [
+    ...lerChaves(CHAVES_OHE),
+    ...lerChaves(CHAVES_MASMORRA),
+    ...lerChaves(CHAVES_CALABOUCO),
+  ]
+  if (!todas.length) { alert('Nenhum conteúdo encontrado.'); return }
+  const txt = todas.map(i => `${titulo(i)}\n\n${conteudo(i)}`).join('\n\n' + '═'.repeat(40) + '\n\n')
+  navigator.clipboard.writeText(txt).then(() => alert('✅ Tudo copiado para a área de transferência!'))
+}
+
+function limparFila() {
+  if (!confirm('Limpar toda a fila OHE processada? Esta ação não pode ser desfeita.')) return
+  CHAVES_OHE.forEach(k => {
+    const val = localStorage.getItem(k)
+    if (val) {
+      try {
+        const arr = JSON.parse(val)
+        if (Array.isArray(arr)) {
+          const restantes = arr.filter(i => !i.processado && !i.concluido)
+          localStorage.setItem(k, JSON.stringify(restantes))
+        }
+      } catch(e) {}
+    }
+  })
+  carregar()
+  alert('Fila limpa.')
+}
+
+function moverMasmorraCalabouço() {
+  if (!confirm('Mover todos os itens liberados da Masmorra para o Calabouço?')) return
+  const hoje = new Date()
+  CHAVES_MASMORRA.forEach(k => {
+    const val = localStorage.getItem(k)
+    if (!val) return
+    try {
+      const arr = JSON.parse(val)
+      if (!Array.isArray(arr)) return
+      const liberados = arr.filter(i => {
+        if (!i.em && !i.data) return false
+        const data = new Date(i.em || i.data)
+        const dias = (hoje - data) / (1000 * 60 * 60 * 24)
+        return dias >= 750
+      })
+      if (liberados.length) {
+        const calabouco = JSON.parse(localStorage.getItem('calabouco_obras') || '[]')
+        localStorage.setItem('calabouco_obras', JSON.stringify([...calabouco, ...liberados]))
+        const restantes = arr.filter(i => !liberados.includes(i))
+        localStorage.setItem(k, JSON.stringify(restantes))
+        alert(`${liberados.length} obra(s) liberada(s) da Masmorra para o Calabouço.`)
+      } else {
+        alert('Nenhuma obra completou os 750 dias ainda.')
+      }
+    } catch(e) {}
+  })
+  carregar()
+}
+
+// ── UTILITÁRIOS ──
+function baixarArquivo(conteudo, nome, tipo) {
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(new Blob([conteudo], {type: tipo}))
+  a.download = nome
+  a.click()
+}
+
+function mudarAba(id) {
+  document.querySelectorAll('.aba').forEach(a => a.classList.remove('ativa'))
+  document.querySelectorAll('.painel').forEach(p => p.classList.remove('ativo'))
+  event.target.classList.add('ativa')
+  document.getElementById('painel-' + id).classList.add('ativo')
+}
+
+function carregar() {
+  const filaItens      = lerChaves(CHAVES_OHE)
+  const masmorraItens  = lerChaves(CHAVES_MASMORRA)
+  const calaboucoItens = lerChaves(CHAVES_CALABOUCO)
+  const sigmalItens    = lerChaves(CHAVES_SIGMAL)
+  const nucleoItens    = lerChaves(CHAVES_NUCLEO)
+
+  renderLista('lista-fila',      filaItens,      'fila')
+  renderLista('lista-masmorra',  masmorraItens,  'masmorra')
+  renderLista('lista-calabouco', calaboucoItens, 'calabouco')
+  renderLista('lista-sigmal',    sigmalItens,    'sigmal')
+  renderLista('lista-nucleo',    nucleoItens,    'nucleo')
+
+  document.getElementById('cntFila').textContent      = filaItens.length
+  document.getElementById('cntMasmorra').textContent  = masmorraItens.length
+  document.getElementById('cntCalabouço').textContent  = calaboucoItens.length
+  document.getElementById('cntSigmal').textContent    = sigmalItens.length
+  document.getElementById('cntTotal').textContent     = filaItens.length + masmorraItens.length + calaboucoItens.length + sigmalItens.length + nucleoItens.length
+}
+
+// Fechar modal clicando fora
+document.getElementById('modalOv').addEventListener('click', e => {
+  if (e.target === e.currentTarget) fecharModal()
+})
+
+// Inicializar
+carregar()
+// Atualiza a cada 10 segundos automaticamente
+setInterval(carregar, 10000)
+</script>
+</body>
+</html>
