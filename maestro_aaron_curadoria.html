@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maestro Aaron Cantarelli Vox · Curadoria Musical · SIGMAL HQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --azul: #0a1628;
+  --azul-prof: #07101d;
+  --roxo: #2d1a4a;
+  --ouro: #c9a84c;
+  --ouro-claro: #e8cc7a;
+  --ouro-escuro: #7a5f1a;
+  --creme: #f5edd8;
+  --prata: #6a7d90;
+  --verde: #00c853;
+  --vermelho: #d32f2f;
+  --roxo-claro: #9c6fd6;
+  --azul-musica: #1a237e;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: linear-gradient(160deg, var(--preto) 0%, #0d0820 50%, var(--preto) 100%);
+  color: var(--creme);
+  font-family: 'Crimson Pro', Georgia, serif;
+  min-height: 100vh;
+}
+
+/* TOPO */
+.topo {
+  background: rgba(4,8,15,0.97);
+  border-bottom: 2px solid var(--ouro);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+.topo-esq { display: flex; align-items: center; gap: 1rem; }
+.maestro-avatar {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--roxo), var(--ouro-escuro));
+  border: 2px solid var(--ouro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.topo-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  color: var(--ouro);
+  letter-spacing: 0.1em;
+}
+.topo-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.45rem;
+  letter-spacing: 0.18em;
+  color: var(--prata);
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+.topo-dir { display: flex; gap: 0.8rem; align-items: center; }
+.btn-voltar {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  color: var(--prata);
+  background: none;
+  border: 1px solid rgba(201,168,76,0.2);
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s;
+}
+.btn-voltar:hover { color: var(--ouro); border-color: var(--ouro); }
+
+/* CONFIG */
+.config-box {
+  background: rgba(45,26,74,0.2);
+  border: 1px solid rgba(156,111,214,0.2);
+  padding: 1.2rem 2rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.fg { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; min-width: 200px; }
+.fl {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.15em;
+  color: var(--prata);
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+.fi {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.12);
+  color: var(--creme);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.88rem;
+  padding: 0.5rem 0.8rem;
+  outline: none;
+  transition: border 0.3s;
+  width: 100%;
+}
+.fi:focus { border-color: rgba(201,168,76,0.4); }
+.btn-p {
+  background: linear-gradient(135deg, var(--ouro-escuro), var(--ouro));
+  color: var(--preto);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+.btn-p:hover { opacity: 0.85; }
+.btn-p:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-s {
+  background: transparent;
+  color: var(--ouro);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  padding: 0.6rem 1rem;
+  border: 1px solid rgba(201,168,76,0.25);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+.btn-s:hover { border-color: var(--ouro); }
+
+/* NAVEGAÇÃO */
+.nav-abas {
+  display: flex;
+  background: var(--preto-mid);
+  border-bottom: 1px solid rgba(201,168,76,0.1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-abas::-webkit-scrollbar { display: none; }
+.aba {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  color: var(--prata);
+  padding: 0.9rem 1.5rem;
+  cursor: pointer;
+  border: none;
+  background: none;
+  text-transform: uppercase;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s;
+  white-space: nowrap;
+  margin-bottom: -1px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.aba:hover { color: var(--ouro); }
+.aba.ativa { color: var(--ouro); border-bottom-color: var(--ouro); }
+
+/* CONTEÚDO */
+.conteudo { max-width: 1300px; margin: 0 auto; padding: 1.5rem 2rem; }
+.secao { display: none; }
+.secao.ativa { display: block; }
+
+/* HEADER SEÇÃO */
+.sec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(201,168,76,0.08);
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+.sec-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.45rem;
+  letter-spacing: 0.3em;
+  color: var(--ouro);
+  opacity: 0.45;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.sec-titulo {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  color: var(--creme);
+  letter-spacing: 0.05em;
+  font-weight: 400;
+}
+.sec-titulo em { color: var(--ouro); font-style: italic; font-family: 'Crimson Pro', serif; }
+
+/* BUSCA */
+.busca-bar {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+.busca-input {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.12);
+  color: var(--creme);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.88rem;
+  padding: 0.5rem 0.8rem;
+  outline: none;
+  flex: 1;
+  min-width: 200px;
+}
+.busca-input:focus { border-color: rgba(201,168,76,0.3); }
+.busca-input::placeholder { color: rgba(201,168,76,0.25); font-style: italic; }
+.filtro-sel {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.12);
+  color: var(--creme);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  padding: 0.5rem 0.7rem;
+  outline: none;
+  cursor: pointer;
+}
+.filtro-sel option { background: var(--preto-mid); }
+
+/* GRADE DE ARTISTAS */
+.artistas-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.artista-card {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.08);
+  overflow: hidden;
+  transition: all 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+.artista-card:hover { border-color: rgba(201,168,76,0.3); transform: translateY(-2px); }
+.artista-card.selecionado { border-color: var(--ouro); background: rgba(201,168,76,0.04); }
+
+.ac-topo {
+  padding: 1rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  border-bottom: 1px solid rgba(201,168,76,0.05);
+}
+.ac-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.ac-info { flex: 1; }
+.ac-nome {
+  font-family: 'Cinzel', serif;
+  font-size: 0.88rem;
+  color: var(--creme);
+  margin-bottom: 0.15rem;
+  line-height: 1.2;
+}
+.ac-tipo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.1em;
+  color: var(--ouro);
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+.ac-corpo { padding: 0.8rem 1.2rem; }
+.ac-estilo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.45rem;
+  letter-spacing: 0.08em;
+  color: var(--prata);
+  opacity: 0.6;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.ac-obras-cnt {
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  color: var(--ouro);
+  line-height: 1;
+}
+.ac-obras-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.1em;
+  color: var(--prata);
+  opacity: 0.5;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+
+/* Barra de LP */
+.lp-barra-wrap { margin-top: 0.5rem; }
+.lp-texto {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.08em;
+  color: var(--prata);
+  opacity: 0.5;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.2rem;
+}
+.lp-barra {
+  height: 3px;
+  background: rgba(201,168,76,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.lp-fill {
+  height: 100%;
+  background: linear-gradient(to right, var(--ouro-escuro), var(--ouro));
+  border-radius: 2px;
+  transition: width 0.5s;
+}
+
+.ac-acoes {
+  padding: 0.6rem 1.2rem;
+  border-top: 1px solid rgba(201,168,76,0.05);
+  display: flex;
+  gap: 0.4rem;
+}
+.ac-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.08em;
+  padding: 0.32rem 0.6rem;
+  border: 1px solid rgba(201,168,76,0.15);
+  background: transparent;
+  color: var(--prata);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.ac-btn:hover { color: var(--ouro); border-color: var(--ouro); }
+.ac-btn.principal { background: rgba(201,168,76,0.08); color: var(--ouro); border-color: rgba(201,168,76,0.25); }
+
+/* LP Badge */
+.lp-badge {
+  position: absolute;
+  top: 0.6rem; right: 0.6rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.4rem;
+  letter-spacing: 0.1em;
+  padding: 0.15rem 0.4rem;
+  background: rgba(0,200,83,0.12);
+  border: 1px solid rgba(0,200,83,0.3);
+  color: var(--verde);
+  text-transform: uppercase;
+}
+
+/* PAINEL DO ARTISTA SELECIONADO */
+.painel-artista {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.15);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: none;
+}
+.painel-artista.aberto { display: block; }
+
+.painel-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(201,168,76,0.1);
+  flex-wrap: wrap;
+}
+.painel-avatar {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--roxo), var(--ouro-escuro));
+  border: 2px solid var(--ouro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+.painel-info { flex: 1; }
+.painel-nome {
+  font-family: 'Cinzel', serif;
+  font-size: 1.3rem;
+  color: var(--ouro);
+  margin-bottom: 0.2rem;
+}
+.painel-tipo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.15em;
+  color: var(--prata);
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+
+/* Form de registro de single */
+.form-single {
+  background: rgba(45,26,74,0.2);
+  border: 1px solid rgba(156,111,214,0.15);
+  padding: 1.2rem;
+  margin-bottom: 1.2rem;
+}
+.form-single-titulo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.2em;
+  color: var(--roxo-claro);
+  opacity: 0.7;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+.form-full { grid-column: 1/-1; }
+.fs, .fta {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.1);
+  color: var(--creme);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.8rem;
+  outline: none;
+  transition: border 0.3s;
+  width: 100%;
+}
+.fs:focus, .fta:focus { border-color: rgba(201,168,76,0.35); }
+.fs option { background: var(--preto-mid); }
+.fta { resize: vertical; min-height: 60px; }
+
+/* Lista de singles */
+.singles-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.single-item {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.08);
+  padding: 0.6rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  transition: all 0.3s;
+}
+.single-item:hover { border-color: rgba(201,168,76,0.2); }
+.single-num {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  color: var(--ouro);
+  opacity: 0.5;
+  width: 24px;
+  flex-shrink: 0;
+}
+.single-titulo {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.9rem;
+  color: var(--creme);
+  flex: 1;
+}
+.single-formato {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.08em;
+  color: var(--prata);
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+.single-remover {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.4rem;
+  color: rgba(211,47,47,0.5);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  transition: color 0.3s;
+}
+.single-remover:hover { color: var(--vermelho); }
+
+/* LP Card */
+.lp-card {
+  background: rgba(0,200,83,0.06);
+  border: 1px solid rgba(0,200,83,0.2);
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+}
+.lp-card-titulo {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  color: var(--verde);
+  margin-bottom: 0.3rem;
+}
+.lp-card-info {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.1em;
+  color: var(--prata);
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+
+/* Status publicação */
+.pub-status {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.08);
+  margin-top: 1rem;
+}
+.pub-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.pub-dot.ok { background: var(--verde); }
+.pub-dot.erro { background: var(--vermelho); }
+.pub-dot.pub { background: var(--ouro); animation: pisca 1s ease-in-out infinite; }
+@keyframes pisca { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.pub-txt {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  color: var(--prata);
+  text-transform: uppercase;
+  flex: 1;
+}
+
+/* LOG */
+.log-box {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.06);
+  padding: 0.8rem;
+  height: 180px;
+  overflow-y: auto;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.04em;
+  line-height: 1.8;
+  margin-top: 1rem;
+}
+.log-ok { color: var(--verde); }
+.log-erro { color: #ff6b6b; }
+.log-info { color: var(--ouro); opacity: 0.6; }
+
+/* NOTIFICAÇÕES */
+#notif {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 700;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 300px;
+}
+.notif-item {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-left: 3px solid var(--ouro);
+  padding: 0.7rem 0.9rem;
+  animation: slideIn 0.3s ease;
+}
+.notif-item.ok { border-left-color: var(--verde); }
+.notif-item.erro { border-left-color: var(--vermelho); }
+@keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+.notif-tit {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.1em;
+  color: var(--ouro);
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+.notif-item.ok .notif-tit { color: var(--verde); }
+.notif-item.erro .notif-tit { color: #ff6b6b; }
+.notif-txt { font-size: 0.8rem; color: var(--creme); line-height: 1.4; }
+
+/* VAZIO */
+.vazio {
+  text-align: center;
+  padding: 3rem;
+  color: var(--prata);
+  opacity: 0.4;
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .conteudo { padding: 1rem; }
+  .config-box { padding: 1rem; }
+  .artistas-grade { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPO -->
+<div class="topo">
+  <div class="topo-esq">
+    <div class="maestro-avatar">🎼</div>
+    <div>
+      <div class="topo-logo">MAESTRO AARON CANTARELLI VOX</div>
+      <div class="topo-sub">Curadoria Musical · SIGMAL Music · Painel HQ</div>
+    </div>
+  </div>
+  <div class="topo-dir">
+    <a href="index.html" class="btn-voltar">← PAINEL HQ</a>
+  </div>
+</div>
+
+<!-- CONFIG GITHUB -->
+<div class="config-box">
+  <div class="fg">
+    <label class="fl">Token GitHub</label>
+    <input type="password" class="fi" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
+  </div>
+  <div class="fg" style="max-width:260px;">
+    <label class="fl">Repositório Celeiro</label>
+    <input type="text" class="fi" id="gh-repo" value="sitedasletras/CeleiroLiterario">
+  </div>
+  <div class="fg" style="max-width:100px;">
+    <label class="fl">Branch</label>
+    <input type="text" class="fi" id="gh-branch" value="main">
+  </div>
+  <button class="btn-p" onclick="salvarConfig()">SALVAR</button>
+  <button class="btn-s" onclick="testarConexao()">TESTAR</button>
+</div>
+
+<!-- NAVEGAÇÃO -->
+<div class="nav-abas">
+  <button class="aba ativa" onclick="irAba('artistas',this)">🎵 ARTISTAS INDIVIDUAIS</button>
+  <button class="aba" onclick="irAba('bandas',this)">🎸 BANDAS & CONJUNTOS</button>
+  <button class="aba" onclick="irAba('orquestra',this)">🎻 ORQUESTRA FILARMÔNICA</button>
+  <button class="aba" onclick="irAba('publicar',this)">📤 PUBLICAR BIOGRAFIAS</button>
+</div>
+
+<!-- CONTEÚDO -->
+<div class="conteudo">
+
+  <!-- ===== ARTISTAS INDIVIDUAIS ===== -->
+  <div class="secao ativa" id="sec-artistas">
+    <div class="sec-header">
+      <div>
+        <div class="sec-label">// CATÁLOGO DE ARTISTAS</div>
+        <h2 class="sec-titulo">Artistas <em>Individuais</em></h2>
+      </div>
+      <div class="topo-dir">
+        <input type="text" class="busca-input" id="busca-artista" placeholder="Buscar artista..." oninput="filtrarArtistas()" style="min-width:180px;">
+        <select class="filtro-sel" id="filtro-cat" onchange="filtrarArtistas()">
+          <option value="">Todos</option>
+          <option value="voz">Voz / Cantor(a)</option>
+          <option value="inst">Instrumentista</option>
+          <option value="conjunto">Duo / Trio</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Painel do artista selecionado -->
+    <div class="painel-artista" id="painel-artista">
+      <div class="painel-header">
+        <div class="painel-avatar" id="pa-avatar">🎵</div>
+        <div class="painel-info">
+          <div class="painel-nome" id="pa-nome">—</div>
+          <div class="painel-tipo" id="pa-tipo">—</div>
+        </div>
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+          <button class="btn-p" onclick="publicarBioArtista()">📤 PUBLICAR BIOGRAFIA</button>
+          <button class="btn-s" onclick="fecharPainel()">FECHAR</button>
+        </div>
+      </div>
+
+      <!-- LP ativo -->
+      <div id="lp-ativo-box" style="display:none;" class="lp-card">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.15em;color:var(--verde);text-transform:uppercase;margin-bottom:0.4rem;">// LP LANÇADO</div>
+        <div class="lp-card-titulo" id="lp-ativo-nome">—</div>
+        <div class="lp-card-info" id="lp-ativo-info">—</div>
+      </div>
+
+      <!-- Form de novo single -->
+      <div class="form-single">
+        <div class="form-single-titulo">// REGISTRAR NOVA OBRA</div>
+        <div class="form-grid">
+          <div class="fg">
+            <label class="fl">Título da Música / Obra</label>
+            <input type="text" class="fi" id="s-titulo" placeholder="Título do single...">
+          </div>
+          <div class="fg">
+            <label class="fl">Formato</label>
+            <select class="fs" id="s-formato">
+              <option value="single">Single</option>
+              <option value="participacao">Participação especial</option>
+              <option value="trilha">Trilha sonora</option>
+              <option value="audiobook">Audiobook musicado</option>
+              <option value="live">Performance ao vivo</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Idioma</label>
+            <input type="text" class="fi" id="s-idioma" value="pt-BR" placeholder="pt-BR, en-US, ja-JP...">
+          </div>
+          <div class="fg">
+            <label class="fl">Produzido por</label>
+            <input type="text" class="fi" id="s-produtor" value="Maestro Aaron Cantarelli Vox">
+          </div>
+          <div class="fg form-full">
+            <label class="fl">Observações (opcional)</label>
+            <textarea class="fta" id="s-obs" placeholder="Notas internas sobre a obra..."></textarea>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.6rem;margin-top:0.8rem;flex-wrap:wrap;">
+          <button class="btn-p" onclick="registrarSingle()">+ REGISTRAR SINGLE</button>
+          <button class="btn-s" onclick="verificarLP()">⚡ VERIFICAR LP (16 SINGLES)</button>
+        </div>
+      </div>
+
+      <!-- Lista de singles -->
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.48rem;letter-spacing:0.18em;color:var(--ouro);opacity:0.5;text-transform:uppercase;margin-bottom:0.6rem;display:flex;justify-content:space-between;align-items:center;">
+          <span>// SINGLES REGISTRADOS</span>
+          <span id="singles-cnt" style="color:var(--ouro);">0 / 16</span>
+        </div>
+
+        <!-- Barra LP -->
+        <div class="lp-barra-wrap" style="margin-bottom:0.8rem;">
+          <div class="lp-barra"><div class="lp-fill" id="lp-fill-painel" style="width:0%"></div></div>
+        </div>
+
+        <div class="singles-lista" id="singles-lista">
+          <div class="vazio">Nenhum single registrado ainda.</div>
+        </div>
+      </div>
+
+      <!-- Status e log -->
+      <div class="pub-status">
+        <div class="pub-dot ok" id="pub-dot-artista"></div>
+        <div class="pub-txt" id="pub-txt-artista">Pronto para publicar</div>
+      </div>
+      <div class="log-box" id="log-artista"></div>
+    </div>
+
+    <!-- Grade de artistas -->
+    <div class="artistas-grade" id="grade-artistas"></div>
+  </div>
+
+  <!-- ===== BANDAS ===== -->
+  <div class="secao" id="sec-bandas">
+    <div class="sec-header">
+      <div>
+        <div class="sec-label">// BANDAS & CONJUNTOS</div>
+        <h2 class="sec-titulo">Bandas & <em>Projetos</em></h2>
+      </div>
+    </div>
+    <div class="artistas-grade" id="grade-bandas"></div>
+  </div>
+
+  <!-- ===== ORQUESTRA ===== -->
+  <div class="secao" id="sec-orquestra">
+    <div class="sec-header">
+      <div>
+        <div class="sec-label">// ORQUESTRA FILARMÔNICA</div>
+        <h2 class="sec-titulo">Orquestra <em>Filarmônica do Celeiro</em></h2>
+      </div>
+    </div>
+    <div style="background:var(--preto-mid);border:1px solid rgba(201,168,76,0.1);padding:1.5rem;">
+      <div style="font-family:'Cinzel',serif;font-size:1.1rem;color:var(--ouro);margin-bottom:0.5rem;">🎻 Orquestra Filarmônica do Celeiro Literário</div>
+      <div style="font-family:'Crimson Pro',serif;font-style:italic;font-size:0.9rem;color:var(--prata);line-height:1.6;margin-bottom:1rem;">Entidade musical permanente do Instituto. Formação flexível — tem seções fixas que se expandem conforme a obra. Cordas, Sopros Metais, Sopros Madeiras, Percussão & Teclados.</div>
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+        <button class="btn-p" onclick="registrarObraOrquestra()">+ REGISTRAR OBRA DA ORQUESTRA</button>
+        <button class="btn-s" onclick="publicarBioOrquestra()">📤 PUBLICAR BIOGRAFIA</button>
+      </div>
+      <div id="obras-orquestra-lista" style="margin-top:1rem;"></div>
+    </div>
+  </div>
+
+  <!-- ===== PUBLICAR TODAS ===== -->
+  <div class="secao" id="sec-publicar">
+    <div class="sec-header">
+      <div>
+        <div class="sec-label">// PUBLICAÇÃO EM LOTE</div>
+        <h2 class="sec-titulo">Publicar <em>Todas as Biografias</em></h2>
+      </div>
+    </div>
+
+    <div style="background:var(--preto-mid);border:1px solid rgba(201,168,76,0.1);padding:1.5rem;margin-bottom:1.5rem;">
+      <p style="font-style:italic;font-size:0.9rem;color:var(--prata);line-height:1.7;margin-bottom:1.2rem;">
+        Publica as biografias de TODOS os artistas que têm obras registradas no Celeiro Literário — na seção de Biografias Musicais. Artistas sem obras não aparecem publicamente.
+      </p>
+      <div style="display:flex;gap:0.8rem;flex-wrap:wrap;">
+        <button class="btn-p" id="btn-pub-lote" onclick="publicarTodasBios()">📤 PUBLICAR TODAS AS BIOGRAFIAS MUSICAIS</button>
+      </div>
+
+      <!-- Progresso -->
+      <div style="margin-top:1.2rem;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.15em;color:var(--ouro);opacity:0.5;text-transform:uppercase;margin-bottom:0.6rem;">// PROGRESSO</div>
+        <div style="display:flex;gap:2rem;margin-bottom:0.8rem;">
+          <div><div style="font-family:'Cinzel',serif;font-size:1.8rem;color:var(--ouro);" id="pub-cnt-ok">0</div><div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:var(--prata);text-transform:uppercase;">Publicados</div></div>
+          <div><div style="font-family:'Cinzel',serif;font-size:1.8rem;color:#ff6b6b;" id="pub-cnt-erro">0</div><div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:var(--prata);text-transform:uppercase;">Erros</div></div>
+        </div>
+        <div style="height:4px;background:rgba(201,168,76,0.1);border-radius:2px;overflow:hidden;">
+          <div style="height:100%;background:linear-gradient(to right,var(--ouro-escuro),var(--ouro));border-radius:2px;transition:width 0.5s;" id="pub-barra"></div>
+        </div>
+      </div>
+
+      <div class="log-box" id="log-lote" style="margin-top:1rem;"></div>
+    </div>
+  </div>
+
+</div><!-- /conteudo -->
+
+<div id="notif"></div>
+
+<script>
+// ===== CONFIG =====
+function salvarConfig() {
+  localStorage.setItem('gh_token', document.getElementById('gh-token').value);
+  localStorage.setItem('gh_repo', document.getElementById('gh-repo').value);
+  localStorage.setItem('gh_branch', document.getElementById('gh-branch').value);
+  notif('SALVO', 'Configuração salva.', 'ok');
+}
+function carregarConfig() {
+  const t = localStorage.getItem('gh_token');
+  const r = localStorage.getItem('gh_repo');
+  const b = localStorage.getItem('gh_branch');
+  if (t) document.getElementById('gh-token').value = t;
+  if (r) document.getElementById('gh-repo').value = r;
+  if (b) document.getElementById('gh-branch').value = b;
+}
+async function testarConexao() {
+  const token = getToken();
+  const repo = getRepo();
+  if (!token || !repo) { notif('ERRO', 'Preencha token e repositório.', 'erro'); return; }
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (res.ok) notif('CONEXÃO OK', `${repo} acessível.`, 'ok');
+    else notif('ERRO', `Status ${res.status}`, 'erro');
+  } catch(e) { notif('ERRO', 'Falha na conexão.', 'erro'); }
+}
+function getToken() { return document.getElementById('gh-token').value || localStorage.getItem('gh_token'); }
+function getRepo() { return document.getElementById('gh-repo').value || localStorage.getItem('gh_repo'); }
+function getBranch() { return document.getElementById('gh-branch').value || localStorage.getItem('gh_branch') || 'main'; }
+
+// ===== DADOS DOS ARTISTAS =====
+const ARTISTAS_BASE = [
+  // Sopranos / Vozes Líricas
+  {id:'MUS-001',nome:'Isadora Vellini',ic:'🎤',orig:'Brasil — São Paulo, descendente italiana',gen:'F',cat:'voz',estilo:'classico',inst:'Soprano lírico — 1ª voz'},
+  {id:'MUS-002',nome:'Valentina Osei-Bonsu',ic:'🎤',orig:'Gana',gen:'F',cat:'voz',estilo:'classico',inst:'Mezzo-soprano — voz de ouro negro'},
+  {id:'MUS-003',nome:'Camille Dufresne',ic:'🎤',orig:'França',gen:'F',cat:'voz',estilo:'classico',inst:'Soprano lírico — voz francesa de câmara'},
+  {id:'MUS-004',nome:'Fatimah Al-Rashid',ic:'🎤',orig:'Líbano',gen:'F',cat:'voz',estilo:'world',inst:'Voz árabe / Maqam'},
+  // Tenores
+  {id:'MUS-005',nome:'Marco Ferretti',ic:'🎤',orig:'Itália — Nápoles',gen:'M',cat:'voz',estilo:'classico',inst:'Tenor lírico — voz napolitana'},
+  {id:'MUS-006',nome:'Kwabena Asante',ic:'🎤',orig:'Gana',gen:'M',cat:'voz',estilo:'classico',inst:'Tenor dramático'},
+  {id:'MUS-007',nome:'Hiroshi Tanaka',ic:'🎤',orig:'Japão',gen:'M',cat:'voz',estilo:'classico',inst:'Tenor lírico japonês'},
+  // Barítonos e Baixos
+  {id:'MUS-008',nome:'Viktor Melnyk',ic:'🎤',orig:'Ucrânia',gen:'M',cat:'voz',estilo:'classico',inst:'Barítono dramático'},
+  {id:'MUS-009',nome:'Samuel Okafor',ic:'🎤',orig:'Nigéria',gen:'M',cat:'voz',estilo:'classico',inst:'Baixo profundo'},
+  // Cantores MPB / Popular Brasileiro
+  {id:'MUS-010',nome:'Maristela Braga',ic:'🎤',orig:'Brasil — Bahia',gen:'F',cat:'voz',estilo:'mpb',inst:'Voz popular / MPB'},
+  {id:'MUS-011',nome:'Sebastião Neto',ic:'🎤',orig:'Brasil — Minas Gerais',gen:'M',cat:'voz',estilo:'mpb',inst:'Voz masculina MPB'},
+  {id:'MUS-012',nome:'Dandara Quilombo',ic:'🎤',orig:'Brasil — Maranhão',gen:'F',cat:'voz',estilo:'folk',inst:'Voz / Percussão'},
+  {id:'MUS-013',nome:'Jairo Silveira',ic:'🎤',orig:'Brasil — Rio de Janeiro',gen:'M',cat:'voz',estilo:'samba',inst:'Voz de samba'},
+  {id:'MUS-014',nome:'Conceição Palmares',ic:'🎤',orig:'Brasil — Bahia',gen:'F',cat:'voz',estilo:'samba',inst:'Voz de samba / axé'},
+  // Jazz / Blues / Soul
+  {id:'MUS-015',nome:'Josephine Walker',ic:'🎤',orig:'Estados Unidos — Nova Orleans',gen:'F',cat:'voz',estilo:'jazz',inst:'Voz de jazz / blues'},
+  {id:'MUS-016',nome:'Raymond Coltrane',ic:'🎤',orig:'Estados Unidos — Chicago',gen:'M',cat:'voz',estilo:'jazz',inst:'Voz de jazz'},
+  {id:'MUS-017',nome:'Amina Coulibaly',ic:'🎤',orig:'Mali',gen:'F',cat:'voz',estilo:'world',inst:'Griot / voz mandinga'},
+  // Gospel / Coral
+  {id:'MUS-018',nome:'Ruth Evangelista',ic:'🎤',orig:'Brasil — Pernambuco',gen:'F',cat:'voz',estilo:'gospel',inst:'Soprano gospel'},
+  {id:'MUS-019',nome:'Pastor Elias Voz',ic:'🎤',orig:'Brasil — Minas Gerais',gen:'M',cat:'voz',estilo:'gospel',inst:'Barítono gospel'},
+  // Folk / Regional
+  {id:'MUS-020',nome:'Rosinha do Vale',ic:'🎤',orig:'Brasil — Ceará',gen:'F',cat:'voz',estilo:'folk',inst:'Voz / Viola caipira'},
+  {id:'MUS-021',nome:'Seu Maneco Aboio',ic:'🎤',orig:'Brasil — Sertão da Paraíba',gen:'M',cat:'voz',estilo:'folk',inst:'Aboiador'},
+  {id:'MUS-022',nome:'Siobhán Ní Faoláin',ic:'🎤',orig:'Irlanda',gen:'F',cat:'voz',estilo:'folk',inst:'Voz / Harpa celta'},
+  {id:'MUS-023',nome:'Dmitri Balalaika',ic:'🎤',orig:'Rússia',gen:'M',cat:'voz',estilo:'folk',inst:'Voz / Balalaika'},
+  // Pop / R&B
+  {id:'MUS-024',nome:'Luana Star',ic:'🎤',orig:'Brasil — São Paulo',gen:'F',cat:'voz',estilo:'pop',inst:'Voz pop / R&B'},
+  {id:'MUS-025',nome:'Kevin Soul',ic:'🎤',orig:'Reino Unido — Londres',gen:'M',cat:'voz',estilo:'pop',inst:'Voz soul / pop'},
+  // Instrumentistas Solistas
+  {id:'MUS-026',nome:'Adaeze Piano',ic:'🎹',orig:'Nigéria',gen:'F',cat:'inst',estilo:'classico',inst:'Piano — clássico'},
+  {id:'MUS-027',nome:'Alexei Volkov',ic:'🎹',orig:'Rússia',gen:'M',cat:'inst',estilo:'classico',inst:'Piano — escola russa'},
+  {id:'MUS-028',nome:'Yoko Mitsui',ic:'🎻',orig:'Japão',gen:'F',cat:'inst',estilo:'classico',inst:'Violino — concertista'},
+  {id:'MUS-029',nome:'Pablo Casado',ic:'🎸',orig:'Espanha — Catalunha',gen:'M',cat:'inst',estilo:'classico',inst:'Violoncelo'},
+  {id:'MUS-030',nome:'Asel Flautista',ic:'🎷',orig:'Quirguistão',gen:'F',cat:'inst',estilo:'world',inst:'Flauta / Kaval'},
+  {id:'MUS-031',nome:'Jean-Pierre Hautbois',ic:'🎷',orig:'França',gen:'M',cat:'inst',estilo:'classico',inst:'Oboé'},
+  {id:'MUS-032',nome:'Carlos Sax',ic:'🎷',orig:'Brasil — Rio de Janeiro',gen:'M',cat:'inst',estilo:'jazz',inst:'Saxofone tenor'},
+  {id:'MUS-033',nome:'Leila Oud',ic:'🎸',orig:'Egito',gen:'F',cat:'inst',estilo:'world',inst:'Oud / Guitarra árabe'},
+  {id:'MUS-034',nome:'Ravi Sitar',ic:'🎸',orig:'Índia — Varanasi',gen:'M',cat:'inst',estilo:'world',inst:'Sitar / Raga'},
+  {id:'MUS-035',nome:'Tomás Viola',ic:'🎸',orig:'Brasil — Goiás',gen:'M',cat:'inst',estilo:'folk',inst:'Viola caipira'},
+  {id:'MUS-036',nome:'Ibrahim Kora',ic:'🥁',orig:'Senegal',gen:'M',cat:'inst',estilo:'world',inst:'Kora / Percussão mandinga'},
+  {id:'MUS-037',nome:'Keiko Shamisen',ic:'🎸',orig:'Japão',gen:'F',cat:'inst',estilo:'world',inst:'Shamisen / Koto'},
+  {id:'MUS-038',nome:'Percival Drums',ic:'🥁',orig:'Brasil — Salvador',gen:'M',cat:'inst',estilo:'mpb',inst:'Bateria / Percussão'},
+  {id:'MUS-039',nome:'Luisa Harpa',ic:'🎻',orig:'Argentina',gen:'F',cat:'inst',estilo:'classico',inst:'Harpa orquestral'},
+  {id:'MUS-040',nome:'Ahmed Bendir',ic:'🥁',orig:'Marrocos',gen:'M',cat:'inst',estilo:'world',inst:'Percussão árabe / Darbuka'},
+  {id:'MUS-041',nome:'Olga Acordeão',ic:'🎹',orig:'Rússia — Sibéria',gen:'F',cat:'inst',estilo:'folk',inst:'Acordeão / Bayan'},
+  {id:'MUS-042',nome:'Santiago Guitarra',ic:'🎸',orig:'Chile',gen:'M',cat:'inst',estilo:'folk',inst:'Guitarra clássica / Charango'},
+  {id:'MUS-043',nome:'Mingus Contrabaixo',ic:'🎻',orig:'Estados Unidos — Nova York',gen:'M',cat:'inst',estilo:'jazz',inst:'Contrabaixo jazz'},
+  {id:'MUS-044',nome:'Zhen Erhu',ic:'🎻',orig:'China',gen:'F',cat:'inst',estilo:'world',inst:'Erhu / Violino chinês'},
+  // Contratenores / Vozes Especiais
+  {id:'MUS-045',nome:'Felix Contratenor',ic:'🎤',orig:'Alemanha',gen:'M',cat:'voz',estilo:'classico',inst:'Contratenor'},
+  {id:'MUS-046',nome:'Tadashi Falsete',ic:'🎤',orig:'Japão',gen:'M',cat:'voz',estilo:'classico',inst:'Contratenor / Voz de cabeça'},
+  // Cantores Internacionais
+  {id:'MUS-047',nome:'Elena Fado',ic:'🎤',orig:'Portugal — Lisboa',gen:'F',cat:'voz',estilo:'world',inst:'Voz de fado'},
+  {id:'MUS-048',nome:'Carmen Flamenca',ic:'🎤',orig:'Espanha — Sevilha',gen:'F',cat:'voz',estilo:'world',inst:'Cante flamenco'},
+  {id:'MUS-049',nome:'Nino Georgiano',ic:'🎤',orig:'Geórgia',gen:'M',cat:'voz',estilo:'world',inst:'Voz polifônica georgiana'},
+  {id:'MUS-050',nome:'Miriam Klezmer',ic:'🎤',orig:'Israel',gen:'F',cat:'voz',estilo:'world',inst:'Voz klezmer / cantora'},
+  // Duos e Trios Individuais
+  {id:'MUS-051',nome:'Duo Lua & Mar',ic:'🎵',orig:'Brasil — Rio de Janeiro',gen:'G',cat:'conjunto',estilo:'mpb',inst:'Duo — voz e violão'},
+  {id:'MUS-052',nome:'Trio Árido',ic:'🎵',orig:'Brasil — Nordeste',gen:'G',cat:'conjunto',estilo:'folk',inst:'Trio — voz e percussão'},
+  {id:'MUS-053',nome:'Duo Sakura',ic:'🎵',orig:'Japão / Brasil',gen:'G',cat:'conjunto',estilo:'world',inst:'Duo — koto e voz'},
+  {id:'MUS-054',nome:'Trio Jazz Marginal',ic:'🎵',orig:'Brasil — São Paulo',gen:'G',cat:'conjunto',estilo:'jazz',inst:'Trio jazz'},
+  // Eletrônico / Experimental
+  {id:'MUS-055',nome:'Diana Synthesis',ic:'🎹',orig:'Alemanha — Berlim',gen:'F',cat:'inst',estilo:'eletrônico',inst:'Sintetizadores / Produção eletrônica'},
+  {id:'MUS-056',nome:'Elo Experimental',ic:'🎹',orig:'Brasil — São Paulo',gen:'M',cat:'inst',estilo:'experimental',inst:'Produção experimental'},
+  {id:'MUS-057',nome:'Tariq Electronic',ic:'🎹',orig:'Tunísia',gen:'M',cat:'inst',estilo:'eletrônico',inst:'Eletrônico / DJ'},
+  // Mais Cantores Populares
+  {id:'MUS-058',nome:'Renata Bolero',ic:'🎤',orig:'México',gen:'F',cat:'voz',estilo:'world',inst:'Voz de bolero / balada latina'},
+  {id:'MUS-059',nome:'Cléo Lunna',ic:'🎤',orig:'Brasil — Recife',gen:'F',cat:'voz',estilo:'mpb',inst:'Voz MPB / Manguebeat'},
+  {id:'MUS-060',nome:'Abebe Girma',ic:'🎤',orig:'Etiópia',gen:'M',cat:'voz',estilo:'world',inst:'Voz etíope / Ethio-jazz'},
+  // ROVONILSON — artista especial (OHE + SIGMAL)
+  {id:'MUS-ROV',nome:'Rovonilson Reigns Bautista',ic:'🎤',orig:'Brasil — Santo André, SP',gen:'M',cat:'voz',estilo:'rap',inst:'Rapper / Letrista — único artista ativo na OHE e na SIGMAL Music'},
+];
+
+const BANDAS_BASE = [
+  {id:'BAND-001',nome:'Ferro & Chuva',tipo:'BANDA · ROCK BRASILEIRO',membros:['Raimundo Ferro — Voz','Dalila Chuva — Guitarra','Zé Trovão — Contrabaixo','Pedrina Sal — Bateria']},
+  {id:'BAND-002',nome:'Noite de Sal',tipo:'QUINTETO · JAZZ / MPB',membros:['Clarice Noite — Voz','Benedito Sal — Saxofone','Iris Mares — Piano','Otávio Negão — Contrabaixo','Suely Bruma — Bateria']},
+  {id:'BAND-003',nome:'Forró do Fim do Mundo',tipo:'TRIO · FORRÓ PÉ DE SERRA',membros:['Mundinha Lua — Sanfona','Chicão Trovão — Zabumba','Lindalva Sol — Triângulo']},
+  {id:'BAND-004',nome:'Diáspora Sound System',tipo:'COLETIVO · AFROBEAT / REGGAE / ELETRÔNICO',membros:['Adama Kouyaté — Voz','Bianca Rocha — Guitarra','Kwame Asante — Percussão','Leandro Rasta — Teclados','Fatou Diallo — Trompete','Diego Batucada — Bateria']},
+  {id:'BAND-005',nome:'Câmara Negra',tipo:'QUARTETO · MÚSICA DE CÂMARA / CONTEMPORÂNEA',membros:['Vera Stradivari — Violino I','Park Soo-Yeon — Violino II','Hamid Shirazi — Viola','Natasha Volkov — Violoncelo']},
+  {id:'BAND-006',nome:'Tango Bruto',tipo:'QUARTETO · TANGO NUEVO / MILONGA',membros:['Osvaldo Fierro — Bandoneón','Luciana Bruto — Violino','Martín Palermo — Piano','Elena Ramos — Contrabaixo']},
+  {id:'BAND-007',nome:'Big Band do Celeiro',tipo:'BIG BAND · JAZZ / SWING / FUNK',membros:['Viviane Black — Voz','Clarence Webb — Trompete','Amara Touré — Saxofone','Rodrigo Swing — Trombone','Earl Batista — Bateria','Sérgio Baixo — Contrabaixo']},
+  {id:'BAND-008',nome:'Al-Andalus',tipo:'QUINTETO · MÚSICA DO MUNDO / FLAMENCO / ÁRABE / FADO',membros:['Fátima Mouraria — Voz','Carlos Duende — Guitarra','Youssef Maqam — Oud','Miriam Rabab — Violino','Pedro Guitarra — Guitarra clássica']},
+  {id:'BAND-009',nome:'Ângelus Prime',tipo:'SEXTETO VOCAL · GREGORIANO POP · 2 VOZES FEMININAS',membros:['Serafina Lux — Soprano lírico','Miriam das Águas — Mezzo-soprano','Raphael Sanctus — Tenor lírico','Luca Ardente — Tenor dramático','Etienne Nobre — Barítono','Dom Ezequiel — Baixo profundo']},
+];
+
+// ===== ESTADO =====
+let obras = JSON.parse(localStorage.getItem('maestro_obras') || '{}');
+let artistaSelecionado = null;
+
+function salvarObras() {
+  localStorage.setItem('maestro_obras', JSON.stringify(obras));
+}
+
+function getObrasArtista(id) {
+  return obras[id] || { singles: [], lps: [] };
+}
+
+// ===== NAVEGAÇÃO =====
+function irAba(id, el) {
+  document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
+  document.querySelectorAll('.aba').forEach(b => b.classList.remove('ativa'));
+  document.getElementById('sec-' + id)?.classList.add('ativa');
+  if (el) el.classList.add('ativa');
+}
+
+// ===== RENDERIZAÇÃO =====
+function renderizarArtistas(lista) {
+  const grade = document.getElementById('grade-artistas');
+  if (!lista.length) {
+    grade.innerHTML = '<div class="vazio">Nenhum artista encontrado.</div>';
+    return;
+  }
+  grade.innerHTML = lista.map(a => {
+    const d = getObrasArtista(a.id);
+    const singles = d.singles.length;
+    const lps = d.lps.length;
+    const pct = Math.min(100, (singles / 16) * 100);
+    const temLp = lps > 0;
+    return `
+      <div class="artista-card ${artistaSelecionado?.id === a.id ? 'selecionado' : ''}"
+           onclick="selecionarArtista('${a.id}')">
+        ${temLp ? `<div class="lp-badge">${lps} LP${lps>1?'s':''}</div>` : ''}
+        <div class="ac-topo">
+          <div class="ac-avatar">${a.ic}</div>
+          <div class="ac-info">
+            <div class="ac-nome">${a.nome}</div>
+            <div class="ac-tipo">${a.cat.toUpperCase()} · ${a.estilo.toUpperCase()}</div>
+          </div>
+        </div>
+        <div class="ac-corpo">
+          <div class="ac-estilo">${a.inst}</div>
+          <div class="ac-obras-label">Singles / LPs</div>
+          <div class="ac-obras-cnt">${singles} <span style="font-size:0.7rem;color:var(--prata);">singles</span> · ${lps} <span style="font-size:0.7rem;color:var(--prata);">LP${lps!==1?'s':''}</span></div>
+          <div class="lp-barra-wrap">
+            <div class="lp-texto">
+              <span>${singles} de 16 para LP</span>
+              <span>${Math.round(pct)}%</span>
+            </div>
+            <div class="lp-barra"><div class="lp-fill" style="width:${pct}%"></div></div>
+          </div>
+        </div>
+        <div class="ac-acoes">
+          <button class="ac-btn principal" onclick="event.stopPropagation();selecionarArtista('${a.id}')">GERENCIAR</button>
+          <button class="ac-btn" onclick="event.stopPropagation();publicarBioArtistaId('${a.id}')">📤</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderizarBandas() {
+  const grade = document.getElementById('grade-bandas');
+  grade.innerHTML = BANDAS_BASE.map(b => {
+    const d = getObrasArtista(b.id);
+    return `
+      <div class="artista-card" onclick="selecionarBanda('${b.id}')">
+        <div class="ac-topo">
+          <div class="ac-avatar">🎸</div>
+          <div class="ac-info">
+            <div class="ac-nome">${b.nome}</div>
+            <div class="ac-tipo" style="font-size:0.38rem;">${b.tipo}</div>
+          </div>
+        </div>
+        <div class="ac-corpo">
+          <div class="ac-estilo">${b.membros.join(' · ')}</div>
+          <div style="margin-top:0.5rem;">
+            <div class="ac-obras-cnt">${(d.singles||[]).length} <span style="font-size:0.7rem;color:var(--prata);">singles</span> · ${(d.lps||[]).length} <span style="font-size:0.7rem;color:var(--prata);">LPs</span></div>
+          </div>
+        </div>
+        <div class="ac-acoes">
+          <button class="ac-btn principal" onclick="event.stopPropagation();selecionarBanda('${b.id}')">GERENCIAR</button>
+          <button class="ac-btn" onclick="event.stopPropagation();publicarBioArtistaId('${b.id}')">📤</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function filtrarArtistas() {
+  const busca = document.getElementById('busca-artista').value.toLowerCase();
+  const cat = document.getElementById('filtro-cat').value;
+  const lista = ARTISTAS_BASE.filter(a => {
+    const matchB = !busca || a.nome.toLowerCase().includes(busca) || a.inst.toLowerCase().includes(busca);
+    const matchC = !cat || a.cat === cat;
+    return matchB && matchC;
+  });
+  renderizarArtistas(lista);
+}
+
+// ===== SELEÇÃO DE ARTISTA =====
+function selecionarArtista(id) {
+  artistaSelecionado = ARTISTAS_BASE.find(a => a.id === id);
+  if (!artistaSelecionado) return;
+  abrirPainel(artistaSelecionado);
+  renderizarArtistas(ARTISTAS_BASE);
+}
+
+function selecionarBanda(id) {
+  const banda = BANDAS_BASE.find(b => b.id === id);
+  if (!banda) return;
+  artistaSelecionado = { id: banda.id, nome: banda.nome, ic: '🎸', tipo: banda.tipo, inst: banda.membros.join(', '), cat: 'banda', estilo: 'banda' };
+  abrirPainel(artistaSelecionado);
+}
+
+function abrirPainel(a) {
+  document.getElementById('pa-avatar').textContent = a.ic || '🎵';
+  document.getElementById('pa-nome').textContent = a.nome;
+  document.getElementById('pa-tipo').textContent = a.inst || a.tipo || '';
+  document.getElementById('painel-artista').classList.add('aberto');
+  document.getElementById('painel-artista').scrollIntoView({ behavior: 'smooth' });
+  atualizarPainelSingles();
+  setPubStatus('ok', 'Pronto para publicar');
+}
+
+function fecharPainel() {
+  document.getElementById('painel-artista').classList.remove('aberto');
+  artistaSelecionado = null;
+  renderizarArtistas(ARTISTAS_BASE);
+}
+
+function atualizarPainelSingles() {
+  if (!artistaSelecionado) return;
+  const d = getObrasArtista(artistaSelecionado.id);
+  const singles = d.singles || [];
+  const lps = d.lps || [];
+  const pct = Math.min(100, (singles.length / 16) * 100);
+
+  document.getElementById('singles-cnt').textContent = `${singles.length} / 16`;
+  document.getElementById('lp-fill-painel').style.width = pct + '%';
+
+  // LP ativo
+  if (lps.length > 0) {
+    const ultimoLP = lps[lps.length - 1];
+    document.getElementById('lp-ativo-box').style.display = 'block';
+    document.getElementById('lp-ativo-nome').textContent = ultimoLP.nome;
+    document.getElementById('lp-ativo-info').textContent = `${ultimoLP.singles} singles · Lançado em ${ultimoLP.data}`;
+  } else {
+    document.getElementById('lp-ativo-box').style.display = 'none';
+  }
+
+  // Lista de singles
+  const lista = document.getElementById('singles-lista');
+  if (!singles.length) {
+    lista.innerHTML = '<div class="vazio">Nenhum single registrado ainda.</div>';
+    return;
+  }
+  lista.innerHTML = singles.map((s, i) => `
+    <div class="single-item">
+      <div class="single-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="single-titulo">${s.titulo}</div>
+      <div class="single-formato">${s.formato} · ${s.idioma}</div>
+      <button class="single-remover" onclick="removerSingle(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+// ===== SINGLES E LP =====
+function registrarSingle() {
+  if (!artistaSelecionado) { notif('ATENÇÃO', 'Selecione um artista primeiro.', 'erro'); return; }
+  const titulo = document.getElementById('s-titulo').value.trim();
+  if (!titulo) { notif('OBRIGATÓRIO', 'Informe o título da música.', 'erro'); return; }
+
+  const d = getObrasArtista(artistaSelecionado.id);
+  if (!d.singles) d.singles = [];
+  if (!d.lps) d.lps = [];
+
+  const single = {
+    titulo,
+    formato: document.getElementById('s-formato').value,
+    idioma: document.getElementById('s-idioma').value,
+    produtor: document.getElementById('s-produtor').value,
+    obs: document.getElementById('s-obs').value,
+    data: new Date().toLocaleDateString('pt-BR')
+  };
+
+  d.singles.push(single);
+  obras[artistaSelecionado.id] = d;
+  salvarObras();
+  atualizarPainelSingles();
+  renderizarArtistas(ARTISTAS_BASE);
+
+  // Verifica LP automático
+  if (d.singles.length >= 16 && d.singles.length % 16 === 0) {
+    lancarLP();
+  } else {
+    notif('SINGLE REGISTRADO', `"${titulo}" adicionado ao catálogo de ${artistaSelecionado.nome}.`, 'ok');
+  }
+
+  // Limpar form
+  document.getElementById('s-titulo').value = '';
+  document.getElementById('s-obs').value = '';
+}
+
+function verificarLP() {
+  if (!artistaSelecionado) return;
+  const d = getObrasArtista(artistaSelecionado.id);
+  const singles = d.singles || [];
+  if (singles.length >= 16) {
+    if (confirm(`${artistaSelecionado.nome} tem ${singles.length} singles. Lançar LP agora? Os singles serão consolidados no álbum.`)) {
+      lancarLP();
+    }
+  } else {
+    notif('AINDA NÃO', `${artistaSelecionado.nome} tem apenas ${singles.length} de 16 singles necessários.`, 'erro');
+  }
+}
+
+function lancarLP() {
+  if (!artistaSelecionado) return;
+  const d = getObrasArtista(artistaSelecionado.id);
+  const nomeLP = prompt(`Nome do LP de ${artistaSelecionado.nome}:`, `${artistaSelecionado.nome} — Vol. ${(d.lps||[]).length + 1}`);
+  if (!nomeLP) return;
+
+  const lp = {
+    nome: nomeLP,
+    singles: d.singles.length,
+    tracklist: [...d.singles],
+    data: new Date().toLocaleDateString('pt-BR')
+  };
+
+  if (!d.lps) d.lps = [];
+  d.lps.push(lp);
+  d.singles = []; // Zera singles — LP substitui
+  obras[artistaSelecionado.id] = d;
+  salvarObras();
+  atualizarPainelSingles();
+  renderizarArtistas(ARTISTAS_BASE);
+  notif('🎵 LP LANÇADO!', `"${nomeLP}" — ${lp.singles} singles consolidados. Biografia atualizada.`, 'ok');
+}
+
+function removerSingle(i) {
+  if (!artistaSelecionado) return;
+  if (!confirm('Remover este single?')) return;
+  const d = getObrasArtista(artistaSelecionado.id);
+  d.singles.splice(i, 1);
+  obras[artistaSelecionado.id] = d;
+  salvarObras();
+  atualizarPainelSingles();
+}
+
+// ===== GITHUB API =====
+async function getSHA(token, repo, branch, caminho) {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}?ref=${branch}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (res.ok) { const d = await res.json(); return d.sha; }
+    return null;
+  } catch { return null; }
+}
+
+async function publicarArquivo(token, repo, branch, caminho, conteudo, sha, msg) {
+  const body = { message: msg, content: btoa(unescape(encodeURIComponent(conteudo))), branch };
+  if (sha) body.sha = sha;
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}`, {
+    method: 'PUT',
+    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.message || `Erro ${res.status}`); }
+  return res.json();
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function setPubStatus(tipo, txt) {
+  const dot = document.getElementById('pub-dot-artista');
+  const txtEl = document.getElementById('pub-txt-artista');
+  if (!dot || !txtEl) return;
+  dot.className = `pub-dot ${tipo === 'publicando' ? 'pub' : tipo}`;
+  txtEl.textContent = txt;
+}
+
+function logArtista(msg, tipo='info') {
+  const el = document.getElementById('log-artista');
+  if (!el) return;
+  const linha = document.createElement('div');
+  linha.className = `log-${tipo}`;
+  linha.textContent = `[${new Date().toLocaleTimeString('pt-BR')}] ${msg}`;
+  el.appendChild(linha);
+  el.scrollTop = el.scrollHeight;
+}
+
+// ===== GERAÇÃO HTML BIO MUSICAL =====
+function gerarHTMLBioMusical(artista, dados) {
+  const singles = dados.singles || [];
+  const lps = dados.lps || [];
+  const temObras = singles.length > 0 || lps.length > 0;
+
+  const obrasHTML = lps.length > 0
+    ? lps.map(lp => `<li class="obra-item lp-item">🎵 ${lp.nome} <span class="obra-tipo">LP · ${lp.data}</span></li>`).join('')
+    : singles.map(s => `<li class="obra-item">♪ ${s.titulo} <span class="obra-tipo">Single · ${s.data}</span></li>`).join('');
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${artista.nome} · Biografia Musical · SIGMAL Music</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#07182b;--azul-mid:#10294a;--ouro:#d6b354;--roxo:#3d1a6e;--papel:#fff8df;--tinta:#1a1208;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--papel);color:var(--tinta);font-family:'Libre Baskerville',Georgia,serif;min-height:100vh;}
+.cab{background:linear-gradient(135deg,var(--azul),var(--roxo));padding:2rem 3rem;border-bottom:3px solid var(--ouro);}
+.nav{display:flex;gap:0.8rem;margin-bottom:1.2rem;flex-wrap:wrap;}
+.nav a{font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:rgba(213,179,84,0.5);text-decoration:none;text-transform:uppercase;}
+.nav a:hover{color:var(--ouro);}
+.nav span{color:rgba(213,179,84,0.2);}
+.badge{display:inline-block;font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.18em;padding:0.2rem 0.6rem;border:1px solid var(--ouro);color:var(--ouro);text-transform:uppercase;margin-bottom:0.6rem;}
+.artista-ic{font-size:3rem;margin-bottom:0.5rem;display:block;}
+.nome{font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.8rem,5vw,3rem);color:var(--ouro);line-height:1.1;margin-bottom:0.2rem;}
+.orig{font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.12em;color:rgba(213,179,84,0.35);text-transform:uppercase;}
+.conteudo{max-width:780px;margin:0 auto;padding:2.5rem 3rem;}
+.sec-label{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.28em;color:var(--ouro);opacity:0.55;text-transform:uppercase;margin-bottom:0.6rem;}
+.linha{width:40px;height:2px;background:linear-gradient(to right,var(--ouro),transparent);margin:0.8rem 0 1.8rem;}
+.inst-box{background:rgba(213,179,84,0.06);border-left:3px solid var(--ouro);padding:0.9rem 1.3rem;margin-bottom:2rem;font-style:italic;font-size:0.9rem;color:#3a2a10;line-height:1.7;}
+.obras{list-style:none;display:flex;flex-direction:column;gap:0.4rem;}
+.obra-item{display:flex;align-items:baseline;gap:0.8rem;padding:0.5rem 0;border-bottom:1px solid rgba(213,179,84,0.08);font-size:0.9rem;color:#2a1a08;flex-wrap:wrap;}
+.lp-item{background:rgba(213,179,84,0.06);padding:0.6rem 0.8rem;border:1px solid rgba(213,179,84,0.15);border-bottom:none;}
+.obra-tipo{font-family:'Space Mono',monospace;font-size:0.42rem;letter-spacing:0.08em;color:rgba(213,179,84,0.5);text-transform:uppercase;margin-left:auto;}
+.sem-obras{font-style:italic;color:#8899aa;font-size:0.88rem;padding:1rem 0;}
+.rodape{background:var(--azul);padding:1.5rem 3rem;margin-top:3rem;text-align:center;border-top:1px solid rgba(213,179,84,0.1);}
+.rod{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.12em;color:rgba(213,179,84,0.25);text-transform:uppercase;line-height:2;}
+.rod a{color:rgba(213,179,84,0.38);text-decoration:none;}
+.rod a:hover{color:var(--ouro);}
+.atualizado{font-family:'Space Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:rgba(213,179,84,0.2);text-align:right;text-transform:uppercase;margin-top:2rem;}
+@media(max-width:768px){.cab,.conteudo{padding:1.2rem;}.nome{font-size:1.8rem;}}
+</style>
+</head>
+<body>
+<div class="cab">
+  <div class="nav">
+    <a href="portal_instituto_celeiro_literario.html">Celeiro Literário</a><span>/</span>
+    <a href="site_musical.html">Sala Musical</a><span>/</span>
+    <a href="site_musical_biografias.html">Biografias Musicais</a><span>/</span>
+    <a href="#" style="color:var(--ouro);">${artista.nome}</a>
+  </div>
+  <span class="artista-ic">${artista.ic || '🎵'}</span>
+  <div class="badge">// ${(artista.cat||'artista').toUpperCase()} · ${(artista.estilo||'musical').toUpperCase()}</div>
+  <div class="nome">${artista.nome}</div>
+  <div class="orig">${artista.orig || ''}</div>
+</div>
+<div class="conteudo">
+  <div class="sec-label">// IDENTIDADE SONORA</div>
+  <div class="linha"></div>
+  <div class="inst-box">${artista.inst || 'Artista da SIGMAL Music — Site das Letras Edições Literárias.'}</div>
+
+  <div class="sec-label">// OBRAS PUBLICADAS</div>
+  <div class="linha"></div>
+  ${temObras
+    ? `<ul class="obras">${obrasHTML}</ul>`
+    : `<div class="sem-obras">Nenhuma obra publicada ainda. Em produção.</div>`}
+
+  <div class="atualizado">Curadoria: Maestro Aaron Cantarelli Vox · Atualizado em ${new Date().toLocaleDateString('pt-BR')}</div>
+</div>
+<div class="rodape">
+  <div class="rod">
+    SIGMAL Music — Site das Letras Edições Literárias & Multimídia<br>
+    São Roque International Global Music, Arts & Letters Academy<br>
+    <a href="site_musical_biografias.html">← Voltar às Biografias Musicais</a>
+  </div>
+</div>
+</body>
+</html>`;
+}
+
+function gerarHTMLIndiceMusical() {
+  const artistasComObras = [...ARTISTAS_BASE, ...BANDAS_BASE.map(b => ({
+    id: b.id, nome: b.nome, ic: '🎸', orig: '', cat: 'banda', estilo: 'banda', inst: b.tipo
+  }))].filter(a => {
+    const d = getObrasArtista(a.id);
+    return (d.singles && d.singles.length > 0) || (d.lps && d.lps.length > 0);
+  });
+
+  const cards = artistasComObras.map(a => {
+    const d = getObrasArtista(a.id);
+    const singles = d.singles?.length || 0;
+    const lps = d.lps?.length || 0;
+    return `<a href="bio_musical_${a.id.toLowerCase()}.html" class="card">
+      <div class="ic">${a.ic || '🎵'}</div>
+      <div class="corpo">
+        <div class="cat">${(a.cat||'artista').toUpperCase()} · ${(a.estilo||'').toUpperCase()}</div>
+        <div class="nome">${a.nome}</div>
+        <div class="orig">${a.orig || ''}</div>
+        <div class="inst">${a.inst || ''}</div>
+        <div class="obras-cnt">${lps > 0 ? `${lps} LP${lps>1?'s':''}` : `${singles} single${singles!==1?'s':''}`}</div>
+      </div>
+    </a>`;
+  }).join('');
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biografias Musicais · SIGMAL Music · Site das Letras</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#07182b;--azul-mid:#10294a;--ouro:#d6b354;--roxo:#3d1a6e;--papel:#fff8df;--tinta:#1a1208;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--papel);color:var(--tinta);font-family:'Libre Baskerville',Georgia,serif;}
+.cab{background:linear-gradient(135deg,var(--azul),var(--roxo));padding:2rem 3rem;border-bottom:3px solid var(--ouro);}
+.nav{display:flex;gap:0.8rem;margin-bottom:1rem;flex-wrap:wrap;}
+.nav a{font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:rgba(213,179,84,0.5);text-decoration:none;text-transform:uppercase;}
+.nav a:hover{color:var(--ouro);}
+.nav span{color:rgba(213,179,84,0.2);}
+.cab-titulo{font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.8rem,4vw,2.8rem);color:var(--ouro);margin-bottom:0.4rem;}
+.cab-desc{font-style:italic;font-size:0.82rem;color:rgba(213,179,84,0.4);max-width:550px;line-height:1.6;}
+.busca-bar{background:var(--azul-mid);padding:0.8rem 3rem;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(213,179,84,0.1);}
+.busca{background:rgba(213,179,84,0.05);border:1px solid rgba(213,179,84,0.15);color:#f5edd8;font-family:'Libre Baskerville',serif;font-size:0.85rem;padding:0.5rem 0.9rem;outline:none;width:100%;max-width:380px;}
+.container{max-width:1300px;margin:0 auto;padding:2rem 3rem;}
+.cnt{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.12em;color:rgba(213,179,84,0.3);text-transform:uppercase;margin-bottom:1.2rem;}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.2rem;}
+.card{background:white;border:1px solid rgba(122,95,26,0.1);text-decoration:none;color:var(--tinta);display:flex;align-items:flex-start;gap:1rem;padding:1.2rem;transition:all 0.3s;box-shadow:0 1px 5px rgba(0,0,0,0.04);}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.1);border-color:rgba(213,179,84,0.3);}
+.ic{font-size:2rem;flex-shrink:0;}
+.corpo{flex:1;}
+.cat{font-family:'Space Mono',monospace;font-size:0.38rem;letter-spacing:0.15em;color:rgba(122,95,26,0.5);text-transform:uppercase;margin-bottom:0.2rem;}
+.nome{font-family:'Playfair Display',serif;font-weight:700;font-size:1rem;color:var(--tinta);margin-bottom:0.15rem;line-height:1.2;}
+.orig{font-family:'Space Mono',monospace;font-size:0.4rem;letter-spacing:0.08em;color:#8899aa;text-transform:uppercase;margin-bottom:0.4rem;}
+.inst{font-style:italic;font-size:0.75rem;color:#3a2a10;margin-bottom:0.4rem;}
+.obras-cnt{font-family:'Space Mono',monospace;font-size:0.4rem;letter-spacing:0.08em;color:rgba(122,95,26,0.45);text-transform:uppercase;}
+.vazio{text-align:center;padding:4rem;color:#8899aa;font-style:italic;}
+.rodape{background:var(--azul);padding:1.5rem 3rem;margin-top:2.5rem;text-align:center;border-top:1px solid rgba(213,179,84,0.08);}
+.rod{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.12em;color:rgba(213,179,84,0.22);text-transform:uppercase;line-height:2;}
+.rod a{color:rgba(213,179,84,0.38);text-decoration:none;}
+@media(max-width:768px){.cab,.container,.busca-bar{padding:1rem;}.grade{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="cab">
+  <div class="nav">
+    <a href="portal_instituto_celeiro_literario.html">Celeiro Literário</a><span>/</span>
+    <a href="site_musical.html">Sala Musical</a><span>/</span>
+    <a href="#" style="color:var(--ouro);">Biografias Musicais</a>
+  </div>
+  <div class="cab-titulo">Biografias Musicais</div>
+  <div class="cab-desc">Artistas, bandas e conjuntos da SIGMAL Music — Site das Letras. Biografias criadas e atualizadas pelo Maestro Aaron Cantarelli Vox.</div>
+</div>
+<div class="busca-bar">
+  <input type="text" class="busca" id="busca" placeholder="Buscar artista..." oninput="filtrar()">
+</div>
+<div class="container">
+  <div class="cnt" id="cnt">${artistasComObras.length} artista${artistasComObras.length!==1?'s':''} no catálogo</div>
+  <div class="grade" id="grade">
+    ${cards || '<div class="vazio">Nenhuma biografia musical publicada ainda.</div>'}
+  </div>
+</div>
+<div class="rodape">
+  <div class="rod">
+    SIGMAL Music — Site das Letras Edições Literárias & Multimídia<br>
+    São Roque International Global Music, Arts & Letters Academy<br>
+    <a href="site_musical.html">← Voltar à Sala Musical</a>
+  </div>
+</div>
+<script>
+const cards=document.querySelectorAll('.card');
+function filtrar(){
+  const b=document.getElementById('busca').value.toLowerCase();
+  let v=0;
+  cards.forEach(c=>{const s=!b||c.textContent.toLowerCase().includes(b);c.style.display=s?'flex':'none';if(s)v++;});
+  document.getElementById('cnt').textContent=v+' artista'+(v!==1?'s':'')+' no catálogo';
+}
+<\/script>
+</body>
+</html>`;
+}
+
+// ===== PUBLICAR BIO INDIVIDUAL =====
+async function publicarBioArtista() {
+  if (!artistaSelecionado) return;
+  await publicarBioArtistaId(artistaSelecionado.id);
+}
+
+async function publicarBioArtistaId(id) {
+  const token = getToken();
+  const repo = getRepo();
+  const branch = getBranch();
+  if (!token) { notif('ERRO', 'Configure o Token GitHub.', 'erro'); return; }
+
+  const artista = [...ARTISTAS_BASE, ...BANDAS_BASE.map(b => ({
+    id: b.id, nome: b.nome, ic: '🎸', orig: '', cat: 'banda', estilo: 'banda', inst: b.tipo
+  }))].find(a => a.id === id);
+
+  if (!artista) return;
+
+  const d = getObrasArtista(id);
+  setPubStatus('pub', 'Publicando...');
+  logArtista(`Publicando biografia de ${artista.nome}...`, 'info');
+
+  try {
+    const caminho = `bio_musical_${id.toLowerCase()}.html`;
+    const html = gerarHTMLBioMusical(artista, d);
+    const sha = await getSHA(token, repo, branch, caminho);
+    await publicarArquivo(token, repo, branch, caminho, html, sha, `Biografia musical: ${artista.nome}`);
+    logArtista(`✓ ${artista.nome} publicado.`, 'ok');
+
+    // Atualiza índice
+    const htmlIndice = gerarHTMLIndiceMusical();
+    const shaIndice = await getSHA(token, repo, branch, 'site_musical_biografias.html');
+    await publicarArquivo(token, repo, branch, 'site_musical_biografias.html', htmlIndice, shaIndice, 'Atualiza índice de biografias musicais');
+    logArtista('✓ Índice musical atualizado.', 'ok');
+
+    setPubStatus('ok', `Publicado em ${new Date().toLocaleTimeString('pt-BR')}`);
+    notif('PUBLICADO!', `Biografia de ${artista.nome} está no ar.`, 'ok');
+  } catch(e) {
+    setPubStatus('erro', e.message);
+    logArtista(`✗ Erro: ${e.message}`, 'erro');
+    notif('ERRO', e.message, 'erro');
+  }
+}
+
+// ===== ORQUESTRA =====
+function registrarObraOrquestra() {
+  const titulo = prompt('Título da obra da Orquestra Filarmônica:');
+  if (!titulo) return;
+  const d = getObrasArtista('ORQUESTRA');
+  if (!d.singles) d.singles = [];
+  d.singles.push({ titulo, formato: 'Obra orquestral', idioma: 'Instrumental', data: new Date().toLocaleDateString('pt-BR') });
+  obras['ORQUESTRA'] = d;
+  salvarObras();
+  document.getElementById('obras-orquestra-lista').innerHTML =
+    d.singles.map(s => `<div style="padding:0.4rem 0;border-bottom:1px solid rgba(201,168,76,0.06);font-size:0.85rem;">♪ ${s.titulo} — ${s.data}</div>`).join('');
+  notif('REGISTRADO', `"${titulo}" adicionado à Orquestra.`, 'ok');
+}
+
+async function publicarBioOrquestra() {
+  const artista = { id:'ORQUESTRA', nome:'Orquestra Filarmônica do Celeiro Literário', ic:'🎻', orig:'Celeiro Literário — Instituto Cultural', cat:'orquestra', estilo:'classico', inst:'Entidade musical permanente do Instituto. Formação flexível — Cordas, Sopros Metais, Sopros Madeiras, Percussão & Teclados.' };
+  await publicarBioArtistaId('ORQUESTRA');
+}
+
+// ===== PUBLICAR TODAS =====
+async function publicarTodasBios() {
+  const token = getToken();
+  if (!token) { notif('ERRO', 'Configure o Token GitHub.', 'erro'); return; }
+
+  const todos = [...ARTISTAS_BASE, ...BANDAS_BASE.map(b => ({
+    id: b.id, nome: b.nome, ic: '🎸', orig: '', cat: 'banda', estilo: 'banda', inst: b.tipo
+  }))].filter(a => {
+    const d = getObrasArtista(a.id);
+    return (d.singles && d.singles.length > 0) || (d.lps && d.lps.length > 0);
+  });
+
+  if (!todos.length) { notif('NADA A PUBLICAR', 'Nenhum artista tem obras registradas ainda.', 'erro'); return; }
+
+  document.getElementById('btn-pub-lote').disabled = true;
+  let ok = 0, erro = 0;
+  const logEl = document.getElementById('log-lote');
+
+  function logL(msg, tipo='info') {
+    const l = document.createElement('div');
+    l.className = `log-${tipo}`;
+    l.textContent = `[${new Date().toLocaleTimeString('pt-BR')}] ${msg}`;
+    logEl.appendChild(l);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  logL(`Publicando ${todos.length} biografias musicais...`, 'info');
+
+  for (let i = 0; i < todos.length; i++) {
+    const a = todos[i];
+    const d = getObrasArtista(a.id);
+    logL(`[${i+1}/${todos.length}] ${a.nome}...`, 'info');
+    try {
+      const caminho = `bio_musical_${a.id.toLowerCase()}.html`;
+      const html = gerarHTMLBioMusical(a, d);
+      const sha = await getSHA(getToken(), getRepo(), getBranch(), caminho);
+      await publicarArquivo(getToken(), getRepo(), getBranch(), caminho, html, sha, `Bio musical: ${a.nome}`);
+      ok++;
+      logL(`✓ ${a.nome}`, 'ok');
+    } catch(e) {
+      erro++;
+      logL(`✗ ${a.nome}: ${e.message}`, 'erro');
+    }
+    document.getElementById('pub-cnt-ok').textContent = ok;
+    document.getElementById('pub-cnt-erro').textContent = erro;
+    document.getElementById('pub-barra').style.width = Math.round(((ok+erro)/todos.length)*100) + '%';
+    await sleep(800);
+  }
+
+  // Atualiza índice
+  logL('Atualizando índice...', 'info');
+  try {
+    const htmlIndice = gerarHTMLIndiceMusical();
+    const sha = await getSHA(getToken(), getRepo(), getBranch(), 'site_musical_biografias.html');
+    await publicarArquivo(getToken(), getRepo(), getBranch(), 'site_musical_biografias.html', htmlIndice, sha, 'Atualiza índice de biografias musicais');
+    logL('✓ Índice atualizado.', 'ok');
+  } catch(e) { logL(`✗ Índice: ${e.message}`, 'erro'); }
+
+  document.getElementById('btn-pub-lote').disabled = false;
+  notif('CONCLUÍDO', `${ok} publicados, ${erro} erros.`, ok > 0 ? 'ok' : 'erro');
+}
+
+// ===== NOTIFICAÇÕES =====
+function notif(titulo, texto, tipo='ok') {
+  const c = document.getElementById('notif');
+  const el = document.createElement('div');
+  el.className = `notif-item ${tipo}`;
+  el.innerHTML = `<div class="notif-tit">${titulo}</div><div class="notif-txt">${texto}</div>`;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 5000);
+}
+
+// ===== INIT =====
+carregarConfig();
+renderizarArtistas(ARTISTAS_BASE);
+renderizarBandas();
+
+// Carrega obras da orquestra
+const dOrc = getObrasArtista('ORQUESTRA');
+if (dOrc.singles?.length) {
+  document.getElementById('obras-orquestra-lista').innerHTML =
+    dOrc.singles.map(s => `<div style="padding:0.4rem 0;border-bottom:1px solid rgba(201,168,76,0.06);font-size:0.85rem;">♪ ${s.titulo} — ${s.data}</div>`).join('');
+}
+</script>
+</body>
+</html>
