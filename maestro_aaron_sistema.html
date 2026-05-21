@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maestro Aaron — Sistema Musical | SIGMAL Music</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#07101d;--ouro:#c9a646;--ouro2:#f4dc88;--cobre:#b87333;--ciano:#0e7490;--ciano2:#06b6d4;--verde:#1f7a42;--r:20px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Libre Baskerville',Georgia,serif;background:linear-gradient(170deg,#030d18,#07101d 60%,#040d18);color:white;min-height:100vh}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(3,13,24,.98);border-bottom:2px solid var(--ouro);backdrop-filter:blur(10px)}
+.top-in{max-width:1200px;margin:auto;padding:10px 22px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.marca{font-family:'DM Mono',monospace;color:var(--ouro2);font-size:13px;font-weight:700}
+.marca small{display:block;font-size:10px;color:rgba(244,220,136,.4);letter-spacing:.08em}
+.tnav{display:flex;gap:5px;flex-wrap:wrap}
+.tnav a{font-family:'DM Mono',monospace;font-size:11px;color:#c8c0ae;text-decoration:none;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.1);transition:.15s}
+.tnav a:hover{color:var(--ouro2);border-color:var(--ouro);background:rgba(201,166,70,.1)}
+.hero{background:radial-gradient(ellipse 60% 50% at 15% 20%,rgba(14,116,144,.2),transparent),linear-gradient(148deg,#020a16,#07101d 50%,#030d14);padding:56px 22px 44px;border-bottom:5px solid var(--ouro);position:relative;overflow:hidden}
+.hero-in{max-width:1200px;margin:auto;display:grid;grid-template-columns:240px 1fr;gap:44px;align-items:center;position:relative;z-index:1}
+.hero-foto-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+.hero-foto{width:220px;height:220px;border-radius:50%;object-fit:cover;object-position:top;border:4px solid var(--ouro);box-shadow:0 0 0 8px rgba(201,166,70,.1),0 24px 60px rgba(0,0,0,.5)}
+.hero-pill{font-family:'DM Mono',monospace;font-size:11px;padding:6px 14px;border-radius:999px;background:rgba(14,116,144,.2);border:1px solid var(--ciano2);color:var(--ciano2);display:inline-flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ciano2);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-texto .eyebrow{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.12em;color:rgba(201,166,70,.5);text-transform:uppercase;margin-bottom:10px}
+.hero-texto h1{font-family:'Playfair Display',serif;font-size:clamp(34px,5vw,62px);line-height:1;color:var(--ouro2);margin-bottom:6px}
+.hero-texto .cargo{font-size:18px;color:var(--ciano2);font-style:italic;margin-bottom:18px}
+.hero-texto .missao{font-size:16px;line-height:1.7;color:rgba(240,236,224,.72);border-left:3px solid var(--ouro);padding-left:16px;max-width:680px}
+.wrap{max-width:1200px;margin:auto;padding:36px 22px 70px;display:flex;flex-direction:column;gap:26px}
+.abas{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid rgba(201,166,70,.2);padding-bottom:14px}
+.aba{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:9px 18px;border-radius:12px;border:1px solid rgba(201,166,70,.2);color:rgba(201,166,70,.5);cursor:pointer;transition:.15s;background:rgba(255,255,255,.03)}
+.aba:hover{color:var(--ouro2);border-color:var(--ouro)}
+.aba.ativa{background:rgba(201,166,70,.15);color:var(--ouro2);border-color:var(--ouro)}
+.painel{display:none}.painel.ativo{display:block}
+.form-card{background:rgba(10,24,40,.95);border:1px solid rgba(201,166,70,.15);border-radius:var(--r);padding:28px}
+.form-card h3{font-family:'Playfair Display',serif;font-size:24px;color:var(--ouro2);margin-bottom:6px}
+.form-card .sub{font-size:14px;color:rgba(240,236,224,.55);margin-bottom:22px;font-family:'DM Mono',monospace}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.campo label{display:block;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:rgba(201,166,70,.65);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.campo input,.campo select,.campo textarea{width:100%;border:1px solid rgba(201,166,70,.25);border-radius:12px;padding:11px 14px;font-family:'Libre Baskerville',serif;font-size:14px;background:rgba(7,16,29,.8);color:var(--ouro2);outline:none;transition:border-color .2s}
+.campo textarea{min-height:100px;resize:vertical}
+.campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--ouro)}
+.wide{grid-column:1/-1}
+.resultado{display:none;background:rgba(14,116,144,.1);border:1px solid rgba(6,182,212,.3);border-radius:16px;padding:20px;margin-top:16px}
+.resultado.vis{display:block}
+.resultado h4{font-family:'Playfair Display',serif;font-size:20px;color:var(--ciano2);margin-bottom:10px}
+.resultado pre{font-family:'DM Mono',monospace;font-size:12px;color:rgba(160,230,240,.8);line-height:1.7;white-space:pre-wrap;background:rgba(7,16,29,.5);border-radius:12px;padding:14px}
+.res-prot{font-family:'DM Mono',monospace;font-size:12px;background:var(--ciano);color:white;padding:6px 14px;border-radius:999px;display:inline-block;margin-top:10px}
+.material-card{background:rgba(10,24,40,.9);border:1px solid rgba(201,166,70,.1);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.mc-head{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;cursor:pointer;border-bottom:1px solid rgba(201,166,70,.06)}
+.mc-head:hover{background:rgba(201,166,70,.04)}
+.mc-nome{font-family:'Playfair Display',serif;font-size:17px;color:var(--ouro2)}
+.mc-meta{font-family:'DM Mono',monospace;font-size:10px;color:rgba(201,166,70,.38);margin-top:2px}
+.mc-acoes{display:flex;gap:6px}
+.mc-body{display:none;padding:16px 18px;background:rgba(7,16,29,.4)}
+.mc-body.aberto{display:block}
+.mc-texto{font-size:14px;line-height:1.7;color:rgba(240,236,224,.75);white-space:pre-wrap;max-height:300px;overflow-y:auto}
+.corsi-card{background:linear-gradient(135deg,rgba(31,122,66,.15),rgba(7,16,29,.97));border:2px solid rgba(45,154,84,.3);border-radius:var(--r);padding:26px}
+.corsi-card h3{font-family:'Playfair Display',serif;font-size:22px;color:#80e8a0;margin-bottom:8px}
+.corsi-card p{font-size:14px;color:rgba(240,236,224,.65);line-height:1.65;margin-bottom:16px}
+.ci{background:rgba(10,24,40,.9);border:1px solid rgba(45,154,84,.15);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+.ci-num{font-family:'DM Mono',monospace;font-size:11px;color:rgba(45,154,84,.5);min-width:120px}
+.ci-nome{font-family:'Playfair Display',serif;font-size:16px;color:#80e8a0;flex:1}
+.ci-plat{font-size:13px;color:rgba(240,236,224,.5);font-style:italic}
+.ci-tipo{font-family:'DM Mono',monospace;font-size:10px;color:rgba(45,154,84,.6)}
+.vazio{text-align:center;padding:36px;font-family:'DM Mono',monospace;font-size:13px;color:rgba(201,166,70,.25);border:1px dashed rgba(201,166,70,.12);border-radius:var(--r)}
+.btn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:999px;padding:11px 18px;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;text-decoration:none}
+.btn:hover{transform:translateY(-1px)}
+.b-ouro{background:var(--ouro);color:var(--azul)}.b-ouro:hover{background:var(--ouro2)}
+.b-ciano{background:var(--ciano);color:white}
+.b-verde{background:var(--verde);color:white}
+.b-esc{background:rgba(255,255,255,.06);color:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.12)}
+.b-copy{background:rgba(14,116,144,.2);color:var(--ciano2);border:1px solid rgba(6,182,212,.3);border-radius:10px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;cursor:pointer}
+.b-txt{background:rgba(59,31,110,.2);color:#d0b0ff;border:1px solid rgba(59,31,110,.35);border-radius:10px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;cursor:pointer}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+footer{background:rgba(0,0,0,.5);border-top:3px solid var(--ouro);padding:26px 22px;text-align:center;color:rgba(200,192,178,.5)}
+footer strong{color:var(--ouro2)}
+footer p{font-size:13px;line-height:1.8}
+@media(max-width:860px){.hero-in{grid-template-columns:1fr;text-align:center}.hero-foto-wrap{margin:0 auto}.f2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="top-in">
+    <div class="marca">MAESTRO AARON — SISTEMA MUSICAL<small>SIGMAL MUSIC · TRIPLOOHESIGMALBPL</small></div>
+    <nav class="tnav">
+      <a href="#" onclick="mudarAba('entrada',event)">Entrada Musical</a>
+      <a href="#" onclick="mudarAba('acervo',event)">Acervo</a>
+      <a href="#" onclick="mudarAba('corsi',event)">CORSI</a>
+      <a href="silo_music_banco_artistas.html">Banco de Artistas</a>
+      <a href="https://triploohesigmalbpl.vercel.app/" target="_blank">↗ SIGMAL HQ</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="hero-in">
+    <div class="hero-foto-wrap">
+      <img class="hero-foto" src="https://raw.githubusercontent.com/sitedasletras/triploohesigmalbpl/main/file_00000000bc3071fb999124a47a93c7dd~5.png" alt="Maestro Aaron">
+      <div class="hero-pill"><span class="dot"></span> Ativo · SIGMAL Music</div>
+    </div>
+    <div class="hero-texto">
+      <div class="eyebrow">✦ Diretor Musical · SIGMAL Music</div>
+      <h1>Maestro Aaron<br>Cantarelli Vox</h1>
+      <p class="cargo">Diretor Musical do SIGMAL Music</p>
+      <p class="missao">Responsável por receber, avaliar e direcionar todo o material musical do ecossistema. Das composições brutas à produção final no Silo Multimídia — o Maestro Aaron cuida de cada acorde.</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="abas">
+    <div class="aba ativa" onclick="mudarAba('entrada',event)">🎵 Entrada Musical</div>
+    <div class="aba" onclick="mudarAba('acervo',event)">📚 Acervo do Maestro</div>
+    <div class="aba" onclick="mudarAba('corsi',event)">📲 Material do CORSI</div>
+  </div>
+
+  <div class="painel ativo" id="painel-entrada">
+    <div class="form-card">
+      <h3>🎵 Entrada Musical — Maestro Aaron</h3>
+      <p class="sub">REGISTRO DE MATERIAL MUSICAL · SIGMAL MUSIC</p>
+      <div class="f2">
+        <div class="campo"><label>Título da obra musical</label><input type="text" id="m-titulo" placeholder="Título da composição"></div>
+        <div class="campo"><label>Artista / Intérprete</label><input type="text" id="m-artista" placeholder="Nome do artista ou banda"></div>
+        <div class="campo"><label>Estilo musical</label>
+          <select id="m-estilo">
+            <option>MPB</option><option>Clássico / Ópera</option><option>Jazz</option>
+            <option>Samba / Pagode</option><option>Forró / Baião</option><option>Rock</option>
+            <option>Pop / Soul</option><option>Gregoriano Pop</option><option>Música de câmara</option>
+            <option>Afrobeat / Reggae</option><option>Tango</option><option>World Music</option>
+            <option>Eletrônico</option><option>Gospel / Coral</option><option>Experimental</option>
+          </select>
+        </div>
+        <div class="campo"><label>Formato</label>
+          <select id="m-formato">
+            <option>Composição original</option><option>Arranjo / Regravação</option>
+            <option>Trilha sonora</option><option>Single</option><option>EP</option>
+            <option>Álbum completo</option><option>Jingle / Vinheta</option><option>Música tema</option>
+          </select>
+        </div>
+        <div class="campo"><label>Destino</label>
+          <select id="m-destino">
+            <option>Silo Multimídia — produção</option>
+            <option>Acervo do Maestro — aguardando</option>
+            <option>CORSI — divulgação imediata</option>
+            <option>Masmorra — quarentena</option>
+          </select>
+        </div>
+        <div class="campo"><label>Avaliação do Maestro</label>
+          <select id="m-aval">
+            <option>✦ Aprovado — produção autorizada</option>
+            <option>⏳ Em análise — aguardando revisão</option>
+            <option>🔄 Revisar — retornar ao artista</option>
+            <option>⛓️ Quarentena — Masmorra</option>
+          </select>
+        </div>
+        <div class="campo wide"><label>Letra / Partitura / Notas do Maestro</label>
+          <textarea id="m-conteudo" placeholder="Cole aqui a letra, a partitura em texto, ou as notas do Maestro Aaron sobre esta obra..."></textarea>
+        </div>
+        <div class="campo wide"><label>Observações para produção</label>
+          <textarea id="m-obs" placeholder="Instruções especiais para o Silo Multimídia..." style="min-height:70px"></textarea>
+        </div>
+      </div>
+      <div class="btns">
+        <button class="btn b-ciano" onclick="registrarMusica()">🎵 Registrar no sistema do Maestro</button>
+        <button class="btn b-esc" onclick="limparForm()">✕ Limpar</button>
+      </div>
+      <div class="resultado" id="res-musica">
+        <h4>✅ Material registrado pelo Maestro Aaron</h4>
+        <pre id="res-pre"></pre>
+        <div class="res-prot" id="res-prot">AARON-000000</div>
+        <div class="btns" style="margin-top:12px">
+          <button class="btn b-esc" onclick="copiarRes()">📋 Copiar registro</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="painel" id="painel-acervo">
+    <div class="form-card">
+      <h3>📚 Acervo Musical do Maestro Aaron</h3>
+      <p class="sub">Todo material registrado nesta e em sessões anteriores.</p>
+      <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+        <input type="text" style="flex:1;min-width:180px;border:1px solid rgba(201,166,70,.25);border-radius:10px;padding:9px 13px;font-family:'DM Mono',monospace;font-size:13px;background:rgba(7,16,29,.8);color:var(--ouro2);outline:none" placeholder="Buscar no acervo..." oninput="buscarAcervo(this.value)">
+        <button class="btn b-ouro" onclick="exportarAcervo()">📦 Exportar tudo</button>
+      </div>
+      <div id="lista-acervo"></div>
+    </div>
+  </div>
+
+  <div class="painel" id="painel-corsi">
+    <div class="corsi-card">
+      <h3>📲 Material vindo do CORSI</h3>
+      <p>Material musical que o CORSI encaminhou ao Maestro Aaron — divulgações realizadas, retornos de plataformas e materiais prontos para produção ou reedição.</p>
+      <div class="btns" style="margin-top:0;margin-bottom:18px">
+        <button class="btn b-verde" onclick="mostrarFormCorsi()">+ Registrar material do CORSI</button>
+        <button class="btn b-esc" onclick="exportarCorsi()">📦 Exportar</button>
+      </div>
+      <div id="lista-corsi"><div class="vazio">Nenhum material do CORSI registrado ainda.</div></div>
+    </div>
+    <div class="form-card" id="form-corsi" style="display:none;margin-top:16px">
+      <h3>Registrar material do CORSI</h3>
+      <div class="f2" style="margin-top:16px">
+        <div class="campo"><label>Nome da obra</label><input type="text" id="c-nome" placeholder="Título"></div>
+        <div class="campo"><label>Plataforma</label>
+          <select id="c-plat"><option>YouTube</option><option>Instagram</option><option>TikTok</option><option>Spotify</option><option>Web Rádio</option><option>Web TV</option></select>
+        </div>
+        <div class="campo wide"><label>Observações</label><textarea id="c-obs" placeholder="Retorno, métricas, solicitação do CORSI..."></textarea></div>
+      </div>
+      <div class="btns">
+        <button class="btn b-verde" onclick="salvarCorsi()">✔ Salvar</button>
+        <button class="btn b-esc" onclick="document.getElementById('form-corsi').style.display='none'">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p><strong>Maestro Aaron Cantarelli Vox</strong> — Sistema Musical · SIGMAL Music</p>
+  <p>triploohesigmalbpl · W.S.P. S/A-ME · Word Stars Productions</p>
+</footer>
+
+<script>
+var acervo = JSON.parse(localStorage.getItem('maestro_aaron_acervo') || '[]');
+var corsiItens = JSON.parse(localStorage.getItem('maestro_aaron_corsi') || '[]');
+
+function mudarAba(id, ev) {
+  if (ev && ev.preventDefault) ev.preventDefault();
+  document.querySelectorAll('.aba').forEach(function(a) { a.classList.remove('ativa'); });
+  document.querySelectorAll('.painel').forEach(function(p) { p.classList.remove('ativo'); });
+  var abas = document.querySelectorAll('.aba');
+  var idx = ['entrada','acervo','corsi'].indexOf(id);
+  if (abas[idx]) abas[idx].classList.add('ativa');
+  var p = document.getElementById('painel-' + id);
+  if (p) p.classList.add('ativo');
+  if (id === 'acervo') renderAcervo(acervo);
+  if (id === 'corsi') renderCorsi();
+}
+
+function registrarMusica() {
+  var titulo = document.getElementById('m-titulo').value.trim();
+  var artista = document.getElementById('m-artista').value.trim();
+  var conteudo = document.getElementById('m-conteudo').value.trim();
+  if (!titulo) { alert('Informe o título.'); return; }
+  if (!artista) { alert('Informe o artista.'); return; }
+  var num = 'AARON-' + Date.now().toString().slice(-6) + '-' + Math.floor(Math.random()*900+100);
+  var item = { num: num, titulo: titulo, artista: artista,
+    estilo: document.getElementById('m-estilo').value,
+    formato: document.getElementById('m-formato').value,
+    destino: document.getElementById('m-destino').value,
+    aval: document.getElementById('m-aval').value,
+    conteudo: conteudo, obs: document.getElementById('m-obs').value,
+    em: new Date().toLocaleDateString('pt-BR') };
+  acervo.unshift(item);
+  localStorage.setItem('maestro_aaron_acervo', JSON.stringify(acervo));
+  var pre = 'SISTEMA MUSICAL — MAESTRO AARON CANTARELLI VOX\nSIGMAL MUSIC · TRIPLOOHESIGMALBPL\n' +
+    '--------------------------------------------------\n' +
+    'Protocolo:  ' + num + '\nTítulo:     ' + titulo + '\nArtista:    ' + artista +
+    '\nEstilo:     ' + item.estilo + '\nFormato:    ' + item.formato +
+    '\nDestino:    ' + item.destino + '\nAvaliação:  ' + item.aval +
+    '\nRegistrado: ' + item.em + '\n--------------------------------------------------\n' +
+    (conteudo || '(sem conteúdo)') + (item.obs ? '\nNotas: ' + item.obs : '');
+  document.getElementById('res-pre').textContent = pre;
+  document.getElementById('res-prot').textContent = num;
+  document.getElementById('res-musica').classList.add('vis');
+  window._ultimoRes = pre;
+}
+
+function copiarRes() { navigator.clipboard.writeText(window._ultimoRes || '').then(function() { alert('Copiado!'); }); }
+function limparForm() {
+  ['m-titulo','m-artista','m-conteudo','m-obs'].forEach(function(id) { document.getElementById(id).value = ''; });
+  document.getElementById('res-musica').classList.remove('vis');
+}
+
+function renderAcervo(lista) {
+  var el = document.getElementById('lista-acervo');
+  if (!lista.length) { el.innerHTML = '<div class="vazio">Nenhum material registrado ainda.</div>'; return; }
+  el.innerHTML = lista.map(function(item, i) {
+    return '<div class="material-card">' +
+      '<div class="mc-head" onclick="toggleMC(' + i + ')">' +
+        '<div><div class="mc-nome">' + item.titulo + '</div>' +
+        '<div class="mc-meta">' + item.num + ' · ' + item.artista + ' · ' + item.estilo + ' · ' + item.em + '</div></div>' +
+        '<div class="mc-acoes">' +
+          '<button class="b-copy" onclick="event.stopPropagation();copiarItem(' + i + ')">📋</button>' +
+          '<button class="b-txt" onclick="event.stopPropagation();exportarItem(' + i + ')">📄</button>' +
+        '</div></div>' +
+      '<div class="mc-body" id="mc-' + i + '"><div class="mc-texto">' + (item.conteudo || '(sem conteúdo)') + (item.obs ? '\nNotas: ' + item.obs : '') + '</div></div>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleMC(i) { var el = document.getElementById('mc-' + i); if (el) el.classList.toggle('aberto'); }
+function copiarItem(i) {
+  var it = acervo[i];
+  navigator.clipboard.writeText(it.titulo + '\n' + it.artista + '\n\n' + (it.conteudo || '')).then(function() { alert('Copiado!'); });
+}
+function exportarItem(i) {
+  var it = acervo[i];
+  var t = it.titulo + '\n' + it.artista + ' · ' + it.estilo + ' · ' + it.em + '\n\n' + (it.conteudo || '') + (it.obs ? '\nNotas: ' + it.obs : '');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([t], {type:'text/plain'}));
+  a.download = it.titulo.replace(/\s+/g,'_') + '.txt'; a.click();
+}
+function buscarAcervo(q) {
+  renderAcervo(q ? acervo.filter(function(i) { return JSON.stringify(i).toLowerCase().includes(q.toLowerCase()); }) : acervo);
+}
+function exportarAcervo() {
+  if (!acervo.length) { alert('Acervo vazio.'); return; }
+  var t = acervo.map(function(i) { return i.titulo + '\n' + i.artista + ' · ' + i.em + '\n\n' + (i.conteudo || ''); }).join('\n\n' + '='.repeat(40) + '\n\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([t], {type:'text/plain'}));
+  a.download = 'acervo_maestro_aaron_' + new Date().toISOString().split('T')[0] + '.txt'; a.click();
+}
+function mostrarFormCorsi() { document.getElementById('form-corsi').style.display = 'block'; document.getElementById('form-corsi').scrollIntoView({behavior:'smooth'}); }
+function salvarCorsi() {
+  var nome = document.getElementById('c-nome').value.trim();
+  if (!nome) { alert('Informe o nome.'); return; }
+  var item = { num: 'CORSI-' + Date.now().toString().slice(-6), nome: nome, plat: document.getElementById('c-plat').value, obs: document.getElementById('c-obs').value, em: new Date().toLocaleDateString('pt-BR') };
+  corsiItens.unshift(item);
+  localStorage.setItem('maestro_aaron_corsi', JSON.stringify(corsiItens));
+  renderCorsi();
+  document.getElementById('form-corsi').style.display = 'none';
+  ['c-nome','c-obs'].forEach(function(id) { document.getElementById(id).value = ''; });
+}
+function renderCorsi() {
+  var el = document.getElementById('lista-corsi');
+  if (!corsiItens.length) { el.innerHTML = '<div class="vazio">Nenhum material do CORSI ainda.</div>'; return; }
+  el.innerHTML = corsiItens.map(function(c) {
+    return '<div class="ci"><span class="ci-num">' + c.num + '</span><span class="ci-nome">' + c.nome + '</span><span class="ci-plat">' + (c.obs || '—') + '</span><span class="ci-tipo">' + c.plat + ' · ' + c.em + '</span></div>';
+  }).join('');
+}
+function exportarCorsi() {
+  if (!corsiItens.length) { alert('Nenhum material do CORSI ainda.'); return; }
+  var t = corsiItens.map(function(c) { return c.nome + ' · ' + c.plat + ' · ' + c.em + '\n' + (c.obs || ''); }).join('\n\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([t], {type:'text/plain'}));
+  a.download = 'corsi_maestro_aaron.txt'; a.click();
+}
+renderAcervo(acervo);
+</script>
+</body>
+</html>
