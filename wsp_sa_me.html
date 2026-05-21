@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W.S.P. S/A-ME — Word Stars Productions</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#07101d;--ouro:#c9a646;--ouro2:#f4dc88;--cobre:#b87333;--noite:#03050a;--r:20px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Libre Baskerville',Georgia,serif;background:var(--noite);color:white;min-height:100vh}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(3,5,10,.98);border-bottom:2px solid var(--ouro);backdrop-filter:blur(10px)}
+.top-in{max-width:1200px;margin:auto;padding:10px 22px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.marca{font-family:'DM Mono',monospace;color:var(--ouro2);font-size:13px;font-weight:700}
+.marca small{display:block;font-size:10px;color:rgba(244,220,136,.4);letter-spacing:.1em}
+.tnav{display:flex;gap:5px;flex-wrap:wrap}
+.tnav a{font-family:'DM Mono',monospace;font-size:11px;color:#c8c0ae;text-decoration:none;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.1);transition:.15s}
+.tnav a:hover{color:var(--ouro2);border-color:var(--ouro);background:rgba(201,166,70,.1)}
+.hero{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(201,166,70,.07),transparent),linear-gradient(180deg,#03050a,#07101d 60%,#03050a);padding:80px 22px 60px;border-bottom:4px solid var(--ouro);text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'WSP';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Playfair Display',serif;font-size:420px;font-weight:900;color:rgba(201,166,70,.018);line-height:1;pointer-events:none}
+.hero-badge{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.2em;border:1px solid rgba(201,166,70,.3);color:rgba(201,166,70,.65);padding:6px 18px;border-radius:999px;display:inline-block;margin-bottom:22px}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(16px,2.5vw,24px);color:rgba(201,166,70,.55);letter-spacing:.3em;text-transform:uppercase;margin-bottom:10px}
+.hero h2{font-family:'Playfair Display',serif;font-size:clamp(42px,7vw,96px);background:linear-gradient(160deg,var(--ouro2),var(--ouro) 40%,var(--cobre));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:.95;margin-bottom:14px}
+.hero-sub{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.35em;color:rgba(201,166,70,.4);margin-bottom:24px;text-transform:uppercase}
+.hero-desc{font-size:17px;color:rgba(240,236,224,.62);max-width:680px;margin:0 auto;line-height:1.72;font-style:italic}
+.wrap{max-width:1200px;margin:auto;padding:60px 22px 80px;display:flex;flex-direction:column;gap:60px}
+.ceo-section{display:grid;grid-template-columns:380px 1fr;gap:50px;align-items:start}
+.ceo-foto-wrap{position:relative}
+.ceo-foto{width:100%;border-radius:24px;object-fit:cover;display:block;box-shadow:0 30px 80px rgba(0,0,0,.6);border:2px solid rgba(201,166,70,.3)}
+.ceo-ornamento{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);background:var(--noite);border:2px solid var(--ouro);border-radius:999px;padding:8px 24px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.15em;color:var(--ouro2);text-transform:uppercase;white-space:nowrap}
+.ceo-texto .eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.15em;color:rgba(201,166,70,.45);text-transform:uppercase;margin-bottom:12px}
+.ceo-texto h2{font-family:'Playfair Display',serif;font-size:clamp(36px,4vw,58px);color:var(--ouro2);line-height:1;margin-bottom:8px}
+.ceo-texto .cargo{font-family:'Playfair Display',serif;font-size:20px;color:var(--ouro);font-style:italic;margin-bottom:24px}
+.div-ouro{width:60px;height:2px;background:linear-gradient(to right,var(--ouro),transparent);margin:20px 0}
+.bio p{font-size:16px;line-height:1.8;color:rgba(240,236,224,.75);margin-bottom:14px}
+.bio p:last-child{margin-bottom:0}
+.missao-card{background:linear-gradient(135deg,rgba(10,20,40,.95),rgba(7,16,29,.98));border:1px solid rgba(201,166,70,.15);border-radius:var(--r);padding:40px;text-align:center}
+.missao-card h3{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,48px);color:var(--ouro2);margin-bottom:16px}
+.missao-card p{font-size:17px;line-height:1.8;color:rgba(240,236,224,.7);max-width:800px;margin:0 auto 20px}
+.missao-tags{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:24px}
+.mtag{font-family:'DM Mono',monospace;font-size:12px;padding:8px 16px;border-radius:999px;border:1px solid rgba(201,166,70,.28);color:rgba(201,166,70,.7);background:rgba(201,166,70,.05)}
+.gestao-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.gestao-card{background:rgba(10,20,40,.9);border:1px solid rgba(201,166,70,.1);border-radius:var(--r);padding:24px;text-align:center;transition:.2s}
+.gestao-card:hover{border-color:rgba(201,166,70,.32);transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,.4)}
+.gc-icone{font-size:36px;margin-bottom:12px}
+.gc-nome{font-family:'Playfair Display',serif;font-size:18px;color:var(--ouro2);margin-bottom:4px}
+.gc-cargo{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;color:rgba(201,166,70,.4);text-transform:uppercase;margin-bottom:12px}
+.gc-desc{font-size:13px;line-height:1.6;color:rgba(240,236,224,.58)}
+footer{background:rgba(0,0,0,.6);border-top:3px solid var(--ouro);padding:30px 22px;text-align:center;color:rgba(200,192,178,.45)}
+footer strong{color:var(--ouro2)}
+footer p{font-size:13px;line-height:1.8}
+@media(max-width:900px){.ceo-section{grid-template-columns:1fr}.ceo-foto-wrap{max-width:380px;margin:0 auto}.gestao-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.gestao-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="top-in">
+    <div class="marca">W.S.P. S/A-ME — WORD STARS PRODUCTIONS<small>GESTÃO DE ARTISTAS · TRIPLOOHESIGMALBPL</small></div>
+    <nav class="tnav">
+      <a href="#ceo">Mônada Speck</a>
+      <a href="#missao">Missão</a>
+      <a href="#portfolio">Portfólio</a>
+      <a href="https://triploohesigmalbpl.vercel.app/" target="_blank">↗ SIGMAL HQ</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="hero-badge">✦ GESTÃO · PRODUÇÃO · ARTE · ESTRELAS</div>
+  <h1>Word Stars Productions</h1>
+  <h2>W.S.P. S/A-ME</h2>
+  <div class="hero-sub">A empresa que cuida das estrelas</div>
+  <p class="hero-desc">Gestão artística de alto nível para os artistas do ecossistema triploohesigmalbpl. Do SIGMAL Music ao BPL — cada talento tem uma casa, e essa casa é a W.S.P.</p>
+</header>
+
+<main class="wrap">
+
+  <section id="ceo">
+    <div class="ceo-section">
+      <div class="ceo-foto-wrap">
+        <img class="ceo-foto" src="https://raw.githubusercontent.com/sitedasletras/triploohesigmalbpl/main/file_00000000903c71f9951b781c2421433e.png" alt="Mônada Speck">
+        <div class="ceo-ornamento">CEO & Secretaria Executiva</div>
+      </div>
+      <div class="ceo-texto">
+        <div class="eyebrow">✦ Fundadora · CEO · Secretaria Executiva</div>
+        <h2>Mônada Speck</h2>
+        <p class="cargo">Chief Executive Officer — W.S.P. S/A-ME</p>
+        <div class="div-ouro"></div>
+        <div class="bio">
+          <p>Mônada Speck não escolheu o nome por acidente. A mônada — a unidade que contém o universo inteiro dentro de si — define exatamente quem ela é: uma presença que, sozinha, carrega o peso e a visão de toda uma constelação de artistas.</p>
+          <p>CEO e Secretaria Executiva da Word Stars Productions, Mônada é a arquiteta da gestão artística do ecossistema triploohesigmalbpl. Ela conhece cada artista pelo nome, cada obra pelo contexto, cada potencial pelo que ainda não foi revelado.</p>
+          <p>Seus olhos heterocromáticos — um âmbar que aquece e um cinza-verde que avalia — não perdoam mediocridade. Mas reconhecem talento com uma precisão que assusta.</p>
+          <p><em>"Uma estrela não precisa de permissão para brilhar. Precisa de alguém que saiba onde posicioná-la no céu certo."</em></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="missao">
+    <div class="missao-card">
+      <h3>A missão da W.S.P.</h3>
+      <p>A Word Stars Productions existe para garantir que nenhum artista do ecossistema fique sem gestão, sem direção e sem destino. Do nascimento na Maternidade até a circulação pelo CORSI — a W.S.P. acompanha cada passo.</p>
+      <p>Não somos um departamento. Somos uma empresa. E como empresa, respondemos com profissionalismo, estratégia e visão de longo prazo.</p>
+      <div class="missao-tags">
+        <span class="mtag">Gestão artística</span><span class="mtag">Produção musical</span>
+        <span class="mtag">Direção de elenco</span><span class="mtag">Estratégia de carreira</span>
+        <span class="mtag">Circulação via CORSI</span><span class="mtag">SIGMAL Music</span>
+        <span class="mtag">BPL</span><span class="mtag">Maestro Aaron</span>
+        <span class="mtag">Charlton Moisés Heston</span><span class="mtag">Ângelus Prime</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="portfolio">
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.2em;color:rgba(201,166,70,.4);text-transform:uppercase;margin-bottom:10px">// PORTFÓLIO</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,48px);color:var(--ouro2)">Artistas sob gestão da W.S.P.</h2>
+    </div>
+    <div class="gestao-grid">
+      <div class="gestao-card"><div class="gc-icone">🎵</div><div class="gc-nome">SIGMAL Music</div><div class="gc-cargo">Banco de artistas musicais</div><p class="gc-desc">60 artistas, 9 bandas, Orquestra Filarmônica e Ângelus Prime. Sob a batuta do Maestro Aaron.</p></div>
+      <div class="gestao-card"><div class="gc-icone">🎭</div><div class="gc-nome">BPL</div><div class="gc-cargo">Banco de personagens</div><p class="gc-desc">50 atores e atrizes imortais. Sob a direção de Charlton Moisés Heston.</p></div>
+      <div class="gestao-card"><div class="gc-icone">🎻</div><div class="gc-nome">Orquestra Filarmônica</div><div class="gc-cargo">Instituição permanente</div><p class="gc-desc">Formação flexível com seções fixas e espaço para solistas convidados.</p></div>
+      <div class="gestao-card"><div class="gc-icone">✝</div><div class="gc-nome">Ângelus Prime</div><div class="gc-cargo">Sexteto gregoriano pop</div><p class="gc-desc">Duas vozes femininas e quatro masculinas. Gregorians e Il Divo como referências.</p></div>
+      <div class="gestao-card"><div class="gc-icone">🎬</div><div class="gc-nome">Núcleo N</div><div class="gc-cargo">Produções audiovisuais</div><p class="gc-desc">Silo Multimídia e CORSI. A W.S.P. acompanha cada produção do set à tela.</p></div>
+      <div class="gestao-card"><div class="gc-icone">🌐</div><div class="gc-nome">CORSI</div><div class="gc-cargo">Circulação e distribuição</div><p class="gc-desc">YouTube, Instagram, Web Rádio, Web TV, Spotify. Estratégia supervisionada pela W.S.P.</p></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p><strong>W.S.P. S/A-ME — Word Stars Productions</strong></p>
+  <p>Mônada Speck · CEO & Secretaria Executiva · triploohesigmalbpl</p>
+  <p style="margin-top:8px;font-family:'DM Mono',monospace;font-size:11px;opacity:.35;letter-spacing:.08em">Uma estrela não precisa de permissão para brilhar.</p>
+</footer>
+</body>
+</html>
