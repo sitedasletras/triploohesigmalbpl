@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charlton Moisés Heston — Sistema BPL | triploohesigmalbpl</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#07101d;--ouro:#c9a646;--ouro2:#f4dc88;--cobre:#b87333;--vinho:#6d1a2a;--verde:#1f7a42;--r:20px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Libre Baskerville',Georgia,serif;background:linear-gradient(170deg,#03060a,#07101d 60%,#03060a);color:white;min-height:100vh}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(3,6,10,.98);border-bottom:2px solid var(--ouro);backdrop-filter:blur(10px)}
+.top-in{max-width:1200px;margin:auto;padding:10px 22px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.marca{font-family:'DM Mono',monospace;color:var(--ouro2);font-size:13px;font-weight:700}
+.marca small{display:block;font-size:10px;color:rgba(244,220,136,.4);letter-spacing:.08em}
+.tnav{display:flex;gap:5px;flex-wrap:wrap}
+.tnav a{font-family:'DM Mono',monospace;font-size:11px;color:#c8c0ae;text-decoration:none;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.1);transition:.15s}
+.tnav a:hover{color:var(--ouro2);border-color:var(--ouro);background:rgba(201,166,70,.1)}
+.hero{background:radial-gradient(ellipse 60% 50% at 15% 20%,rgba(109,26,42,.25),transparent),linear-gradient(148deg,#030609,#07101d 50%,#030609);padding:56px 22px 44px;border-bottom:5px solid var(--ouro);position:relative;overflow:hidden}
+.hero-in{max-width:1200px;margin:auto;display:grid;grid-template-columns:260px 1fr;gap:44px;align-items:center;position:relative;z-index:1}
+.hero-foto-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+.hero-foto{width:240px;height:240px;border-radius:50%;object-fit:cover;object-position:top center;border:4px solid var(--ouro);box-shadow:0 0 0 8px rgba(201,166,70,.1),0 24px 60px rgba(0,0,0,.6)}
+.hero-pill{font-family:'DM Mono',monospace;font-size:11px;padding:6px 14px;border-radius:999px;background:rgba(109,26,42,.25);border:1px solid rgba(192,57,43,.5);color:#ffb0a0;display:inline-flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;background:#ffb0a0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-texto .eyebrow{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.12em;color:rgba(201,166,70,.5);text-transform:uppercase;margin-bottom:10px}
+.hero-texto h1{font-family:'Playfair Display',serif;font-size:clamp(32px,5vw,58px);line-height:1.05;color:var(--ouro2);margin-bottom:6px}
+.hero-texto .cargo{font-size:17px;color:#ffb0a0;font-style:italic;margin-bottom:18px}
+.hero-texto .missao{font-size:16px;line-height:1.7;color:rgba(240,236,224,.72);border-left:3px solid var(--ouro);padding-left:16px;max-width:680px}
+.hero-texto .frase{font-size:15px;color:rgba(201,166,70,.6);font-style:italic;margin-top:16px}
+.wrap{max-width:1200px;margin:auto;padding:36px 22px 70px;display:flex;flex-direction:column;gap:26px}
+.abas{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid rgba(201,166,70,.2);padding-bottom:14px}
+.aba{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:9px 18px;border-radius:12px;border:1px solid rgba(201,166,70,.2);color:rgba(201,166,70,.5);cursor:pointer;transition:.15s;background:rgba(255,255,255,.03)}
+.aba:hover{color:var(--ouro2);border-color:var(--ouro)}
+.aba.ativa{background:rgba(201,166,70,.15);color:var(--ouro2);border-color:var(--ouro)}
+.painel{display:none}.painel.ativo{display:block}
+.form-card{background:rgba(10,18,32,.95);border:1px solid rgba(201,166,70,.15);border-radius:var(--r);padding:28px}
+.form-card h3{font-family:'Playfair Display',serif;font-size:24px;color:var(--ouro2);margin-bottom:6px}
+.form-card .sub{font-size:14px;color:rgba(240,236,224,.55);margin-bottom:22px;font-family:'DM Mono',monospace}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.campo label{display:block;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:rgba(201,166,70,.65);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.campo input,.campo select,.campo textarea{width:100%;border:1px solid rgba(201,166,70,.25);border-radius:12px;padding:11px 14px;font-family:'Libre Baskerville',serif;font-size:14px;background:rgba(7,16,29,.8);color:var(--ouro2);outline:none;transition:border-color .2s}
+.campo textarea{min-height:100px;resize:vertical}
+.campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--ouro)}
+.wide{grid-column:1/-1}
+.resultado{display:none;background:rgba(109,26,42,.12);border:1px solid rgba(192,57,43,.3);border-radius:16px;padding:20px;margin-top:16px}
+.resultado.vis{display:block}
+.resultado h4{font-family:'Playfair Display',serif;font-size:20px;color:#ffb0a0;margin-bottom:10px}
+.resultado pre{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,200,180,.8);line-height:1.7;white-space:pre-wrap;background:rgba(7,16,29,.5);border-radius:12px;padding:14px}
+.res-prot{font-family:'DM Mono',monospace;font-size:12px;background:var(--vinho);color:#ffb0a0;padding:6px 14px;border-radius:999px;display:inline-block;margin-top:10px}
+.material-card{background:rgba(10,18,32,.9);border:1px solid rgba(201,166,70,.1);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.mc-head{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;cursor:pointer;border-bottom:1px solid rgba(201,166,70,.06)}
+.mc-head:hover{background:rgba(201,166,70,.04)}
+.mc-nome{font-family:'Playfair Display',serif;font-size:17px;color:var(--ouro2)}
+.mc-meta{font-family:'DM Mono',monospace;font-size:10px;color:rgba(201,166,70,.38);margin-top:2px}
+.mc-acoes{display:flex;gap:6px}
+.mc-body{display:none;padding:16px 18px;background:rgba(7,16,29,.4)}
+.mc-body.aberto{display:block}
+.mc-texto{font-size:14px;line-height:1.7;color:rgba(240,236,224,.75);white-space:pre-wrap;max-height:300px;overflow-y:auto}
+.corsi-card{background:linear-gradient(135deg,rgba(31,122,66,.15),rgba(7,16,29,.97));border:2px solid rgba(45,154,84,.3);border-radius:var(--r);padding:26px}
+.corsi-card h3{font-family:'Playfair Display',serif;font-size:22px;color:#80e8a0;margin-bottom:8px}
+.corsi-card p{font-size:14px;color:rgba(240,236,224,.65);line-height:1.65;margin-bottom:16px}
+.ci{background:rgba(10,18,32,.9);border:1px solid rgba(45,154,84,.15);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+.ci-num{font-family:'DM Mono',monospace;font-size:11px;color:rgba(45,154,84,.5);min-width:120px}
+.ci-nome{font-family:'Playfair Display',serif;font-size:16px;color:#80e8a0;flex:1}
+.ci-plat{font-size:13px;color:rgba(240,236,224,.5);font-style:italic}
+.ci-tipo{font-family:'DM Mono',monospace;font-size:10px;color:rgba(45,154,84,.6)}
+.vazio{text-align:center;padding:36px;font-family:'DM Mono',monospace;font-size:13px;color:rgba(201,166,70,.25);border:1px dashed rgba(201,166,70,.12);border-radius:var(--r)}
+.btn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:999px;padding:11px 18px;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;text-decoration:none}
+.btn:hover{transform:translateY(-1px)}
+.b-ouro{background:var(--ouro);color:var(--azul)}.b-ouro:hover{background:var(--ouro2)}
+.b-verm{background:var(--vinho);color:#ffb0a0}
+.b-verde{background:var(--verde);color:white}
+.b-esc{background:rgba(255,255,255,.06);color:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.12)}
+.b-copy{background:rgba(109,26,42,.2);color:#ffb0a0;border:1px solid rgba(192,57,43,.3);border-radius:10px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;cursor:pointer}
+.b-txt{background:rgba(59,31,110,.2);color:#d0b0ff;border:1px solid rgba(59,31,110,.35);border-radius:10px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;cursor:pointer}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+footer{background:rgba(0,0,0,.5);border-top:3px solid var(--ouro);padding:26px 22px;text-align:center;color:rgba(200,192,178,.5)}
+footer strong{color:var(--ouro2)}
+footer p{font-size:13px;line-height:1.8}
+@media(max-width:860px){.hero-in{grid-template-columns:1fr;text-align:center}.hero-foto-wrap{margin:0 auto}.f2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="top-in">
+    <div class="marca">CHARLTON MOISÉS HESTON — SISTEMA BPL<small>BANCO DE PERSONAGENS · TRIPLOOHESIGMALBPL</small></div>
+    <nav class="tnav">
+      <a href="#" onclick="mudarAba('entrada',event)">Entrada Cênica</a>
+      <a href="#" onclick="mudarAba('acervo',event)">Acervo</a>
+      <a href="#" onclick="mudarAba('corsi',event)">CORSI</a>
+      <a href="bpl_banco_personagens_literarios.html">Banco de Atores</a>
+      <a href="https://triploohesigmalbpl.vercel.app/" target="_blank">↗ SIGMAL HQ</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="hero-in">
+    <div class="hero-foto-wrap">
+      <img class="hero-foto" src="https://raw.githubusercontent.com/sitedasletras/triploohesigmalbpl/main/file_00000000041fc71fbb55b41612ff59a3c.png" alt="Charlton Moisés Heston">
+      <div class="hero-pill"><span class="dot"></span> Ativo · BPL</div>
+    </div>
+    <div class="hero-texto">
+      <div class="eyebrow">✦ Diretor de Elenco · BPL</div>
+      <h1>Charlton Moisés Heston</h1>
+      <p class="cargo">Narrador Institucional e Voz Épica do Celeiro · Diretor do BPL</p>
+      <p class="missao">Responsável por receber demandas cênicas, convocar atores do BPL e direcionar o material dramatúrgico das obras. Voz narrativa, dramática, cinematográfica — tudo passa pelo Charlton.</p>
+      <p class="frase">"A palavra é som. O som é alma. A alma narra."</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="abas">
+    <div class="aba ativa" onclick="mudarAba('entrada',event)">🎭 Entrada Cênica</div>
+    <div class="aba" onclick="mudarAba('acervo',event)">📚 Acervo do Charlton</div>
+    <div class="aba" onclick="mudarAba('corsi',event)">📲 Material do CORSI</div>
+  </div>
+
+  <div class="painel ativo" id="painel-entrada">
+    <div class="form-card">
+      <h3>🎭 Entrada Cênica — Charlton Moisés Heston</h3>
+      <p class="sub">REGISTRO DE MATERIAL DRAMATÚRGICO · BPL</p>
+      <div class="f2">
+        <div class="campo"><label>Título da obra / produção</label><input type="text" id="b-titulo" placeholder="Título da obra"></div>
+        <div class="campo"><label>Ator / Personagem convocado</label><input type="text" id="b-ator" placeholder="Nome do ator do BPL ou personagem"></div>
+        <div class="campo"><label>Formato cênico</label>
+          <select id="b-formato">
+            <option>Teatro</option><option>Cinema</option><option>Série</option>
+            <option>Performance</option><option>Videoclipe (cenas)</option>
+            <option>Animação / Desenho</option><option>Audiobook</option>
+            <option>Narração épica</option><option>Trilha narrativa</option><option>WebTV Celeiro</option>
+          </select>
+        </div>
+        <div class="campo"><label>Tipo de voz / atuação</label>
+          <select id="b-tipo">
+            <option>Voz narrativa</option><option>Voz dramática</option>
+            <option>Voz cinematográfica</option><option>Narração épica</option>
+            <option>Declamação</option><option>Performance literária</option>
+            <option>Trilha narrativa</option><option>Diálogo dramatizado</option>
+          </select>
+        </div>
+        <div class="campo"><label>Destino</label>
+          <select id="b-destino">
+            <option>Silo Multimídia — produção</option>
+            <option>Acervo do Charlton — aguardando</option>
+            <option>CORSI — divulgação imediata</option>
+            <option>Masmorra — quarentena</option>
+          </select>
+        </div>
+        <div class="campo"><label>Avaliação do Charlton</label>
+          <select id="b-aval">
+            <option>✦ Aprovado — produção autorizada</option>
+            <option>⏳ Em análise — aguardando revisão</option>
+            <option>🔄 Revisar — retornar ao autor</option>
+            <option>⛓️ Quarentena — Masmorra</option>
+          </select>
+        </div>
+        <div class="campo wide"><label>Texto / Roteiro / Notas do Charlton</label>
+          <textarea id="b-conteudo" placeholder="Cole aqui o texto, o roteiro, a narração ou as notas do Charlton sobre esta produção..."></textarea>
+        </div>
+        <div class="campo wide"><label>Observações para produção</label>
+          <textarea id="b-obs" placeholder="Instruções especiais para o Silo Multimídia, tom, intensidade..." style="min-height:70px"></textarea>
+        </div>
+      </div>
+      <div class="btns">
+        <button class="btn b-verm" onclick="registrarCena()">🎭 Registrar no sistema do Charlton</button>
+        <button class="btn b-esc" onclick="limparForm()">✕ Limpar</button>
+      </div>
+      <div class="resultado" id="res-cena">
+        <h4>✅ Material registrado pelo Charlton Moisés Heston</h4>
+        <pre id="res-pre"></pre>
+        <div class="res-prot" id="res-prot">CMH-000000</div>
+        <div class="btns" style="margin-top:12px">
+          <button class="btn b-esc" onclick="copiarRes()">📋 Copiar registro</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="painel" id="painel-acervo">
+    <div class="form-card">
+      <h3>📚 Acervo do Charlton Moisés Heston</h3>
+      <p class="sub">Todo material cênico registrado nesta e em sessões anteriores.</p>
+      <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+        <input type="text" style="flex:1;min-width:180px;border:1px solid rgba(201,166,70,.25);border-radius:10px;padding:9px 13px;font-family:'DM Mono',monospace;font-size:13px;background:rgba(7,16,29,.8);color:var(--ouro2);outline:none" placeholder="Buscar no acervo..." oninput="buscarAcervo(this.value)">
+        <button class="btn b-ouro" onclick="exportarAcervo()">📦 Exportar tudo</button>
+      </div>
+      <div id="lista-acervo"></div>
+    </div>
+  </div>
+
+  <div class="painel" id="painel-corsi">
+    <div class="corsi-card">
+      <h3>📲 Material vindo do CORSI</h3>
+      <p>Material cênico que o CORSI encaminhou ao Charlton — produções divulgadas, retornos de plataformas e materiais prontos para nova produção ou reedição.</p>
+      <div class="btns" style="margin-top:0;margin-bottom:18px">
+        <button class="btn b-verde" onclick="mostrarFormCorsi()">+ Registrar material do CORSI</button>
+        <button class="btn b-esc" onclick="exportarCorsi()">📦 Exportar</button>
+      </div>
+      <div id="lista-corsi"><div class="vazio">Nenhum material do CORSI registrado ainda.</div></div>
+    </div>
+    <div class="form-card" id="form-corsi" style="display:none;margin-top:16px">
+      <h3>Registrar material do CORSI</h3>
+      <div class="f2" style="margin-top:16px">
+        <div class="campo"><label>Nome da obra</label><input type="text" id="c-nome" placeholder="Título"></div>
+        <div class="campo"><label>Plataforma</label>
+          <select id="c-plat"><option>YouTube</option><option>Instagram</option><option>TikTok</option><option>Web TV</option><option>Web Rádio</option><option>Outra</option></select>
+        </div>
+        <div class="campo wide"><label>Observações</label><textarea id="c-obs" placeholder="Retorno, métricas, solicitação do CORSI..."></textarea></div>
+      </div>
+      <div class="btns">
+        <button class="btn b-verde" onclick="salvarCorsi()">✔ Salvar</button>
+        <button class="btn b-esc" onclick="document.getElementById('form-corsi').style.display='none'">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p><strong>Charlton Moisés Heston</strong> — Sistema BPL · triploohesigmalbpl</p>
+  <p>W.S.P. S/A-ME · Word Stars Productions · Narrador Institucional e Voz Épica do Celeiro</p>
+</footer>
+
+<script>
+var acervo = JSON.parse(localStorage.getItem('charlton_acervo') || '[]');
+var corsiItens = JSON.parse(localStorage.getItem('charlton_corsi') || '[]');
+
+function mudarAba(id, ev) {
+  if (ev && ev.preventDefault) ev.preventDefault();
+  document.querySelectorAll('.aba').forEach(function(a) { a.classList.remove('ativa'); });
+  document.querySelectorAll('.painel').forEach(function(p) { p.classList.remove('ativo'); });
+  var abas = document.querySelectorAll('.aba');
+  var idx = ['entrada','acervo','corsi'].indexOf(id);
+  if (abas[idx]) abas[idx].classList.add('ativa');
+  var p = document.getElementById('painel-' + id);
+  if (p) p.classList.add('ativo');
+  if (id === 'acervo') renderAcervo(acervo);
+  if (id === 'corsi') renderCorsi();
+}
+
+function registrarCena() {
+  var titulo = document.getElementById('b-titulo').value.trim();
+  var ator = document.getElementById('b-ator').value.trim();
+  var conteudo = document.getElementById('b-conteudo').value.trim();
+  if (!titulo) { alert('Informe o título.'); return; }
+  if (!ator) { alert('Informe o ator ou personagem.'); return; }
+  var num = 'CMH-' + Date.now().toString().slice(-6) + '-' + Math.floor(Math.random()*900+100);
+  var item = { num: num, titulo: titulo, ator: ator,
+    formato: document.getElementById('b-formato').value,
+    tipo: document.getElementById('b-tipo').value,
+    destino: document.getElementById('b-destino').value,
+    aval: document.getElementById('b-aval').value,
+    conteudo: conteudo, obs: document.getElementById('b-obs').value,
+    em: new Date().toLocaleDateString('pt-BR') };
+  acervo.unshift(item);
+  localStorage.setItem('charlton_acervo', JSON.stringify(acervo));
+  var pre = 'SISTEMA BPL — CHARLTON MOISÉS HESTON\nBPL · TRIPLOOHESIGMALBPL\n' +
+    '--------------------------------------------------\n' +
+    'Protocolo:  ' + num + '\nTítulo:     ' + titulo + '\nAtor/Pers.: ' + ator +
+    '\nFormato:    ' + item.formato + '\nTipo voz:   ' + item.tipo +
+    '\nDestino:    ' + item.destino + '\nAvaliação:  ' + item.aval +
+    '\nRegistrado: ' + item.em + '\n--------------------------------------------------\n' +
+    (conteudo || '(sem conteúdo)') + (item.obs ? '\nNotas: ' + item.obs : '');
+  document.getElementById('res-pre').textContent = pre;
+  document.getElementById('res-prot').textContent = num;
+  document.getElementById('res-cena').classList.add('vis');
+  window._ultimoRes = pre;
+}
+
+function copiarRes() { navigator.clipboard.writeText(window._ultimoRes || '').then(function() { alert('Copiado!'); }); }
+function limparForm() {
+  ['b-titulo','b-ator','b-conteudo','b-obs'].forEach(function(id) { document.getElementById(id).value = ''; });
+  document.getElementById('res-cena').classList.remove('vis');
+}
+
+function renderAcervo(lista) {
+  var el = document.getElementById('lista-acervo');
+  if (!lista.length) { el.innerHTML = '<div class="vazio">Nenhum material registrado ainda.</div>'; return; }
+  el.innerHTML = lista.map(function(item, i) {
+    return '<div class="material-card">' +
+      '<div class="mc-head" onclick="toggleMC(' + i + ')">' +
+        '<div><div class="mc-nome">' + item.titulo + '</div>' +
+        '<div class="mc-meta">' + item.num + ' · ' + item.ator + ' · ' + item.formato + ' · ' + item.em + '</div></div>' +
+        '<div class="mc-acoes">' +
+          '<button class="b-copy" onclick="event.stopPropagation();copiarItem(' + i + ')">📋</button>' +
+          '<button class="b-txt" onclick="event.stopPropagation();exportarItem(' + i + ')">📄</button>' +
+        '</div></div>' +
+      '<div class="mc-body" id="mc-' + i + '"><div class="mc-texto">' + (item.conteudo || '(sem conteúdo)') + (item.obs ? '\nNotas: ' + item.obs : '') + '</div></div>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleMC(i) { var el = document.getElementById('mc-' + i); if (el) el.classList.toggle('aberto'); }
+function copiarItem(i) {
+  var it = acervo[i];
+  navigator.clipboard.writeText(it.titulo + '\n' + it.ator + '\n\n' + (it.conteudo || '')).then(function() { alert('Copiado!'); });
+}
+function exportarItem(i) {
+  var it = acervo[i];
+  var t = it.titulo + '\n' + it.ator + ' · ' + it.formato + ' · ' + it.em + '\n\n' + (it.conteudo || '') + (it.obs ? '\nNotas: ' + it.obs : '');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([t], {type:'text/plain'}));
+  a.download = it.titulo.replace(/\s+/g,'_') + '.txt'; a.click();
+}
+function buscarAcervo(q) {
+  renderAcervo(q ? acervo.filter(function(i) { return JSON.stringify(i).toLowerCase().includes(q.toLowerCase()); }) : acervo);
+}
+function exportarAcervo() {
+  if (!acervo.length) { alert('Acervo vazio.'); return; }
+  var t = acervo.map(function(i) { return i.titulo + '\n' + i.ator + ' · ' + i.em + '\n\n' + (i.conteudo || ''); }).join('\n\n' + '='.repeat(40) + '\n\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([t], {type:'text/plain'}));
+  a.download = 'acervo_charlton_' + new Date().toISOString().split('T')[0] + '.txt'; a.click();
+}
+function mostrarFormCorsi() { document.getElementById('form-corsi').style.display = 'block'; document.getElementById('form-corsi').scrollIntoView({behavior:'smooth'}); }
+function salvarCorsi() {
+  var nome = document.getElementById('c-nome').value.trim();
+  if (!nome) { alert('Informe o nome.'); return; }
+  var item = { num: 'CORSI-CMH-' + Date.now().toString().slice(-6), nome: nome, plat: document.getElementById('c-plat').value, obs: document.getElementById('c-obs').value, em: new Date().toLocaleDateString('pt-BR') };
+  corsiItens.unshift(item);
+  localStorage.setItem('charlton_corsi', JSON.stringify(corsiItens));
+  renderCorsi();
+  document.getElementById('form-corsi').style.display = 'none';
+  ['c-nome','c-obs'].forEach(function(id) { document.getElementById(id).value = ''; });
+}
+function renderCorsi() {
+  var el = document.getElementById('lista-corsi');
+  if (!corsiItens.length) { el.innerHTML = '<div class="vazio">Nenhum material do CORSI ainda.</div>'; return; }
+  el.innerHTML = corsiItens.map(function(c) {
+    return '<div class="ci"><span class="ci-num">' + c.num + '</span><span class="ci-nome">' + c.nome + '</span><span class="ci-plat">' + (c.obs || '—') + '</span><span class="ci-tipo">' + c.plat + ' · ' + c.em + '</span></div>';
+  }).join('');
+}
+function exportarCorsi() {
+  if (!corsiItens.length) { alert('Nenhum material ainda.'); return; }
+  var t = corsiItens.map(function(c) { return c.nome + ' · ' + c.plat + ' · ' + c.em + '\n' + (c.obs || ''); }).join('\n\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([t], {type:'text/plain'}));
+  a.download = 'corsi_charlton.txt'; a.click();
+}
+renderAcervo(acervo);
+</script>
+</body>
+</html>
