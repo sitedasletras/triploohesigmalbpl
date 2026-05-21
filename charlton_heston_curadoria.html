@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charlton Moisés Heston · Curadoria BPL · SIGMAL HQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --vinho: #1a0a0a;
+  --ouro: #c9a84c;
+  --ouro-claro: #e8cc7a;
+  --ouro-escuro: #7a5f1a;
+  --creme: #f5edd8;
+  --prata: #6a7d90;
+  --verde: #00c853;
+  --vermelho: #d32f2f;
+  --vinho-claro: #6d1a1a;
+  --rosa: #c8a8ff;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: linear-gradient(160deg, var(--preto) 0%, #0d0505 50%, var(--preto) 100%);
+  color: var(--creme);
+  font-family: 'Crimson Pro', Georgia, serif;
+  min-height: 100vh;
+}
+
+/* TOPO */
+.topo {
+  background: rgba(4,8,15,0.97);
+  border-bottom: 2px solid var(--ouro);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+.topo-esq { display: flex; align-items: center; gap: 1rem; }
+.charlton-avatar {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--vinho-claro), var(--ouro-escuro));
+  border: 2px solid var(--ouro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+.topo-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  color: var(--ouro);
+  letter-spacing: 0.1em;
+}
+.topo-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.45rem;
+  letter-spacing: 0.18em;
+  color: var(--prata);
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+.btn-voltar {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  color: var(--prata);
+  background: none;
+  border: 1px solid rgba(201,168,76,0.2);
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s;
+}
+.btn-voltar:hover { color: var(--ouro); border-color: var(--ouro); }
+
+/* CONFIG */
+.config-box {
+  background: rgba(109,26,26,0.15);
+  border: 1px solid rgba(201,168,76,0.15);
+  padding: 1.2rem 2rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.fg { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; min-width: 180px; }
+.fl {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.15em;
+  color: var(--prata);
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+.fi {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.12);
+  color: var(--creme);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.88rem;
+  padding: 0.5rem 0.8rem;
+  outline: none;
+  width: 100%;
+}
+.fi:focus { border-color: rgba(201,168,76,0.4); }
+.btn-p {
+  background: linear-gradient(135deg, var(--ouro-escuro), var(--ouro));
+  color: var(--preto);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+.btn-p:hover { opacity: 0.85; }
+.btn-p:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-s {
+  background: transparent;
+  color: var(--ouro);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  padding: 0.6rem 1rem;
+  border: 1px solid rgba(201,168,76,0.25);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+.btn-s:hover { border-color: var(--ouro); }
+
+/* NAVEGAÇÃO */
+.nav-abas {
+  display: flex;
+  background: var(--preto-mid);
+  border-bottom: 1px solid rgba(201,168,76,0.1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-abas::-webkit-scrollbar { display: none; }
+.aba {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  color: var(--prata);
+  padding: 0.9rem 1.5rem;
+  cursor: pointer;
+  border: none;
+  background: none;
+  text-transform: uppercase;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s;
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+.aba:hover { color: var(--ouro); }
+.aba.ativa { color: var(--ouro); border-bottom-color: var(--ouro); }
+
+/* CONTEÚDO */
+.conteudo { max-width: 1300px; margin: 0 auto; padding: 1.5rem 2rem; }
+.secao { display: none; }
+.secao.ativa { display: block; }
+
+/* HEADER SEÇÃO */
+.sec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(201,168,76,0.08);
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+.sec-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.45rem;
+  letter-spacing: 0.3em;
+  color: var(--ouro);
+  opacity: 0.45;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.sec-titulo {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  color: var(--creme);
+  letter-spacing: 0.05em;
+  font-weight: 400;
+}
+.sec-titulo em { color: var(--ouro); font-style: italic; font-family: 'Crimson Pro', serif; }
+
+/* BUSCA */
+.busca-bar {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+.busca-input {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.12);
+  color: var(--creme);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.88rem;
+  padding: 0.5rem 0.8rem;
+  outline: none;
+  flex: 1;
+  min-width: 200px;
+}
+.busca-input::placeholder { color: rgba(201,168,76,0.25); font-style: italic; }
+.filtro-sel {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.12);
+  color: var(--creme);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  padding: 0.5rem 0.7rem;
+  outline: none;
+  cursor: pointer;
+}
+.filtro-sel option { background: var(--preto-mid); }
+
+/* GRADE DE ARTISTAS */
+.artistas-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.artista-card {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.08);
+  overflow: hidden;
+  transition: all 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+.artista-card:hover { border-color: rgba(201,168,76,0.3); transform: translateY(-2px); }
+.artista-card.selecionado { border-color: var(--ouro); background: rgba(201,168,76,0.04); }
+
+.ac-topo {
+  padding: 1rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  border-bottom: 1px solid rgba(201,168,76,0.05);
+}
+.ac-iniciais {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--vinho-claro), rgba(201,168,76,0.2));
+  border: 1px solid rgba(201,168,76,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  color: var(--ouro);
+  flex-shrink: 0;
+  font-weight: 700;
+}
+.ac-info { flex: 1; }
+.ac-nome {
+  font-family: 'Cinzel', serif;
+  font-size: 0.88rem;
+  color: var(--creme);
+  margin-bottom: 0.15rem;
+  line-height: 1.2;
+}
+.ac-id {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.1em;
+  color: var(--ouro);
+  opacity: 0.4;
+  text-transform: uppercase;
+}
+.ac-corpo { padding: 0.8rem 1.2rem; }
+.ac-espec {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.1em;
+  color: var(--ouro);
+  opacity: 0.5;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.ac-personalidade {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: var(--prata);
+  opacity: 0.7;
+  line-height: 1.4;
+  margin-bottom: 0.4rem;
+}
+.ac-formatos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.formato-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.38rem;
+  letter-spacing: 0.06em;
+  padding: 0.15rem 0.4rem;
+  border: 1px solid rgba(201,168,76,0.2);
+  color: var(--prata);
+  text-transform: uppercase;
+}
+.ac-obras-cnt {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  color: var(--ouro);
+}
+.ac-acoes {
+  padding: 0.6rem 1.2rem;
+  border-top: 1px solid rgba(201,168,76,0.05);
+  display: flex;
+  gap: 0.4rem;
+}
+.ac-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.08em;
+  padding: 0.32rem 0.6rem;
+  border: 1px solid rgba(201,168,76,0.15);
+  background: transparent;
+  color: var(--prata);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.ac-btn:hover { color: var(--ouro); border-color: var(--ouro); }
+.ac-btn.principal { background: rgba(201,168,76,0.08); color: var(--ouro); border-color: rgba(201,168,76,0.25); }
+
+/* ESPECIALIDADE CORES */
+.esp-drama .ac-espec { color: #c8a8ff; }
+.esp-comedia .ac-espec { color: #ffd080; }
+.esp-acao .ac-espec { color: #ff8080; }
+.esp-suspense .ac-espec { color: #80c8ff; }
+.esp-romance .ac-espec { color: #ff80b0; }
+.esp-tragedia .ac-espec { color: #a0a0a0; }
+.esp-experimental .ac-espec { color: #80ffd0; }
+
+/* PAINEL DO ARTISTA */
+.painel-artista {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.15);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: none;
+}
+.painel-artista.aberto { display: block; }
+.painel-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(201,168,76,0.1);
+  flex-wrap: wrap;
+}
+.painel-iniciais {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--vinho-claro), var(--ouro-escuro));
+  border: 2px solid var(--ouro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  color: var(--ouro);
+  flex-shrink: 0;
+  font-weight: 700;
+}
+.painel-info { flex: 1; }
+.painel-nome {
+  font-family: 'Cinzel', serif;
+  font-size: 1.3rem;
+  color: var(--ouro);
+  margin-bottom: 0.2rem;
+}
+.painel-tipo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.15em;
+  color: var(--prata);
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+
+/* FORM CONVOCAÇÃO */
+.form-conv {
+  background: rgba(109,26,26,0.15);
+  border: 1px solid rgba(201,168,76,0.12);
+  padding: 1.2rem;
+  margin-bottom: 1.2rem;
+}
+.form-conv-titulo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.2em;
+  color: var(--ouro);
+  opacity: 0.6;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+.form-full { grid-column: 1/-1; }
+.fs, .fta {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.1);
+  color: var(--creme);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.8rem;
+  outline: none;
+  width: 100%;
+}
+.fs option { background: var(--preto-mid); }
+.fta { resize: vertical; min-height: 60px; }
+
+/* Lista convocações */
+.conv-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 240px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+.conv-item {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.08);
+  padding: 0.6rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.conv-num {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  color: var(--ouro);
+  opacity: 0.5;
+  width: 24px;
+  flex-shrink: 0;
+}
+.conv-info { flex: 1; }
+.conv-obra {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.88rem;
+  color: var(--creme);
+  margin-bottom: 0.1rem;
+}
+.conv-detalhe {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.08em;
+  color: var(--prata);
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+.conv-remover {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.4rem;
+  color: rgba(211,47,47,0.5);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+}
+.conv-remover:hover { color: var(--vermelho); }
+
+/* Status */
+.pub-status {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.08);
+  margin-top: 1rem;
+}
+.pub-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.pub-dot.ok { background: var(--verde); }
+.pub-dot.erro { background: var(--vermelho); }
+.pub-dot.pub { background: var(--ouro); animation: pisca 1s ease-in-out infinite; }
+@keyframes pisca { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.pub-txt {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  color: var(--prata);
+  text-transform: uppercase;
+  flex: 1;
+}
+
+/* LOG */
+.log-box {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.06);
+  padding: 0.8rem;
+  height: 160px;
+  overflow-y: auto;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.04em;
+  line-height: 1.8;
+  margin-top: 1rem;
+}
+.log-ok { color: var(--verde); }
+.log-erro { color: #ff6b6b; }
+.log-info { color: var(--ouro); opacity: 0.6; }
+
+/* NOTIFICAÇÕES */
+#notif {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 700;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 300px;
+}
+.notif-item {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-left: 3px solid var(--ouro);
+  padding: 0.7rem 0.9rem;
+  animation: slideIn 0.3s ease;
+}
+.notif-item.ok { border-left-color: var(--verde); }
+.notif-item.erro { border-left-color: var(--vermelho); }
+@keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+.notif-tit {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.1em;
+  color: var(--ouro);
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+.notif-item.ok .notif-tit { color: var(--verde); }
+.notif-item.erro .notif-tit { color: #ff6b6b; }
+.notif-txt { font-size: 0.8rem; color: var(--creme); line-height: 1.4; }
+
+.vazio {
+  text-align: center;
+  padding: 3rem;
+  color: var(--prata);
+  opacity: 0.4;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .conteudo { padding: 1rem; }
+  .config-box { padding: 1rem; }
+  .artistas-grade { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPO -->
+<div class="topo">
+  <div class="topo-esq">
+    <div class="charlton-avatar">🎭</div>
+    <div>
+      <div class="topo-logo">CHARLTON MOISÉS HESTON</div>
+      <div class="topo-sub">Curadoria BPL · Banco de Personagens Literários · Painel HQ</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:0.8rem;align-items:center;">
+    <a href="index.html" class="btn-voltar">← PAINEL HQ</a>
+  </div>
+</div>
+
+<!-- CONFIG GITHUB -->
+<div class="config-box">
+  <div class="fg">
+    <label class="fl">Token GitHub</label>
+    <input type="password" class="fi" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
+  </div>
+  <div class="fg" style="max-width:260px;">
+    <label class="fl">Repositório Celeiro</label>
+    <input type="text" class="fi" id="gh-repo" value="sitedasletras/CeleiroLiterario">
+  </div>
+  <div class="fg" style="max-width:100px;">
+    <label class="fl">Branch</label>
+    <input type="text" class="fi" id="gh-branch" value="main">
+  </div>
+  <button class="btn-p" onclick="salvarConfig()">SALVAR</button>
+  <button class="btn-s" onclick="testarConexao()">TESTAR</button>
+</div>
+
+<!-- NAVEGAÇÃO -->
+<div class="nav-abas">
+  <button class="aba ativa" onclick="irAba('elenco',this)">🎭 ELENCO BPL</button>
+  <button class="aba" onclick="irAba('publicar',this)">📤 PUBLICAR BIOGRAFIAS</button>
+</div>
+
+<!-- CONTEÚDO -->
+<div class="conteudo">
+
+  <!-- ===== ELENCO BPL ===== -->
+  <div class="secao ativa" id="sec-elenco">
+    <div class="sec-header">
+      <div>
+        <div class="sec-label">// BANCO DE PERSONAGENS LITERÁRIOS</div>
+        <h2 class="sec-titulo">Elenco <em>Fundador</em></h2>
+      </div>
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+        <input type="text" class="busca-input" id="busca" placeholder="Buscar ator, origem, especialidade..." oninput="filtrar()" style="min-width:200px;">
+        <select class="filtro-sel" id="filtro-esp" onchange="filtrar()">
+          <option value="">Todas as especialidades</option>
+          <option value="drama">Drama</option>
+          <option value="comedia">Comédia</option>
+          <option value="acao">Ação / Aventura</option>
+          <option value="suspense">Suspense / Noir</option>
+          <option value="romance">Romance</option>
+          <option value="tragedia">Tragédia</option>
+          <option value="experimental">Experimental</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Painel do artista selecionado -->
+    <div class="painel-artista" id="painel-artista">
+      <div class="painel-header">
+        <div class="painel-iniciais" id="pa-iniciais">—</div>
+        <div class="painel-info">
+          <div class="painel-nome" id="pa-nome">—</div>
+          <div class="painel-tipo" id="pa-tipo">—</div>
+        </div>
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+          <button class="btn-p" onclick="publicarBioArtista()">📤 PUBLICAR BIOGRAFIA</button>
+          <button class="btn-s" onclick="fecharPainel()">FECHAR</button>
+        </div>
+      </div>
+
+      <!-- Form de convocação -->
+      <div class="form-conv">
+        <div class="form-conv-titulo">// REGISTRAR CONVOCAÇÃO</div>
+        <div class="form-grid">
+          <div class="fg">
+            <label class="fl">Título da Obra</label>
+            <input type="text" class="fi" id="c-obra" placeholder="Nome da obra...">
+          </div>
+          <div class="fg">
+            <label class="fl">Formato da Produção</label>
+            <select class="fs" id="c-formato">
+              <option value="teatro">Teatro</option>
+              <option value="cinema">Cinema</option>
+              <option value="serie">Série</option>
+              <option value="performance">Performance</option>
+              <option value="videoclipe">Videoclipe (cenas)</option>
+              <option value="animacao">Animação / Desenho</option>
+              <option value="audiobook">Audiobook</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Papel / Personagem</label>
+            <input type="text" class="fi" id="c-papel" placeholder="Nome ou descrição do personagem...">
+          </div>
+          <div class="fg">
+            <label class="fl">Diretor / Responsável</label>
+            <input type="text" class="fi" id="c-diretor" value="Charlton Moisés Heston">
+          </div>
+          <div class="fg form-full">
+            <label class="fl">Observações (opcional)</label>
+            <textarea class="fta" id="c-obs" placeholder="Notas sobre a convocação..."></textarea>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.6rem;margin-top:0.8rem;flex-wrap:wrap;">
+          <button class="btn-p" onclick="registrarConvocacao()">🎭 REGISTRAR CONVOCAÇÃO</button>
+        </div>
+      </div>
+
+      <!-- Lista de convocações -->
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.48rem;letter-spacing:0.18em;color:var(--ouro);opacity:0.5;text-transform:uppercase;margin-bottom:0.6rem;display:flex;justify-content:space-between;">
+          <span>// CONVOCAÇÕES REGISTRADAS</span>
+          <span id="conv-cnt">0 participações</span>
+        </div>
+        <div class="conv-lista" id="conv-lista">
+          <div class="vazio">Nenhuma convocação registrada ainda.</div>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="pub-status">
+        <div class="pub-dot ok" id="pub-dot"></div>
+        <div class="pub-txt" id="pub-txt">Pronto para publicar</div>
+      </div>
+      <div class="log-box" id="log-artista"></div>
+    </div>
+
+    <!-- Grade de artistas -->
+    <div class="artistas-grade" id="grade-artistas"></div>
+  </div>
+
+  <!-- ===== PUBLICAR TODAS ===== -->
+  <div class="secao" id="sec-publicar">
+    <div class="sec-header">
+      <div>
+        <div class="sec-label">// PUBLICAÇÃO EM LOTE</div>
+        <h2 class="sec-titulo">Publicar <em>Todas as Biografias BPL</em></h2>
+      </div>
+    </div>
+
+    <div style="background:var(--preto-mid);border:1px solid rgba(201,168,76,0.1);padding:1.5rem;margin-bottom:1.5rem;">
+      <p style="font-style:italic;font-size:0.9rem;color:var(--prata);line-height:1.7;margin-bottom:1.2rem;">
+        Publica as biografias institucionais de todos os 50 membros do elenco BPL no Celeiro Literário. A biografia do elenco não lista obras — lista apenas quem são e o que fazem. As convocações aparecem quando registradas individualmente.
+      </p>
+      <button class="btn-p" id="btn-pub-lote" onclick="publicarTodasBios()">🎭 PUBLICAR TODAS AS BIOGRAFIAS DO ELENCO</button>
+
+      <div style="margin-top:1.2rem;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.15em;color:var(--ouro);opacity:0.5;text-transform:uppercase;margin-bottom:0.6rem;">// PROGRESSO</div>
+        <div style="display:flex;gap:2rem;margin-bottom:0.8rem;">
+          <div><div style="font-family:'Cinzel',serif;font-size:1.8rem;color:var(--ouro);" id="pub-cnt-ok">0</div><div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:var(--prata);text-transform:uppercase;">Publicados</div></div>
+          <div><div style="font-family:'Cinzel',serif;font-size:1.8rem;color:#ff6b6b;" id="pub-cnt-erro">0</div><div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:var(--prata);text-transform:uppercase;">Erros</div></div>
+          <div><div style="font-family:'Cinzel',serif;font-size:1.8rem;color:var(--ouro);" id="pub-cnt-total">50</div><div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:var(--prata);text-transform:uppercase;">Total</div></div>
+        </div>
+        <div style="height:4px;background:rgba(201,168,76,0.1);border-radius:2px;overflow:hidden;">
+          <div style="height:100%;background:linear-gradient(to right,var(--ouro-escuro),var(--ouro));border-radius:2px;transition:width 0.5s;" id="pub-barra" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="log-box" id="log-lote" style="margin-top:1rem;"></div>
+    </div>
+  </div>
+
+</div><!-- /conteudo -->
+
+<div id="notif"></div>
+
+<script>
+// ===== DADOS DOS 50 ARTISTAS BPL =====
+const ARTISTAS = [
+  // DRAMA
+  {id:'BPL-001',nome:'Isolde Vael Carrim',iniciais:'IV',orig:'África do Sul',gen:'F',esp:'drama',formatos:['cinema','serie','teatro'],personalidade:'Presença magnética de silêncio — atriz que comunica mais com o olhar do que com a voz. Especialista em papéis de mulheres em colapso controlado.'},
+  {id:'BPL-002',nome:'Esteban Morales Vega',iniciais:'EM',orig:'Colômbia',gen:'M',esp:'drama',formatos:['cinema','teatro','serie'],personalidade:'Intensidade bruta. O ator que faz o espectador sentir que está invadindo um momento privado. Drama psicológico de alta voltagem.'},
+  {id:'BPL-003',nome:'Yuki Tanegawa',iniciais:'YT',orig:'Japão',gen:'F',esp:'drama',formatos:['anime','cinema','teatro'],personalidade:'Delicadeza que parte. Especialista em personagens que carregam dor sem demonstrar — a tragédia no gesto mínimo.'},
+  {id:'BPL-004',nome:'Darius Mehrabani',iniciais:'DM',orig:'Irã',gen:'M',esp:'drama',formatos:['cinema','serie','teatro'],personalidade:'Gravidade intelectual. Atores de personagens que pensam enquanto sofrem — drama filosófico e político.'},
+  {id:'BPL-005',nome:'Amara Diallo Keita',iniciais:'AD',orig:'Guiné-Conacri',gen:'F',esp:'drama',formatos:['teatro','cinema'],personalidade:'Força matriarcal. A voz que carrega a memória de um povo. Drama de resistência e identidade.'},
+  {id:'BPL-006',nome:'Mirela Szabo',iniciais:'MS',orig:'Hungria',gen:'F',esp:'tragedia',formatos:['teatro','cinema','serie'],personalidade:'A tragédia como arte. Especialista em personagens que caem com grandeza — Shakespeariana contemporânea.'},
+  {id:'BPL-007',nome:'Tomás Induni Leal',iniciais:'TI',orig:'Brasil — Rio Grande do Sul',gen:'M',esp:'drama',formatos:['serie','cinema','teatro'],personalidade:'Sotaque do Sul, coração universal. Drama de classe trabalhadora com dignidade inata.'},
+  // COMÉDIA
+  {id:'BPL-008',nome:'Bridget Afolabi',iniciais:'BA',orig:'Nigéria',gen:'F',esp:'comedia',formatos:['teatro','cinema','serie'],personalidade:'Timing perfeito. A comédia que vem da observação — ri com as pessoas, nunca delas. Comédia de situação e identidade.'},
+  {id:'BPL-009',nome:'Serafino Conti Neri',iniciais:'SC',orig:'Itália — Nápoles',gen:'M',esp:'comedia',formatos:['teatro','cinema'],personalidade:'Commedia dell\'arte contemporânea. O corpo como instrumento cômico — física, exagerada, genuína.'},
+  {id:'BPL-010',nome:'Park Jimon',iniciais:'PJ',orig:'Coreia do Sul',gen:'M',esp:'comedia',formatos:['serie','cinema','animacao'],personalidade:'Deadpan asiático — o humor que não avisa quando começa. Especialista em comédia de timing e reação.'},
+  {id:'BPL-011',nome:'Fatou Mbengue',iniciais:'FM',orig:'Senegal',gen:'F',esp:'comedia',formatos:['teatro','serie'],personalidade:'Alegria que transborda. A comédia que nasce do excesso de vida — personagens que não cabem em si mesmos.'},
+  {id:'BPL-012',nome:'Lucho Cienfuegos',iniciais:'LC',orig:'Peru',gen:'M',esp:'comedia',formatos:['teatro','cinema','serie'],personalidade:'O palhaço que não usa máscara. Comédia de rua, de mercado, de vida popular latino-americana.'},
+  // AÇÃO / AVENTURA
+  {id:'BPL-013',nome:'Zara Nkemdirim',iniciais:'ZN',orig:'Nigéria',gen:'F',esp:'acao',formatos:['cinema','serie','videoclipe'],personalidade:'Heroína que não precisa de resgate. Ação com inteligência — o movimento como narrativa.'},
+  {id:'BPL-014',nome:'Ren Bashir Khattak',iniciais:'RB',orig:'Paquistão',gen:'M',esp:'acao',formatos:['cinema','serie'],personalidade:'Precisão militar com coração humano. O herói que duvida — ação e ética em tensão constante.'},
+  {id:'BPL-015',nome:'Ingrid Valkonen',iniciais:'IV',orig:'Finlândia',gen:'F',esp:'acao',formatos:['cinema','serie','teatro'],personalidade:'Escandinava de aço. Frieza calculada que explode em momentos precisos — ação de alta precisão.'},
+  {id:'BPL-016',nome:'Celestino Aguiar Fontes',iniciais:'CA',orig:'Brasil — Bahia',gen:'M',esp:'acao',formatos:['cinema','teatro'],personalidade:'Ginga e força. A capoeira como linguagem corporal — ação brasileira com raiz afro.'},
+  // SUSPENSE / NOIR
+  {id:'BPL-017',nome:'Vera Silvestri Manzoni',iniciais:'VS',orig:'Itália — Milão',gen:'F',esp:'suspense',formatos:['cinema','serie'],personalidade:'Femme fatale com profundidade. O mistério como estado permanente — nunca se sabe o que ela sabe.'},
+  {id:'BPL-018',nome:'Konrad Brehmer',iniciais:'KB',orig:'Alemanha',gen:'M',esp:'suspense',formatos:['cinema','serie','teatro'],personalidade:'O investigador que se perde no caso. Noir psicológico — a linha entre o detetive e o criminoso é tênue.'},
+  {id:'BPL-019',nome:'Layla Haddad Osman',iniciais:'LH',orig:'Sudão',gen:'F',esp:'suspense',formatos:['cinema','serie'],personalidade:'Silêncio que ameaça. O suspense no que não é dito — personagens que sabem mais do que mostram.'},
+  {id:'BPL-020',nome:'Gavriil Petrov-Ilyich',iniciais:'GP',orig:'Rússia',gen:'M',esp:'suspense',formatos:['cinema','serie','teatro'],personalidade:'Peso eslavo do passado. O suspense que vem da história — personagens carregados por memórias que não passam.'},
+  // ROMANCE
+  {id:'BPL-021',nome:'Celeste Mourão Braga',iniciais:'CM',orig:'Brasil — Minas Gerais',gen:'F',esp:'romance',formatos:['cinema','serie','teatro'],personalidade:'O amor que dói suavemente. Romance com textura — não o amor grandioso, mas o amor que fica nos detalhes.'},
+  {id:'BPL-022',nome:'Olivier Chastenet',iniciais:'OC',orig:'França',gen:'M',esp:'romance',formatos:['cinema','teatro','serie'],personalidade:'O amante que escuta. Romance intelectual — o desejo que passa pela conversa antes de chegar ao corpo.'},
+  {id:'BPL-023',nome:'Priya Subramaniam',iniciais:'PS',orig:'Índia — Tamil Nadu',gen:'F',esp:'romance',formatos:['cinema','serie','animacao'],personalidade:'Tradição e desejo em conflito. O romance entre o que a família quer e o que o coração escolhe.'},
+  {id:'BPL-024',nome:'Rafael Queiroga Salave\'a',iniciais:'RQ',orig:'Brasil — Pernambuco',gen:'M',esp:'romance',formatos:['cinema','teatro'],personalidade:'Amor de repente. O personagem que aparece e muda tudo — presença física que a câmera ama.'},
+  {id:'BPL-025',nome:'Nadia Oufkir',iniciais:'NO',orig:'Marrocos',gen:'F',esp:'romance',formatos:['cinema','serie'],personalidade:'Amor proibido com elegância. Romance entre mundos — o desejo que atravessa fronteiras culturais.'},
+  // EXPERIMENTAL
+  {id:'BPL-026',nome:'Sable Huxley Owens',iniciais:'SH',orig:'Reino Unido — País de Gales',gen:'F',esp:'experimental',formatos:['teatro','performance','animacao'],personalidade:'O corpo como texto. Performance que questiona o que é personagem — teatro físico e conceitual.'},
+  {id:'BPL-027',nome:'Kenji Matsunaga Rios',iniciais:'KM',orig:'Brasil — São Paulo, descendente japonês',gen:'M',esp:'experimental',formatos:['teatro','performance','videoclipe'],personalidade:'Dois mundos em um corpo. O experimental como busca de identidade — entre Oriente e Ocidente.'},
+  {id:'BPL-028',nome:'Asel Mamytbekova',iniciais:'AM',orig:'Quirguistão',gen:'F',esp:'experimental',formatos:['performance','teatro','animacao'],personalidade:'Tradição nômade em forma contemporânea. O experimental que nasce da memória ancestral.'},
+  // TRAGÉDIA
+  {id:'BPL-029',nome:'Adaeze Onwudiwe',iniciais:'AO',orig:'Nigéria — Igbo',gen:'F',esp:'tragedia',formatos:['teatro','cinema'],personalidade:'A tragédia como herança. Personagens que carregam o peso de gerações — o destino como estrutura narrativa.'},
+  {id:'BPL-030',nome:'Vasile Ionescu-Doran',iniciais:'VI',orig:'Romênia',gen:'M',esp:'tragedia',formatos:['teatro','cinema','serie'],personalidade:'O herói que sabe que vai cair. Tragédia clássica com sensibilidade contemporânea — inevitabilidade como beleza.'},
+  // PERFIS VARIADOS
+  {id:'BPL-031',nome:'Sunita Karmakar',iniciais:'SK',orig:'Bangladesh',gen:'F',esp:'drama',formatos:['cinema','serie','teatro'],personalidade:'Resiliência silenciosa. Personagens que sobrevivem sem fazer barulho — a força invisível.'},
+  {id:'BPL-032',nome:'Marcus Elroy Thorne',iniciais:'ME',orig:'Jamaica',gen:'M',esp:'drama',formatos:['teatro','cinema','serie'],personalidade:'Carisma de palco. A presença que preenche o espaço — drama com energia caribenha.'},
+  {id:'BPL-033',nome:'Florentina Oprea Vlad',iniciais:'FO',orig:'Romênia',gen:'F',esp:'comedia',formatos:['teatro','cinema'],personalidade:'Comédia de dama. O humor que vem da elegância levada longe demais.'},
+  {id:'BPL-034',nome:'Ibrahim Al-Rashid',iniciais:'IA',orig:'Jordânia',gen:'M',esp:'drama',formatos:['cinema','serie','teatro'],personalidade:'Dignidade do exílio. Personagens entre dois mundos — a identidade como questão permanente.'},
+  {id:'BPL-035',nome:'Esperanza Villarreal',iniciais:'EV',orig:'México — Oaxaca',gen:'F',esp:'drama',formatos:['teatro','cinema','performance'],personalidade:'A voz da terra. Drama de raiz indígena — a espiritualidade como presença cênica.'},
+  {id:'BPL-036',nome:'Nnamdi Achebe Osei',iniciais:'NA',orig:'Gana',gen:'M',esp:'acao',formatos:['cinema','serie'],personalidade:'Liderança natural. O herói coletivo — ação como responsabilidade comunitária.'},
+  {id:'BPL-037',nome:'Valentina Russo Ferretti',iniciais:'VR',orig:'Brasil — São Paulo, italiana',gen:'F',esp:'suspense',formatos:['cinema','serie','teatro'],personalidade:'Dupla identidade. O suspense da mulher que tem dois rostos — público e privado em constante tensão.'},
+  {id:'BPL-038',nome:'Taavi Mäkinen',iniciais:'TM',orig:'Estônia',gen:'M',esp:'suspense',formatos:['cinema','serie'],personalidade:'Nórdico hermético. O suspense do homem que não fala — a ameaça no silêncio báltico.'},
+  {id:'BPL-039',nome:'Chidinma Ezeh',iniciais:'CE',orig:'Nigéria — Enugu',gen:'F',esp:'comedia',formatos:['teatro','serie','cinema'],personalidade:'Energia inesgotável. A comédia que não para — personagens que vivem em velocidade máxima.'},
+  {id:'BPL-040',nome:'Aleksandr Voronov',iniciais:'AV',orig:'Ucrânia',gen:'M',esp:'tragedia',formatos:['teatro','cinema'],personalidade:'Melancolia eslava. A tragédia como condição climática — o peso do inverno como estado de alma.'},
+  {id:'BPL-041',nome:'Meera Pillai Nair',iniciais:'MP',orig:'Índia — Kerala',gen:'F',esp:'experimental',formatos:['performance','teatro','cinema'],personalidade:'Kathakali contemporâneo. O gesto ancestral como linguagem experimental — tradição que vira vanguarda.'},
+  {id:'BPL-042',nome:'Cássio Avelar Drummond',iniciais:'CA',orig:'Brasil — Rio de Janeiro',gen:'M',esp:'romance',formatos:['cinema','serie','teatro'],personalidade:'O sedutor honesto. Romance carioca — o amor que não se leva a sério, mas é o mais sincero de todos.'},
+  {id:'BPL-043',nome:'Aine Ní Bhriain',iniciais:'AB',orig:'Irlanda',gen:'F',esp:'romance',formatos:['teatro','cinema','serie'],personalidade:'O amor que conta histórias. Romance irlandês — narrativa e afeto como mesma coisa.'},
+  {id:'BPL-044',nome:'Hideo Watanabe Suzu',iniciais:'HW',orig:'Japão',gen:'M',esp:'suspense',formatos:['cinema','serie','animacao'],personalidade:'Contenção japonesa. O suspense no que não explode — a tensão como estado permanente.'},
+  {id:'BPL-045',nome:'Blessing Okonkwo',iniciais:'BO',orig:'Nigéria — Lagos',gen:'F',esp:'drama',formatos:['teatro','cinema','serie'],personalidade:'Bênção e peso. A mulher que carrega o sagrado no cotidiano — drama espiritual africano.'},
+  {id:'BPL-046',nome:'Simón Arce Palomino',iniciais:'SA',orig:'Bolívia',gen:'M',esp:'drama',formatos:['teatro','cinema','serie'],personalidade:'O andino contemporâneo. Drama de altitude — personagens que vivem entre o mundo moderno e o ancestral.'},
+  {id:'BPL-047',nome:'Roksana Wiśniewska',iniciais:'RW',orig:'Polônia',gen:'F',esp:'tragedia',formatos:['teatro','cinema'],personalidade:'Precisão trágica. A tragédia como matemática — cada passo em direção ao fim é calculado e inevitável.'},
+  {id:'BPL-048',nome:'Chukwuemeka Eze',iniciais:'CE',orig:'Nigéria — Igbo',gen:'M',esp:'acao',formatos:['cinema','serie'],personalidade:'Força e filosofia. O herói que pensa enquanto age — ação com substância intelectual.'},
+  {id:'BPL-049',nome:'Luna Sepúlveda Arias',iniciais:'LS',orig:'Chile',gen:'F',esp:'experimental',formatos:['teatro','performance','cinema'],personalidade:'Corpo-texto. A experimentação como política — a performance que questiona o que é permitido no palco.'},
+  {id:'BPL-050',nome:'Ezra Blackwood-Osei',iniciais:'EB',orig:'Reino Unido — Londres, afro-britânico',gen:'M',esp:'drama',formatos:['cinema','serie','teatro'],personalidade:'Londres e Lagos em um só corpo. Drama da diáspora afro-britânica — identidade como performance.'},
+];
+
+// ===== ESTADO =====
+let convocacoes = JSON.parse(localStorage.getItem('charlton_convocacoes') || '{}');
+let artistaSelecionado = null;
+
+function salvarConvocacoes() {
+  localStorage.setItem('charlton_convocacoes', JSON.stringify(convocacoes));
+}
+
+function getConvArtista(id) {
+  return convocacoes[id] || [];
+}
+
+// ===== CONFIG =====
+function salvarConfig() {
+  localStorage.setItem('gh_token', document.getElementById('gh-token').value);
+  localStorage.setItem('gh_repo', document.getElementById('gh-repo').value);
+  localStorage.setItem('gh_branch', document.getElementById('gh-branch').value);
+  notif('SALVO', 'Configuração salva.', 'ok');
+}
+function carregarConfig() {
+  const t = localStorage.getItem('gh_token');
+  const r = localStorage.getItem('gh_repo');
+  const b = localStorage.getItem('gh_branch');
+  if (t) document.getElementById('gh-token').value = t;
+  if (r) document.getElementById('gh-repo').value = r;
+  if (b) document.getElementById('gh-branch').value = b;
+}
+async function testarConexao() {
+  const token = getToken();
+  const repo = getRepo();
+  if (!token || !repo) { notif('ERRO', 'Preencha token e repositório.', 'erro'); return; }
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (res.ok) notif('CONEXÃO OK', `${repo} acessível.`, 'ok');
+    else notif('ERRO', `Status ${res.status}`, 'erro');
+  } catch(e) { notif('ERRO', 'Falha na conexão.', 'erro'); }
+}
+function getToken() { return document.getElementById('gh-token').value || localStorage.getItem('gh_token'); }
+function getRepo() { return document.getElementById('gh-repo').value || localStorage.getItem('gh_repo'); }
+function getBranch() { return document.getElementById('gh-branch').value || localStorage.getItem('gh_branch') || 'main'; }
+
+// ===== NAVEGAÇÃO =====
+function irAba(id, el) {
+  document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
+  document.querySelectorAll('.aba').forEach(b => b.classList.remove('ativa'));
+  document.getElementById('sec-' + id)?.classList.add('ativa');
+  if (el) el.classList.add('ativa');
+}
+
+// ===== RENDERIZAÇÃO =====
+const COR_ESP = { drama:'#c8a8ff', comedia:'#ffd080', acao:'#ff8080', suspense:'#80c8ff', romance:'#ff80b0', tragedia:'#a0a0a0', experimental:'#80ffd0' };
+
+function renderizarArtistas(lista) {
+  const grade = document.getElementById('grade-artistas');
+  if (!lista.length) { grade.innerHTML = '<div class="vazio">Nenhum artista encontrado.</div>'; return; }
+  grade.innerHTML = lista.map(a => {
+    const convs = getConvArtista(a.id);
+    const cor = COR_ESP[a.esp] || '#c9a84c';
+    return `
+      <div class="artista-card esp-${a.esp} ${artistaSelecionado?.id === a.id ? 'selecionado' : ''}"
+           onclick="selecionarArtista('${a.id}')">
+        <div class="ac-topo">
+          <div class="ac-iniciais" style="border-color:${cor};color:${cor};">${a.iniciais}</div>
+          <div class="ac-info">
+            <div class="ac-nome">${a.nome}</div>
+            <div class="ac-id">${a.id} · ${a.orig}</div>
+          </div>
+        </div>
+        <div class="ac-corpo">
+          <div class="ac-espec">${a.esp.toUpperCase()}</div>
+          <div class="ac-personalidade">${a.personalidade.substring(0,90)}${a.personalidade.length>90?'...':''}</div>
+          <div class="ac-formatos">${a.formatos.map(f=>`<span class="formato-tag">${f}</span>`).join('')}</div>
+          ${convs.length ? `<div style="margin-top:0.4rem;font-family:'Cinzel',serif;font-size:0.85rem;color:var(--ouro);">${convs.length} convocação${convs.length!==1?'es':''}</div>` : ''}
+        </div>
+        <div class="ac-acoes">
+          <button class="ac-btn principal" onclick="event.stopPropagation();selecionarArtista('${a.id}')">GERENCIAR</button>
+          <button class="ac-btn" onclick="event.stopPropagation();publicarBioArtistaId('${a.id}')">📤</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function filtrar() {
+  const busca = document.getElementById('busca').value.toLowerCase();
+  const esp = document.getElementById('filtro-esp').value;
+  const lista = ARTISTAS.filter(a => {
+    const matchB = !busca || a.nome.toLowerCase().includes(busca) || a.orig.toLowerCase().includes(busca) || a.personalidade.toLowerCase().includes(busca);
+    const matchE = !esp || a.esp === esp;
+    return matchB && matchE;
+  });
+  renderizarArtistas(lista);
+}
+
+// ===== SELEÇÃO =====
+function selecionarArtista(id) {
+  artistaSelecionado = ARTISTAS.find(a => a.id === id);
+  if (!artistaSelecionado) return;
+  const cor = COR_ESP[artistaSelecionado.esp] || '#c9a84c';
+  document.getElementById('pa-iniciais').textContent = artistaSelecionado.iniciais;
+  document.getElementById('pa-iniciais').style.color = cor;
+  document.getElementById('pa-iniciais').style.borderColor = cor;
+  document.getElementById('pa-nome').textContent = artistaSelecionado.nome;
+  document.getElementById('pa-tipo').textContent = `${artistaSelecionado.esp.toUpperCase()} · ${artistaSelecionado.orig} · BPL ${artistaSelecionado.id}`;
+  document.getElementById('painel-artista').classList.add('aberto');
+  document.getElementById('painel-artista').scrollIntoView({ behavior:'smooth' });
+  atualizarConvLista();
+  setPubStatus('ok', 'Pronto para publicar');
+  renderizarArtistas(ARTISTAS);
+}
+
+function fecharPainel() {
+  document.getElementById('painel-artista').classList.remove('aberto');
+  artistaSelecionado = null;
+  renderizarArtistas(ARTISTAS);
+}
+
+function atualizarConvLista() {
+  if (!artistaSelecionado) return;
+  const convs = getConvArtista(artistaSelecionado.id);
+  document.getElementById('conv-cnt').textContent = `${convs.length} participação${convs.length!==1?'ões':''}`;
+  const lista = document.getElementById('conv-lista');
+  if (!convs.length) {
+    lista.innerHTML = '<div class="vazio">Nenhuma convocação registrada ainda.</div>';
+    return;
+  }
+  lista.innerHTML = convs.map((c, i) => `
+    <div class="conv-item">
+      <div class="conv-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="conv-info">
+        <div class="conv-obra">${c.obra}</div>
+        <div class="conv-detalhe">${c.formato} · ${c.papel} · ${c.data}</div>
+      </div>
+      <button class="conv-remover" onclick="removerConv(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+// ===== CONVOCAÇÕES =====
+function registrarConvocacao() {
+  if (!artistaSelecionado) { notif('ATENÇÃO', 'Selecione um ator primeiro.', 'erro'); return; }
+  const obra = document.getElementById('c-obra').value.trim();
+  const papel = document.getElementById('c-papel').value.trim();
+  if (!obra) { notif('OBRIGATÓRIO', 'Informe o título da obra.', 'erro'); return; }
+  if (!papel) { notif('OBRIGATÓRIO', 'Informe o papel/personagem.', 'erro'); return; }
+
+  const conv = {
+    obra,
+    formato: document.getElementById('c-formato').value,
+    papel,
+    diretor: document.getElementById('c-diretor').value,
+    obs: document.getElementById('c-obs').value,
+    data: new Date().toLocaleDateString('pt-BR')
+  };
+
+  if (!convocacoes[artistaSelecionado.id]) convocacoes[artistaSelecionado.id] = [];
+  convocacoes[artistaSelecionado.id].unshift(conv);
+  salvarConvocacoes();
+  atualizarConvLista();
+  renderizarArtistas(ARTISTAS);
+  notif('CONVOCADO!', `${artistaSelecionado.nome} convocado para "${obra}" como ${papel}.`, 'ok');
+
+  document.getElementById('c-obra').value = '';
+  document.getElementById('c-papel').value = '';
+  document.getElementById('c-obs').value = '';
+}
+
+function removerConv(i) {
+  if (!artistaSelecionado || !confirm('Remover esta convocação?')) return;
+  convocacoes[artistaSelecionado.id].splice(i, 1);
+  salvarConvocacoes();
+  atualizarConvLista();
+}
+
+// ===== GITHUB API =====
+async function getSHA(token, repo, branch, caminho) {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}?ref=${branch}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (res.ok) { const d = await res.json(); return d.sha; }
+    return null;
+  } catch { return null; }
+}
+async function publicarArquivo(token, repo, branch, caminho, conteudo, sha, msg) {
+  const body = { message: msg, content: btoa(unescape(encodeURIComponent(conteudo))), branch };
+  if (sha) body.sha = sha;
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}`, {
+    method: 'PUT',
+    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.message || `Erro ${res.status}`); }
+  return res.json();
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function setPubStatus(tipo, txt) {
+  const dot = document.getElementById('pub-dot');
+  const txtEl = document.getElementById('pub-txt');
+  if (!dot || !txtEl) return;
+  dot.className = `pub-dot ${tipo === 'publicando' ? 'pub' : tipo}`;
+  txtEl.textContent = txt;
+}
+
+function logArtista(msg, tipo='info') {
+  const el = document.getElementById('log-artista');
+  if (!el) return;
+  const l = document.createElement('div');
+  l.className = `log-${tipo}`;
+  l.textContent = `[${new Date().toLocaleTimeString('pt-BR')}] ${msg}`;
+  el.appendChild(l);
+  el.scrollTop = el.scrollHeight;
+}
+
+// ===== GERAÇÃO HTML =====
+function espLabel(e) {
+  const l = { drama:'Drama', comedia:'Comédia', acao:'Ação / Aventura', suspense:'Suspense / Noir', romance:'Romance', tragedia:'Tragédia', experimental:'Experimental' };
+  return l[e] || e;
+}
+
+function gerarHTMLBio(a) {
+  const convs = getConvArtista(a.id);
+  const cor = COR_ESP[a.esp] || '#c9a84c';
+
+  const convsHTML = convs.length
+    ? convs.map(c => `<li class="conv-item-pub"><span class="conv-obra-pub">${c.obra}</span><span class="conv-detalhe-pub">${c.formato} · ${c.papel} · ${c.data}</span></li>`).join('')
+    : '';
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${a.nome} · BPL · Celeiro Literário</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#07182b;--vinho:#1a0510;--ouro:#d6b354;--papel:#fff8df;--tinta:#1a1208;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--papel);color:var(--tinta);font-family:'Libre Baskerville',Georgia,serif;min-height:100vh;}
+.cab{background:linear-gradient(135deg,var(--azul),var(--vinho));padding:2rem 3rem;border-bottom:3px solid var(--ouro);}
+.nav{display:flex;gap:0.8rem;margin-bottom:1.2rem;flex-wrap:wrap;}
+.nav a{font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:rgba(213,179,84,0.5);text-decoration:none;text-transform:uppercase;}
+.nav a:hover{color:var(--ouro);}
+.nav span{color:rgba(213,179,84,0.2);}
+.iniciais-big{width:80px;height:80px;border-radius:50%;border:2px solid var(--ouro);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;font-size:1.5rem;color:${cor};margin-bottom:0.8rem;background:rgba(26,5,16,0.5);}
+.badge{display:inline-block;font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.18em;padding:0.2rem 0.6rem;border:1px solid ${cor};color:${cor};text-transform:uppercase;margin-bottom:0.6rem;}
+.nome{font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.8rem,5vw,3rem);color:var(--ouro);line-height:1.1;margin-bottom:0.2rem;}
+.orig{font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.12em;color:rgba(213,179,84,0.35);text-transform:uppercase;}
+.conteudo{max-width:780px;margin:0 auto;padding:2.5rem 3rem;}
+.sec-label{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.28em;color:var(--ouro);opacity:0.55;text-transform:uppercase;margin-bottom:0.6rem;}
+.linha{width:40px;height:2px;background:linear-gradient(to right,var(--ouro),transparent);margin:0.8rem 0 1.8rem;}
+.personalidade{font-style:italic;font-size:1rem;line-height:1.85;color:#2a1a08;margin-bottom:2rem;}
+.formatos-box{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:2rem;}
+.fmt-tag{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.1em;padding:0.25rem 0.6rem;border:1px solid rgba(213,179,84,0.25);color:rgba(213,179,84,0.6);text-transform:uppercase;}
+.convocacoes-lista{list-style:none;display:flex;flex-direction:column;gap:0.4rem;}
+.conv-item-pub{display:flex;align-items:baseline;gap:0.8rem;padding:0.5rem 0;border-bottom:1px solid rgba(213,179,84,0.08);flex-wrap:wrap;}
+.conv-obra-pub{font-size:0.9rem;color:#2a1a08;flex:1;}
+.conv-detalhe-pub{font-family:'Space Mono',monospace;font-size:0.4rem;letter-spacing:0.08em;color:rgba(213,179,84,0.4);text-transform:uppercase;}
+.sem-conv{font-style:italic;color:#8899aa;font-size:0.88rem;padding:1rem 0;}
+.atualizado{font-family:'Space Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:rgba(213,179,84,0.2);text-align:right;text-transform:uppercase;margin-top:2rem;}
+.rodape{background:var(--azul);padding:1.5rem 3rem;margin-top:3rem;text-align:center;border-top:1px solid rgba(213,179,84,0.08);}
+.rod{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.12em;color:rgba(213,179,84,0.22);text-transform:uppercase;line-height:2;}
+.rod a{color:rgba(213,179,84,0.38);text-decoration:none;}
+@media(max-width:768px){.cab,.conteudo{padding:1.2rem;}.nome{font-size:1.8rem;}}
+</style>
+</head>
+<body>
+<div class="cab">
+  <div class="nav">
+    <a href="portal_instituto_celeiro_literario.html">Celeiro Literário</a><span>/</span>
+    <a href="bpl_banco_personagens_literarios.html">BPL</a><span>/</span>
+    <a href="#" style="color:var(--ouro);">${a.nome}</a>
+  </div>
+  <div class="iniciais-big">${a.iniciais}</div>
+  <div class="badge">// ${espLabel(a.esp).toUpperCase()} · BPL</div>
+  <div class="nome">${a.nome}</div>
+  <div class="orig">${a.orig} · ${a.gen === 'F' ? 'Atriz' : 'Ator'}</div>
+</div>
+<div class="conteudo">
+  <div class="sec-label">// IDENTIDADE CÊNICA</div>
+  <div class="linha"></div>
+  <div class="personalidade">${a.personalidade}</div>
+
+  <div class="sec-label">// FORMATOS DE ATUAÇÃO</div>
+  <div class="linha"></div>
+  <div class="formatos-box">${a.formatos.map(f=>`<span class="fmt-tag">${f}</span>`).join('')}</div>
+
+  <div class="sec-label">// PARTICIPAÇÕES REGISTRADAS</div>
+  <div class="linha"></div>
+  ${convs.length
+    ? `<ul class="convocacoes-lista">${convsHTML}</ul>`
+    : `<div class="sem-conv">Nenhuma participação registrada ainda. Em formação.</div>`}
+
+  <div class="atualizado">Curadoria: Charlton Moisés Heston · ${new Date().toLocaleDateString('pt-BR')}</div>
+</div>
+<div class="rodape">
+  <div class="rod">
+    BPL — Banco de Personagens Literários · Núcleo de Elenco Heteronímico Mundial SIGMAL<br>
+    Site das Letras Edições Literárias & Multimídia<br>
+    <a href="bpl_banco_personagens_literarios.html">← Voltar ao BPL</a>
+  </div>
+</div>
+</body>
+</html>`;
+}
+
+function gerarIndice() {
+  const cards = ARTISTAS.map(a => {
+    const cor = COR_ESP[a.esp] || '#c9a84c';
+    const convs = getConvArtista(a.id);
+    return `<a href="bpl_bio_${a.id.toLowerCase()}.html" class="card" style="border-left:3px solid ${cor};">
+      <div class="iniciais" style="color:${cor};border-color:${cor};">${a.iniciais}</div>
+      <div class="corpo">
+        <div class="esp" style="color:${cor};">${espLabel(a.esp).toUpperCase()}</div>
+        <div class="nome">${a.nome}</div>
+        <div class="orig">${a.orig}</div>
+        <div class="pers">${a.personalidade.substring(0,80)}${a.personalidade.length>80?'...':''}</div>
+        ${convs.length ? `<div class="conv-cnt">${convs.length} participação${convs.length!==1?'ões':''}</div>` : ''}
+      </div>
+    </a>`;
+  }).join('');
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BPL — Banco de Personagens Literários · Celeiro Literário</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#07182b;--vinho:#1a0510;--ouro:#d6b354;--papel:#fff8df;--tinta:#1a1208;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--papel);color:var(--tinta);font-family:'Libre Baskerville',Georgia,serif;}
+.cab{background:linear-gradient(135deg,var(--azul),var(--vinho));padding:2rem 3rem;border-bottom:3px solid var(--ouro);}
+.nav{display:flex;gap:0.8rem;margin-bottom:1rem;flex-wrap:wrap;}
+.nav a{font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:rgba(213,179,84,0.5);text-decoration:none;text-transform:uppercase;}
+.nav span{color:rgba(213,179,84,0.2);}
+.cab-titulo{font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.8rem,4vw,2.8rem);color:var(--ouro);margin-bottom:0.4rem;}
+.cab-desc{font-style:italic;font-size:0.82rem;color:rgba(213,179,84,0.4);max-width:580px;line-height:1.6;}
+.busca-bar{background:#10294a;padding:0.8rem 3rem;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(213,179,84,0.1);display:flex;gap:0.6rem;flex-wrap:wrap;}
+.busca{background:rgba(213,179,84,0.05);border:1px solid rgba(213,179,84,0.15);color:#f5edd8;font-family:'Libre Baskerville',serif;font-size:0.85rem;padding:0.5rem 0.9rem;outline:none;flex:1;max-width:380px;}
+.sel{background:rgba(213,179,84,0.05);border:1px solid rgba(213,179,84,0.15);color:#f5edd8;font-family:'Space Mono',monospace;font-size:0.5rem;padding:0.5rem 0.7rem;outline:none;cursor:pointer;}
+.sel option{background:#10294a;}
+.container{max-width:1300px;margin:0 auto;padding:2rem 3rem;}
+.cnt{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.12em;color:rgba(213,179,84,0.3);text-transform:uppercase;margin-bottom:1.2rem;}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;}
+.card{background:white;border:1px solid rgba(122,95,26,0.1);text-decoration:none;color:var(--tinta);display:flex;align-items:flex-start;gap:0.8rem;padding:1.1rem;transition:all 0.3s;box-shadow:0 1px 5px rgba(0,0,0,0.04);}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.1);}
+.iniciais{width:44px;height:44px;border-radius:50%;border:1px solid;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;font-size:0.9rem;flex-shrink:0;}
+.corpo{flex:1;}
+.esp{font-family:'Space Mono',monospace;font-size:0.38rem;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.2rem;}
+.nome{font-family:'Playfair Display',serif;font-weight:700;font-size:1rem;color:var(--tinta);margin-bottom:0.1rem;line-height:1.2;}
+.orig{font-family:'Space Mono',monospace;font-size:0.38rem;letter-spacing:0.08em;color:#8899aa;text-transform:uppercase;margin-bottom:0.3rem;}
+.pers{font-style:italic;font-size:0.72rem;color:#3a2a10;line-height:1.4;margin-bottom:0.3rem;}
+.conv-cnt{font-family:'Space Mono',monospace;font-size:0.38rem;letter-spacing:0.08em;color:rgba(122,95,26,0.5);text-transform:uppercase;}
+.rodape{background:var(--azul);padding:1.5rem 3rem;margin-top:2.5rem;text-align:center;border-top:1px solid rgba(213,179,84,0.08);}
+.rod{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.12em;color:rgba(213,179,84,0.22);text-transform:uppercase;line-height:2;}
+.rod a{color:rgba(213,179,84,0.38);text-decoration:none;}
+@media(max-width:768px){.cab,.container,.busca-bar{padding:1rem;}.grade{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="cab">
+  <div class="nav">
+    <a href="portal_instituto_celeiro_literario.html">Celeiro Literário</a><span>/</span>
+    <a href="#" style="color:var(--ouro);">BPL — Banco de Personagens Literários</a>
+  </div>
+  <div class="cab-titulo">BPL — Banco de Personagens Literários</div>
+  <div class="cab-desc">Atores e atrizes imortais que habitam as obras. Não envelhecem. A biografia é o acervo — atualizada a cada nova participação registrada por Charlton Moisés Heston.</div>
+</div>
+<div class="busca-bar">
+  <input type="text" class="busca" id="busca" placeholder="Buscar por nome, origem ou especialidade..." oninput="filtrar()">
+  <select class="sel" id="filtro-esp" onchange="filtrar()">
+    <option value="">Todas as especialidades</option>
+    <option value="drama">Drama</option>
+    <option value="comedia">Comédia</option>
+    <option value="acao">Ação</option>
+    <option value="suspense">Suspense</option>
+    <option value="romance">Romance</option>
+    <option value="tragedia">Tragédia</option>
+    <option value="experimental">Experimental</option>
+  </select>
+</div>
+<div class="container">
+  <div class="cnt" id="cnt">${ARTISTAS.length} membros do elenco</div>
+  <div class="grade" id="grade">${cards}</div>
+</div>
+<div class="rodape">
+  <div class="rod">
+    BPL — Banco de Personagens Literários · Núcleo de Elenco Heteronímico Mundial SIGMAL<br>
+    Site das Letras Edições Literárias & Multimídia · Celeiro Literário<br>
+    <a href="portal_instituto_celeiro_literario.html">← Voltar ao Celeiro</a>
+  </div>
+</div>
+<script>
+const cards=document.querySelectorAll('.card');
+function filtrar(){
+  const b=document.getElementById('busca').value.toLowerCase();
+  const e=document.getElementById('filtro-esp').value;
+  let v=0;
+  cards.forEach(c=>{
+    const txt=c.textContent.toLowerCase();
+    const esp=c.querySelector('.esp')?.textContent.toLowerCase()||'';
+    const show=(!b||txt.includes(b))&&(!e||esp.includes(e));
+    c.style.display=show?'flex':'none';
+    if(show)v++;
+  });
+  document.getElementById('cnt').textContent=v+' membro'+(v!==1?'s':'')+' do elenco';
+}
+<\/script>
+</body>
+</html>`;
+}
+
+// ===== PUBLICAR =====
+async function publicarBioArtista() {
+  if (!artistaSelecionado) return;
+  await publicarBioArtistaId(artistaSelecionado.id);
+}
+
+async function publicarBioArtistaId(id) {
+  const token = getToken();
+  const repo = getRepo();
+  const branch = getBranch();
+  if (!token) { notif('ERRO', 'Configure o Token GitHub.', 'erro'); return; }
+
+  const a = ARTISTAS.find(x => x.id === id);
+  if (!a) return;
+
+  setPubStatus('pub', 'Publicando...');
+  logArtista(`Publicando ${a.nome}...`, 'info');
+
+  try {
+    const caminho = `bpl_bio_${id.toLowerCase()}.html`;
+    const html = gerarHTMLBio(a);
+    const sha = await getSHA(token, repo, branch, caminho);
+    await publicarArquivo(token, repo, branch, caminho, html, sha, `Bio BPL: ${a.nome}`);
+    logArtista(`✓ ${a.nome} publicado.`, 'ok');
+
+    // Atualiza índice
+    const htmlIndice = gerarIndice();
+    const shaI = await getSHA(token, repo, branch, 'bpl_banco_personagens_literarios.html');
+    await publicarArquivo(token, repo, branch, 'bpl_banco_personagens_literarios.html', htmlIndice, shaI, 'Atualiza índice BPL');
+    logArtista('✓ Índice BPL atualizado.', 'ok');
+
+    setPubStatus('ok', `Publicado em ${new Date().toLocaleTimeString('pt-BR')}`);
+    notif('PUBLICADO!', `${a.nome} está no ar no Celeiro.`, 'ok');
+  } catch(e) {
+    setPubStatus('erro', e.message);
+    logArtista(`✗ Erro: ${e.message}`, 'erro');
+    notif('ERRO', e.message, 'erro');
+  }
+}
+
+async function publicarTodasBios() {
+  const token = getToken();
+  if (!token) { notif('ERRO', 'Configure o Token GitHub.', 'erro'); return; }
+
+  document.getElementById('btn-pub-lote').disabled = true;
+  let ok = 0, erro = 0;
+  const logEl = document.getElementById('log-lote');
+
+  function logL(msg, tipo='info') {
+    const l = document.createElement('div');
+    l.className = `log-${tipo}`;
+    l.textContent = `[${new Date().toLocaleTimeString('pt-BR')}] ${msg}`;
+    logEl.appendChild(l);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  logL(`Publicando ${ARTISTAS.length} biografias do elenco BPL...`, 'info');
+
+  for (let i = 0; i < ARTISTAS.length; i++) {
+    const a = ARTISTAS[i];
+    logL(`[${i+1}/${ARTISTAS.length}] ${a.nome}...`, 'info');
+    try {
+      const caminho = `bpl_bio_${a.id.toLowerCase()}.html`;
+      const html = gerarHTMLBio(a);
+      const sha = await getSHA(getToken(), getRepo(), getBranch(), caminho);
+      await publicarArquivo(getToken(), getRepo(), getBranch(), caminho, html, sha, `Bio BPL: ${a.nome}`);
+      ok++;
+      logL(`✓ ${a.nome}`, 'ok');
+    } catch(e) {
+      erro++;
+      logL(`✗ ${a.nome}: ${e.message}`, 'erro');
+    }
+    document.getElementById('pub-cnt-ok').textContent = ok;
+    document.getElementById('pub-cnt-erro').textContent = erro;
+    document.getElementById('pub-barra').style.width = Math.round(((ok+erro)/ARTISTAS.length)*100) + '%';
+    await sleep(800);
+  }
+
+  // Publica índice
+  logL('Publicando índice BPL...', 'info');
+  try {
+    const htmlIndice = gerarIndice();
+    const sha = await getSHA(getToken(), getRepo(), getBranch(), 'bpl_banco_personagens_literarios.html');
+    await publicarArquivo(getToken(), getRepo(), getBranch(), 'bpl_banco_personagens_literarios.html', htmlIndice, sha, 'Atualiza índice BPL completo');
+    logL('✓ Índice BPL publicado.', 'ok');
+  } catch(e) { logL(`✗ Índice: ${e.message}`, 'erro'); }
+
+  document.getElementById('btn-pub-lote').disabled = false;
+  notif('CONCLUÍDO', `${ok} publicados, ${erro} erros.`, ok > 0 ? 'ok' : 'erro');
+}
+
+// ===== NOTIFICAÇÕES =====
+function notif(titulo, texto, tipo='ok') {
+  const c = document.getElementById('notif');
+  const el = document.createElement('div');
+  el.className = `notif-item ${tipo}`;
+  el.innerHTML = `<div class="notif-tit">${titulo}</div><div class="notif-txt">${texto}</div>`;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 5000);
+}
+
+// ===== INIT =====
+carregarConfig();
+renderizarArtistas(ARTISTAS);
+</script>
+</body>
+</html>
