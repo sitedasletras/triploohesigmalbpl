@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exportador SIGMAL · Masmorra · Calabouço · Estúdio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --ouro: #c9a84c;
+  --ouro-escuro: #7a5f1a;
+  --creme: #f5edd8;
+  --prata: #6a7d90;
+  --verde: #00c853;
+  --vermelho: #d32f2f;
+  --roxo: #6a1b9a;
+  --azul: #1565c0;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--preto);
+  color: var(--creme);
+  font-family: 'Crimson Pro', Georgia, serif;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+/* TOPO */
+.topo {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(201,168,76,0.2);
+}
+.topo-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 1.6rem;
+  color: var(--ouro);
+  letter-spacing: 0.15em;
+  margin-bottom: 0.4rem;
+}
+.topo-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.2em;
+  color: var(--prata);
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+
+/* AVISO */
+.aviso {
+  background: rgba(201,168,76,0.08);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-left: 3px solid var(--ouro);
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--prata);
+  line-height: 1.7;
+}
+
+/* RESUMO */
+.resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.resumo-card {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.1);
+  padding: 1.2rem;
+  text-align: center;
+}
+.resumo-num {
+  font-family: 'Cinzel', serif;
+  font-size: 2.5rem;
+  color: var(--ouro);
+  line-height: 1;
+  margin-bottom: 0.3rem;
+}
+.resumo-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.15em;
+  color: var(--prata);
+  text-transform: uppercase;
+}
+
+/* BOTÕES */
+.acoes {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.btn-p {
+  background: linear-gradient(135deg, var(--ouro-escuro), var(--ouro));
+  color: var(--preto);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 0.8rem 1.8rem;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.btn-p:hover { opacity: 0.85; transform: translateY(-1px); }
+.btn-s {
+  background: transparent;
+  color: var(--ouro);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  padding: 0.8rem 1.5rem;
+  border: 1px solid rgba(201,168,76,0.3);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.btn-s:hover { border-color: var(--ouro); }
+
+/* SEÇÕES */
+.secao {
+  margin-bottom: 2rem;
+}
+.secao-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(201,168,76,0.1);
+}
+.secao-icone { font-size: 1.5rem; }
+.secao-titulo {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  color: var(--ouro);
+}
+.secao-cnt {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.1em;
+  color: var(--prata);
+  opacity: 0.5;
+  text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ITENS */
+.item {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.08);
+  padding: 1rem 1.2rem;
+  margin-bottom: 0.6rem;
+  transition: all 0.3s;
+}
+.item:hover { border-color: rgba(201,168,76,0.2); }
+.item-titulo {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  color: var(--creme);
+  margin-bottom: 0.3rem;
+}
+.item-meta {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.1em;
+  color: var(--prata);
+  opacity: 0.6;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+.item-desc {
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--prata);
+  line-height: 1.6;
+}
+.item-status {
+  display: inline-block;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.1em;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid;
+  text-transform: uppercase;
+  margin-top: 0.4rem;
+}
+.st-masmorra { border-color: rgba(211,47,47,0.4); color: #ff6b6b; }
+.st-calabouco { border-color: rgba(106,27,154,0.4); color: #ce93d8; }
+.st-estudio { border-color: rgba(0,200,83,0.4); color: var(--verde); }
+
+/* VAZIO */
+.vazio {
+  text-align: center;
+  padding: 2rem;
+  color: var(--prata);
+  opacity: 0.4;
+  font-style: italic;
+  font-size: 0.9rem;
+  border: 1px dashed rgba(201,168,76,0.1);
+}
+
+/* ===== ESTILOS PARA IMPRESSÃO/PDF ===== */
+@media print {
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  body {
+    background: white !important;
+    color: #1a1208 !important;
+    font-family: 'Times New Roman', Georgia, serif;
+    font-size: 11pt;
+    padding: 1.5cm;
+  }
+
+  .acoes, .aviso { display: none !important; }
+
+  .topo {
+    text-align: center;
+    margin-bottom: 1.5cm;
+    padding-bottom: 0.5cm;
+    border-bottom: 2px solid #c9a84c;
+  }
+  .topo-logo {
+    font-family: 'Times New Roman', serif;
+    font-size: 22pt;
+    color: #7a5f1a !important;
+    letter-spacing: 0.1em;
+  }
+  .topo-sub {
+    font-size: 9pt;
+    color: #666 !important;
+    letter-spacing: 0.2em;
+  }
+
+  .resumo {
+    display: flex;
+    gap: 1cm;
+    margin-bottom: 1cm;
+    justify-content: center;
+  }
+  .resumo-card {
+    background: #f5f0e8 !important;
+    border: 1px solid #c9a84c !important;
+    padding: 0.4cm 0.8cm;
+    text-align: center;
+    min-width: 3cm;
+  }
+  .resumo-num {
+    font-size: 20pt;
+    color: #7a5f1a !important;
+    font-weight: bold;
+  }
+  .resumo-label {
+    font-size: 7pt;
+    color: #666 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .secao { page-break-inside: avoid; margin-bottom: 1cm; }
+  .secao-header {
+    background: #f5f0e8 !important;
+    padding: 0.3cm 0.5cm;
+    border-bottom: 2px solid #c9a84c !important;
+    margin-bottom: 0.4cm;
+    page-break-after: avoid;
+  }
+  .secao-titulo {
+    font-size: 14pt;
+    color: #7a5f1a !important;
+    font-weight: bold;
+  }
+  .secao-cnt { color: #666 !important; font-size: 8pt; }
+  .secao-icone { font-size: 14pt; }
+
+  .item {
+    background: white !important;
+    border: 1px solid #ddd !important;
+    border-left: 3px solid #c9a84c !important;
+    padding: 0.3cm 0.5cm;
+    margin-bottom: 0.3cm;
+    page-break-inside: avoid;
+  }
+  .item-titulo {
+    font-size: 12pt;
+    color: #1a1208 !important;
+    font-weight: bold;
+    margin-bottom: 0.15cm;
+  }
+  .item-meta {
+    font-size: 8pt;
+    color: #666 !important;
+    margin-bottom: 0.2cm;
+  }
+  .item-desc {
+    font-size: 10pt;
+    color: #333 !important;
+  }
+  .item-status {
+    font-size: 7pt;
+    border: 1px solid #999 !important;
+    color: #333 !important;
+    padding: 1px 4px;
+  }
+  .st-masmorra { border-color: #d32f2f !important; color: #d32f2f !important; }
+  .st-calabouco { border-color: #6a1b9a !important; color: #6a1b9a !important; }
+  .st-estudio { border-color: #1b5e20 !important; color: #1b5e20 !important; }
+
+  .vazio {
+    color: #999 !important;
+    border: 1px dashed #ddd !important;
+    font-size: 10pt;
+  }
+
+  .rodape-pdf {
+    position: fixed;
+    bottom: 0.5cm;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 8pt;
+    color: #999;
+    border-top: 1px solid #ddd;
+    padding-top: 0.2cm;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="topo">
+  <div class="topo-logo">SIGMAL HQ · ACERVO</div>
+  <div class="topo-sub">Masmorra · Calabouço · Estúdio · Site das Letras Edições Literárias</div>
+  <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.1em;color:var(--prata);opacity:0.4;margin-top:0.5rem;" id="data-export"></div>
+</div>
+
+<div class="aviso">
+  ⚠ Este documento contém o acervo completo registrado no painel HQ. Os dados são lidos diretamente do armazenamento local do navegador. Para garantir que os dados mais recentes apareçam, acesse esta página pelo mesmo navegador e dispositivo onde o painel HQ foi usado.
+</div>
+
+<!-- RESUMO -->
+<div class="resumo">
+  <div class="resumo-card" style="border-left:3px solid var(--vermelho);">
+    <div class="resumo-num" id="cnt-masmorra">0</div>
+    <div class="resumo-label">Na Masmorra</div>
+  </div>
+  <div class="resumo-card" style="border-left:3px solid var(--roxo);">
+    <div class="resumo-num" id="cnt-calabouco">0</div>
+    <div class="resumo-label">No Calabouço</div>
+  </div>
+  <div class="resumo-card" style="border-left:3px solid var(--verde);">
+    <div class="resumo-num" id="cnt-estudios">0</div>
+    <div class="resumo-label">Estúdios Musicais</div>
+  </div>
+  <div class="resumo-card" style="border-left:3px solid var(--azul);">
+    <div class="resumo-num" id="cnt-singles">0</div>
+    <div class="resumo-label">Singles Registrados</div>
+  </div>
+  <div class="resumo-card" style="border-left:3px solid var(--ouro);">
+    <div class="resumo-num" id="cnt-lps">0</div>
+    <div class="resumo-label">LPs Lançados</div>
+  </div>
+  <div class="resumo-card" style="border-left:3px solid #ff9800;">
+    <div class="resumo-num" id="cnt-bpl">0</div>
+    <div class="resumo-label">Convocações BPL</div>
+  </div>
+</div>
+
+<!-- BOTÕES -->
+<div class="acoes">
+  <button class="btn-p" onclick="window.print()">📄 SALVAR COMO PDF</button>
+  <button class="btn-s" onclick="baixarWord()">📝 BAIXAR COMO WORD (.doc)</button>
+  <button class="btn-s" onclick="baixarJSON()">💾 BACKUP JSON</button>
+  <button class="btn-s" onclick="carregarDados()">🔄 ATUALIZAR DADOS</button>
+</div>
+
+<!-- MASMORRA -->
+<div class="secao">
+  <div class="secao-header">
+    <div class="secao-icone">⛓️</div>
+    <div class="secao-titulo">MASMORRA DA TORRE</div>
+    <div class="secao-cnt" id="label-masmorra">Quarentena de 750 dias</div>
+  </div>
+  <div id="lista-masmorra"><div class="vazio">Nenhum material na Masmorra.</div></div>
+</div>
+
+<!-- CALABOUÇO -->
+<div class="secao">
+  <div class="secao-header">
+    <div class="secao-icone">📚</div>
+    <div class="secao-titulo">CALABOUÇO</div>
+    <div class="secao-cnt" id="label-calabouco">Obras consolidadas</div>
+  </div>
+  <div id="lista-calabouco"><div class="vazio">Nenhuma obra no Calabouço.</div></div>
+</div>
+
+<!-- FILA OHE -->
+<div class="secao">
+  <div class="secao-header">
+    <div class="secao-icone">📬</div>
+    <div class="secao-titulo">FILA OHE — FERNANDO PEÇANHA</div>
+    <div class="secao-cnt" id="label-fila">Aguardando curadoria</div>
+  </div>
+  <div id="lista-fila"><div class="vazio">Nenhum material na fila.</div></div>
+</div>
+
+<!-- ESTÚDIO MUSICAL -->
+<div class="secao">
+  <div class="secao-header">
+    <div class="secao-icone">🎵</div>
+    <div class="secao-titulo">ESTÚDIOS MUSICAIS — MAESTRO AARON</div>
+    <div class="secao-cnt" id="label-estudios">Singles e LPs registrados</div>
+  </div>
+  <div id="lista-estudios"><div class="vazio">Nenhum estúdio com obras registradas.</div></div>
+</div>
+
+<!-- BPL CONVOCAÇÕES -->
+<div class="secao">
+  <div class="secao-header">
+    <div class="secao-icone">🎭</div>
+    <div class="secao-titulo">CONVOCAÇÕES BPL — CHARLTON MOISÉS HESTON</div>
+    <div class="secao-cnt" id="label-bpl">Participações registradas</div>
+  </div>
+  <div id="lista-bpl"><div class="vazio">Nenhuma convocação registrada no BPL.</div></div>
+</div>
+
+<!-- RODAPÉ PDF -->
+<div class="rodape-pdf">
+  SIGMAL HQ · Site das Letras Edições Literárias & Multimídia · São Roque International Global Music, Arts & Letters Academy
+</div>
+
+<script>
+// ===== CARREGAR DADOS DO LOCALSTORAGE =====
+function carregarDados() {
+  document.getElementById('data-export').textContent =
+    `Gerado em: ${new Date().toLocaleString('pt-BR')}`;
+
+  // Dados do painel HQ principal
+  const estadoHQ = JSON.parse(localStorage.getItem('sigmal_hq') || '{}');
+  const masmorra = estadoHQ.masmorra || [];
+  const calabouco = estadoHQ.calabouco || [];
+  const fila = estadoHQ.fila || [];
+  const estudios = estadoHQ.estudios || [];
+
+  // Dados do Maestro Aaron
+  const maestroObras = JSON.parse(localStorage.getItem('maestro_obras') || '{}');
+
+  // Dados do Charlton (BPL)
+  const bplConvs = JSON.parse(localStorage.getItem('charlton_convocacoes') || '{}');
+
+  // Dados das biografias
+  const sigmalBios = JSON.parse(localStorage.getItem('sigmal_biografias') || '{}');
+
+  // ===== CONTADORES =====
+  let totalSingles = 0;
+  let totalLPs = 0;
+  let totalBPL = 0;
+
+  Object.values(maestroObras).forEach(d => {
+    totalSingles += (d.singles || []).length;
+    totalLPs += (d.lps || []).length;
+  });
+
+  Object.values(bplConvs).forEach(convs => {
+    totalBPL += convs.length;
+  });
+
+  document.getElementById('cnt-masmorra').textContent = masmorra.length;
+  document.getElementById('cnt-calabouco').textContent = calabouco.length;
+  document.getElementById('cnt-estudios').textContent = Object.keys(maestroObras).length;
+  document.getElementById('cnt-singles').textContent = totalSingles;
+  document.getElementById('cnt-lps').textContent = totalLPs;
+  document.getElementById('cnt-bpl').textContent = totalBPL;
+
+  // ===== MASMORRA =====
+  renderMasmorra(masmorra);
+
+  // ===== CALABOUÇO =====
+  renderCalabouco(calabouco);
+
+  // ===== FILA OHE =====
+  renderFila(fila);
+
+  // ===== ESTÚDIOS =====
+  renderEstudios(maestroObras);
+
+  // ===== BPL =====
+  renderBPL(bplConvs);
+}
+
+function renderMasmorra(lista) {
+  const el = document.getElementById('lista-masmorra');
+  document.getElementById('label-masmorra').textContent = `${lista.length} material${lista.length !== 1 ? 'is' : ''} em quarentena`;
+  if (!lista.length) { el.innerHTML = '<div class="vazio">Nenhum material na Masmorra ainda.</div>'; return; }
+
+  el.innerHTML = lista.map(item => {
+    const entrada = new Date(item.dataEntrada);
+    const liberacao = new Date(item.dataLiberacao);
+    const hoje = new Date();
+    const diasPassados = Math.floor((hoje - entrada) / (1000*60*60*24));
+    const diasRestantes = Math.max(0, 750 - diasPassados);
+    const pct = Math.min(100, Math.round((diasPassados / 750) * 100));
+
+    return `
+      <div class="item">
+        <div class="item-titulo">${item.titulo}</div>
+        <div class="item-meta">
+          TIPO: ${item.tipo?.toUpperCase() || '—'} &nbsp;·&nbsp;
+          AUTOR: ${item.autor || 'A definir'} &nbsp;·&nbsp;
+          ENTRADA: ${entrada.toLocaleDateString('pt-BR')} &nbsp;·&nbsp;
+          LIBERAÇÃO: ${liberacao.toLocaleDateString('pt-BR')}
+        </div>
+        <div class="item-meta">
+          PROGRESSO: ${diasPassados} dias cumpridos de 750 (${pct}%) &nbsp;·&nbsp;
+          RESTAM: ${diasRestantes} dias
+        </div>
+        ${item.meta ? `<div class="item-desc">${item.meta}</div>` : ''}
+        <span class="item-status st-masmorra">⛓ MASMORRA — ${diasRestantes === 0 ? 'PRONTO PARA LIBERAÇÃO' : 'EM QUARENTENA'}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderCalabouco(lista) {
+  const el = document.getElementById('lista-calabouco');
+  document.getElementById('label-calabouco').textContent = `${lista.length} obra${lista.length !== 1 ? 's' : ''} consolidada${lista.length !== 1 ? 's' : ''}`;
+  if (!lista.length) { el.innerHTML = '<div class="vazio">Nenhuma obra no Calabouço ainda.</div>'; return; }
+
+  el.innerHTML = lista.map(item => `
+    <div class="item">
+      <div class="item-titulo">${item.titulo}</div>
+      <div class="item-meta">
+        TIPO: ${item.tipo?.toUpperCase() || '—'} &nbsp;·&nbsp;
+        ${item.autor ? `AUTOR: ${item.autor} &nbsp;·&nbsp;` : ''}
+        DATA: ${item.data || item.atualizado || '—'}
+      </div>
+      ${item.meta ? `<div class="item-desc">${item.meta}</div>` : ''}
+      <span class="item-status st-calabouco">📚 CALABOUÇO — CONSOLIDADO</span>
+    </div>
+  `).join('');
+}
+
+function renderFila(lista) {
+  const el = document.getElementById('lista-fila');
+  document.getElementById('label-fila').textContent = `${lista.length} material${lista.length !== 1 ? 'is' : ''} aguardando`;
+  if (!lista.length) { el.innerHTML = '<div class="vazio">Fila OHE vazia.</div>'; return; }
+
+  el.innerHTML = lista.map(item => `
+    <div class="item">
+      <div class="item-titulo">${item.titulo}</div>
+      <div class="item-meta">
+        TIPO DE ENTRADA: ${item.tipo?.toUpperCase() || '—'} &nbsp;·&nbsp;
+        STATUS: ${item.status?.toUpperCase() || 'AGUARDANDO'} &nbsp;·&nbsp;
+        DATA: ${item.data || '—'}
+      </div>
+      ${item.meta ? `<div class="item-desc">${item.meta}</div>` : ''}
+      <span class="item-status" style="border-color:rgba(201,168,76,0.4);color:var(--ouro);">📬 FILA OHE</span>
+    </div>
+  `).join('');
+}
+
+function renderEstudios(maestroObras) {
+  const el = document.getElementById('lista-estudios');
+  const ids = Object.keys(maestroObras).filter(id => {
+    const d = maestroObras[id];
+    return (d.singles && d.singles.length > 0) || (d.lps && d.lps.length > 0);
+  });
+
+  document.getElementById('label-estudios').textContent = `${ids.length} artista${ids.length !== 1 ? 's' : ''} com obras`;
+
+  if (!ids.length) {
+    el.innerHTML = '<div class="vazio">Nenhum estúdio com obras registradas ainda.</div>';
+    return;
+  }
+
+  // Busca nomes dos artistas
+  const ARTISTAS_MUSIC = [
+    {id:'MUS-001',nome:'Isadora Vellini'},{id:'MUS-002',nome:'Valentina Osei-Bonsu'},
+    {id:'MUS-003',nome:'Camille Dufresne'},{id:'MUS-004',nome:'Fatimah Al-Rashid'},
+    {id:'MUS-005',nome:'Marco Ferretti'},{id:'MUS-006',nome:'Kwabena Asante'},
+    {id:'MUS-007',nome:'Hiroshi Tanaka'},{id:'MUS-008',nome:'Viktor Melnyk'},
+    {id:'MUS-009',nome:'Samuel Okafor'},{id:'MUS-010',nome:'Maristela Braga'},
+    {id:'MUS-011',nome:'Sebastião Neto'},{id:'MUS-012',nome:'Dandara Quilombo'},
+    {id:'MUS-013',nome:'Jairo Silveira'},{id:'MUS-014',nome:'Conceição Palmares'},
+    {id:'MUS-015',nome:'Josephine Walker'},{id:'MUS-016',nome:'Raymond Coltrane'},
+    {id:'MUS-017',nome:'Amina Coulibaly'},{id:'MUS-018',nome:'Ruth Evangelista'},
+    {id:'MUS-019',nome:'Pastor Elias Voz'},{id:'MUS-020',nome:'Rosinha do Vale'},
+    {id:'MUS-021',nome:'Seu Maneco Aboio'},{id:'MUS-022',nome:'Siobhán Ní Faoláin'},
+    {id:'MUS-023',nome:'Dmitri Balalaika'},{id:'MUS-024',nome:'Luana Star'},
+    {id:'MUS-025',nome:'Kevin Soul'},{id:'MUS-026',nome:'Adaeze Piano'},
+    {id:'MUS-027',nome:'Alexei Volkov'},{id:'MUS-028',nome:'Yoko Mitsui'},
+    {id:'MUS-029',nome:'Pablo Casado'},{id:'MUS-030',nome:'Asel Flautista'},
+    {id:'MUS-031',nome:'Jean-Pierre Hautbois'},{id:'MUS-032',nome:'Carlos Sax'},
+    {id:'MUS-033',nome:'Leila Oud'},{id:'MUS-034',nome:'Ravi Sitar'},
+    {id:'MUS-035',nome:'Tomás Viola'},{id:'MUS-036',nome:'Ibrahim Kora'},
+    {id:'MUS-037',nome:'Keiko Shamisen'},{id:'MUS-038',nome:'Percival Drums'},
+    {id:'MUS-039',nome:'Luisa Harpa'},{id:'MUS-040',nome:'Ahmed Bendir'},
+    {id:'MUS-041',nome:'Olga Acordeão'},{id:'MUS-042',nome:'Santiago Guitarra'},
+    {id:'MUS-043',nome:'Mingus Contrabaixo'},{id:'MUS-044',nome:'Zhen Erhu'},
+    {id:'MUS-045',nome:'Felix Contratenor'},{id:'MUS-046',nome:'Tadashi Falsete'},
+    {id:'MUS-047',nome:'Elena Fado'},{id:'MUS-048',nome:'Carmen Flamenca'},
+    {id:'MUS-049',nome:'Nino Georgiano'},{id:'MUS-050',nome:'Miriam Klezmer'},
+    {id:'MUS-051',nome:'Duo Lua & Mar'},{id:'MUS-052',nome:'Trio Árido'},
+    {id:'MUS-053',nome:'Duo Sakura'},{id:'MUS-054',nome:'Trio Jazz Marginal'},
+    {id:'MUS-055',nome:'Diana Synthesis'},{id:'MUS-056',nome:'Elo Experimental'},
+    {id:'MUS-057',nome:'Tariq Electronic'},{id:'MUS-058',nome:'Renata Bolero'},
+    {id:'MUS-059',nome:'Cléo Lunna'},{id:'MUS-060',nome:'Abebe Girma'},
+    {id:'MUS-ROV',nome:'Rovonilson Reigns Bautista'},
+    {id:'BAND-001',nome:'Ferro & Chuva'},{id:'BAND-002',nome:'Noite de Sal'},
+    {id:'BAND-003',nome:'Forró do Fim do Mundo'},{id:'BAND-004',nome:'Diáspora Sound System'},
+    {id:'BAND-005',nome:'Câmara Negra'},{id:'BAND-006',nome:'Tango Bruto'},
+    {id:'BAND-007',nome:'Big Band do Celeiro'},{id:'BAND-008',nome:'Al-Andalus'},
+    {id:'BAND-009',nome:'Ângelus Prime'},
+    {id:'ORQUESTRA',nome:'Orquestra Filarmônica do Celeiro Literário'},
+  ];
+
+  el.innerHTML = ids.map(id => {
+    const d = maestroObras[id];
+    const singles = d.singles || [];
+    const lps = d.lps || [];
+    const artista = ARTISTAS_MUSIC.find(a => a.id === id);
+    const nome = artista?.nome || id;
+
+    const singlesHTML = singles.map((s, i) => `
+      <div style="padding:0.3rem 0;border-bottom:1px solid rgba(201,168,76,0.06);font-size:0.82rem;display:flex;gap:0.5rem;">
+        <span style="color:var(--ouro);opacity:0.5;flex-shrink:0;">${String(i+1).padStart(2,'0')}</span>
+        <span>${s.titulo}</span>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:var(--prata);margin-left:auto;">${s.formato || 'single'} · ${s.data || ''}</span>
+      </div>
+    `).join('');
+
+    const lpsHTML = lps.map((lp, i) => `
+      <div style="padding:0.4rem 0.6rem;background:rgba(0,200,83,0.06);border:1px solid rgba(0,200,83,0.2);margin-bottom:0.3rem;">
+        <div style="font-family:'Cinzel',serif;font-size:0.85rem;color:var(--verde);">🎵 ${lp.nome}</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;color:var(--prata);margin-top:0.15rem;">${lp.singles} singles · Lançado em ${lp.data}</div>
+      </div>
+    `).join('');
+
+    return `
+      <div class="item">
+        <div class="item-titulo">🎤 ${nome}</div>
+        <div class="item-meta">
+          ${singles.length} single${singles.length !== 1 ? 's' : ''} registrado${singles.length !== 1 ? 's' : ''} &nbsp;·&nbsp;
+          ${lps.length} LP${lps.length !== 1 ? 's' : ''} lançado${lps.length !== 1 ? 's' : ''}
+        </div>
+        ${lps.length ? `<div style="margin-bottom:0.5rem;">${lpsHTML}</div>` : ''}
+        ${singles.length ? `<div>${singlesHTML}</div>` : ''}
+        <span class="item-status st-estudio">🎵 ESTÚDIO MUSICAL</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderBPL(bplConvs) {
+  const el = document.getElementById('lista-bpl');
+  const ids = Object.keys(bplConvs).filter(id => bplConvs[id].length > 0);
+  const total = ids.reduce((a, id) => a + bplConvs[id].length, 0);
+
+  document.getElementById('label-bpl').textContent = `${total} convocação${total !== 1 ? 'ões' : ''} registrada${total !== 1 ? 's' : ''}`;
+
+  if (!ids.length) { el.innerHTML = '<div class="vazio">Nenhuma convocação registrada no BPL ainda.</div>'; return; }
+
+  const NOMES_BPL = {
+    'BPL-001':'Isolde Vael Carrim','BPL-002':'Esteban Morales Vega','BPL-003':'Yuki Tanegawa',
+    'BPL-004':'Darius Mehrabani','BPL-005':'Amara Diallo Keita','BPL-006':'Mirela Szabo',
+    'BPL-007':'Tomás Induni Leal','BPL-008':'Bridget Afolabi','BPL-009':'Serafino Conti Neri',
+    'BPL-010':'Park Jimon','BPL-011':'Fatou Mbengue','BPL-012':'Lucho Cienfuegos',
+    'BPL-013':'Zara Nkemdirim','BPL-014':'Ren Bashir Khattak','BPL-015':'Ingrid Valkonen',
+    'BPL-016':'Celestino Aguiar Fontes','BPL-017':'Vera Silvestri Manzoni','BPL-018':'Konrad Brehmer',
+    'BPL-019':'Layla Haddad Osman','BPL-020':'Gavriil Petrov-Ilyich','BPL-021':'Celeste Mourão Braga',
+    'BPL-022':'Olivier Chastenet','BPL-023':'Priya Subramaniam','BPL-024':'Rafael Queiroga Salave\'a',
+    'BPL-025':'Nadia Oufkir','BPL-026':'Sable Huxley Owens','BPL-027':'Kenji Matsunaga Rios',
+    'BPL-028':'Asel Mamytbekova','BPL-029':'Adaeze Onwudiwe','BPL-030':'Vasile Ionescu-Doran',
+    'BPL-031':'Sunita Karmakar','BPL-032':'Marcus Elroy Thorne','BPL-033':'Florentina Oprea Vlad',
+    'BPL-034':'Ibrahim Al-Rashid','BPL-035':'Esperanza Villarreal','BPL-036':'Nnamdi Achebe Osei',
+    'BPL-037':'Valentina Russo Ferretti','BPL-038':'Taavi Mäkinen','BPL-039':'Chidinma Ezeh',
+    'BPL-040':'Aleksandr Voronov','BPL-041':'Meera Pillai Nair','BPL-042':'Cássio Avelar Drummond',
+    'BPL-043':'Aine Ní Bhriain','BPL-044':'Hideo Watanabe Suzu','BPL-045':'Blessing Okonkwo',
+    'BPL-046':'Simón Arce Palomino','BPL-047':'Roksana Wiśniewska','BPL-048':'Chukwuemeka Eze',
+    'BPL-049':'Luna Sepúlveda Arias','BPL-050':'Ezra Blackwood-Osei',
+  };
+
+  el.innerHTML = ids.map(id => {
+    const convs = bplConvs[id];
+    const nome = NOMES_BPL[id] || id;
+    return `
+      <div class="item">
+        <div class="item-titulo">🎭 ${nome} <span style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:var(--prata);">(${id})</span></div>
+        <div class="item-meta">${convs.length} participação${convs.length !== 1 ? 'ões' : ''}</div>
+        ${convs.map((c, i) => `
+          <div style="padding:0.3rem 0;border-bottom:1px solid rgba(201,168,76,0.06);font-size:0.82rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <span style="color:var(--ouro);opacity:0.5;flex-shrink:0;">${String(i+1).padStart(2,'0')}</span>
+            <span>${c.obra}</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:var(--prata);margin-left:auto;">${c.formato} · ${c.papel} · ${c.data}</span>
+          </div>
+        `).join('')}
+        <span class="item-status" style="border-color:rgba(255,152,0,0.4);color:#ff9800;">🎭 BPL</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// ===== BAIXAR WORD =====
+function baixarWord() {
+  const masmorra = JSON.parse(localStorage.getItem('sigmal_hq') || '{}').masmorra || [];
+  const calabouco = JSON.parse(localStorage.getItem('sigmal_hq') || '{}').calabouco || [];
+  const fila = JSON.parse(localStorage.getItem('sigmal_hq') || '{}').fila || [];
+  const maestroObras = JSON.parse(localStorage.getItem('maestro_obras') || '{}');
+  const bplConvs = JSON.parse(localStorage.getItem('charlton_convocacoes') || '{}');
+
+  const agora = new Date().toLocaleString('pt-BR');
+
+  let conteudo = `
+    <html xmlns:o='urn:schemas-microsoft-com:office:office'
+          xmlns:w='urn:schemas-microsoft-com:office:word'
+          xmlns='http://www.w3.org/TR/REC-html40'>
+    <head>
+      <meta charset='UTF-8'>
+      <title>SIGMAL HQ · Acervo</title>
+      <style>
+        body { font-family: 'Times New Roman', serif; font-size: 11pt; color: #1a1208; margin: 2cm; }
+        h1 { font-size: 18pt; color: #7a5f1a; text-align: center; border-bottom: 2px solid #c9a84c; padding-bottom: 10px; margin-bottom: 20px; }
+        h2 { font-size: 14pt; color: #7a5f1a; border-bottom: 1px solid #c9a84c; padding-bottom: 5px; margin-top: 25px; margin-bottom: 10px; }
+        h3 { font-size: 11pt; color: #1a1208; margin-bottom: 4px; }
+        .meta { font-size: 9pt; color: #666; margin-bottom: 6px; font-family: monospace; }
+        .item { border-left: 3px solid #c9a84c; padding-left: 10px; margin-bottom: 12px; }
+        .status { font-size: 8pt; background: #f5f0e8; padding: 2px 6px; border: 1px solid #c9a84c; }
+        .rodape { font-size: 8pt; color: #999; text-align: center; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 30px; }
+        .sub { font-size: 9pt; color: #555; margin-left: 20px; }
+      </style>
+    </head>
+    <body>
+    <h1>SIGMAL HQ · ACERVO COMPLETO</h1>
+    <p style="text-align:center;font-size:9pt;color:#999;">Site das Letras Edições Literárias & Multimídia · Gerado em ${agora}</p>
+  `;
+
+  // MASMORRA
+  conteudo += `<h2>⛓ MASMORRA DA TORRE (${masmorra.length} itens)</h2>`;
+  if (!masmorra.length) { conteudo += `<p><i>Nenhum material na Masmorra.</i></p>`; }
+  else masmorra.forEach(item => {
+    const entrada = new Date(item.dataEntrada);
+    const liberacao = new Date(item.dataLiberacao);
+    const diasPassados = Math.floor((new Date() - entrada) / (1000*60*60*24));
+    const diasRestantes = Math.max(0, 750 - diasPassados);
+    conteudo += `
+      <div class="item">
+        <h3>${item.titulo}</h3>
+        <div class="meta">Tipo: ${item.tipo?.toUpperCase() || '—'} · Autor: ${item.autor || 'A definir'}</div>
+        <div class="meta">Entrada: ${entrada.toLocaleDateString('pt-BR')} · Liberação: ${liberacao.toLocaleDateString('pt-BR')}</div>
+        <div class="meta">${diasPassados} dias cumpridos · ${diasRestantes} dias restantes de 750</div>
+        ${item.meta ? `<div class="sub"><i>${item.meta}</i></div>` : ''}
+        <span class="status">MASMORRA ${diasRestantes === 0 ? '— PRONTO PARA LIBERAÇÃO' : '— EM QUARENTENA'}</span>
+      </div>
+    `;
+  });
+
+  // CALABOUÇO
+  conteudo += `<h2>📚 CALABOUÇO (${calabouco.length} obras)</h2>`;
+  if (!calabouco.length) { conteudo += `<p><i>Nenhuma obra no Calabouço.</i></p>`; }
+  else calabouco.forEach(item => {
+    conteudo += `
+      <div class="item">
+        <h3>${item.titulo}</h3>
+        <div class="meta">Tipo: ${item.tipo?.toUpperCase() || '—'} · Data: ${item.data || '—'}</div>
+        ${item.autor ? `<div class="meta">Autor: ${item.autor}</div>` : ''}
+        ${item.meta ? `<div class="sub"><i>${item.meta}</i></div>` : ''}
+        <span class="status">CALABOUÇO — CONSOLIDADO</span>
+      </div>
+    `;
+  });
+
+  // FILA OHE
+  conteudo += `<h2>📬 FILA OHE — FERNANDO PEÇANHA (${fila.length} itens)</h2>`;
+  if (!fila.length) { conteudo += `<p><i>Fila vazia.</i></p>`; }
+  else fila.forEach(item => {
+    conteudo += `
+      <div class="item">
+        <h3>${item.titulo}</h3>
+        <div class="meta">Tipo: ${item.tipo?.toUpperCase() || '—'} · Status: ${item.status?.toUpperCase() || 'AGUARDANDO'} · Data: ${item.data || '—'}</div>
+        ${item.meta ? `<div class="sub"><i>${item.meta}</i></div>` : ''}
+      </div>
+    `;
+  });
+
+  // ESTÚDIOS
+  const idsMusica = Object.keys(maestroObras).filter(id => {
+    const d = maestroObras[id];
+    return (d.singles && d.singles.length > 0) || (d.lps && d.lps.length > 0);
+  });
+  conteudo += `<h2>🎵 ESTÚDIOS MUSICAIS — MAESTRO AARON (${idsMusica.length} artistas com obras)</h2>`;
+  if (!idsMusica.length) { conteudo += `<p><i>Nenhum estúdio com obras ainda.</i></p>`; }
+  else idsMusica.forEach(id => {
+    const d = maestroObras[id];
+    const singles = d.singles || [];
+    const lps = d.lps || [];
+    conteudo += `
+      <div class="item">
+        <h3>🎤 ${id}</h3>
+        <div class="meta">${singles.length} singles · ${lps.length} LPs</div>
+        ${lps.map(lp => `<div class="sub"><b>🎵 LP: ${lp.nome}</b> — ${lp.singles} singles · ${lp.data}</div>`).join('')}
+        ${singles.map((s,i) => `<div class="sub">${String(i+1).padStart(2,'0')}. ${s.titulo} (${s.formato || 'single'} · ${s.data || ''})</div>`).join('')}
+      </div>
+    `;
+  });
+
+  // BPL
+  const idsBPL = Object.keys(bplConvs).filter(id => bplConvs[id].length > 0);
+  const totalBPL = idsBPL.reduce((a, id) => a + bplConvs[id].length, 0);
+  conteudo += `<h2>🎭 CONVOCAÇÕES BPL — CHARLTON MOISÉS HESTON (${totalBPL} participações)</h2>`;
+  if (!idsBPL.length) { conteudo += `<p><i>Nenhuma convocação registrada.</i></p>`; }
+  else idsBPL.forEach(id => {
+    const convs = bplConvs[id];
+    conteudo += `
+      <div class="item">
+        <h3>🎭 ${id}</h3>
+        ${convs.map((c,i) => `<div class="sub">${String(i+1).padStart(2,'0')}. <b>${c.obra}</b> — ${c.formato} · ${c.papel} · ${c.data}</div>`).join('')}
+      </div>
+    `;
+  });
+
+  conteudo += `
+    <div class="rodape">
+      SIGMAL HQ · Site das Letras Edições Literárias & Multimídia<br>
+      São Roque International Global Music, Arts & Letters Academy<br>
+      Documento gerado em ${agora}
+    </div>
+    </body></html>
+  `;
+
+  const blob = new Blob(['\ufeff', conteudo], { type: 'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `SIGMAL_Acervo_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.doc`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ===== BAIXAR JSON =====
+function baixarJSON() {
+  const dados = {
+    geradoEm: new Date().toISOString(),
+    sigmalHQ: JSON.parse(localStorage.getItem('sigmal_hq') || '{}'),
+    maestroObras: JSON.parse(localStorage.getItem('maestro_obras') || '{}'),
+    charltonConvocacoes: JSON.parse(localStorage.getItem('charlton_convocacoes') || '{}'),
+    sigmalBiografias: JSON.parse(localStorage.getItem('sigmal_biografias') || '{}'),
+  };
+
+  const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `SIGMAL_Backup_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ===== INIT =====
+carregarDados();
+</script>
+</body>
+</html>
