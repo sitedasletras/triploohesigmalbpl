@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor de Obras · Fernando Peçanha · OHE</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Share+Tech+Mono&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --ouro: #c9a84c;
+  --ouro-claro: #e8cc7a;
+  --ouro-escuro: #7a5f1a;
+  --creme: #f5edd8;
+  --papel: #fdf8ef;
+  --prata: #6a7d90;
+  --verde: #00c853;
+  --vermelho: #d32f2f;
+  --roxo: #6a1b9a;
+  --tinta: #1a1208;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--preto);
+  color: var(--creme);
+  font-family: 'Crimson Pro', Georgia, serif;
+  min-height: 100vh;
+}
+
+/* TOPO */
+.topo {
+  background: rgba(4,8,15,0.98);
+  border-bottom: 2px solid var(--ouro);
+  padding: 0.8rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  backdrop-filter: blur(8px);
+}
+.topo-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  color: var(--ouro);
+  letter-spacing: 0.1em;
+}
+.topo-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.18em;
+  color: var(--prata);
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+.topo-dir { display: flex; gap: 0.6rem; align-items: center; }
+.btn-topo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid rgba(201,168,76,0.2);
+  background: transparent;
+  color: var(--prata);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-topo:hover { color: var(--ouro); border-color: var(--ouro); }
+
+/* LAYOUT PRINCIPAL */
+.layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  height: calc(100vh - 56px);
+}
+
+/* PAINEL ESQUERDO — LISTA DE OBRAS */
+.painel-lista {
+  background: var(--preto-mid);
+  border-right: 1px solid rgba(201,168,76,0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.lista-header {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(201,168,76,0.08);
+  flex-shrink: 0;
+}
+.lista-titulo {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  color: var(--ouro);
+  margin-bottom: 0.6rem;
+}
+.lista-acoes { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.btn-nova {
+  background: linear-gradient(135deg, var(--ouro-escuro), var(--ouro));
+  color: var(--preto);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 0.45rem 0.8rem;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.btn-nova:hover { opacity: 0.85; }
+.btn-mini {
+  background: transparent;
+  color: var(--prata);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid rgba(201,168,76,0.15);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.btn-mini:hover { color: var(--ouro); border-color: var(--ouro); }
+
+/* BUSCA */
+.busca-lista {
+  background: rgba(201,168,76,0.04);
+  border: none;
+  border-bottom: 1px solid rgba(201,168,76,0.08);
+  color: var(--creme);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.85rem;
+  padding: 0.6rem 1rem;
+  outline: none;
+  width: 100%;
+  flex-shrink: 0;
+}
+.busca-lista::placeholder { color: rgba(201,168,76,0.2); font-style: italic; }
+
+/* FILTROS */
+.filtros {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid rgba(201,168,76,0.06);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.filtro-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgba(201,168,76,0.15);
+  background: transparent;
+  color: var(--prata);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.filtro-btn:hover { color: var(--ouro); border-color: var(--ouro); }
+.filtro-btn.ativo { background: rgba(201,168,76,0.1); color: var(--ouro); border-color: var(--ouro); }
+
+/* LISTA DE OBRAS */
+.obras-lista {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201,168,76,0.2) transparent;
+}
+.obra-item {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid rgba(201,168,76,0.05);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.obra-item:hover { background: rgba(201,168,76,0.04); }
+.obra-item.ativa { background: rgba(201,168,76,0.08); border-left: 2px solid var(--ouro); }
+.obra-item-titulo {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  color: var(--creme);
+  margin-bottom: 0.2rem;
+  line-height: 1.3;
+  padding-right: 1rem;
+}
+.obra-item-meta {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.4rem;
+  letter-spacing: 0.08em;
+  color: var(--prata);
+  opacity: 0.5;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+.obra-item-status {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.st-fila { background: var(--ouro); }
+.st-masmorra { background: var(--vermelho); }
+.st-calabouco { background: #ce93d8; }
+.st-concluido { background: var(--verde); }
+
+.obra-item-palavras {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.38rem;
+  letter-spacing: 0.06em;
+  color: var(--ouro);
+  opacity: 0.4;
+  margin-top: 0.15rem;
+}
+
+.lista-vazio {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--prata);
+  opacity: 0.4;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+/* PAINEL DIREITO — EDITOR */
+.painel-editor {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--preto);
+}
+
+/* TELA INICIAL */
+.tela-inicial {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: var(--prata);
+  opacity: 0.4;
+}
+.tela-inicial-ic { font-size: 3rem; }
+.tela-inicial-txt { font-style: italic; font-size: 1rem; }
+
+/* HEADER DO EDITOR */
+.editor-header {
+  padding: 0.8rem 1.5rem;
+  border-bottom: 1px solid rgba(201,168,76,0.08);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  background: var(--preto-mid);
+}
+.editor-titulo-input {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  color: var(--creme);
+  background: transparent;
+  border: none;
+  outline: none;
+  flex: 1;
+  min-width: 200px;
+}
+.editor-titulo-input::placeholder { color: rgba(201,168,76,0.2); }
+.editor-meta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.ed-select {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.12);
+  color: var(--creme);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.06em;
+  padding: 0.35rem 0.6rem;
+  outline: none;
+  cursor: pointer;
+}
+.ed-select option { background: var(--preto-mid); }
+.ed-input {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.12);
+  color: var(--creme);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.6rem;
+  outline: none;
+  width: 160px;
+}
+.ed-input::placeholder { color: rgba(201,168,76,0.2); font-style: italic; }
+
+/* TOOLBAR */
+.toolbar {
+  padding: 0.5rem 1.5rem;
+  border-bottom: 1px solid rgba(201,168,76,0.06);
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  background: rgba(8,15,26,0.8);
+}
+.tb-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.06em;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(201,168,76,0.1);
+  background: transparent;
+  color: var(--prata);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.tb-btn:hover { color: var(--ouro); border-color: rgba(201,168,76,0.3); }
+.tb-sep { width: 1px; height: 16px; background: rgba(201,168,76,0.1); margin: 0 0.2rem; }
+.tb-palavras {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.45rem;
+  letter-spacing: 0.08em;
+  color: var(--prata);
+  opacity: 0.4;
+  text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ÁREA DE ESCRITA */
+.area-escrita {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* MODO ESCRITA — fundo papel */
+.editor-textarea {
+  flex: 1;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.05rem;
+  line-height: 1.9;
+  padding: 2rem 3rem;
+  border: none;
+  outline: none;
+  resize: none;
+  width: 100%;
+  max-width: 750px;
+  margin: 0 auto;
+  box-shadow: 0 0 40px rgba(0,0,0,0.5);
+}
+.editor-textarea::placeholder {
+  color: rgba(26,18,8,0.25);
+  font-style: italic;
+}
+
+/* MODO DISTRAÇÃO ZERO */
+body.distracaozero .painel-lista,
+body.distracaozero .topo,
+body.distracaozero .editor-header,
+body.distracaozero .toolbar {
+  display: none !important;
+}
+body.distracaozero .layout {
+  grid-template-columns: 1fr;
+  height: 100vh;
+}
+body.distracaozero .editor-textarea {
+  padding: 4rem 6rem;
+  font-size: 1.15rem;
+  max-width: 800px;
+}
+body.distracaozero .btn-distracaozero {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 999;
+}
+
+/* RODAPÉ DO EDITOR */
+.editor-footer {
+  padding: 0.6rem 1.5rem;
+  border-top: 1px solid rgba(201,168,76,0.08);
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-shrink: 0;
+  background: var(--preto-mid);
+  flex-wrap: wrap;
+}
+.footer-status {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.45rem;
+  letter-spacing: 0.1em;
+  color: var(--verde);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.footer-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--verde); }
+.footer-acoes { display: flex; gap: 0.5rem; margin-left: auto; flex-wrap: wrap; }
+.btn-salvar {
+  background: linear-gradient(135deg, var(--ouro-escuro), var(--ouro));
+  color: var(--preto);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.52rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.btn-salvar:hover { opacity: 0.85; }
+.btn-acao {
+  background: transparent;
+  color: var(--prata);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid rgba(201,168,76,0.15);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.btn-acao:hover { color: var(--ouro); border-color: var(--ouro); }
+.btn-acao.masmorra { border-color: rgba(211,47,47,0.3); color: #ff6b6b; }
+.btn-acao.masmorra:hover { border-color: var(--vermelho); background: rgba(211,47,47,0.08); }
+.btn-acao.calabouco { border-color: rgba(106,27,154,0.3); color: #ce93d8; }
+.btn-acao.calabouco:hover { border-color: var(--roxo); background: rgba(106,27,154,0.08); }
+.btn-acao.concluido { border-color: rgba(0,200,83,0.3); color: var(--verde); }
+.btn-acao.concluido:hover { border-color: var(--verde); background: rgba(0,200,83,0.08); }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4,8,15,0.9);
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+.modal-overlay.aberto { display: flex; }
+.modal {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.2);
+  width: 100%;
+  max-width: 500px;
+}
+.modal-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(201,168,76,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-tit { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--ouro); }
+.modal-x { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; color: var(--prata); background: none; border: none; cursor: pointer; text-transform: uppercase; }
+.modal-corpo { padding: 1.5rem; }
+.modal-fg { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.8rem; }
+.modal-label { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; letter-spacing:0.15em; color: var(--prata); opacity: 0.6; text-transform: uppercase; }
+.modal-input, .modal-select, .modal-ta {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.12);
+  color: var(--creme);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.9rem;
+  padding: 0.55rem 0.8rem;
+  outline: none;
+  width: 100%;
+}
+.modal-ta { resize: vertical; min-height: 80px; }
+.modal-acoes { padding: 1rem 1.5rem; border-top: 1px solid rgba(201,168,76,0.08); display: flex; gap: 0.6rem; }
+
+/* NOTIFICAÇÃO */
+#notif {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 700;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 280px;
+}
+.notif-item {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-left: 3px solid var(--ouro);
+  padding: 0.6rem 0.9rem;
+  animation: slideIn 0.3s ease;
+}
+.notif-item.ok { border-left-color: var(--verde); }
+.notif-item.erro { border-left-color: var(--vermelho); }
+@keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+.notif-tit { font-family:'Share Tech Mono',monospace; font-size:0.48rem; letter-spacing:0.1em; color:var(--ouro); text-transform:uppercase; margin-bottom:0.2rem; }
+.notif-item.ok .notif-tit { color: var(--verde); }
+.notif-item.erro .notif-tit { color: #ff6b6b; }
+.notif-txt { font-size:0.8rem; color:var(--creme); line-height:1.4; }
+
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .painel-lista { display: none; }
+  .painel-lista.aberto { display: flex; position: fixed; inset: 56px 0 0 0; z-index: 100; }
+  .editor-textarea { padding: 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPO -->
+<div class="topo">
+  <div>
+    <div class="topo-logo">EDITOR DE OBRAS · FERNANDO PEÇANHA</div>
+    <div class="topo-sub">OHE · Oficina Heteronômica da Escrita · SIGMAL HQ</div>
+  </div>
+  <div class="topo-dir">
+    <button class="btn-topo" onclick="abrirModal()">+ NOVA OBRA</button>
+    <button class="btn-topo" onclick="toggleDistracaoZero()">✦ FOCO</button>
+    <a href="index.html" class="btn-topo">← HQ</a>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- PAINEL ESQUERDO -->
+  <div class="painel-lista" id="painel-lista">
+    <div class="lista-header">
+      <div class="lista-titulo">📚 Obras do Acervo</div>
+      <div class="lista-acoes">
+        <button class="btn-nova" onclick="abrirModal()">+ NOVA OBRA</button>
+        <button class="btn-mini" onclick="exportarTXT()">↓ TXT</button>
+        <button class="btn-mini" onclick="window.print()">↓ PDF</button>
+      </div>
+    </div>
+    <input type="text" class="busca-lista" id="busca" placeholder="Buscar obras..." oninput="renderLista()">
+    <div class="filtros">
+      <button class="filtro-btn ativo" onclick="setFiltro('todos',this)">TODOS</button>
+      <button class="filtro-btn" onclick="setFiltro('fila',this)">FILA</button>
+      <button class="filtro-btn" onclick="setFiltro('masmorra',this)" style="color:#ff6b6b;">MASMORRA</button>
+      <button class="filtro-btn" onclick="setFiltro('calabouco',this)" style="color:#ce93d8;">CALABOUÇO</button>
+      <button class="filtro-btn" onclick="setFiltro('concluido',this)" style="color:var(--verde);">CONCLUÍDO</button>
+    </div>
+    <div class="obras-lista" id="obras-lista"></div>
+  </div>
+
+  <!-- PAINEL DIREITO — EDITOR -->
+  <div class="painel-editor">
+
+    <!-- TELA INICIAL -->
+    <div class="tela-inicial" id="tela-inicial">
+      <div class="tela-inicial-ic">✍️</div>
+      <div class="tela-inicial-txt">Selecione uma obra ou crie uma nova</div>
+    </div>
+
+    <!-- EDITOR -->
+    <div id="editor-ativo" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
+
+      <!-- HEADER -->
+      <div class="editor-header">
+        <input type="text" class="editor-titulo-input" id="ed-titulo" placeholder="Título da obra...">
+        <div class="editor-meta">
+          <select class="ed-select" id="ed-heteronimo">
+            <option value="">Heterônimo...</option>
+            <option>A.J. dos Santos</option>
+            <option>Amanda Fernanda Fisher Leão</option>
+            <option>Amélie Maia Hanna</option>
+            <option>Anísio Teixeira</option>
+            <option>Articus da Pérsida</option>
+            <option>Aurora Wings</option>
+            <option>Padre Benedicttus Konstantinos</option>
+            <option>Birihani Selami Ina Tesifa</option>
+            <option>Calíope Papazissis</option>
+            <option>Chesco Irlanda</option>
+            <option>Claudiney Aristides Diaz</option>
+            <option>Creone Porfírio</option>
+            <option>Cristovão Duarte</option>
+            <option>Daniel Fernandes</option>
+            <option>Dárius Ninus Vamus</option>
+            <option>Demetrius Varas</option>
+            <option>Din Kin Lin</option>
+            <option>Diógenes Bueno de Alencar</option>
+            <option>Hama Amarin</option>
+            <option>Hernesto Bevilácqua</option>
+            <option>Horando Almeida Prado</option>
+            <option>Icabode Kahpote</option>
+            <option>Imediato Thompson</option>
+            <option>J.L. Gomes</option>
+            <option>Jorge Cavalcanti</option>
+            <option>Juka Pituskaq</option>
+            <option>Julia Abdalla</option>
+            <option>Mário Célio Sabino</option>
+            <option>Michelangelo Miguel</option>
+            <option>Noraya Sakamoto</option>
+            <option>Pyetra Luyza</option>
+            <option>Raimundo José da Silva Nonato</option>
+            <option>Renat Kolotov</option>
+            <option>Rovonilson Reigns Bautista</option>
+            <option>Henrich Jones</option>
+            <option>Sebastião Ferreira dos Anjos</option>
+            <option>Valter Marques</option>
+            <option>Victor A. Pereira</option>
+            <option>Wilson Silva</option>
+            <option>Yago Mattos</option>
+            <option>Wagner Planas</option>
+            <option>Vladislava Karnstein</option>
+            <option>Dona Catarina Trovante</option>
+            <option>Santiago Poetrix</option>
+            <option>Irmão Ezequias Luz</option>
+            <option>Marina das Vozes</option>
+            <option>Helena Duarte Valença</option>
+            <option>Marina Torres Azevedo</option>
+            <option>Clara Mendes Rios</option>
+          </select>
+          <select class="ed-select" id="ed-categoria">
+            <option value="">Categoria...</option>
+            <option>Prosa</option>
+            <option>Poesia</option>
+            <option>Híbrido</option>
+            <option>Cordel</option>
+            <option>Conto</option>
+            <option>Romance</option>
+            <option>Novela</option>
+            <option>Crônica</option>
+            <option>Haiku</option>
+            <option>Soneto</option>
+            <option>Ghazal</option>
+            <option>Pantum</option>
+            <option>Ode</option>
+            <option>Limerique</option>
+            <option>Poetrix</option>
+            <option>Trovа</option>
+            <option>Letra de rap</option>
+          </select>
+          <select class="ed-select" id="ed-status">
+            <option value="fila">Fila OHE</option>
+            <option value="masmorra">Masmorra</option>
+            <option value="calabouco">Calabouço</option>
+            <option value="concluido">Concluído</option>
+          </select>
+          <input type="text" class="ed-input" id="ed-edital" placeholder="Edital / destino (opcional)">
+        </div>
+      </div>
+
+      <!-- TOOLBAR -->
+      <div class="toolbar">
+        <button class="tb-btn" onclick="inserir('**','**')">NEGRITO</button>
+        <button class="tb-btn" onclick="inserir('_','_')">ITÁLICO</button>
+        <button class="tb-btn" onclick="inserir('\n\n— ','')">TRAVESSÃO</button>
+        <button class="tb-btn" onclick="inserir('\n\n','')">¶ PARÁGRAFO</button>
+        <div class="tb-sep"></div>
+        <button class="tb-btn" onclick="inserir('\n\n* * *\n\n','')">* * *</button>
+        <button class="tb-btn" onclick="inserir('\n\n[FIM]\n','')">FIM</button>
+        <div class="tb-sep"></div>
+        <button class="tb-btn" onclick="contarPalavras()">CONTAR</button>
+        <div class="tb-sep"></div>
+        <span class="tb-palavras" id="tb-palavras">0 palavras</span>
+      </div>
+
+      <!-- ÁREA DE ESCRITA -->
+      <div class="area-escrita">
+        <textarea
+          class="editor-textarea"
+          id="ed-texto"
+          placeholder="O texto da obra começa aqui.
+
+Escreva livremente. O editor salva automaticamente a cada 30 segundos.
+
+Use os botões da barra para inserir formatações, parágrafos e marcações especiais."
+          oninput="autoSave(); atualizarPalavras();"
+        ></textarea>
+      </div>
+
+      <!-- RODAPÉ -->
+      <div class="editor-footer">
+        <div class="footer-status">
+          <div class="footer-dot" id="footer-dot"></div>
+          <span id="footer-status-txt">Salvo</span>
+        </div>
+        <span id="footer-info" style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.08em;color:var(--prata);opacity:0.4;text-transform:uppercase;"></span>
+        <div class="footer-acoes">
+          <button class="btn-acao masmorra" onclick="moverPara('masmorra')">→ MASMORRA</button>
+          <button class="btn-acao calabouco" onclick="moverPara('calabouco')">→ CALABOUÇO</button>
+          <button class="btn-acao concluido" onclick="moverPara('concluido')">✓ CONCLUÍDO</button>
+          <button class="btn-acao" onclick="excluirObra()" style="color:rgba(211,47,47,0.5);">✕ EXCLUIR</button>
+          <button class="btn-salvar" onclick="salvarObra()">💾 SALVAR</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODO FOCO (distração zero) -->
+<button class="btn-topo btn-distracaozero" onclick="toggleDistracaoZero()" style="display:none;">✕ SAIR DO FOCO</button>
+
+<!-- MODAL NOVA OBRA -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-tit">NOVA OBRA</div>
+      <button class="modal-x" onclick="fecharModal()">// FECHAR</button>
+    </div>
+    <div class="modal-corpo">
+      <div class="modal-fg">
+        <label class="modal-label">Título da Obra</label>
+        <input type="text" class="modal-input" id="m-titulo" placeholder="Título...">
+      </div>
+      <div class="modal-fg">
+        <label class="modal-label">Heterônimo</label>
+        <select class="modal-select" id="m-heteronimo">
+          <option value="">Fernando Peçanha decide</option>
+          <option>A.J. dos Santos</option><option>Amanda Fernanda Fisher Leão</option>
+          <option>Amélie Maia Hanna</option><option>Anísio Teixeira</option>
+          <option>Articus da Pérsida</option><option>Aurora Wings</option>
+          <option>Padre Benedicttus Konstantinos</option><option>Birihani Selami Ina Tesifa</option>
+          <option>Calíope Papazissis</option><option>Chesco Irlanda</option>
+          <option>Cristovão Duarte</option><option>Daniel Fernandes</option>
+          <option>Dárius Ninus Vamus</option><option>Demetrius Varas</option>
+          <option>Din Kin Lin</option><option>Hama Amarin</option>
+          <option>Hernesto Bevilácqua</option><option>Horando Almeida Prado</option>
+          <option>Icabode Kahpote</option><option>Imediato Thompson</option>
+          <option>J.L. Gomes</option><option>Jorge Cavalcanti</option>
+          <option>Juka Pituskaq</option><option>Mário Célio Sabino</option>
+          <option>Noraya Sakamoto</option><option>Rovonilson Reigns Bautista</option>
+          <option>Victor A. Pereira</option><option>Wilson Silva</option>
+          <option>Yago Mattos</option><option>Wagner Planas</option>
+          <option>Vladislava Karnstein</option><option>Dona Catarina Trovante</option>
+          <option>Santiago Poetrix</option><option>Irmão Ezequias Luz</option>
+          <option>Marina das Vozes</option><option>Helena Duarte Valença</option>
+          <option>Marina Torres Azevedo</option><option>Clara Mendes Rios</option>
+        </select>
+      </div>
+      <div class="modal-fg">
+        <label class="modal-label">Categoria</label>
+        <select class="modal-select" id="m-categoria">
+          <option value="">Selecionar...</option>
+          <option>Prosa</option><option>Poesia</option><option>Híbrido</option>
+          <option>Cordel</option><option>Conto</option><option>Romance</option>
+          <option>Novela</option><option>Crônica</option><option>Haiku</option>
+          <option>Soneto</option><option>Ghazal</option><option>Pantum</option>
+          <option>Ode</option><option>Limerique</option><option>Poetrix</option>
+          <option>Trova</option><option>Letra de rap</option>
+        </select>
+      </div>
+      <div class="modal-fg">
+        <label class="modal-label">Edital / Destino (opcional)</label>
+        <input type="text" class="modal-input" id="m-edital" placeholder="Ex: Prêmio Jabuti 2025...">
+      </div>
+      <div class="modal-fg">
+        <label class="modal-label">Sinopse / Ideia inicial (opcional)</label>
+        <textarea class="modal-ta" id="m-sinopse" placeholder="Descreva brevemente a ideia da obra..."></textarea>
+      </div>
+    </div>
+    <div class="modal-acoes">
+      <button class="btn-salvar" onclick="criarObra()">CRIAR OBRA</button>
+      <button class="btn-mini" onclick="fecharModal()">CANCELAR</button>
+    </div>
+  </div>
+</div>
+
+<div id="notif"></div>
+
+<script>
+// ===== DADOS =====
+let obras = JSON.parse(localStorage.getItem('ohe_obras') || '[]');
+let obraAtiva = null;
+let filtroAtual = 'todos';
+let autoSaveTimer = null;
+let alteracoesPendentes = false;
+
+function salvarObras() {
+  localStorage.setItem('ohe_obras', JSON.stringify(obras));
+}
+
+// ===== RENDERIZAÇÃO DA LISTA =====
+function renderLista() {
+  const busca = document.getElementById('busca').value.toLowerCase();
+  const el = document.getElementById('obras-lista');
+
+  let lista = obras.filter(o => {
+    const matchB = !busca || o.titulo.toLowerCase().includes(busca) ||
+      (o.heteronimo||'').toLowerCase().includes(busca) ||
+      (o.texto||'').toLowerCase().includes(busca);
+    const matchF = filtroAtual === 'todos' || o.status === filtroAtual;
+    return matchB && matchF;
+  });
+
+  // Ordenar por mais recente
+  lista.sort((a,b) => new Date(b.atualizado||0) - new Date(a.atualizado||0));
+
+  if (!lista.length) {
+    el.innerHTML = '<div class="lista-vazio">Nenhuma obra encontrada.</div>';
+    return;
+  }
+
+  const corStatus = { fila:'var(--ouro)', masmorra:'var(--vermelho)', calabouco:'#ce93d8', concluido:'var(--verde)' };
+
+  el.innerHTML = lista.map(o => {
+    const palavras = contarPalavrasTexto(o.texto || '');
+    const atualizado = o.atualizado ? new Date(o.atualizado).toLocaleDateString('pt-BR') : '—';
+    return `
+      <div class="obra-item ${obraAtiva?.id === o.id ? 'ativa' : ''}" onclick="abrirObra('${o.id}')">
+        <div class="obra-item-status st-${o.status||'fila'}" style="background:${corStatus[o.status||'fila']};"></div>
+        <div class="obra-item-titulo">${o.titulo || 'Sem título'}</div>
+        <div class="obra-item-meta">
+          ${o.heteronimo||'Heterônimo a definir'}<br>
+          ${o.categoria||'—'} · ${(o.status||'fila').toUpperCase()}
+        </div>
+        <div class="obra-item-palavras">${palavras} palavras · ${atualizado}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setFiltro(f, btn) {
+  filtroAtual = f;
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  renderLista();
+}
+
+// ===== ABRIR OBRA =====
+function abrirObra(id) {
+  if (alteracoesPendentes && obraAtiva) {
+    if (!confirm('Há alterações não salvas. Deseja continuar sem salvar?')) return;
+  }
+
+  obraAtiva = obras.find(o => o.id === id);
+  if (!obraAtiva) return;
+
+  document.getElementById('tela-inicial').style.display = 'none';
+  const edAtivo = document.getElementById('editor-ativo');
+  edAtivo.style.display = 'flex';
+
+  document.getElementById('ed-titulo').value = obraAtiva.titulo || '';
+  document.getElementById('ed-heteronimo').value = obraAtiva.heteronimo || '';
+  document.getElementById('ed-categoria').value = obraAtiva.categoria || '';
+  document.getElementById('ed-status').value = obraAtiva.status || 'fila';
+  document.getElementById('ed-edital').value = obraAtiva.edital || '';
+  document.getElementById('ed-texto').value = obraAtiva.texto || '';
+
+  atualizarPalavras();
+  setFooterStatus('salvo');
+  atualizarFooterInfo();
+  alteracoesPendentes = false;
+  renderLista();
+}
+
+// ===== CRIAR OBRA =====
+function criarObra() {
+  const titulo = document.getElementById('m-titulo').value.trim();
+  if (!titulo) { notif('OBRIGATÓRIO', 'Informe o título da obra.', 'erro'); return; }
+
+  const nova = {
+    id: 'obra-' + Date.now(),
+    titulo,
+    heteronimo: document.getElementById('m-heteronimo').value,
+    categoria: document.getElementById('m-categoria').value,
+    edital: document.getElementById('m-edital').value,
+    sinopse: document.getElementById('m-sinopse').value,
+    texto: '',
+    status: 'fila',
+    criado: new Date().toISOString(),
+    atualizado: new Date().toISOString(),
+  };
+
+  obras.unshift(nova);
+  salvarObras();
+  fecharModal();
+  renderLista();
+  abrirObra(nova.id);
+  notif('OBRA CRIADA', `"${titulo}" está pronta para ser escrita.`, 'ok');
+}
+
+// ===== SALVAR OBRA =====
+function salvarObra() {
+  if (!obraAtiva) return;
+
+  const idx = obras.findIndex(o => o.id === obraAtiva.id);
+  if (idx === -1) return;
+
+  obras[idx] = {
+    ...obras[idx],
+    titulo: document.getElementById('ed-titulo').value || obras[idx].titulo,
+    heteronimo: document.getElementById('ed-heteronimo').value,
+    categoria: document.getElementById('ed-categoria').value,
+    status: document.getElementById('ed-status').value,
+    edital: document.getElementById('ed-edital').value,
+    texto: document.getElementById('ed-texto').value,
+    atualizado: new Date().toISOString(),
+  };
+
+  obraAtiva = obras[idx];
+  salvarObras();
+  renderLista();
+  setFooterStatus('salvo');
+  atualizarFooterInfo();
+  alteracoesPendentes = false;
+  notif('SALVO', `"${obraAtiva.titulo}" salvo com sucesso.`, 'ok');
+}
+
+// ===== AUTO SAVE =====
+function autoSave() {
+  alteracoesPendentes = true;
+  setFooterStatus('editando');
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(() => {
+    salvarObrasSilencioso();
+  }, 30000); // 30 segundos
+}
+
+function salvarObrasSilencioso() {
+  if (!obraAtiva || !alteracoesPendentes) return;
+  const idx = obras.findIndex(o => o.id === obraAtiva.id);
+  if (idx === -1) return;
+  obras[idx] = {
+    ...obras[idx],
+    titulo: document.getElementById('ed-titulo').value || obras[idx].titulo,
+    heteronimo: document.getElementById('ed-heteronimo').value,
+    categoria: document.getElementById('ed-categoria').value,
+    status: document.getElementById('ed-status').value,
+    edital: document.getElementById('ed-edital').value,
+    texto: document.getElementById('ed-texto').value,
+    atualizado: new Date().toISOString(),
+  };
+  obraAtiva = obras[idx];
+  salvarObras();
+  renderLista();
+  setFooterStatus('salvo-auto');
+  alteracoesPendentes = false;
+}
+
+// ===== MOVER =====
+function moverPara(status) {
+  if (!obraAtiva) return;
+  document.getElementById('ed-status').value = status;
+  salvarObra();
+  const labels = { masmorra:'enviada para a Masmorra', calabouco:'movida para o Calabouço', concluido:'marcada como concluída' };
+  notif('MOVIDO', `"${obraAtiva.titulo}" ${labels[status]}.`, 'ok');
+}
+
+// ===== EXCLUIR =====
+function excluirObra() {
+  if (!obraAtiva) return;
+  if (!confirm(`Excluir "${obraAtiva.titulo}"? Esta ação não pode ser desfeita.`)) return;
+  obras = obras.filter(o => o.id !== obraAtiva.id);
+  salvarObras();
+  obraAtiva = null;
+  document.getElementById('tela-inicial').style.display = 'flex';
+  document.getElementById('editor-ativo').style.display = 'none';
+  renderLista();
+  notif('EXCLUÍDO', 'Obra removida do acervo.', 'ok');
+}
+
+// ===== PALAVRAS =====
+function contarPalavrasTexto(txt) {
+  if (!txt.trim()) return 0;
+  return txt.trim().split(/\s+/).length;
+}
+
+function atualizarPalavras() {
+  const txt = document.getElementById('ed-texto').value;
+  const p = contarPalavrasTexto(txt);
+  const c = txt.length;
+  document.getElementById('tb-palavras').textContent = p + ' palavras · ' + c + ' caracteres';
+}
+
+function contarPalavras() {
+  atualizarPalavras();
+  const txt = document.getElementById('ed-texto').value;
+  const p = contarPalavrasTexto(txt);
+  const linhas = txt.split('\n').filter(l => l.trim()).length;
+  notif('CONTAGEM', p + ' palavras · ' + txt.length + ' caracteres · ' + linhas + ' parágrafos', 'ok');
+}
+
+// ===== INSERIR =====
+function inserir(antes, depois) {
+  const ta = document.getElementById('ed-texto');
+  const ini = ta.selectionStart, fim = ta.selectionEnd;
+  const sel = ta.value.substring(ini, fim);
+  const novo = ta.value.substring(0, ini) + antes + sel + depois + ta.value.substring(fim);
+  ta.value = novo;
+  ta.selectionStart = ini + antes.length;
+  ta.selectionEnd = ini + antes.length + sel.length;
+  ta.focus();
+  autoSave();
+  atualizarPalavras();
+}
+
+// ===== STATUS =====
+function setFooterStatus(tipo) {
+  const dot = document.getElementById('footer-dot');
+  const txt = document.getElementById('footer-status-txt');
+  if (!dot || !txt) return;
+  if (tipo === 'salvo') {
+    dot.style.background = 'var(--verde)';
+    txt.textContent = 'Salvo';
+  } else if (tipo === 'salvo-auto') {
+    dot.style.background = 'var(--verde)';
+    txt.textContent = 'Salvo automaticamente';
+  } else {
+    dot.style.background = 'var(--ouro)';
+    txt.textContent = 'Alterações não salvas';
+  }
+}
+
+function atualizarFooterInfo() {
+  if (!obraAtiva) return;
+  const el = document.getElementById('footer-info');
+  const at = obraAtiva.atualizado ? new Date(obraAtiva.atualizado).toLocaleString('pt-BR') : '—';
+  el.textContent = 'Última edição: ' + at;
+}
+
+// ===== DISTRAÇÃO ZERO =====
+function toggleDistracaoZero() {
+  document.body.classList.toggle('distracaozero');
+  const btn = document.querySelector('.btn-distracaozero');
+  btn.style.display = document.body.classList.contains('distracaozero') ? 'block' : 'none';
+  if (document.body.classList.contains('distracaozero')) {
+    document.getElementById('ed-texto').focus();
+  }
+}
+
+// ===== EXPORTAR TXT =====
+function exportarTXT() {
+  const lista = filtroAtual === 'todos' ? obras : obras.filter(o => o.status === filtroAtual);
+  if (!lista.length) { notif('VAZIO', 'Nenhuma obra para exportar.', 'erro'); return; }
+
+  const L = '='.repeat(60) + '\n';
+  const S = '-'.repeat(40) + '\n';
+  let txt = L;
+  txt += '  OHE · ACERVO DE OBRAS\n';
+  txt += '  Fernando Peçanha · Oficina Heteronômica da Escrita\n';
+  txt += '  Site das Letras Edições Literárias & Multimídia\n';
+  txt += '  Gerado em: ' + new Date().toLocaleString('pt-BR') + '\n';
+  txt += L + '\n';
+  txt += 'Total de obras: ' + lista.length + '\n\n';
+
+  lista.forEach((o, i) => {
+    txt += L;
+    txt += '  [' + (i+1) + '] ' + (o.titulo || 'Sem título') + '\n';
+    txt += L;
+    txt += 'Heterônimo: ' + (o.heteronimo || 'A definir') + '\n';
+    txt += 'Categoria: ' + (o.categoria || '—') + '\n';
+    txt += 'Status: ' + (o.status || 'fila').toUpperCase() + '\n';
+    if (o.edital) txt += 'Edital/Destino: ' + o.edital + '\n';
+    if (o.sinopse) txt += 'Sinopse: ' + o.sinopse + '\n';
+    txt += 'Palavras: ' + contarPalavrasTexto(o.texto || '') + '\n';
+    txt += 'Criado: ' + (o.criado ? new Date(o.criado).toLocaleDateString('pt-BR') : '—') + '\n';
+    txt += 'Atualizado: ' + (o.atualizado ? new Date(o.atualizado).toLocaleString('pt-BR') : '—') + '\n';
+    txt += S;
+    if (o.texto) {
+      txt += '\n' + o.texto + '\n\n';
+    } else {
+      txt += '\n(Texto não iniciado ainda)\n\n';
+    }
+  });
+
+  txt += L;
+  txt += '  FIM DO DOCUMENTO\n';
+  txt += '  OHE · triploohesigmalbpl.vercel.app\n';
+  txt += L;
+
+  const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'OHE_Obras_' + new Date().toLocaleDateString('pt-BR').replace(/\//g, '-') + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  notif('EXPORTADO', lista.length + ' obra(s) exportada(s).', 'ok');
+}
+
+// ===== MODAL =====
+function abrirModal() {
+  document.getElementById('m-titulo').value = '';
+  document.getElementById('m-heteronimo').value = '';
+  document.getElementById('m-categoria').value = '';
+  document.getElementById('m-edital').value = '';
+  document.getElementById('m-sinopse').value = '';
+  document.getElementById('modal').classList.add('aberto');
+  setTimeout(() => document.getElementById('m-titulo').focus(), 100);
+}
+function fecharModal() {
+  document.getElementById('modal').classList.remove('aberto');
+}
+
+// ===== NOTIFICAÇÕES =====
+function notif(titulo, texto, tipo='ok') {
+  const c = document.getElementById('notif');
+  const el = document.createElement('div');
+  el.className = 'notif-item ' + tipo;
+  el.innerHTML = '<div class="notif-tit">' + titulo + '</div><div class="notif-txt">' + texto + '</div>';
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 5000);
+}
+
+// ===== ATALHOS DO TECLADO =====
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    salvarObra();
+  }
+  if (e.key === 'Escape' && document.body.classList.contains('distracaozero')) {
+    toggleDistracaoZero();
+  }
+});
+
+// ===== IMPORT DE DADOS DO HQ =====
+// Ao abrir, importa automaticamente itens da Masmorra e Calabouço do painel HQ
+function importarDoHQ() {
+  const hq = JSON.parse(localStorage.getItem('sigmal_hq') || '{}');
+  const masmorra = hq.masmorra || [];
+  const calabouco = hq.calabouco || [];
+  const fila = hq.fila || [];
+
+  let importados = 0;
+  const idsExistentes = obras.map(o => o.id);
+
+  [...masmorra, ...calabouco, ...fila].forEach(item => {
+    const idHQ = 'hq-' + item.id;
+    if (!idsExistentes.includes(idHQ)) {
+      const status = masmorra.find(m => m.id === item.id) ? 'masmorra' :
+                     calabouco.find(c => c.id === item.id) ? 'calabouco' : 'fila';
+      obras.push({
+        id: idHQ,
+        titulo: item.titulo || 'Sem título',
+        heteronimo: item.autor || '',
+        categoria: item.tipo || '',
+        edital: item.meta || '',
+        sinopse: item.meta || '',
+        texto: '',
+        status,
+        criado: item.dataEntrada || new Date().toISOString(),
+        atualizado: new Date().toISOString(),
+        importadoDoHQ: true,
+      });
+      importados++;
+    }
+  });
+
+  if (importados > 0) {
+    salvarObras();
+    notif('IMPORTADO', importados + ' obra(s) importada(s) do painel HQ.', 'ok');
+  }
+}
+
+// ===== INIT =====
+importarDoHQ();
+renderLista();
+
+// Ctrl+S global
+document.getElementById('ed-texto')?.addEventListener('input', () => {
+  autoSave();
+  atualizarPalavras();
+});
+</script>
+</body>
+</html>
