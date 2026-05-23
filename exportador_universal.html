@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exportador Universal — triploohesigmalbpl</title>
+<style>
+:root{
+  --azul:#07101d;--ouro:#c9a646;--ouro2:#f4dc88;--cobre:#b87333;
+  --verde:#1f7a42;--roxo:#3b1f6e;--verm:#7b1f1f;
+  --r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Georgia,'Times New Roman',serif;background:linear-gradient(170deg,#030d18,#07101d);color:white;min-height:100vh;padding:0 0 60px}
+
+/* TOPBAR */
+.topbar{background:rgba(3,13,24,.98);border-bottom:2px solid var(--ouro);padding:12px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:100}
+.marca{font-family:monospace;color:var(--ouro2);font-size:13px;font-weight:700}
+.marca small{display:block;font-size:10px;color:rgba(244,220,136,.4);letter-spacing:.08em}
+
+/* HERO */
+.hero{text-align:center;padding:50px 22px 36px;border-bottom:3px solid var(--ouro);background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(201,166,70,.08),transparent)}
+.hero h1{font-size:clamp(36px,6vw,72px);background:linear-gradient(160deg,var(--ouro2),var(--ouro));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.hero p{font-size:16px;color:rgba(240,236,224,.65);font-style:italic;max-width:600px;margin:0 auto 24px}
+
+/* CONTADORES */
+.contadores{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:0}
+.cnt{background:rgba(255,255,255,.04);border:1px solid rgba(201,166,70,.18);border-radius:14px;padding:12px 20px;text-align:center;min-width:90px}
+.cnt .cn{font-size:30px;font-weight:900;color:var(--ouro2);display:block;font-family:Georgia,serif}
+.cnt .cl{font-family:monospace;font-size:10px;letter-spacing:.1em;color:rgba(201,166,70,.45);text-transform:uppercase}
+
+/* WRAP */
+.wrap{max-width:1200px;margin:auto;padding:28px 20px}
+
+/* AÇÕES GLOBAIS */
+.acoes-globais{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;padding:18px;background:rgba(10,24,40,.9);border:1px solid rgba(201,166,70,.15);border-radius:var(--r)}
+.acoes-globais h3{width:100%;font-size:16px;color:var(--ouro2);margin-bottom:8px;font-family:Georgia,serif}
+
+/* GRUPOS */
+.grupo{margin-bottom:32px}
+.grupo-titulo{font-family:monospace;font-size:11px;letter-spacing:.2em;color:rgba(201,166,70,.5);text-transform:uppercase;border-bottom:1px solid rgba(201,166,70,.15);padding-bottom:10px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.grupo-titulo span{display:flex;align-items:center;gap:8px}
+.grupo-cnt{font-family:monospace;font-size:11px;background:rgba(201,166,70,.12);color:var(--ouro2);padding:3px 10px;border-radius:999px}
+
+/* CARDS DE ITEM */
+.item-card{background:rgba(10,24,40,.92);border:1px solid rgba(201,166,70,.1);border-radius:var(--r);overflow:hidden;margin-bottom:10px;transition:.18s}
+.item-card:hover{border-color:rgba(201,166,70,.28)}
+.item-head{padding:14px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;cursor:pointer}
+.item-head:hover{background:rgba(201,166,70,.04)}
+.item-titulo{font-size:17px;color:var(--ouro2);margin-bottom:3px;font-family:Georgia,serif}
+.item-meta{font-family:monospace;font-size:10px;color:rgba(201,166,70,.38);line-height:1.6}
+.item-acoes{display:flex;gap:6px;flex-shrink:0}
+.item-body{display:none;padding:16px 18px;border-top:1px solid rgba(201,166,70,.08);background:rgba(7,16,29,.5)}
+.item-body.aberto{display:block}
+.item-texto{font-size:14px;line-height:1.75;color:rgba(240,236,224,.82);white-space:pre-wrap;max-height:500px;overflow-y:auto;font-family:Georgia,serif;background:rgba(3,13,24,.6);border-radius:12px;padding:16px;border:1px solid rgba(201,166,70,.08)}
+.item-texto::-webkit-scrollbar{width:5px}
+.item-texto::-webkit-scrollbar-thumb{background:rgba(201,166,70,.3);border-radius:3px}
+
+/* VAZIO */
+.vazio{text-align:center;padding:32px;font-family:monospace;font-size:13px;color:rgba(201,166,70,.25);border:1px dashed rgba(201,166,70,.1);border-radius:var(--r)}
+
+/* CHAVE RAW */
+.chave-card{background:rgba(7,16,29,.8);border:1px solid rgba(201,166,70,.08);border-radius:12px;padding:12px 16px;margin-bottom:8px;font-family:monospace;font-size:12px}
+.chave-nome{color:var(--ouro2);margin-bottom:4px;font-weight:700}
+.chave-val{color:rgba(240,236,224,.6);word-break:break-all;max-height:80px;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.chave-val.expandido{max-height:none}
+
+/* BOTÕES */
+.btn{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:10px 16px;font-family:monospace;font-size:11px;font-weight:700;cursor:pointer;transition:.15s;text-decoration:none;white-space:nowrap}
+.btn:hover{transform:translateY(-1px)}
+.b-ouro{background:var(--ouro);color:var(--azul)}
+.b-ouro:hover{background:var(--ouro2)}
+.b-verde{background:var(--verde);color:white}
+.b-verde:hover{background:#165c31}
+.b-roxo{background:var(--roxo);color:white}
+.b-roxo:hover{background:#2a1050}
+.b-verm{background:var(--verm);color:white}
+.b-verm:hover{background:#5a1515}
+.b-esc{background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.12)}
+.b-esc:hover{background:rgba(255,255,255,.1)}
+.b-sm{padding:6px 11px;font-size:10px;border-radius:8px}
+.b-copy{background:rgba(14,116,144,.2);color:#80d8ff;border:1px solid rgba(6,182,212,.25)}
+.b-dl{background:rgba(59,31,110,.2);color:#d0b0ff;border:1px solid rgba(59,31,110,.3)}
+
+/* MODAL */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(3,13,24,.95);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-ov.aberto{display:flex}
+.modal{background:linear-gradient(135deg,#07101d,#0f1c2e);border:2px solid var(--ouro);border-radius:22px;padding:28px;max-width:760px;width:100%;max-height:90vh;overflow-y:auto;position:relative}
+.modal h2{font-size:24px;color:var(--ouro2);margin-bottom:4px;font-family:Georgia,serif}
+.modal .m-meta{font-family:monospace;font-size:11px;color:rgba(201,166,70,.45);margin-bottom:18px}
+.modal .m-texto{font-size:15px;line-height:1.8;color:rgba(240,236,224,.88);white-space:pre-wrap;font-family:Georgia,serif;background:rgba(3,13,24,.5);border-radius:12px;padding:18px;border:1px solid rgba(201,166,70,.1);max-height:55vh;overflow-y:auto}
+.modal .m-texto::-webkit-scrollbar{width:5px}
+.modal .m-texto::-webkit-scrollbar-thumb{background:rgba(201,166,70,.3);border-radius:3px}
+.m-close{position:absolute;top:14px;right:16px;background:0;border:0;color:rgba(201,166,70,.4);font-size:20px;cursor:pointer}
+.m-close:hover{color:var(--ouro)}
+.m-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:14px;border-top:1px solid rgba(201,166,70,.12)}
+
+footer{text-align:center;padding:24px;color:rgba(200,192,178,.4);font-family:monospace;font-size:12px}
+footer strong{color:var(--ouro2)}
+
+@media(max-width:640px){.item-acoes{width:100%}.acoes-globais{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="marca">EXPORTADOR UNIVERSAL — ACESSO TOTAL<small>MASMORRA · CALABOUÇO · PALCO · ESTÚDIO · OHE · NÚCLEO</small></div>
+</div>
+
+<header class="hero">
+  <h1>Exportador Universal</h1>
+  <p>Lê, exibe, copia e exporta tudo que está armazenado neste sistema — Masmorra, Calabouço, Palco, Estúdio SIGMAL, OHE-Peçanha e Núcleo.</p>
+  <div class="contadores">
+    <div class="cnt"><span class="cn" id="cntTotal">0</span><span class="cl">Total de itens</span></div>
+    <div class="cnt"><span class="cn" id="cntChaves">0</span><span class="cl">Chaves encontradas</span></div>
+    <div class="cnt"><span class="cn" id="cntPalavras">0</span><span class="cl">Palavras no acervo</span></div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- AÇÕES GLOBAIS -->
+  <div class="acoes-globais">
+    <h3>⚡ Exportação em massa</h3>
+    <button class="btn b-ouro" onclick="exportarTudoTXT()">📄 Baixar TUDO em TXT</button>
+    <button class="btn b-roxo" onclick="exportarTudoJSON()">📦 Baixar TUDO em JSON</button>
+    <button class="btn b-verde" onclick="copiarTudo()">📋 Copiar TUDO para área de transferência</button>
+    <button class="btn b-esc" onclick="recarregar()">↺ Recarregar</button>
+    <button class="btn b-verm" onclick="irParaRaw()">🔍 Ver todas as chaves raw</button>
+  </div>
+
+  <!-- MASMORRA -->
+  <div class="grupo">
+    <div class="grupo-titulo">
+      <span>⛓️ MASMORRA — Obras em quarentena</span>
+      <span class="grupo-cnt" id="cnt-masmorra">0</span>
+    </div>
+    <div id="lista-masmorra"></div>
+  </div>
+
+  <!-- CALABOUÇO -->
+  <div class="grupo">
+    <div class="grupo-titulo">
+      <span>📚 CALABOUÇO — Obras consolidadas</span>
+      <span class="grupo-cnt" id="cnt-calabouco">0</span>
+    </div>
+    <div id="lista-calabouco"></div>
+  </div>
+
+  <!-- PALCO -->
+  <div class="grupo">
+    <div class="grupo-titulo">
+      <span>🎭 PALCO — Produções cênicas</span>
+      <span class="grupo-cnt" id="cnt-palco">0</span>
+    </div>
+    <div id="lista-palco"></div>
+  </div>
+
+  <!-- OHE / PEÇANHA -->
+  <div class="grupo">
+    <div class="grupo-titulo">
+      <span>✒️ OHE / PEÇANHA — Fila e produções</span>
+      <span class="grupo-cnt" id="cnt-ohe">0</span>
+    </div>
+    <div id="lista-ohe"></div>
+  </div>
+
+  <!-- ESTÚDIO SIGMAL -->
+  <div class="grupo">
+    <div class="grupo-titulo">
+      <span>🎵 ESTÚDIO SIGMAL MUSIC</span>
+      <span class="grupo-cnt" id="cnt-sigmal">0</span>
+    </div>
+    <div id="lista-sigmal"></div>
+  </div>
+
+  <!-- NÚCLEO -->
+  <div class="grupo">
+    <div class="grupo-titulo">
+      <span>🎬 NÚCLEO N — Produções audiovisuais</span>
+      <span class="grupo-cnt" id="cnt-nucleo">0</span>
+    </div>
+    <div id="lista-nucleo"></div>
+  </div>
+
+  <!-- RAW -->
+  <div class="grupo" id="grupo-raw" style="display:none">
+    <div class="grupo-titulo">
+      <span>🔍 TODAS AS CHAVES RAW DO LOCALSTORAGE</span>
+      <button class="btn b-esc b-sm" onclick="document.getElementById('grupo-raw').style.display='none'">Ocultar</button>
+    </div>
+    <div id="lista-raw"></div>
+  </div>
+
+</div>
+
+<!-- MODAL LEITURA -->
+<div class="modal-ov" id="modalOv">
+  <div class="modal">
+    <button class="m-close" onclick="fecharModal()">✕</button>
+    <h2 id="m-titulo">—</h2>
+    <div class="m-meta" id="m-meta">—</div>
+    <div class="m-texto" id="m-texto">—</div>
+    <div class="m-btns">
+      <button class="btn b-verde" onclick="copiarModal()">📋 Copiar texto</button>
+      <button class="btn b-roxo" onclick="baixarModal()">📄 Baixar TXT</button>
+      <button class="btn b-esc" onclick="fecharModal()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<footer><p><strong>Exportador Universal</strong> · triploohesigmalbpl · Acesso total ao localStorage</p></footer>
+
+<script>
+// ══════════════════════════════════════════════════
+// MAPEAMENTO DE TODAS AS CHAVES CONHECIDAS
+// ══════════════════════════════════════════════════
+var GRUPOS = {
+  masmorra: [
+    'masmorra_itens','masmorra_obras','masmorra_quarentena','torre_masmorra',
+    'masmorra_750','quarentena_itens','masmorra','obras_quarentena',
+    'ohe_masmorra','pecanha_masmorra','sigmal_masmorra'
+  ],
+  calabouco: [
+    'calabouco_obras','calabouco','patrimonio_literario','obras_consolidadas',
+    'calabouco_itens','livros_calabouco','acervo_calabouco','obras_finais',
+    'ohe_calabouco','pecanha_calabouco'
+  ],
+  palco: [
+    'palco_producoes','palco_itens','palco','elenco_palco',
+    'charlton_acervo','charlton_corsi','bpl_convocacoes','bpl_artistas_gerados',
+    'nucleo_palco','producoes_palco'
+  ],
+  ohe: [
+    'ohe_fila','ohe_processados','ohe_fila_itens','fernando_fila',
+    'pecanha_fila','ohe_entradas','fila_ohe','fila_processamento',
+    'ohe_queue','pecanha_obras','ohe_producoes','pecanha_producoes',
+    'ohe_saida','heteronimos_producoes','sigmal_fila','ohe_resultado'
+  ],
+  sigmal: [
+    'sigmal_studios','sigmal_singles','sigmal_artistas','sigmal_music_gerados',
+    'sigmal_music_convs','sigmal_lps','silo_music_gerados','silo_music_convs',
+    'estudio_sigmal','sigmal_producoes','condor_repertorio','maestro_interpretes',
+    'maestro_aaron_acervo','maestro_aaron_corsi','sigmal_estudio','studio_sigmal'
+  ],
+  nucleo: [
+    'nucleo_producoes','nucleo_elenco','charlton_producoes','nucleo_n',
+    'elenco_producoes','nucleon_itens','nucleo_audiovisual','producoes_nucleo',
+    'webtv_producoes','webradio_producoes'
+  ]
+}
+
+var _tudo = []
+var _modalItem = null
+
+// ── LÊ TODAS AS CHAVES DE UM GRUPO ──
+function lerGrupo(chaves) {
+  var itens = []
+  // Também escaneia TODO o localStorage em busca de padrões relacionados
+  var todasChaves = Object.keys(localStorage)
+  todasChaves.forEach(function(k) {
+    var pertence = chaves.some(function(c) { return k.toLowerCase().includes(c.toLowerCase()) || c.toLowerCase().includes(k.toLowerCase()) })
+    if (pertence) {
+      var raw = localStorage.getItem(k)
+      if (!raw || raw === '[]' || raw === '{}' || raw === 'null') return
+      try {
+        var parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) {
+          parsed.forEach(function(item) {
+            if (item && typeof item === 'object') itens.push(Object.assign({}, item, {_chave: k}))
+            else if (typeof item === 'string' && item.trim()) itens.push({_chave: k, conteudo: item, titulo: k})
+          })
+        } else if (typeof parsed === 'object' && parsed !== null) {
+          itens.push(Object.assign({}, parsed, {_chave: k}))
+        } else if (typeof parsed === 'string' && parsed.trim()) {
+          itens.push({_chave: k, conteudo: parsed, titulo: k})
+        }
+      } catch(e) {
+        if (raw && raw.trim()) itens.push({_chave: k, conteudo: raw, titulo: k})
+      }
+    }
+  })
+  // Remove duplicatas por conteúdo
+  var vistos = {}
+  return itens.filter(function(i) {
+    var key = (i.titulo || '') + (i.conteudo || '').slice(0,50)
+    if (vistos[key]) return false
+    vistos[key] = true
+    return true
+  })
+}
+
+function getTitulo(item) {
+  return item.titulo || item.title || item.nome || item.name ||
+         item.obra || item.assunto || item.tema || item.prompt ||
+         item.entrada || item.input || item.id || item._chave || 'Sem título'
+}
+
+function getConteudo(item) {
+  return item.conteudo || item.texto || item.content || item.body ||
+         item.letra || item.obra || item.material || item.resultado ||
+         item.resposta || item.output || item.generated || item.saida ||
+         item.response || item.text || item.producao ||
+         JSON.stringify(item, null, 2)
+}
+
+function getMeta(item) {
+  var p = []
+  if (item.heteronimo || item.autor || item.artista) p.push(item.heteronimo || item.autor || item.artista)
+  if (item.categoria || item.tipo || item.estilo) p.push(item.categoria || item.tipo || item.estilo)
+  if (item.em || item.data || item.created_at || item.timestamp) p.push(item.em || item.data || item.created_at || item.timestamp)
+  if (item.num) p.push(item.num)
+  p.push('chave: ' + item._chave)
+  return p.join(' · ')
+}
+
+function contarPalavras(txt) {
+  return (txt || '').replace(/\n/g,' ').split(/\s+/).filter(Boolean).length
+}
+
+// ── RENDERIZA UM GRUPO ──
+function renderGrupo(containerId, cntId, itens, cor) {
+  var el = document.getElementById(containerId)
+  var cntEl = document.getElementById(cntId)
+  cntEl.textContent = itens.length
+  if (!itens.length) {
+    el.innerHTML = '<div class="vazio">Nenhum conteúdo encontrado neste grupo neste dispositivo.<br><small style="opacity:.6;font-family:monospace">O conteúdo existe apenas no navegador onde foi gerado.</small></div>'
+    return
+  }
+  el.innerHTML = itens.map(function(item, i) {
+    var id = containerId + '-' + i
+    var titulo = getTitulo(item)
+    var meta = getMeta(item)
+    var conteudo = getConteudo(item)
+    var preview = conteudo.slice(0, 120) + (conteudo.length > 120 ? '…' : '')
+    return '<div class="item-card">' +
+      '<div class="item-head" onclick="toggleItem(\'' + id + '\')">' +
+        '<div>' +
+          '<div class="item-titulo">' + escHtml(titulo) + '</div>' +
+          '<div class="item-meta">' + escHtml(meta) + '</div>' +
+          '<div style="font-size:12px;color:rgba(240,236,224,.4);margin-top:4px;font-style:italic">' + escHtml(preview) + '</div>' +
+        '</div>' +
+        '<div class="item-acoes">' +
+          '<button class="btn b-sm b-esc" onclick="event.stopPropagation();abrirModal(\'' + containerId + '\',' + i + ')">📖 Ler</button>' +
+          '<button class="btn b-sm b-copy" onclick="event.stopPropagation();copiarItem(\'' + containerId + '\',' + i + ')">📋</button>' +
+          '<button class="btn b-sm b-dl" onclick="event.stopPropagation();baixarItem(\'' + containerId + '\',' + i + ')">📄</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="item-body" id="' + id + '">' +
+        '<div class="item-texto">' + escHtml(conteudo) + '</div>' +
+      '</div>' +
+    '</div>'
+  }).join('')
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+}
+
+function toggleItem(id) {
+  var el = document.getElementById(id)
+  if (el) el.classList.toggle('aberto')
+}
+
+// ── REFERÊNCIAS PARA MODAL ──
+var _refs = {}
+
+function abrirModal(grupo, idx) {
+  var item = _refs[grupo] ? _refs[grupo][idx] : null
+  if (!item) return
+  _modalItem = item
+  document.getElementById('m-titulo').textContent = getTitulo(item)
+  document.getElementById('m-meta').textContent = getMeta(item)
+  document.getElementById('m-texto').textContent = getConteudo(item)
+  document.getElementById('modalOv').classList.add('aberto')
+}
+
+function fecharModal() { document.getElementById('modalOv').classList.remove('aberto') }
+
+function copiarModal() {
+  if (!_modalItem) return
+  var t = getTitulo(_modalItem) + '\n' + getMeta(_modalItem) + '\n\n' + getConteudo(_modalItem)
+  navigator.clipboard.writeText(t).then(function() { alert('Copiado!') })
+}
+
+function baixarModal() {
+  if (!_modalItem) return
+  var t = getTitulo(_modalItem) + '\n' + '─'.repeat(50) + '\n' + getMeta(_modalItem) + '\n\n' + getConteudo(_modalItem)
+  baixarArq(t, getTitulo(_modalItem).replace(/\s+/g,'_') + '.txt')
+}
+
+function copiarItem(grupo, idx) {
+  var item = _refs[grupo] ? _refs[grupo][idx] : null
+  if (!item) return
+  var t = getTitulo(item) + '\n\n' + getConteudo(item)
+  navigator.clipboard.writeText(t).then(function() { alert('Copiado!') })
+}
+
+function baixarItem(grupo, idx) {
+  var item = _refs[grupo] ? _refs[grupo][idx] : null
+  if (!item) return
+  var t = getTitulo(item) + '\n' + '─'.repeat(50) + '\n' + getMeta(item) + '\n\n' + getConteudo(item)
+  baixarArq(t, getTitulo(item).replace(/\s+/g,'_').slice(0,50) + '.txt')
+}
+
+function baixarArq(conteudo, nome) {
+  var a = document.createElement('a')
+  a.href = URL.createObjectURL(new Blob([conteudo], {type:'text/plain;charset=utf-8'}))
+  a.download = nome
+  a.click()
+}
+
+// ── EXPORTAÇÕES EM MASSA ──
+function exportarTudoTXT() {
+  if (!_tudo.length) { alert('Nenhum conteúdo encontrado neste navegador.'); return }
+  var sep = '\n\n' + '═'.repeat(60) + '\n\n'
+  var t = _tudo.map(function(item) {
+    return getTitulo(item) + '\n' + '─'.repeat(50) + '\n' + getMeta(item) + '\n\n' + getConteudo(item)
+  }).join(sep)
+  baixarArq(t, 'acervo_completo_' + new Date().toISOString().split('T')[0] + '.txt')
+}
+
+function exportarTudoJSON() {
+  var tudo = {}
+  Object.keys(localStorage).forEach(function(k) {
+    try { tudo[k] = JSON.parse(localStorage.getItem(k)) }
+    catch(e) { tudo[k] = localStorage.getItem(k) }
+  })
+  baixarArq(JSON.stringify(tudo, null, 2), 'backup_completo_' + new Date().toISOString().split('T')[0] + '.json')
+}
+
+function copiarTudo() {
+  if (!_tudo.length) { alert('Nenhum conteúdo encontrado neste navegador.'); return }
+  var sep = '\n\n' + '═'.repeat(40) + '\n\n'
+  var t = _tudo.map(function(i) { return getTitulo(i) + '\n\n' + getConteudo(i) }).join(sep)
+  navigator.clipboard.writeText(t).then(function() { alert('Tudo copiado! ' + _tudo.length + ' itens.') })
+}
+
+function irParaRaw() {
+  var grupo = document.getElementById('grupo-raw')
+  var lista = document.getElementById('lista-raw')
+  var chaves = Object.keys(localStorage)
+  grupo.style.display = 'block'
+  if (!chaves.length) {
+    lista.innerHTML = '<div class="vazio">localStorage vazio neste navegador/dispositivo.</div>'
+  } else {
+    lista.innerHTML = chaves.map(function(k) {
+      var raw = localStorage.getItem(k) || ''
+      return '<div class="chave-card">' +
+        '<div class="chave-nome">' + escHtml(k) + ' <span style="color:rgba(201,166,70,.4);font-weight:400">(' + raw.length + ' chars)</span></div>' +
+        '<div class="chave-val" onclick="this.classList.toggle(\'expandido\')">' + escHtml(raw.slice(0, 200)) + (raw.length > 200 ? '… (clique para expandir)' : '') + '</div>' +
+        '<div style="margin-top:8px;display:flex;gap:6px">' +
+          '<button class="btn b-sm b-copy" onclick="navigator.clipboard.writeText(localStorage.getItem(\'' + k + '\')||\'\')" >📋 Copiar valor</button>' +
+          '<button class="btn b-sm b-dl" onclick="baixarArq(localStorage.getItem(\'' + k + '\')||\'\',' + "'" + k + '.txt' + "'" + ')">📄 Baixar</button>' +
+        '</div>' +
+      '</div>'
+    }).join('')
+  }
+  grupo.scrollIntoView({behavior:'smooth'})
+}
+
+function recarregar() { carregar() }
+
+// ── CARREGAR TUDO ──
+function carregar() {
+  var grupos = {
+    masmorra:  lerGrupo(GRUPOS.masmorra),
+    calabouco: lerGrupo(GRUPOS.calabouco),
+    palco:     lerGrupo(GRUPOS.palco),
+    ohe:       lerGrupo(GRUPOS.ohe),
+    sigmal:    lerGrupo(GRUPOS.sigmal),
+    nucleo:    lerGrupo(GRUPOS.nucleo)
+  }
+
+  // Guarda referências para modal
+  _refs = {
+    'lista-masmorra':  grupos.masmorra,
+    'lista-calabouco': grupos.calabouco,
+    'lista-palco':     grupos.palco,
+    'lista-ohe':       grupos.ohe,
+    'lista-sigmal':    grupos.sigmal,
+    'lista-nucleo':    grupos.nucleo
+  }
+
+  renderGrupo('lista-masmorra',  'cnt-masmorra',  grupos.masmorra)
+  renderGrupo('lista-calabouco', 'cnt-calabouco', grupos.calabouco)
+  renderGrupo('lista-palco',     'cnt-palco',     grupos.palco)
+  renderGrupo('lista-ohe',       'cnt-ohe',       grupos.ohe)
+  renderGrupo('lista-sigmal',    'cnt-sigmal',    grupos.sigmal)
+  renderGrupo('lista-nucleo',    'cnt-nucleo',    grupos.nucleo)
+
+  // Consolida tudo
+  _tudo = [].concat(grupos.masmorra, grupos.calabouco, grupos.palco, grupos.ohe, grupos.sigmal, grupos.nucleo)
+
+  // Contadores gerais
+  document.getElementById('cntTotal').textContent = _tudo.length
+  document.getElementById('cntChaves').textContent = Object.keys(localStorage).length
+  var totalPalavras = _tudo.reduce(function(s, i) { return s + contarPalavras(getConteudo(i)) }, 0)
+  document.getElementById('cntPalavras').textContent = totalPalavras.toLocaleString('pt-BR')
+}
+
+document.getElementById('modalOv').addEventListener('click', function(e) {
+  if (e.target === e.currentTarget) fecharModal()
+})
+
+// Atualiza a cada 15 segundos
+carregar()
+setInterval(carregar, 15000)
+</script>
+</body>
+</html>
