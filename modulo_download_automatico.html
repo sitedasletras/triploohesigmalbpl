@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Download Automático — triploohesigmalbpl</title>
+<style>
+:root{--azul:#07101d;--ouro:#c9a646;--ouro2:#f4dc88;--verde:#1f7a42;--verm:#7b1f1f;--r:16px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Georgia,serif;background:var(--azul);color:white;min-height:100vh;padding:0 0 60px}
+.topbar{background:rgba(7,16,29,.98);border-bottom:2px solid var(--ouro);padding:12px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:100}
+.marca{font-family:monospace;color:var(--ouro2);font-size:13px;font-weight:700}
+.marca small{display:block;font-size:10px;color:rgba(244,220,136,.4)}
+
+.hero{text-align:center;padding:50px 22px 36px;border-bottom:3px solid var(--ouro);background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(201,166,70,.08),transparent)}
+.hero h1{font-size:clamp(32px,5vw,64px);background:linear-gradient(160deg,var(--ouro2),var(--ouro));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.hero p{font-size:15px;color:rgba(240,236,224,.65);font-style:italic;max-width:600px;margin:0 auto}
+
+.wrap{max-width:1000px;margin:auto;padding:28px 20px}
+
+/* COMO FUNCIONA */
+.como{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.como-card{background:rgba(10,24,40,.9);border:1px solid rgba(201,166,70,.15);border-radius:var(--r);padding:20px;text-align:center}
+.como-card .ci{font-size:32px;margin-bottom:10px}
+.como-card h3{font-size:15px;color:var(--ouro2);margin-bottom:6px}
+.como-card p{font-size:13px;color:rgba(240,236,224,.6);line-height:1.5}
+
+/* FORMULÁRIO DE TESTE */
+.form-card{background:rgba(10,24,40,.9);border:1px solid rgba(201,166,70,.15);border-radius:var(--r);padding:24px;margin-bottom:24px}
+.form-card h2{font-size:20px;color:var(--ouro2);margin-bottom:6px}
+.form-card .sub{font-family:monospace;font-size:12px;color:rgba(201,166,70,.45);margin-bottom:20px}
+.campo label{display:block;font-family:monospace;font-size:11px;font-weight:700;color:rgba(201,166,70,.6);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.campo input,.campo select,.campo textarea{width:100%;border:1px solid rgba(201,166,70,.25);border-radius:12px;padding:11px 14px;font-family:Georgia,serif;font-size:14px;background:rgba(7,16,29,.8);color:var(--ouro2);outline:none;transition:border-color .2s;margin-bottom:14px}
+.campo textarea{min-height:120px;resize:vertical}
+.campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--ouro)}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* RESULTADO */
+.resultado{display:none;background:rgba(31,122,66,.12);border:2px solid rgba(31,122,66,.4);border-radius:var(--r);padding:20px;margin-top:16px}
+.resultado.vis{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.resultado h3{font-size:18px;color:#80e8a0;margin-bottom:10px}
+.resultado pre{font-family:monospace;font-size:13px;color:rgba(200,240,210,.85);line-height:1.7;white-space:pre-wrap;background:rgba(7,16,29,.6);border-radius:12px;padding:14px;max-height:400px;overflow-y:auto}
+.download-aviso{background:rgba(31,122,66,.2);border:1px solid rgba(31,122,66,.4);border-radius:10px;padding:12px 16px;font-family:monospace;font-size:13px;color:#80e8a0;margin-top:12px;display:flex;align-items:center;gap:10px}
+
+/* REDOWNLOAD */
+.redownload-card{background:rgba(10,24,40,.9);border:1px solid rgba(201,166,70,.15);border-radius:var(--r);padding:24px;margin-bottom:24px}
+.redownload-card h2{font-size:20px;color:var(--ouro2);margin-bottom:6px}
+.redownload-card p{font-size:14px;color:rgba(240,236,224,.6);line-height:1.6;margin-bottom:16px}
+.item-lista{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto}
+.item-row{background:rgba(7,16,29,.7);border:1px solid rgba(201,166,70,.1);border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.item-row-info .it{font-size:15px;color:var(--ouro2);margin-bottom:2px}
+.item-row-info .im{font-family:monospace;font-size:10px;color:rgba(201,166,70,.38)}
+.item-row-acoes{display:flex;gap:6px}
+.vazio{text-align:center;padding:28px;font-family:monospace;font-size:13px;color:rgba(201,166,70,.25);border:1px dashed rgba(201,166,70,.12);border-radius:var(--r)}
+
+/* INSTRUÇÃO DE INTEGRAÇÃO */
+.codigo-card{background:rgba(10,24,40,.9);border:1px solid rgba(201,166,70,.15);border-radius:var(--r);padding:24px}
+.codigo-card h2{font-size:20px;color:var(--ouro2);margin-bottom:6px}
+.codigo-card p{font-size:14px;color:rgba(240,236,224,.6);line-height:1.6;margin-bottom:16px}
+.codigo{background:rgba(3,13,24,.8);border:1px solid rgba(201,166,70,.15);border-radius:12px;padding:16px;font-family:'Courier New',monospace;font-size:12px;color:#80d8ff;line-height:1.7;overflow-x:auto;white-space:pre}
+
+/* BOTÕES */
+.btn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:999px;padding:12px 20px;font-family:monospace;font-size:12px;font-weight:700;cursor:pointer;transition:.15s}
+.btn:hover{transform:translateY(-1px)}
+.b-ouro{background:var(--ouro);color:var(--azul)}.b-ouro:hover{background:var(--ouro2)}
+.b-verde{background:var(--verde);color:white}
+.b-verm{background:var(--verm);color:white}
+.b-esc{background:rgba(255,255,255,.06);color:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.12)}
+.b-sm{padding:6px 12px;font-size:11px;border-radius:8px}
+.b-dl{background:rgba(59,31,110,.2);color:#d0b0ff;border:1px solid rgba(59,31,110,.3)}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+
+footer{text-align:center;padding:24px;color:rgba(200,192,178,.4);font-family:monospace;font-size:12px}
+footer strong{color:var(--ouro2)}
+
+@media(max-width:640px){.como{grid-template-columns:1fr}.f2{grid-template-columns:1fr}.btns{flex-direction:column}.btn{width:100%;justify-content:center}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="marca">DOWNLOAD AUTOMÁTICO — TRIPLOOHESIGMALBPL<small>TODA OBRA GERADA CAI DIRETO NO SEU DISPOSITIVO</small></div>
+</div>
+
+<header class="hero">
+  <h1>Download Automático</h1>
+  <p>Cada obra gerada é baixada imediatamente no seu celular ou computador. Sem perda, sem localStorage, sem surpresa.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- COMO FUNCIONA -->
+  <div class="como">
+    <div class="como-card">
+      <div class="ci">✍️</div>
+      <h3>1. Você gera a obra</h3>
+      <p>Preenche os dados no sistema — OHE, SIGMAL Music, BPL ou qualquer módulo</p>
+    </div>
+    <div class="como-card">
+      <div class="ci">⚡</div>
+      <h3>2. Download automático</h3>
+      <p>O arquivo .txt cai imediatamente na pasta Downloads do seu celular ou computador</p>
+    </div>
+    <div class="como-card">
+      <div class="ci">✅</div>
+      <h3>3. Você tem o arquivo</h3>
+      <p>O conteúdo está salvo localmente no seu dispositivo — independente de sessão ou cache</p>
+    </div>
+  </div>
+
+  <!-- TESTE DO SISTEMA -->
+  <div class="form-card">
+    <h2>🧪 Teste o download automático</h2>
+    <p class="sub">SIMULE UMA OBRA SENDO GERADA · O ARQUIVO VAI PARA SEUS DOWNLOADS</p>
+    <div class="f2">
+      <div class="campo"><label>Título da obra</label><input type="text" id="t-titulo" placeholder="Ex: O Peso do Silêncio"></div>
+      <div class="campo"><label>Heterônimo / Artista</label><input type="text" id="t-autor" placeholder="Ex: A.J. dos Santos"></div>
+    </div>
+    <div class="f2">
+      <div class="campo"><label>Categoria</label>
+        <select id="t-cat">
+          <option>Prosa</option><option>Poesia</option><option>Híbrido</option>
+          <option>Cordel</option><option>Conto</option><option>Música</option>
+          <option>Roteiro</option><option>Narração épica</option>
+        </select>
+      </div>
+      <div class="campo"><label>Destino</label>
+        <select id="t-dest">
+          <option>Calabouço — obra consolidada</option>
+          <option>Masmorra — quarentena 750 dias</option>
+          <option>CORSI — divulgação imediata</option>
+          <option>Silo Multimídia</option>
+          <option>Acervo do Maestro Aaron</option>
+          <option>Acervo do Charlton Heston</option>
+        </select>
+      </div>
+    </div>
+    <div class="campo"><label>Conteúdo da obra</label>
+      <textarea id="t-conteudo" placeholder="Cole aqui o texto, a letra, o roteiro ou qualquer conteúdo gerado pelo sistema...
+
+Este é o conteúdo que será baixado automaticamente no seu dispositivo assim que você clicar em 'Gerar e baixar'."></textarea>
+    </div>
+    <div class="campo"><label>Observações (opcional)</label>
+      <input type="text" id="t-obs" placeholder="Notas adicionais sobre esta obra">
+    </div>
+    <div class="btns">
+      <button class="btn b-verde" onclick="gerarEBaixar()">⬇️ Gerar e baixar agora</button>
+      <button class="btn b-esc" onclick="limpar()">✕ Limpar</button>
+    </div>
+    <div class="resultado" id="resultado">
+      <h3>✅ Obra gerada com sucesso!</h3>
+      <pre id="res-texto"></pre>
+      <div class="download-aviso">
+        <span>📥</span>
+        <span id="aviso-nome">O arquivo foi enviado para seus Downloads.</span>
+      </div>
+      <div class="btns">
+        <button class="btn b-ouro" onclick="rebaixar()">↓ Baixar novamente</button>
+        <button class="btn b-esc" onclick="copiarRes()">📋 Copiar texto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REDOWNLOAD DO LOCALSTORAGE -->
+  <div class="redownload-card">
+    <h2>📂 Redownload — obras já registradas</h2>
+    <p>Se você já tinha obras salvas no localStorage deste dispositivo, elas aparecem abaixo. Baixe qualquer uma individualmente ou todas de uma vez.</p>
+    <div class="btns" style="margin-top:0;margin-bottom:16px">
+      <button class="btn b-ouro" onclick="baixarTodas()">📦 Baixar todas em TXT</button>
+      <button class="btn b-esc" onclick="recarregarLista()">↺ Recarregar lista</button>
+    </div>
+    <div class="item-lista" id="item-lista">
+      <div class="vazio">Carregando obras do localStorage...</div>
+    </div>
+  </div>
+
+  <!-- CÓDIGO DE INTEGRAÇÃO -->
+  <div class="codigo-card">
+    <h2>⚙️ Como integrar nos outros sistemas</h2>
+    <p>Para adicionar o download automático em qualquer sistema do triploohesigmalbpl, adicione esta função JavaScript e chame <code style="color:var(--ouro2)">downloadAutomatico(titulo, autor, conteudo)</code> sempre que uma obra for gerada:</p>
+    <div class="codigo">// ── FUNÇÃO DE DOWNLOAD AUTOMÁTICO ──
+// Adicione este bloco em qualquer HTML do ecossistema
+
+function downloadAutomatico(titulo, autor, conteudo, categoria, destino) {
+  var data = new Date().toLocaleDateString('pt-BR');
+  var hora = new Date().toLocaleTimeString('pt-BR');
+  var num  = 'OBR-' + Date.now().toString().slice(-6);
+
+  var txt = [
+    '══════════════════════════════════════════════════',
+    titulo.toUpperCase(),
+    '══════════════════════════════════════════════════',
+    'Protocolo:  ' + num,
+    'Autoria:    ' + (autor || '—'),
+    'Categoria:  ' + (categoria || '—'),
+    'Destino:    ' + (destino || '—'),
+    'Gerado em:  ' + data + ' às ' + hora,
+    '──────────────────────────────────────────────────',
+    '',
+    conteudo || '(sem conteúdo)',
+    '',
+    '══════════════════════════════════════════════════',
+    'triploohesigmalbpl · W.S.P. S/A-ME'
+  ].join('\n');
+
+  // ── DOWNLOAD IMEDIATO NO DISPOSITIVO ──
+  var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href     = url;
+  a.download = num + '_' + titulo.replace(/\s+/g, '_').slice(0, 40) + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  // ── SALVA NO LOCALSTORAGE TAMBÉM (redundância) ──
+  try {
+    var chave = 'obras_geradas';
+    var lista = JSON.parse(localStorage.getItem(chave) || '[]');
+    lista.unshift({ num, titulo, autor, categoria, destino, conteudo, em: data });
+    localStorage.setItem(chave, JSON.stringify(lista));
+  } catch(e) {}
+
+  return num; // retorna o protocolo
+}
+
+// ── EXEMPLO DE USO ──
+// Chame assim quando uma obra for gerada:
+//
+// var protocolo = downloadAutomatico(
+//   'O Peso do Silêncio',     // título
+//   'A.J. dos Santos',         // autor/heterônimo
+//   textoGerado,               // conteúdo
+//   'Prosa',                   // categoria
+//   'Calabouço'                // destino
+// );
+//
+// O arquivo TXT cai IMEDIATAMENTE na pasta Downloads.</div>
+    <div class="btns">
+      <button class="btn b-ouro" onclick="copiarCodigo()">📋 Copiar código</button>
+    </div>
+  </div>
+
+</div>
+
+<footer><p><strong>Download Automático</strong> · triploohesigmalbpl · Toda obra gerada é sua imediatamente</p></footer>
+
+<script>
+var _ultimoTxt = '';
+var _ultimoNome = '';
+
+function gerarEBaixar() {
+  var titulo    = document.getElementById('t-titulo').value.trim();
+  var autor     = document.getElementById('t-autor').value.trim();
+  var conteudo  = document.getElementById('t-conteudo').value.trim();
+  var categoria = document.getElementById('t-cat').value;
+  var destino   = document.getElementById('t-dest').value;
+  var obs       = document.getElementById('t-obs').value.trim();
+
+  if (!titulo) { alert('Informe o título da obra.'); return; }
+  if (!conteudo) { alert('Informe o conteúdo da obra.'); return; }
+
+  var data = new Date().toLocaleDateString('pt-BR');
+  var hora = new Date().toLocaleTimeString('pt-BR');
+  var num  = 'OBR-' + Date.now().toString().slice(-6) + '-' + Math.floor(Math.random()*900+100);
+
+  var txt = [
+    '══════════════════════════════════════════════════════════',
+    titulo.toUpperCase(),
+    '══════════════════════════════════════════════════════════',
+    'Protocolo:  ' + num,
+    'Autoria:    ' + (autor || '—'),
+    'Categoria:  ' + categoria,
+    'Destino:    ' + destino,
+    'Gerado em:  ' + data + ' às ' + hora,
+    obs ? 'Observações: ' + obs : '',
+    '──────────────────────────────────────────────────────────',
+    '',
+    conteudo,
+    '',
+    '══════════════════════════════════════════════════════════',
+    'triploohesigmalbpl · W.S.P. S/A-ME · Word Stars Productions'
+  ].filter(function(l) { return l !== null && l !== undefined; }).join('\n');
+
+  var nome = num + '_' + titulo.replace(/[\s\/\\:*?"<>|]/g,'_').slice(0,40) + '.txt';
+  _ultimoTxt  = txt;
+  _ultimoNome = nome;
+
+  // DOWNLOAD IMEDIATO
+  baixarArquivo(txt, nome);
+
+  // Salva no localStorage como backup
+  try {
+    var lista = JSON.parse(localStorage.getItem('obras_geradas') || '[]');
+    lista.unshift({ num: num, titulo: titulo, autor: autor, categoria: categoria, destino: destino, conteudo: conteudo, obs: obs, em: data + ' ' + hora });
+    localStorage.setItem('obras_geradas', JSON.stringify(lista));
+  } catch(e) {}
+
+  // Mostra resultado
+  document.getElementById('res-texto').textContent = txt;
+  document.getElementById('aviso-nome').textContent = '📥 Arquivo "' + nome + '" enviado para seus Downloads!';
+  document.getElementById('resultado').classList.add('vis');
+  document.getElementById('resultado').scrollIntoView({ behavior: 'smooth' });
+
+  recarregarLista();
+}
+
+function rebaixar() {
+  if (_ultimoTxt) baixarArquivo(_ultimoTxt, _ultimoNome);
+}
+
+function copiarRes() {
+  navigator.clipboard.writeText(_ultimoTxt).then(function() { alert('Copiado!'); });
+}
+
+function limpar() {
+  ['t-titulo','t-autor','t-conteudo','t-obs'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('resultado').classList.remove('vis');
+}
+
+function baixarArquivo(conteudo, nome) {
+  var blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href     = url;
+  a.download = nome;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+}
+
+function recarregarLista() {
+  var lista = [];
+  // Varre todas as chaves conhecidas
+  var chaves = ['obras_geradas','maestro_aaron_acervo','charlton_acervo','sigmal_music_convs','bpl_convocacoes','ohe_fila','masmorra_itens','calabouco_obras'];
+  chaves.forEach(function(k) {
+    try {
+      var raw = localStorage.getItem(k);
+      if (!raw || raw === '[]') return;
+      var arr = JSON.parse(raw);
+      if (Array.isArray(arr)) {
+        arr.forEach(function(item) {
+          if (item && typeof item === 'object') {
+            lista.push(Object.assign({}, item, { _chave: k }));
+          }
+        });
+      }
+    } catch(e) {}
+  });
+
+  var el = document.getElementById('item-lista');
+  if (!lista.length) {
+    el.innerHTML = '<div class="vazio">Nenhuma obra encontrada neste dispositivo ainda.<br><small style="opacity:.6;font-family:monospace">Gere uma obra acima para ver o download automático em ação.</small></div>';
+    return;
+  }
+
+  el.innerHTML = lista.map(function(item, i) {
+    var titulo   = item.titulo || item.nome || item.title || item._chave || 'Sem título';
+    var autor    = item.autor || item.artista || item.heteronimo || '—';
+    var meta     = (item.em || item.data || '') + (autor !== '—' ? ' · ' + autor : '') + ' · ' + item._chave;
+    return '<div class="item-row">' +
+      '<div class="item-row-info"><div class="it">' + titulo + '</div><div class="im">' + meta + '</div></div>' +
+      '<div class="item-row-acoes">' +
+        '<button class="btn b-sm b-verde" onclick="baixarItem(' + i + ')">⬇️ Baixar</button>' +
+        '<button class="btn b-sm b-esc" onclick="verItem(' + i + ')">👁 Ver</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  window._listaCached = lista;
+}
+
+function baixarItem(i) {
+  var item = window._listaCached ? window._listaCached[i] : null;
+  if (!item) return;
+  var titulo   = item.titulo || item.nome || 'obra';
+  var conteudo = item.conteudo || item.texto || item.letra || JSON.stringify(item, null, 2);
+  var txt = titulo.toUpperCase() + '\n' + '─'.repeat(50) + '\n' +
+    'Autoria: ' + (item.autor || item.artista || '—') + '\n' +
+    'Data: ' + (item.em || item.data || '—') + '\n\n' +
+    conteudo + '\n\ntriploohesigmalbpl · W.S.P. S/A-ME';
+  baixarArquivo(txt, titulo.replace(/[\s\/\\:*?"<>|]/g,'_').slice(0,40) + '.txt');
+}
+
+function verItem(i) {
+  var item = window._listaCached ? window._listaCached[i] : null;
+  if (!item) return;
+  var conteudo = item.conteudo || item.texto || item.letra || JSON.stringify(item, null, 2);
+  alert((item.titulo || item.nome || 'Obra') + '\n\n' + conteudo.slice(0, 800) + (conteudo.length > 800 ? '...' : ''));
+}
+
+function baixarTodas() {
+  var lista = window._listaCached || [];
+  if (!lista.length) { alert('Nenhuma obra encontrada neste dispositivo.'); return; }
+  var sep = '\n\n' + '═'.repeat(60) + '\n\n';
+  var txt = lista.map(function(item) {
+    var titulo   = item.titulo || item.nome || 'Obra';
+    var conteudo = item.conteudo || item.texto || item.letra || JSON.stringify(item);
+    return titulo.toUpperCase() + '\n' + '─'.repeat(50) + '\n' +
+      'Autoria: ' + (item.autor || item.artista || '—') + '\n' +
+      'Data: ' + (item.em || '—') + '\n\n' + conteudo;
+  }).join(sep);
+  txt += '\n\n' + '═'.repeat(60) + '\ntriploohesigmalbpl · W.S.P. S/A-ME · Word Stars Productions';
+  baixarArquivo(txt, 'acervo_completo_' + new Date().toISOString().split('T')[0] + '.txt');
+}
+
+function copiarCodigo() {
+  var el = document.querySelector('.codigo');
+  navigator.clipboard.writeText(el.textContent).then(function() { alert('Código copiado! Cole no HTML de qualquer sistema do triploohesigmalbpl.'); });
+}
+
+// Inicia
+recarregarLista();
+</script>
+</body>
+</html>
