@@ -7,16 +7,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 :root{
-  --azul:#07101d;--azul2:#0f1c2e;--azul3:#17365f;
-  --ouro:#c9a646;--ouro2:#f4dc88;--cobre:#b87333;
-  --verde:#1f7a42;--roxo:#3b1f6e;--vinho:#6d1a2a;
-  --ciano:#0e7490;--linha:rgba(201,166,70,.2);--r:18px;
+--azul:#07101d;--azul2:#0f1c2e;--azul3:#17365f;
+--ouro:#c9a646;--ouro2:#f4dc88;--cobre:#b87333;
+--verde:#1f7a42;--roxo:#3b1f6e;--vinho:#6d1a2a;
+--ciano:#0e7490;--linha:rgba(201,166,70,.2);--r:18px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Libre Baskerville',Georgia,serif;background:var(--azul);color:white;min-height:100vh}
-
-/* TOPBAR */
 .topbar{position:sticky;top:0;z-index:100;background:rgba(7,16,29,.98);border-bottom:2px solid var(--ouro);backdrop-filter:blur(10px)}
 .top-in{max-width:1400px;margin:auto;padding:10px 22px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .marca{font-family:'DM Mono',monospace;color:var(--ouro2);font-size:13px;font-weight:700}
@@ -24,26 +22,20 @@ body{font-family:'Libre Baskerville',Georgia,serif;background:var(--azul);color:
 .tnav{display:flex;gap:5px;flex-wrap:wrap}
 .tnav a{font-family:'DM Mono',monospace;font-size:11px;color:#c8c0ae;text-decoration:none;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.1);transition:.15s}
 .tnav a:hover{color:var(--ouro2);border-color:var(--ouro);background:rgba(201,166,70,.12)}
-
-/* HERO */
 .hero{
-  background:
-    radial-gradient(ellipse 70% 55% at 10% 15%,rgba(109,26,42,.25),transparent),
-    radial-gradient(ellipse 50% 65% at 90% 85%,rgba(59,31,110,.2),transparent),
-    linear-gradient(148deg,#030d18,#07101d 50%,#030d18);
-  padding:60px 22px 48px;border-bottom:5px solid var(--ouro);
-  text-align:center;position:relative;overflow:hidden;
+background:
+radial-gradient(ellipse 70% 55% at 10% 15%,rgba(109,26,42,.25),transparent),
+radial-gradient(ellipse 50% 65% at 90% 85%,rgba(59,31,110,.2),transparent),
+linear-gradient(148deg,#030d18,#07101d 50%,#030d18);
+padding:60px 22px 48px;border-bottom:5px solid var(--ouro);
+text-align:center;position:relative;overflow:hidden;
 }
 .hero::before{content:'∞';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:500px;color:rgba(201,166,70,.018);line-height:1;pointer-events:none}
 .hero-badge{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.2em;border:1px solid rgba(201,166,70,.35);color:rgba(201,166,70,.7);padding:6px 18px;border-radius:999px;display:inline-block;margin-bottom:20px}
 .hero h1{font-family:'Playfair Display',serif;font-size:clamp(36px,6vw,80px);background:linear-gradient(160deg,var(--ouro2),var(--ouro) 40%,var(--cobre));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;line-height:1}
 .hero-sub{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.3em;color:rgba(201,166,70,.45);margin-bottom:16px;text-transform:uppercase}
 .hero-desc{font-size:16px;color:rgba(240,236,224,.65);max-width:720px;margin:0 auto;line-height:1.7;font-style:italic}
-
-/* WRAP */
 .wrap{max-width:1400px;margin:auto;padding:36px 22px 80px;display:flex;flex-direction:column;gap:40px}
-
-/* SETOR */
 .setor{border-radius:var(--r);overflow:hidden;border:1px solid rgba(201,166,70,.12)}
 .setor-head{padding:20px 24px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:.18s}
 .setor-head:hover{filter:brightness(1.1)}
@@ -53,22 +45,18 @@ body{font-family:'Libre Baskerville',Georgia,serif;background:var(--azul);color:
 .setor-info .setor-desc{font-size:14px;color:rgba(240,236,224,.6);margin-top:4px;line-height:1.5}
 .setor-cnt{margin-left:auto;font-family:'DM Mono',monospace;font-size:11px;background:rgba(201,166,70,.12);color:var(--ouro2);padding:5px 12px;border-radius:999px;flex-shrink:0}
 .setor-body{padding:0 20px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
-
-/* COR POR SETOR */
 .s-triploohesigmalbpl .setor-head{background:linear-gradient(135deg,rgba(109,26,42,.4),rgba(7,16,29,.9))}
 .s-ohe .setor-head{background:linear-gradient(135deg,rgba(14,116,144,.3),rgba(7,16,29,.9))}
 .s-sigmal .setor-head{background:linear-gradient(135deg,rgba(26,58,110,.4),rgba(7,16,29,.9))}
 .s-nucleo .setor-head{background:linear-gradient(135deg,rgba(59,31,110,.35),rgba(7,16,29,.9))}
 .s-bpl .setor-head{background:linear-gradient(135deg,rgba(31,122,66,.3),rgba(7,16,29,.9))}
 .s-wsp .setor-head{background:linear-gradient(135deg,rgba(201,166,70,.2),rgba(7,16,29,.9))}
-
-/* MÓDULO CARD */
 .modulo{
-  background:rgba(10,24,40,.92);border:1px solid rgba(201,166,70,.1);
-  border-radius:14px;padding:14px 16px;
-  display:flex;align-items:flex-start;gap:12px;
-  text-decoration:none;color:inherit;transition:.18s;
-  position:relative;overflow:hidden;
+background:rgba(10,24,40,.92);border:1px solid rgba(201,166,70,.1);
+border-radius:14px;padding:14px 16px;
+display:flex;align-items:flex-start;gap:12px;
+text-decoration:none;color:inherit;transition:.18s;
+position:relative;overflow:hidden;
 }
 .modulo::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
 .s-triploohesigmalbpl .modulo::before{background:var(--vinho)}
@@ -85,25 +73,21 @@ body{font-family:'Libre Baskerville',Georgia,serif;background:var(--azul);color:
 .modulo.externo{border-style:dashed}
 .badge-ext{font-family:'DM Mono',monospace;font-size:9px;background:rgba(201,166,70,.1);color:rgba(201,166,70,.6);padding:2px 7px;border-radius:999px;border:1px solid rgba(201,166,70,.2);display:inline-block;margin-top:4px}
 .badge-novo{font-family:'DM Mono',monospace;font-size:9px;background:rgba(31,122,66,.2);color:#80e8a0;padding:2px 7px;border-radius:999px;border:1px solid rgba(31,122,66,.3);display:inline-block;margin-top:4px}
-
-/* FLUXO */
+.badge-gerador{font-family:'DM Mono',monospace;font-size:9px;background:rgba(200,169,110,.15);color:#c8a96e;padding:2px 7px;border-radius:999px;border:1px solid rgba(200,169,110,.35);display:inline-block;margin-top:4px}
 .fluxo{background:rgba(10,24,40,.8);border:1px solid rgba(201,166,70,.15);border-radius:var(--r);padding:24px}
 .fluxo h3{font-family:'Playfair Display',serif;font-size:20px;color:var(--ouro2);margin-bottom:16px}
 .fluxo-linha{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px}
 .fluxo-no{background:rgba(201,166,70,.1);border:1px solid rgba(201,166,70,.25);border-radius:10px;padding:8px 14px;font-family:'DM Mono',monospace;font-size:12px;color:var(--ouro2);text-decoration:none;transition:.15s}
 .fluxo-no:hover{background:rgba(201,166,70,.2);border-color:var(--ouro)}
+.fluxo-no.destaque{background:rgba(200,169,110,.18);border-color:#c8a96e;color:#f4dc88}
 .fluxo-seta{color:rgba(201,166,70,.4);font-size:16px}
-
-/* ESTADO GERAL */
 .estado-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
 .estado-card{background:rgba(10,24,40,.9);border:1px solid rgba(201,166,70,.1);border-radius:14px;padding:16px;text-align:center}
 .estado-card .en{font-size:28px;font-weight:900;color:var(--ouro2);font-family:'Playfair Display',serif;display:block}
 .estado-card .el{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;color:rgba(201,166,70,.4);text-transform:uppercase;margin-top:4px}
-
 footer{background:rgba(0,0,0,.5);border-top:3px solid var(--ouro);padding:26px 22px;text-align:center;color:rgba(200,192,178,.45)}
 footer strong{color:var(--ouro2)}
 footer p{font-size:13px;line-height:1.8}
-
 @media(max-width:760px){.setor-body{grid-template-columns:1fr}.setor-head{flex-wrap:wrap}.setor-cnt{margin-left:0}}
 </style>
 </head>
@@ -137,7 +121,7 @@ footer p{font-size:13px;line-height:1.8}
   <!-- ESTADO GERAL -->
   <div class="estado-grid">
     <div class="estado-card"><span class="en">4</span><span class="el">Repositórios</span></div>
-    <div class="estado-card"><span class="en">32</span><span class="el">Módulos ativos</span></div>
+    <div class="estado-card"><span class="en">33</span><span class="el">Módulos ativos</span></div>
     <div class="estado-card"><span class="en">3</span><span class="el">Diretores</span></div>
     <div class="estado-card"><span class="en">1</span><span class="el">CEO · Mônada Speck</span></div>
     <div class="estado-card"><span class="en">∞</span><span class="el">Artistas imortais</span></div>
@@ -211,7 +195,7 @@ footer p{font-size:13px;line-height:1.8}
         <div class="modulo-ic">📡</div>
         <div class="modulo-info"><div class="mn">SIGMAL Exportador</div><div class="md">Exportação de produções do SIGMAL Music</div><div class="mt">sigmal_exportador.html</div></div>
       </a>
-      <a class="modulo espinha_dorsal.html" href="espinha_dorsal.html">
+      <a class="modulo" href="espinha_dorsal.html">
         <div class="modulo-ic">🦴</div>
         <div class="modulo-info"><div class="mn">Espinha Dorsal</div><div class="md">Esta página — hub central de navegação</div><div class="mt">espinha_dorsal.html</div><span class="badge-novo">✦ Novo</span></div>
       </a>
@@ -225,9 +209,9 @@ footer p{font-size:13px;line-height:1.8}
       <div class="setor-info">
         <h2>OHE-Peçanha</h2>
         <div class="setor-sub">Repositório externo · github.com/sitedasletras/OHE-Pecanha</div>
-        <div class="setor-desc">Fernando Peçanha e os heterônimos literários. Sistema de entrada, curadoria, maternidade de pseudônimos e confraria.</div>
+        <div class="setor-desc">Fernando Peçanha e os heterônimos literários. 5 entradas, curadoria, maternidade de pseudônimos, geração de obras completas e confraria.</div>
       </div>
-      <span class="setor-cnt">8 módulos</span>
+      <span class="setor-cnt">9 módulos</span>
     </div>
     <div class="setor-body">
       <a class="modulo externo" href="https://sitedasletras.github.io/OHE-Pecanha/" target="_blank">
@@ -256,11 +240,22 @@ footer p{font-size:13px;line-height:1.8}
       </a>
       <a class="modulo externo" href="https://sitedasletras.github.io/OHE-Pecanha/mesa_rascunho_vi.html" target="_blank">
         <div class="modulo-ic">📝</div>
-        <div class="modulo-info"><div class="mn">Mesa de Rascunho</div><div class="md">Área de trabalho para rascunhos em desenvolvimento</div><div class="mt">mesa_rascunho_vi...html</div><span class="badge-ext">↗ OHE-Peçanha</span></div>
+        <div class="modulo-info"><div class="mn">Mesa de Rascunho</div><div class="md">Área de trabalho para rascunhos em desenvolvimento</div><div class="mt">mesa_rascunho_vi.html</div><span class="badge-ext">↗ OHE-Peçanha</span></div>
       </a>
       <a class="modulo" href="ohe_editor_obras.html">
         <div class="modulo-ic">✒️</div>
         <div class="modulo-info"><div class="mn">Editor de Obras (hub)</div><div class="md">Espelho do editor no triploohesigmalbpl</div><div class="mt">ohe_editor_obras.html</div></div>
+      </a>
+      <!-- ✦ NOVO · GERADOR DE OBRA -->
+      <a class="modulo" href="gerador_obra.html">
+        <div class="modulo-ic">📖</div>
+        <div class="modulo-info">
+          <div class="mn">Gerador de Obra</div>
+          <div class="md">Geração encadeada com memória narrativa · Jornada do Herói / Vilania · 3 Atos · Exportação TXT / DOC / PDF · Modo Concurso</div>
+          <div class="mt">gerador_obra.html</div>
+          <span class="badge-gerador">⚡ OHE · Fernando Peçanha</span>
+          <span class="badge-novo">✦ Novo</span>
+        </div>
       </a>
     </div>
   </div>
@@ -399,7 +394,11 @@ footer p{font-size:13px;line-height:1.8}
 
     <div class="fluxo-linha">
       <span style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(201,166,70,.5);min-width:120px">CRIAÇÃO</span>
-      <a class="fluxo-no" href="https://sitedasletras.github.io/OHE-Pecanha/" target="_blank">OHE-Peçanha</a>
+      <a class="fluxo-no" href="https://sitedasletras.github.io/OHE-Pecanha/" target="_blank">OHE · 5 Entradas</a>
+      <span class="fluxo-seta">→</span>
+      <a class="fluxo-no" href="https://sitedasletras.github.io/OHE-Pecanha/" target="_blank">Fernando Peçanha</a>
+      <span class="fluxo-seta">→</span>
+      <a class="fluxo-no destaque" href="gerador_obra.html">⚡ Gerador de Obra</a>
       <span class="fluxo-seta">→</span>
       <a class="fluxo-no" href="ohe_editor_obras.html">Editor de Obras</a>
       <span class="fluxo-seta">→</span>
