@@ -1,0 +1,243 @@
+<!--
+══════════════════════════════════════════════════════════════════
+  INSTRUÇÕES DE CONEXÃO · FERNANDO PEÇANHA → GERADOR DE OBRA
+  
+  Onde colar: index.html do triploohesigmalbpl
+  Localizar:  a seção "// FILA DE PROCESSAMENTO"
+  
+  Você vai encontrar algo como:
+    <div id="fila-container"> ou similar
+    onde aparecem os cards dos materiais processados
+  
+  PASSO 1: Cole o <style> no topo, dentro do seu <style> existente
+  PASSO 2: Cole o botão dentro do card de cada item da fila (ver comentário)
+  PASSO 3: Cole as funções JS no final, antes do </script> existente
+══════════════════════════════════════════════════════════════════
+-->
+
+<!-- ═══════════════════════════════════════
+     PASSO 1 · CSS — cole dentro do <style>
+     ═══════════════════════════════════════ -->
+<style>
+/* Botão Gerar Obra */
+.btn-gerar-obra {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 9px 16px;
+  border: 1px solid #c8a96e;
+  color: #c8a96e;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  text-decoration: none;
+  margin-top: 10px;
+  width: 100%;
+  justify-content: center;
+}
+.btn-gerar-obra:hover {
+  background: #c8a96e;
+  color: #0a0a0c;
+}
+.btn-gerar-obra .seta {
+  font-size: 14px;
+}
+
+/* Badge "heterônimo definido" */
+.het-badge {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 3px 8px;
+  border: 1px solid #7a9e8a;
+  color: #7a9e8a;
+  margin-top: 6px;
+}
+</style>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PASSO 2 · HTML — cole DENTRO do card de cada item da fila
+     
+     Localize onde o Fernando Peçanha exibe o material processado
+     (provavelmente dentro de um loop que gera os cards da fila)
+     e adicione este bloco após o nome/título do material:
+     ═══════════════════════════════════════════════════════════ -->
+
+<!-- Exemplo: se o card atual tem algo como:
+  <div class="fila-item">
+    <span class="het-nome">Amanda Fisher Leão</span>
+    <span class="tema">Mar aberto...</span>
+    [ADICIONE AQUI]
+  </div>
+-->
+
+<div class="het-badge" id="badge-het-ITEM_ID">
+  <!-- Este badge é preenchido pelo JS abaixo -->
+</div>
+
+<button 
+  class="btn-gerar-obra"
+  onclick="abrirGeradorObra(this)"
+  data-heteronimo=""
+  data-tema=""
+  data-entrada=""
+  data-titulo="">
+  <span class="seta">⚡</span> GERAR OBRA COMPLETA
+</button>
+
+<!--
+  IMPORTANTE: os data-* acima são preenchidos automaticamente
+  pelo JS quando Fernando Peçanha processa o item.
+  Você só precisa garantir que o botão esteja dentro do card.
+-->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PASSO 3 · JAVASCRIPT — cole antes do </script> existente
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+
+// ─── CONECTA FERNANDO PEÇANHA AO GERADOR DE OBRA ─────────────────────────────
+//
+// Esta função é chamada quando Fernando Peçanha finaliza
+// o processamento de um item da fila e define o heterônimo.
+//
+// Chame assim no seu código existente, onde o heterônimo é escolhido:
+//   registrarHeteronimo(itemId, nomeHeteronimo, tema, tipoEntrada, titulo)
+//
+function registrarHeteronimo(itemId, nomeHeteronimo, tema, tipoEntrada, titulo) {
+  // Atualiza badge no card
+  const badge = document.getElementById(`badge-het-${itemId}`);
+  if (badge) {
+    badge.textContent = `✦ ${nomeHeteronimo}`;
+    badge.style.display = 'inline-block';
+  }
+
+  // Atualiza botão com os dados do item
+  const botao = document.querySelector(`[data-item-id="${itemId}"] .btn-gerar-obra`);
+  if (botao) {
+    botao.dataset.heteronimo = nomeHeteronimo;
+    botao.dataset.tema = tema;
+    botao.dataset.entrada = tipoEntrada;
+    botao.dataset.titulo = titulo || '';
+  }
+}
+
+// ─── ABRE O GERADOR PASSANDO OS DADOS VIA URL PARAMS ─────────────────────────
+function abrirGeradorObra(botao) {
+  const heteronimo = botao.dataset.heteronimo || '';
+  const tema       = botao.dataset.tema || '';
+  const entrada    = botao.dataset.entrada || '';
+  const titulo     = botao.dataset.titulo || '';
+
+  if (!tema) {
+    alert('// FERNANDO PEÇANHA AINDA NÃO PROCESSOU ESTE MATERIAL');
+    return;
+  }
+
+  // Monta URL com parâmetros para o gerador pré-carregar tudo
+  const params = new URLSearchParams({
+    het:     encodeURIComponent(heteronimo),
+    tema:    encodeURIComponent(tema),
+    entrada: encodeURIComponent(entrada),
+    titulo:  encodeURIComponent(titulo)
+  });
+
+  // Abre o gerador numa nova aba com os dados já preenchidos
+  window.open(`gerador_obra.html?${params.toString()}`, '_blank');
+}
+
+// ─── LEITURA DOS PARAMS NO gerador_obra.html ─────────────────────────────────
+//
+// Cole este bloco TAMBÉM no gerador_obra.html, dentro do <script>,
+// logo após a linha:  setModo('auto');
+//
+// Ele vai ler os parâmetros da URL e pré-preencher os campos automaticamente.
+//
+(function preencherDaURL() {
+  // Só executa se estivermos no gerador_obra.html
+  if (!document.getElementById('tema-obra')) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const het    = decodeURIComponent(params.get('het') || '');
+  const tema   = decodeURIComponent(params.get('tema') || '');
+  const entrada = decodeURIComponent(params.get('entrada') || '');
+  const titulo  = decodeURIComponent(params.get('titulo') || '');
+
+  if (tema) {
+    document.getElementById('tema-obra').value = tema;
+  }
+  if (titulo) {
+    document.getElementById('titulo-obra').value = titulo;
+  }
+
+  // Tenta selecionar o heterônimo pelo nome
+  if (het) {
+    const sel = document.getElementById('heteronimo-select');
+    // Procura a chave correspondente ao nome
+    const chave = Object.entries(HETERONIMOS).find(([k, v]) =>
+      v.nome.toLowerCase().includes(het.toLowerCase().split(' ')[0])
+    );
+    if (chave) {
+      sel.value = chave[0];
+      carregarHeteronimo();
+    }
+  }
+
+  // Seleciona o tipo de entrada
+  if (entrada) {
+    const mapaEntrada = {
+      'maquina': 'maquina',
+      'imagem':  'imagem',
+      'video':   'video',
+      'edital':  'edital',
+      'desafio': 'desafio',
+      '01': 'maquina', '1': 'maquina',
+      '02': 'imagem',  '2': 'imagem',
+      '03': 'video',   '3': 'video',
+      '04': 'edital',  '4': 'edital',
+      '05': 'desafio', '5': 'desafio',
+    };
+    const entradaKey = mapaEntrada[entrada.toLowerCase()] || '';
+    if (entradaKey) document.getElementById('tipo-entrada').value = entradaKey;
+  }
+
+  // Se veio com todos os dados, pode auto-iniciar (opcional)
+  // Para ativar: descomente a linha abaixo
+  // if (het && tema && entrada) iniciarObra();
+})();
+
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     COMO INTEGRAR COM SEU CÓDIGO EXISTENTE DA FILA
+     ═══════════════════════════════════════════════════════════
+
+  No seu index.html, localize onde Fernando Peçanha "processa"
+  um item da fila e escolhe o heterônimo. Provavelmente tem algo como:
+
+    function processarItem(id) {
+      // ... lógica do Fernando Peçanha ...
+      const heteronimoEscolhido = 'Amanda Fernanda Fisher Leão';
+      
+      // ADICIONE esta linha após a escolha:
+      registrarHeteronimo(id, heteronimoEscolhido, tema, tipoEntrada, titulo);
+    }
+
+  E no HTML de cada card da fila, adicione o atributo data-item-id:
+    <div class="fila-item" data-item-id="ID_UNICO_DO_ITEM">
+      ...conteúdo existente...
+      [botão .btn-gerar-obra já estará aqui]
+    </div>
+
+  Isso é tudo. O botão aparece automaticamente quando
+  Fernando Peçanha define o heterônimo, e ao clicar,
+  o gerador_obra.html abre já com tudo preenchido.
+  
+══════════════════════════════════════════════════════════════════ -->
