@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catapulta · Calabouço → Lapidar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=IM+Fell+English:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07060e;
+  --surface: #0e0c18;
+  --border: #1f1c30;
+  --roxo: #6b3fa0;
+  --roxo2: #9b6fd0;
+  --roxo3: rgba(107,63,160,0.15);
+  --ouro: #c8a96e;
+  --ouro2: #f0d896;
+  --verde: #2a6b4a;
+  --verde2: #4caf7a;
+  --verm: #8b2a2a;
+  --texto: #d4cce8;
+  --muted: #5a5270;
+  --cinzel: 'Cinzel', serif;
+  --fell: 'IM Fell English', serif;
+  --mono: 'DM Mono', monospace;
+  --r: 16px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--fell);
+  background: var(--bg);
+  color: var(--texto);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(107,63,160,0.07), transparent),
+    radial-gradient(ellipse 50% 60% at 100% 100%, rgba(200,169,110,0.04), transparent);
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(7,6,14,0.97);
+  border-bottom: 1px solid rgba(107,63,160,0.3);
+  backdrop-filter: blur(12px);
+  padding: 12px 28px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.marca { font-family: var(--cinzel); font-size: 13px; color: var(--ouro2); letter-spacing: 3px; }
+.marca small { display: block; font-size: 9px; color: var(--muted); letter-spacing: 2px; margin-top: 2px; }
+.tnav { display: flex; gap: 6px; flex-wrap: wrap; }
+.tnav a {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+  color: var(--muted); text-decoration: none;
+  padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px;
+  transition: all 0.2s;
+}
+.tnav a:hover { color: var(--roxo2); border-color: var(--roxo); background: var(--roxo3); }
+
+/* ── HERO ── */
+.hero {
+  padding: 56px 28px 44px; text-align: center;
+  border-bottom: 1px solid rgba(107,63,160,0.2);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '🏹';
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  font-size: 380px; opacity: 0.025; pointer-events: none; line-height: 1;
+}
+.hero-badge {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 3px;
+  border: 1px solid rgba(107,63,160,0.4); color: rgba(155,111,208,0.7);
+  padding: 5px 16px; border-radius: 999px; display: inline-block; margin-bottom: 20px;
+}
+.hero h1 {
+  font-family: var(--cinzel); font-size: clamp(40px,7vw,88px); font-weight: 900;
+  background: linear-gradient(160deg, var(--ouro2), var(--roxo2) 50%, var(--roxo));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  letter-spacing: 6px; margin-bottom: 10px; line-height: 1;
+}
+.hero-sub {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 4px;
+  color: var(--muted); margin-bottom: 18px; text-transform: uppercase;
+}
+.hero-desc {
+  font-size: 17px; font-style: italic; color: rgba(212,204,232,0.65);
+  max-width: 640px; margin: 0 auto; line-height: 1.8;
+}
+
+/* ── WRAP ── */
+.wrap { max-width: 1200px; margin: auto; padding: 36px 28px 80px; display: flex; flex-direction: column; gap: 32px; }
+
+/* ── SEC TITLE ── */
+.sec-title {
+  font-family: var(--cinzel); font-size: 13px; letter-spacing: 4px;
+  color: var(--roxo2); text-transform: uppercase;
+  padding-bottom: 10px; border-bottom: 1px solid rgba(107,63,160,0.2);
+  margin-bottom: 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sec-title span { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+
+/* ── STATS ── */
+.stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 14px;
+}
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 18px 20px; text-align: center;
+}
+.stat-card .sn {
+  font-family: var(--cinzel); font-size: 36px; color: var(--ouro2);
+  font-weight: 900; display: block; line-height: 1;
+}
+.stat-card .sl {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+  color: var(--muted); text-transform: uppercase; margin-top: 6px; display: block;
+}
+.stat-card.roxo-card { border-color: rgba(107,63,160,0.35); background: rgba(107,63,160,0.06); }
+.stat-card.roxo-card .sn { color: var(--roxo2); }
+
+/* ── FILTROS ── */
+.filtros { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.filtro-btn {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+  padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px;
+  background: transparent; color: var(--muted); cursor: pointer; transition: all 0.2s;
+}
+.filtro-btn:hover, .filtro-btn.ativo {
+  border-color: var(--roxo); color: var(--roxo2); background: var(--roxo3);
+}
+.busca {
+  flex: 1; min-width: 200px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 8px 14px; font-family: var(--mono); font-size: 12px;
+  color: var(--texto); outline: none; transition: border-color 0.2s;
+}
+.busca::placeholder { color: var(--muted); }
+.busca:focus { border-color: var(--roxo); }
+
+/* ── SELEÇÃO EM LOTE ── */
+.barra-selecao {
+  display: none;
+  background: rgba(107,63,160,0.1); border: 1px solid rgba(107,63,160,0.3);
+  border-radius: 12px; padding: 12px 18px;
+  align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.barra-selecao.visivel { display: flex; }
+.bs-info { font-family: var(--mono); font-size: 11px; color: var(--roxo2); flex: 1; letter-spacing: 1px; }
+.btn {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  padding: 8px 18px; border: 1px solid; border-radius: 999px;
+  cursor: pointer; transition: all 0.2s; text-transform: uppercase; background: transparent;
+}
+.btn-catapultar { border-color: var(--roxo2); color: var(--roxo2); }
+.btn-catapultar:hover { background: var(--roxo3); }
+.btn-catapultar:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-limpar { border-color: var(--border); color: var(--muted); }
+.btn-limpar:hover { border-color: var(--texto); color: var(--texto); }
+.btn-simular { border-color: rgba(200,169,110,0.3); color: var(--ouro); }
+
+/* ── CARD DO LIVRO ── */
+.livro-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 0; overflow: hidden;
+  transition: all 0.2s; cursor: pointer;
+}
+.livro-card:hover { border-color: rgba(107,63,160,0.35); }
+.livro-card.selecionado {
+  border-color: var(--roxo); background: rgba(107,63,160,0.06);
+  box-shadow: 0 0 0 1px rgba(107,63,160,0.3);
+}
+.livro-card.catapultado { border-color: rgba(76,175,122,0.3); opacity: 0.6; }
+
+.livro-header {
+  padding: 16px 20px; display: flex; align-items: flex-start; gap: 14px;
+}
+.livro-check {
+  width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px; transition: all 0.2s;
+  font-size: 12px;
+}
+.livro-card.selecionado .livro-check {
+  border-color: var(--roxo); background: var(--roxo); color: white;
+}
+.livro-card.catapultado .livro-check {
+  border-color: var(--verde2); background: var(--verde2); color: white;
+}
+.livro-corpo { flex: 1; }
+.livro-titulo {
+  font-family: var(--cinzel); font-size: 15px; color: var(--ouro2);
+  letter-spacing: 1px; margin-bottom: 5px;
+}
+.livro-autor { font-family: var(--mono); font-size: 10px; color: var(--roxo2); letter-spacing: 1px; margin-bottom: 6px; }
+.livro-meta-row {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+}
+.livro-tag {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+  padding: 3px 9px; border-radius: 999px; border: 1px solid;
+}
+.t-prosa { border-color: rgba(200,169,110,0.3); color: var(--ouro); }
+.t-poesia { border-color: rgba(155,111,208,0.4); color: var(--roxo2); }
+.t-hibrido { border-color: rgba(76,175,122,0.3); color: var(--verde2); }
+.t-catapultado { border-color: rgba(76,175,122,0.4); color: var(--verde2); background: rgba(76,175,122,0.08); }
+.t-aguardando { border-color: var(--border); color: var(--muted); }
+
+.livro-acoes {
+  padding: 0 20px 14px; display: flex; gap: 8px; flex-wrap: wrap;
+  border-top: 1px solid var(--border); margin-top: 10px; padding-top: 12px;
+}
+.livro-acoes .btn { font-size: 9px; padding: 6px 14px; }
+
+/* GRID DE LIVROS */
+.livros-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(340px,1fr)); gap: 14px;
+}
+
+/* ── PAINEL DE CATAPULTA ── */
+.painel-catapulta {
+  background: var(--surface); border: 1px solid rgba(107,63,160,0.3);
+  border-radius: var(--r); padding: 24px; display: none;
+}
+.painel-catapulta.visivel { display: block; }
+.pc-titulo { font-family: var(--cinzel); font-size: 18px; color: var(--roxo2); letter-spacing: 2px; margin-bottom: 4px; }
+.pc-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-bottom: 20px; }
+
+.pc-livros-selecionados {
+  display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;
+}
+.pc-livro-item {
+  background: rgba(107,63,160,0.08); border: 1px solid rgba(107,63,160,0.2);
+  border-radius: 10px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.pc-livro-titulo { flex: 1; font-family: var(--cinzel); font-size: 13px; color: var(--ouro2); }
+.pc-livro-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.pc-remover { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; transition: color 0.2s; }
+.pc-remover:hover { color: #e06060; }
+
+.pc-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.pc-campo label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; display: block; margin-bottom: 7px; }
+.pc-campo select, .pc-campo input, .pc-campo textarea {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  color: var(--texto); font-family: var(--mono); font-size: 12px;
+  padding: 9px 12px; border-radius: 8px; outline: none; transition: border-color 0.2s;
+}
+.pc-campo select:focus, .pc-campo input:focus, .pc-campo textarea:focus { border-color: var(--roxo); }
+.pc-campo.full { grid-column: 1 / -1; }
+.pc-campo textarea { resize: vertical; min-height: 70px; }
+
+.prioridade-btns { display: flex; gap: 6px; }
+.prioridade-btn {
+  flex: 1; font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+  padding: 8px 6px; border: 1px solid var(--border); border-radius: 8px;
+  background: transparent; color: var(--muted); cursor: pointer; transition: all 0.2s;
+  text-align: center;
+}
+.prioridade-btn.ativo { border-color: var(--roxo); color: var(--roxo2); background: var(--roxo3); }
+.prioridade-btn.urgente.ativo { border-color: var(--ouro); color: var(--ouro); background: rgba(200,169,110,0.1); }
+.prioridade-btn.normal.ativo { border-color: var(--verde2); color: var(--verde2); background: rgba(76,175,122,0.08); }
+
+.pc-footer { display: flex; gap: 10px; flex-wrap: wrap; padding-top: 20px; border-top: 1px solid var(--border); }
+.btn-disparar {
+  font-family: var(--cinzel); font-size: 13px; letter-spacing: 3px;
+  padding: 14px 32px; border: 1px solid var(--roxo2); border-radius: 999px;
+  color: var(--roxo2); background: var(--roxo3); cursor: pointer;
+  transition: all 0.25s; text-transform: uppercase;
+}
+.btn-disparar:hover {
+  background: rgba(107,63,160,0.25); border-color: var(--ouro2); color: var(--ouro2);
+  box-shadow: 0 0 28px rgba(107,63,160,0.3);
+}
+.btn-disparar:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
+
+/* ── LOG ── */
+.log-item {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 16px; margin-bottom: 8px;
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.log-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+.log-info { flex: 1; }
+.log-titulo { font-family: var(--cinzel); font-size: 13px; color: var(--ouro2); margin-bottom: 3px; }
+.log-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); line-height: 1.7; }
+
+/* BADGE */
+.badge {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 999px; border: 1px solid;
+  display: inline-block; text-transform: uppercase; flex-shrink: 0;
+}
+.b-disparado { border-color: rgba(155,111,208,0.5); color: var(--roxo2); background: rgba(107,63,160,0.1); }
+.b-urgente { border-color: rgba(200,169,110,0.5); color: var(--ouro); background: rgba(200,169,110,0.08); }
+
+/* VAZIO */
+.vazio {
+  text-align: center; padding: 48px 20px;
+  border: 1px dashed var(--border); border-radius: var(--r);
+  font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 1px; line-height: 1.8;
+}
+.vazio .vi { font-size: 40px; display: block; margin-bottom: 14px; opacity: 0.4; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--surface); border: 1px solid var(--roxo2);
+  color: var(--roxo2); font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+  padding: 12px 20px; border-radius: 10px; z-index: 300;
+  opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* ANIMAÇÃO DE DISPARO */
+@keyframes disparo {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.04); box-shadow: 0 0 40px rgba(107,63,160,0.4); }
+  100% { transform: scale(1); }
+}
+.disparando { animation: disparo 0.6s ease; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+
+@media (max-width: 700px) {
+  .livros-grid { grid-template-columns: 1fr; }
+  .pc-campos { grid-template-columns: 1fr; }
+  .pc-campo.full { grid-column: 1; }
+  .wrap { padding: 24px 16px 60px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="marca">CATAPULTA · TRIPLOOHESIGMALBPL<small>CALABOUÇO → LAPIDAR · INDICAÇÃO MANUAL</small></div>
+  <nav class="tnav">
+    <a href="#calabouco">Calabouço</a>
+    <a href="#catapultar">Catapultar</a>
+    <a href="#log">Log</a>
+    <a href="espinha_dorsal.html">← Espinha Dorsal</a>
+    <a href="index.html">← SIGMAL HQ</a>
+  </nav>
+</div>
+
+<header class="hero">
+  <div class="hero-badge">🏹 CATAPULTA · CALABOUÇO · EXPEDIÇÃO MANUAL PARA O LAPIDAR</div>
+  <h1>CATAPULTA</h1>
+  <div class="hero-sub">TRIPLOOHESIGMALBPL · SUA INDICAÇÃO · SEU MOMENTO · SEU DISPARO</div>
+  <p class="hero-desc">Os livros prontos aguardam no Calabouço. Você seleciona, define a prioridade e dispara para o Lapidar. Nenhuma obra vai sem a sua ordem.</p>
+</header>
+
+<main class="wrap">
+
+  <!-- STATS -->
+  <div>
+    <div class="sec-title">// Estado do Calabouço <span id="ultima-atualizacao">—</span></div>
+    <div class="stats-grid">
+      <div class="stat-card"><span class="sn" id="stat-total">0</span><span class="sl">Livros no Calabouço</span></div>
+      <div class="stat-card roxo-card"><span class="sn" id="stat-selecionados">0</span><span class="sl">Selecionados</span></div>
+      <div class="stat-card"><span class="sn" id="stat-paginas">0</span><span class="sl">Páginas totais</span></div>
+      <div class="stat-card"><span class="sn" id="stat-disparados">0</span><span class="sl">Já catapultados</span></div>
+    </div>
+  </div>
+
+  <!-- BARRA DE SELEÇÃO -->
+  <div class="barra-selecao" id="barra-selecao">
+    <div class="bs-info" id="bs-info">0 livros selecionados</div>
+    <button class="btn btn-catapultar" onclick="scrollParaCatapulta()">🏹 PREPARAR CATAPULTA</button>
+    <button class="btn btn-limpar" onclick="limparSelecao()">✕ Limpar seleção</button>
+  </div>
+
+  <!-- CALABOUÇO -->
+  <div id="calabouco">
+    <div class="sec-title">// Calabouço — Livros Prontos <span id="cont-calabouco">0 livros</span></div>
+
+    <div class="filtros" style="margin-bottom:16px">
+      <input class="busca" type="text" placeholder="Buscar por título ou autor..." oninput="filtrar(this.value)">
+      <button class="filtro-btn ativo" onclick="setFiltro('todos',this)">Todos</button>
+      <button class="filtro-btn" onclick="setFiltro('aguardando',this)">Aguardando</button>
+      <button class="filtro-btn" onclick="setFiltro('catapultado',this)">Catapultados</button>
+      <button class="filtro-btn btn-simular" onclick="simularDados()">⚙ Simular dados</button>
+      <button class="filtro-btn" onclick="abrirFormManual()" style="border-color:rgba(107,63,160,0.4);color:var(--roxo2)">+ Registrar livro</button>
+    </div>
+
+    <div class="livros-grid" id="livros-grid">
+      <div class="vazio" style="grid-column:1/-1"><span class="vi">🏰</span>Nenhum livro no Calabouço ainda.<br><br>Os livros chegam aqui após aprovação sua ou via Balestra.</div>
+    </div>
+  </div>
+
+  <!-- PAINEL CATAPULTA -->
+  <div class="painel-catapulta" id="painel-catapulta" id="catapultar">
+    <div class="pc-titulo">🏹 PAINEL DE DISPARO</div>
+    <div class="pc-sub">// CONFIGURAR E DISPARAR PARA O LAPIDAR · CELEIRO LITERÁRIO</div>
+
+    <div class="pc-livros-selecionados" id="pc-livros-selecionados"></div>
+
+    <div class="pc-campos">
+      <div class="pc-campo">
+        <label>// SEÇÃO DO LAPIDAR</label>
+        <select id="pc-secao">
+          <option value="lapidacao">Lapidação editorial</option>
+          <option value="revisao">Revisão linguística</option>
+          <option value="diagramacao">Diagramação</option>
+          <option value="capa">Criação de capa</option>
+          <option value="expedicao">Expedição direta</option>
+        </select>
+      </div>
+      <div class="pc-campo">
+        <label>// FORMATO DE SAÍDA</label>
+        <select id="pc-formato">
+          <option value="ebook">E-book</option>
+          <option value="fisico">Livro físico</option>
+          <option value="ambos">E-book + Livro físico</option>
+          <option value="audiobook">Audiobook</option>
+          <option value="completo">Todos os formatos</option>
+        </select>
+      </div>
+      <div class="pc-campo full">
+        <label>// PRIORIDADE DE DISPARO</label>
+        <div class="prioridade-btns">
+          <button class="prioridade-btn urgente" onclick="setPrioridade('urgente',this)">🔥 URGENTE</button>
+          <button class="prioridade-btn normal ativo" onclick="setPrioridade('normal',this)">✓ NORMAL</button>
+          <button class="prioridade-btn" onclick="setPrioridade('aguardar',this)">⏳ AGUARDAR</button>
+        </div>
+      </div>
+      <div class="pc-campo">
+        <label>// DATA LIMITE (opcional)</label>
+        <input type="date" id="pc-data-limite">
+      </div>
+      <div class="pc-campo">
+        <label>// COLEÇÃO / SÉRIE (opcional)</label>
+        <input type="text" id="pc-colecao" placeholder="ex: Série Mar Aberto Vol.1">
+      </div>
+      <div class="pc-campo full">
+        <label>// INSTRUÇÕES PARA O LAPIDAR</label>
+        <textarea id="pc-instrucoes" placeholder="Orientações específicas para a equipe do Lapidar..."></textarea>
+      </div>
+    </div>
+
+    <div class="pc-footer">
+      <button class="btn-disparar" id="btn-disparar" onclick="disparar()">🏹 DISPARAR PARA O LAPIDAR</button>
+      <button class="btn btn-limpar" onclick="limparSelecao()">✕ Cancelar</button>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div id="log">
+    <div class="sec-title">// Log de Disparos <span id="cont-log">0 registros</span></div>
+    <div id="lista-log">
+      <div class="vazio"><span class="vi">📜</span>Nenhum disparo registrado ainda.</div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL REGISTRO MANUAL -->
+<div id="modal-manual" style="display:none;position:fixed;inset:0;background:rgba(7,6,14,0.92);z-index:200;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--surface);border:1px solid rgba(107,63,160,0.3);border-radius:20px;padding:28px;max-width:540px;width:100%;max-height:88vh;overflow-y:auto;position:relative">
+    <button onclick="fecharFormManual()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer">✕</button>
+    <div style="font-family:var(--cinzel);font-size:18px;color:var(--ouro2);letter-spacing:2px;margin-bottom:4px">REGISTRAR LIVRO</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:20px">// ENTRADA MANUAL NO CALABOUÇO</div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><label style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:6px">TÍTULO</label>
+      <input type="text" id="m-titulo" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--texto);font-family:var(--mono);font-size:12px;padding:9px 12px;border-radius:8px;outline:none" placeholder="Título da obra"></div>
+
+      <div><label style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:6px">HETERÔNIMO / AUTOR</label>
+      <input type="text" id="m-autor" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--texto);font-family:var(--mono);font-size:12px;padding:9px 12px;border-radius:8px;outline:none" placeholder="Nome do heterônimo"></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><label style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:6px">PÁGINAS</label>
+        <input type="number" id="m-paginas" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--texto);font-family:var(--mono);font-size:12px;padding:9px 12px;border-radius:8px;outline:none" placeholder="140"></div>
+
+        <div><label style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:6px">EIXO</label>
+        <select id="m-eixo" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--texto);font-family:var(--mono);font-size:12px;padding:9px 12px;border-radius:8px;outline:none">
+          <option>Prosa</option><option>Poesia</option><option>Híbrido</option><option>Cordel</option><option>Sci-Fi</option>
+        </select></div>
+      </div>
+
+      <div><label style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:6px">SINOPSE (opcional)</label>
+      <textarea id="m-sinopse" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--texto);font-family:var(--mono);font-size:12px;padding:9px 12px;border-radius:8px;outline:none;resize:vertical;min-height:60px" placeholder="Breve sinopse..."></textarea></div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+      <button onclick="registrarManual()" style="font-family:var(--cinzel);font-size:12px;letter-spacing:2px;padding:11px 24px;border:1px solid var(--roxo2);border-radius:999px;color:var(--roxo2);background:var(--roxo3);cursor:pointer;text-transform:uppercase">REGISTRAR</button>
+      <button onclick="fecharFormManual()" style="font-family:var(--mono);font-size:11px;padding:11px 20px;border:1px solid var(--border);border-radius:999px;color:var(--muted);background:transparent;cursor:pointer">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// CATAPULTA · TRIPLOOHESIGMALBPL
+// Calabouço → Lapidar · Indicação Manual
+// ══════════════════════════════════════════════════════
+
+const CHAVES_CALABOUCO = [
+  'calabouco_itens','calabouco_obras','calabouco_livros',
+  'livros_prontos','obras_aprovadas','calabouco','livros_calabouco'
+];
+
+let todosLivros = [];
+let selecionados = new Set();
+let filtroAtual = 'todos';
+let prioridadeAtual = 'normal';
+
+// ── LÊ CALABOUÇO ──
+function lerCalaboco() {
+  const livros = [];
+  const ids = new Set();
+
+  CHAVES_CALABOUCO.forEach(k => {
+    try {
+      const raw = localStorage.getItem(k);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      const itens = Array.isArray(parsed) ? parsed : [parsed];
+
+      itens.forEach((item, i) => {
+        if (!item || typeof item !== 'object') return;
+        const id = item.id || `${k}_${i}`;
+        if (ids.has(id)) return;
+        ids.add(id);
+
+        livros.push({
+          id,
+          titulo: item.titulo || item.title || item.assunto || 'Obra sem título',
+          autor: item.heteronimo || item.autor || item.autor_nome || item.het || 'Anônimo',
+          eixo: item.eixo || item.categoria || item.tipo || 'Prosa',
+          paginas: item.paginas || item.total_paginas || 0,
+          sinopse: item.sinopse || item.descricao || '',
+          adicionadoEm: item.adicionadoEm || item.em || item.data || new Date().toISOString(),
+          catapultado: item.catapultado || false,
+          catapultadoEm: item.catapultadoEm || null,
+          origem: k
+        });
+      });
+    } catch(e) {}
+  });
+
+  // Também lê registros manuais
+  try {
+    const manuais = JSON.parse(localStorage.getItem('catapulta_manuais') || '[]');
+    manuais.forEach(m => {
+      if (!ids.has(m.id)) livros.push(m);
+    });
+  } catch(e) {}
+
+  return livros;
+}
+
+// ── RENDER LIVROS ──
+function renderLivros(livros) {
+  const grid = document.getElementById('livros-grid');
+  document.getElementById('cont-calabouco').textContent = livros.length + ' livros';
+
+  if (!livros.length) {
+    grid.innerHTML = `<div class="vazio" style="grid-column:1/-1"><span class="vi">🏰</span>Nenhum livro encontrado.<br><br>Use "Registrar livro" para adicionar manualmente ou simule dados de teste.</div>`;
+    return;
+  }
+
+  grid.innerHTML = livros.map(livro => {
+    const sel = selecionados.has(livro.id);
+    const tagClass = livro.eixo.toLowerCase().includes('poes') ? 't-poesia' :
+                     livro.eixo.toLowerCase().includes('híb') ? 't-hibrido' : 't-prosa';
+    const data = new Date(livro.adicionadoEm).toLocaleDateString('pt-BR');
+
+    return `
+    <div class="livro-card ${sel ? 'selecionado' : ''} ${livro.catapultado ? 'catapultado' : ''}"
+         id="card-${livro.id}" onclick="toggleSelecao('${livro.id}')">
+      <div class="livro-header">
+        <div class="livro-check">${sel ? '✓' : livro.catapultado ? '🏹' : ''}</div>
+        <div class="livro-corpo">
+          <div class="livro-titulo">${livro.titulo}</div>
+          <div class="livro-autor">${livro.autor}</div>
+          <div class="livro-meta-row">
+            <span class="livro-tag ${tagClass}">${livro.eixo}</span>
+            ${livro.paginas ? `<span class="livro-tag t-prosa">${livro.paginas} págs</span>` : ''}
+            <span class="livro-tag ${livro.catapultado ? 't-catapultado' : 't-aguardando'}">${livro.catapultado ? '🏹 Catapultado' : '○ Aguardando'}</span>
+            <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">${data}</span>
+          </div>
+          ${livro.sinopse ? `<div style="font-size:12px;font-style:italic;color:rgba(212,204,232,0.5);margin-top:8px;line-height:1.6">${livro.sinopse.substring(0,120)}${livro.sinopse.length > 120 ? '...' : ''}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── TOGGLE SELEÇÃO ──
+function toggleSelecao(id) {
+  const livro = todosLivros.find(l => l.id == id);
+  if (!livro || livro.catapultado) return;
+
+  if (selecionados.has(id)) {
+    selecionados.delete(id);
+  } else {
+    selecionados.add(id);
+  }
+
+  atualizarSelecao();
+  aplicarFiltros('');
+}
+
+function atualizarSelecao() {
+  const n = selecionados.size;
+  document.getElementById('stat-selecionados').textContent = n;
+  document.getElementById('bs-info').textContent = n + ' livro(s) selecionado(s)';
+
+  const barra = document.getElementById('barra-selecao');
+  barra.classList.toggle('visivel', n > 0);
+
+  const painel = document.getElementById('painel-catapulta');
+  if (n > 0) {
+    painel.classList.add('visivel');
+    renderPainelCatapulta();
+  } else {
+    painel.classList.remove('visivel');
+  }
+}
+
+function renderPainelCatapulta() {
+  const livrosSel = todosLivros.filter(l => selecionados.has(l.id));
+  const container = document.getElementById('pc-livros-selecionados');
+  container.innerHTML = livrosSel.map(l => `
+    <div class="pc-livro-item">
+      <div style="font-size:16px">📖</div>
+      <div class="pc-livro-titulo">${l.titulo}</div>
+      <div class="pc-livro-meta">${l.autor} · ${l.paginas || '?'} págs</div>
+      <button class="pc-remover" onclick="toggleSelecao('${l.id}');event.stopPropagation()">✕</button>
+    </div>
+  `).join('');
+}
+
+function limparSelecao() {
+  selecionados.clear();
+  atualizarSelecao();
+  aplicarFiltros('');
+}
+
+function scrollParaCatapulta() {
+  document.getElementById('painel-catapulta').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── PRIORIDADE ──
+function setPrioridade(p, btn) {
+  prioridadeAtual = p;
+  document.querySelectorAll('.prioridade-btn').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+}
+
+// ── DISPARAR ──
+async function disparar() {
+  if (!selecionados.size) { toast('Selecione ao menos um livro'); return; }
+
+  const btn = document.getElementById('btn-disparar');
+  btn.disabled = true;
+  btn.textContent = '🏹 DISPARANDO...';
+  document.getElementById('painel-catapulta').classList.add('disparando');
+
+  await new Promise(r => setTimeout(r, 800));
+
+  const secao = document.getElementById('pc-secao').value;
+  const formato = document.getElementById('pc-formato').value;
+  const dataLimite = document.getElementById('pc-data-limite').value;
+  const colecao = document.getElementById('pc-colecao').value;
+  const instrucoes = document.getElementById('pc-instrucoes').value;
+  const livrosSel = todosLivros.filter(l => selecionados.has(l.id));
+
+  const log = JSON.parse(localStorage.getItem('catapulta_log') || '[]');
+
+  livrosSel.forEach(livro => {
+    // Registra no log
+    log.unshift({
+      id: Date.now() + Math.random(),
+      livroId: livro.id,
+      titulo: livro.titulo,
+      autor: livro.autor,
+      paginas: livro.paginas,
+      secao, formato,
+      prioridade: prioridadeAtual,
+      dataLimite, colecao, instrucoes,
+      disparadoEm: new Date().toISOString()
+    });
+
+    // Marca como catapultado no localStorage
+    CHAVES_CALABOUCO.forEach(k => {
+      try {
+        const raw = localStorage.getItem(k);
+        if (!raw) return;
+        const arr = JSON.parse(raw);
+        if (!Array.isArray(arr)) return;
+        let atualizado = false;
+        arr.forEach(item => {
+          if ((item.id || '') == livro.id) {
+            item.catapultado = true;
+            item.catapultadoEm = new Date().toISOString();
+            atualizado = true;
+          }
+        });
+        if (atualizado) localStorage.setItem(k, JSON.stringify(arr));
+      } catch(e) {}
+    });
+
+    // Atualiza manuais
+    try {
+      const manuais = JSON.parse(localStorage.getItem('catapulta_manuais') || '[]');
+      manuais.forEach(m => {
+        if (m.id == livro.id) {
+          m.catapultado = true;
+          m.catapultadoEm = new Date().toISOString();
+        }
+      });
+      localStorage.setItem('catapulta_manuais', JSON.stringify(manuais));
+    } catch(e) {}
+  });
+
+  localStorage.setItem('catapulta_log', JSON.stringify(log));
+
+  btn.disabled = false;
+  btn.textContent = '🏹 DISPARAR PARA O LAPIDAR';
+  document.getElementById('painel-catapulta').classList.remove('disparando');
+
+  toast(`🏹 ${livrosSel.length} livro(s) disparados para o Lapidar · ${secao}`);
+  limparSelecao();
+  setTimeout(carregar, 600);
+}
+
+// ── FILTROS ──
+function setFiltro(f, btn) {
+  filtroAtual = f;
+  document.querySelectorAll('.filtro-btn:not(.btn-simular)').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  aplicarFiltros('');
+}
+
+function filtrar(q) { aplicarFiltros(q); }
+
+function aplicarFiltros(q) {
+  let resultado = [...todosLivros];
+  if (filtroAtual === 'aguardando') resultado = resultado.filter(l => !l.catapultado);
+  if (filtroAtual === 'catapultado') resultado = resultado.filter(l => l.catapultado);
+  if (q) resultado = resultado.filter(l =>
+    l.titulo.toLowerCase().includes(q.toLowerCase()) ||
+    l.autor.toLowerCase().includes(q.toLowerCase())
+  );
+  renderLivros(resultado);
+}
+
+// ── MODAL MANUAL ──
+function abrirFormManual() {
+  document.getElementById('modal-manual').style.display = 'flex';
+}
+function fecharFormManual() {
+  document.getElementById('modal-manual').style.display = 'none';
+}
+function registrarManual() {
+  const titulo = document.getElementById('m-titulo').value.trim();
+  const autor = document.getElementById('m-autor').value.trim();
+  if (!titulo || !autor) { toast('Preencha título e autor'); return; }
+
+  const manuais = JSON.parse(localStorage.getItem('catapulta_manuais') || '[]');
+  manuais.push({
+    id: 'manual_' + Date.now(),
+    titulo,
+    autor,
+    eixo: document.getElementById('m-eixo').value,
+    paginas: parseInt(document.getElementById('m-paginas').value) || 0,
+    sinopse: document.getElementById('m-sinopse').value,
+    adicionadoEm: new Date().toISOString(),
+    catapultado: false,
+    origem: 'manual'
+  });
+  localStorage.setItem('catapulta_manuais', JSON.stringify(manuais));
+  fecharFormManual();
+  toast(`✦ "${titulo}" registrado no Calabouço`);
+  carregar();
+}
+
+// ── LOG ──
+function renderLog() {
+  const log = JSON.parse(localStorage.getItem('catapulta_log') || '[]');
+  document.getElementById('cont-log').textContent = log.length + ' registros';
+  document.getElementById('stat-disparados').textContent = log.length;
+
+  const container = document.getElementById('lista-log');
+  if (!log.length) {
+    container.innerHTML = `<div class="vazio"><span class="vi">📜</span>Nenhum disparo registrado ainda.</div>`;
+    return;
+  }
+
+  container.innerHTML = log.slice(0, 20).map(entry => `
+    <div class="log-item">
+      <div class="log-icon">🏹</div>
+      <div class="log-info">
+        <div class="log-titulo">${entry.titulo} · ${entry.autor}</div>
+        <div class="log-meta">
+          Seção: ${entry.secao} · Formato: ${entry.formato} ·
+          Prioridade: ${entry.prioridade} ·
+          ${new Date(entry.disparadoEm).toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+          ${entry.colecao ? ' · Coleção: ' + entry.colecao : ''}
+          ${entry.instrucoes ? '<br>Instrução: ' + entry.instrucoes : ''}
+        </div>
+      </div>
+      <span class="badge ${entry.prioridade === 'urgente' ? 'b-urgente' : 'b-disparado'}">${entry.prioridade.toUpperCase()}</span>
+    </div>
+  `).join('');
+}
+
+// ── SIMULAR DADOS ──
+function simularDados() {
+  const livrosTest = [
+    { titulo: 'O Abismo e a Coroa', autor: 'Amanda Fernanda Fisher Leão', eixo: 'Prosa', paginas: 143, sinopse: 'Uma sereia descobre que sua coroa foi forjada com os ossos dos afogados.' },
+    { titulo: 'Rasalhague — Fim do Ciclo', autor: 'Imediato Thompson', eixo: 'Prosa Cosmológica', paginas: 217, sinopse: 'A última transmissão de Atlântida antes do colapso dimensional.' },
+    { titulo: 'Beco Fechado', autor: 'A.J. dos Santos', eixo: 'Prosa', paginas: 98, sinopse: 'Três histórias de quem não tem saída.' },
+    { titulo: 'O Último Decreto', autor: 'Creone Porfírio', eixo: 'Prosa', paginas: 162, sinopse: 'Um ministro assina o decreto que destrói sua própria família.' },
+    { titulo: 'Éter Partido', autor: 'Aurora Wings', eixo: 'Sci-Fi', paginas: 188, sinopse: 'A nave que nunca chegou ao seu destino.' },
+  ];
+
+  const existentes = JSON.parse(localStorage.getItem('catapulta_manuais') || '[]');
+  livrosTest.forEach((l, i) => {
+    existentes.push({
+      id: 'sim_' + Date.now() + i,
+      ...l,
+      adicionadoEm: new Date(Date.now() - i * 30 * 24 * 60 * 60 * 1000).toISOString(),
+      catapultado: false,
+      origem: 'simulacao'
+    });
+  });
+  localStorage.setItem('catapulta_manuais', JSON.stringify(existentes));
+  toast('✦ Dados de teste carregados no Calabouço');
+  carregar();
+}
+
+// ── TOAST ──
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── CARREGAR ──
+function carregar() {
+  todosLivros = lerCalaboco();
+
+  const aguardando = todosLivros.filter(l => !l.catapultado);
+  const totalPags = aguardando.reduce((s, l) => s + (l.paginas || 0), 0);
+
+  document.getElementById('stat-total').textContent = aguardando.length;
+  document.getElementById('stat-paginas').textContent = totalPags;
+  document.getElementById('ultima-atualizacao').textContent =
+    'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
+
+  aplicarFiltros('');
+  renderLog();
+}
+
+// Fecha modal clicando fora
+document.getElementById('modal-manual').addEventListener('click', e => {
+  if (e.target === e.currentTarget) fecharFormManual();
+});
+
+carregar();
+setInterval(carregar, 30000);
+</script>
+</body>
+</html>
