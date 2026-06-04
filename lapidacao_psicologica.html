@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lapidação Psicológica · Celeiro Literário</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07080f;
+  --s1: #0c0e18;
+  --s2: #121520;
+  --border: #1e2235;
+  --esmeralda: #2a7a5a;
+  --esmeralda2: #5abf90;
+  --esmeralda3: rgba(42,122,90,0.15);
+  --ouro: #c8a96e;
+  --ouro2: #f0d896;
+  --violeta: #7c5cbf;
+  --rosa: #d4689a;
+  --texto: #d8e8e0;
+  --muted: #4a5a52;
+  --garamond: 'EB Garamond', serif;
+  --playfair: 'Playfair Display', serif;
+  --mono: 'DM Mono', monospace;
+  --r: 18px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--garamond);
+  background: var(--bg);
+  color: var(--texto);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 60% 40% at 20% 0%, rgba(42,122,90,0.07), transparent),
+    radial-gradient(ellipse 40% 50% at 90% 90%, rgba(200,169,110,0.05), transparent);
+}
+
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(7,8,15,0.97); border-bottom: 1px solid rgba(42,122,90,0.25);
+  backdrop-filter: blur(14px); padding: 12px 28px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.marca { font-family: var(--mono); font-size: 12px; color: var(--esmeralda2); letter-spacing: 3px; }
+.marca small { display: block; font-size: 9px; color: var(--muted); letter-spacing: 2px; margin-top: 2px; }
+.tnav { display: flex; gap: 6px; flex-wrap: wrap; }
+.tnav a {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--muted);
+  text-decoration: none; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.2s;
+}
+.tnav a:hover { color: var(--esmeralda2); border-color: var(--esmeralda); background: var(--esmeralda3); }
+
+.hero {
+  padding: 60px 28px 50px; text-align: center;
+  border-bottom: 1px solid rgba(42,122,90,0.15); position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '◆'; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%,-50%);
+  font-size: 480px; color: rgba(42,122,90,0.025); pointer-events: none; line-height: 1;
+}
+.hero-badge {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 3px;
+  border: 1px solid rgba(42,122,90,0.35); color: rgba(90,191,144,0.7);
+  padding: 5px 18px; border-radius: 999px; display: inline-block; margin-bottom: 22px;
+}
+.hero h1 {
+  font-family: var(--playfair); font-size: clamp(36px,6vw,80px); font-weight: 700; font-style: italic;
+  background: linear-gradient(150deg, var(--ouro2) 0%, var(--esmeralda2) 50%, var(--esmeralda) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 12px; line-height: 1.05;
+}
+.hero-sub { font-family: var(--mono); font-size: 10px; letter-spacing: 4px; color: var(--muted); margin-bottom: 18px; }
+.hero-desc { font-size: 19px; font-style: italic; color: rgba(216,232,224,0.6); max-width: 680px; margin: 0 auto; line-height: 1.9; }
+
+.wrap { max-width: 1100px; margin: auto; padding: 40px 28px 100px; display: flex; flex-direction: column; gap: 32px; }
+
+/* PAINEL */
+.painel { background: var(--s1); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.painel-header { padding: 20px 26px; border-bottom: 1px solid var(--border); }
+.painel-titulo { font-family: var(--playfair); font-size: 20px; font-style: italic; color: var(--ouro2); }
+.painel-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-top: 3px; }
+.painel-body { padding: 24px 26px; display: flex; flex-direction: column; gap: 18px; }
+
+.campo-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; display: block; margin-bottom: 8px; }
+textarea, input, select {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  color: var(--texto); font-family: var(--garamond); font-size: 17px;
+  padding: 12px 16px; border-radius: 10px; outline: none; transition: border-color 0.2s; line-height: 1.7;
+}
+textarea { resize: vertical; min-height: 200px; }
+textarea:focus, input:focus, select:focus { border-color: var(--esmeralda); }
+textarea::placeholder { color: var(--muted); font-style: italic; }
+select, input { font-family: var(--mono); font-size: 12px; }
+select option { background: var(--s1); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* TIPOS DE LAPIDAÇÃO */
+.tipos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 10px; }
+.tipo-card {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 16px; cursor: pointer; transition: all 0.2s; text-align: center;
+}
+.tipo-card:hover { border-color: var(--esmeralda); }
+.tipo-card.ativo { border-color: var(--esmeralda); background: var(--esmeralda3); }
+.tipo-emoji { font-size: 24px; display: block; margin-bottom: 8px; }
+.tipo-nome { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+.tipo-desc { font-size: 13px; font-style: italic; color: rgba(216,232,224,0.5); line-height: 1.5; }
+.tipo-card.ativo .tipo-nome { color: var(--esmeralda2); }
+
+/* BOTÃO */
+.btn-lapidar {
+  font-family: var(--playfair); font-size: 16px; font-style: italic; font-weight: 700;
+  padding: 16px 40px; border: 1px solid var(--esmeralda2); border-radius: 999px;
+  color: var(--esmeralda2); background: var(--esmeralda3); cursor: pointer;
+  transition: all 0.3s; width: 100%;
+}
+.btn-lapidar:hover { background: rgba(42,122,90,0.25); border-color: var(--ouro2); color: var(--ouro2); box-shadow: 0 0 40px rgba(42,122,90,0.2); }
+.btn-lapidar:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* LOADING */
+.loading-area { display: none; text-align: center; padding: 56px; border: 1px solid rgba(42,122,90,0.2); border-radius: var(--r); background: var(--s1); }
+.loading-area.visivel { display: block; }
+.loading-gem { font-size: 48px; display: block; margin-bottom: 16px; animation: girar 3s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+.loading-txt { font-family: var(--mono); font-size: 11px; color: var(--esmeralda2); letter-spacing: 3px; }
+.loading-fase { font-family: var(--garamond); font-size: 17px; font-style: italic; color: var(--muted); margin-top: 8px; }
+
+/* RESULTADO */
+.resultado { display: none; }
+.resultado.visivel { display: block; }
+
+/* TABS */
+.tabs-wrap { background: var(--s1); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.tabs { display: flex; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tab {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+  padding: 13px 20px; border: none; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all 0.2s;
+  white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tab:hover { color: var(--esmeralda2); }
+.tab.ativa { color: var(--esmeralda2); border-bottom-color: var(--esmeralda); }
+.tab-body { display: none; padding: 28px; }
+.tab-body.ativa { display: block; }
+
+/* COMPARATIVO */
+.comparativo {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;
+}
+.comp-box { background: var(--s2); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+.comp-titulo {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.comp-antes .comp-titulo { color: var(--rosa); }
+.comp-depois .comp-titulo { color: var(--esmeralda2); }
+.comp-texto { font-size: 16px; line-height: 1.8; font-style: italic; color: rgba(216,232,224,0.75); }
+
+/* SUGESTÕES */
+.sugestao-item {
+  background: var(--s2); border: 1px solid var(--border); border-radius: 12px;
+  padding: 16px 18px; margin-bottom: 10px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.sug-tipo {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 999px; border: 1px solid;
+  flex-shrink: 0; text-transform: uppercase; margin-top: 2px;
+}
+.sug-tipo.dialogo { border-color: rgba(42,122,90,0.5); color: var(--esmeralda2); }
+.sug-tipo.reacao { border-color: rgba(200,169,110,0.4); color: var(--ouro); }
+.sug-tipo.antagonista { border-color: rgba(212,104,154,0.4); color: var(--rosa); }
+.sug-tipo.emocao { border-color: rgba(124,92,191,0.4); color: #b89ee8; }
+.sug-tipo.worldbuilding { border-color: rgba(42,106,158,0.4); color: #6aaed8; }
+.sug-info { flex: 1; }
+.sug-titulo { font-family: var(--mono); font-size: 11px; color: var(--texto); letter-spacing: 1px; margin-bottom: 6px; }
+.sug-texto { font-size: 15px; line-height: 1.75; color: rgba(216,232,224,0.75); }
+.sug-original { font-size: 14px; font-style: italic; color: var(--rosa); margin-top: 6px; padding: 8px 12px; background: rgba(212,104,154,0.06); border-radius: 8px; border-left: 2px solid var(--rosa); }
+.sug-lapidado { font-size: 14px; font-style: italic; color: var(--esmeralda2); margin-top: 6px; padding: 8px 12px; background: rgba(42,122,90,0.06); border-radius: 8px; border-left: 2px solid var(--esmeralda); }
+
+/* TEXTO LAPIDADO */
+.texto-lapidado { font-family: var(--garamond); font-size: 18px; line-height: 1.9; color: rgba(216,232,224,0.9); white-space: pre-wrap; }
+
+/* ACOES */
+.acoes-bar {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  padding: 18px 26px; border-top: 1px solid var(--border);
+}
+.btn-acao {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+  padding: 8px 18px; border: 1px solid; border-radius: 999px;
+  cursor: pointer; transition: all 0.2s; background: transparent; text-transform: uppercase;
+}
+.btn-dl { border-color: var(--esmeralda2); color: var(--esmeralda2); }
+.btn-dl:hover { background: var(--esmeralda3); }
+.btn-cat { border-color: rgba(124,92,191,0.5); color: #b89ee8; }
+.btn-cat:hover { background: rgba(124,92,191,0.1); }
+.btn-novo { border-color: var(--border); color: var(--muted); }
+.btn-novo:hover { border-color: var(--texto); color: var(--texto); }
+
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--s1); border: 1px solid var(--esmeralda2);
+  color: var(--esmeralda2); font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+  padding: 12px 20px; border-radius: 10px; z-index: 300;
+  opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+
+@media (max-width: 700px) {
+  .grid2, .comparativo { grid-template-columns: 1fr; }
+  .wrap { padding: 24px 16px 80px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="marca">LAPIDAÇÃO PSICOLÓGICA · CELEIRO LITERÁRIO<small>REFINAMENTO EMOCIONAL DA OBRA · CLAUDE AI</small></div>
+  <nav class="tnav">
+    <a href="analisador_psicologico.html">Analisador Psi</a>
+    <a href="leitura_emocional.html">Leitura Emocional</a>
+    <a href="espinha_dorsal.html">← Espinha Dorsal</a>
+    <a href="celeiro_entrada.html">← Celeiro</a>
+  </nav>
+</div>
+
+<header class="hero">
+  <div class="hero-badge">◆ LAPIDAÇÃO PSICOLÓGICA · REFINAMENTO EMOCIONAL · CLAUDE AI</div>
+  <h1>Lapidação Psicológica</h1>
+  <div class="hero-sub">CELEIRO LITERÁRIO · REFINAMENTO EMOCIONAL E NARRATIVO · CLAUDE AI</div>
+  <p class="hero-desc">A obra é lapidada psicologicamente — diálogos compatíveis com a personalidade, reações humanas coerentes, antagonista fortalecido, aprofundamento emocional.</p>
+</header>
+
+<main class="wrap">
+
+  <div class="painel">
+    <div class="painel-header">
+      <div class="painel-titulo">Entrada para Lapidação</div>
+      <div class="painel-sub">// COLE O TEXTO · ESCOLHA OS TIPOS · LAPIDAR</div>
+    </div>
+    <div class="painel-body">
+
+      <div>
+        <label class="campo-label">// TEXTO A LAPIDAR</label>
+        <textarea id="texto-obra" placeholder="Cole aqui o texto que deseja lapidar psicologicamente — diálogos, cenas, capítulos..."></textarea>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <label class="campo-label">// TÍTULO / OBRA</label>
+          <input type="text" id="titulo-obra" placeholder="Título da obra">
+        </div>
+        <div>
+          <label class="campo-label">// HETERÔNIMO / AUTOR</label>
+          <input type="text" id="autor-obra" placeholder="Nome do heterônimo">
+        </div>
+      </div>
+
+      <div>
+        <label class="campo-label">// PERFIL DOS PERSONAGENS (opcional — cola o raio-x se tiver)</label>
+        <textarea id="perfil-personagens" style="min-height:100px" placeholder="Cole aqui o Raio-X Psicológico gerado pelo Analisador, ou descreva brevemente os personagens e suas psicologias..."></textarea>
+      </div>
+
+      <div>
+        <label class="campo-label">// TIPOS DE LAPIDAÇÃO</label>
+        <div class="tipos-grid">
+          <div class="tipo-card ativo" data-tipo="dialogos" onclick="toggleTipo(this)">
+            <span class="tipo-emoji">💬</span>
+            <div class="tipo-nome">Diálogos</div>
+            <div class="tipo-desc">Compatíveis com a personalidade de cada personagem</div>
+          </div>
+          <div class="tipo-card ativo" data-tipo="reacoes" onclick="toggleTipo(this)">
+            <span class="tipo-emoji">🧠</span>
+            <div class="tipo-nome">Reações</div>
+            <div class="tipo-desc">Respostas humanas coerentes com a psicologia</div>
+          </div>
+          <div class="tipo-card ativo" data-tipo="antagonista" onclick="toggleTipo(this)">
+            <span class="tipo-emoji">🌑</span>
+            <div class="tipo-nome">Antagonista</div>
+            <div class="tipo-desc">Fortalecimento e profundidade do antagonista</div>
+          </div>
+          <div class="tipo-card ativo" data-tipo="emocional" onclick="toggleTipo(this)">
+            <span class="tipo-emoji">❤️</span>
+            <div class="tipo-nome">Emocional</div>
+            <div class="tipo-desc">Aprofundamento emocional das cenas e relações</div>
+          </div>
+          <div class="tipo-card" data-tipo="worldbuilding" onclick="toggleTipo(this)">
+            <span class="tipo-emoji">🌍</span>
+            <div class="tipo-nome">Worldbuilding</div>
+            <div class="tipo-desc">Psicologia do mundo — sociedade, regras, traumas coletivos</div>
+          </div>
+          <div class="tipo-card" data-tipo="trauma" onclick="toggleTipo(this)">
+            <span class="tipo-emoji">🔥</span>
+            <div class="tipo-nome">Traumas</div>
+            <div class="tipo-desc">Ativação e expressão coerente dos traumas</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="campo-label">// INTENSIDADE DA LAPIDAÇÃO</label>
+        <select id="intensidade">
+          <option value="suave">Suave — preserva o original, sugere melhorias</option>
+          <option value="moderada" selected>Moderada — reescreve trechos problemáticos</option>
+          <option value="profunda">Profunda — reformula completamente onde necessário</option>
+        </select>
+      </div>
+
+      <button class="btn-lapidar" id="btn-lapidar" onclick="iniciarLapidacao()">
+        ◆ INICIAR LAPIDAÇÃO PSICOLÓGICA
+      </button>
+
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-area" id="loading-area">
+    <span class="loading-gem">◆</span>
+    <div class="loading-txt">LAPIDANDO<span id="loading-dots"></span></div>
+    <div class="loading-fase" id="loading-fase">Lendo a estrutura emocional...</div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="resultado" id="resultado">
+    <div class="tabs-wrap">
+      <div class="tabs">
+        <button class="tab ativa" onclick="setTab('lapidado',this)">Texto Lapidado</button>
+        <button class="tab" onclick="setTab('comparativo',this)">Comparativo</button>
+        <button class="tab" onclick="setTab('sugestoes',this)">Sugestões</button>
+        <button class="tab" onclick="setTab('relatorio',this)">Relatório</button>
+      </div>
+
+      <div class="tab-body ativa" id="tab-lapidado">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--esmeralda2);letter-spacing:2px;margin-bottom:20px">// TEXTO APÓS LAPIDAÇÃO PSICOLÓGICA</div>
+        <div class="texto-lapidado" id="texto-lapidado-content"></div>
+      </div>
+      <div class="tab-body" id="tab-comparativo">
+        <div id="comparativo-content"></div>
+      </div>
+      <div class="tab-body" id="tab-sugestoes">
+        <div id="sugestoes-content"></div>
+      </div>
+      <div class="tab-body" id="tab-relatorio">
+        <div class="texto-lapidado" id="relatorio-lap-content"></div>
+      </div>
+
+      <div class="acoes-bar">
+        <button class="btn-acao btn-dl" onclick="baixar()">↓ BAIXAR TEXTO LAPIDADO</button>
+        <button class="btn-acao btn-cat" onclick="enviarCatapulta()">→ CATAPULTA</button>
+        <button class="btn-acao btn-novo" onclick="novaLapidacao()">↺ NOVA LAPIDAÇÃO</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let lapidacaoAtual = null;
+
+function toggleTipo(card) { card.classList.toggle('ativo'); }
+
+function setTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('ativa'));
+  document.querySelectorAll('.tab-body').forEach(b => b.classList.remove('ativa'));
+  btn.classList.add('ativa');
+  document.getElementById(`tab-${id}`).classList.add('ativa');
+}
+
+const fasesLap = [
+  'Lendo a estrutura emocional...','Analisando diálogos por personagem...',
+  'Verificando coerência psicológica...','Fortalecendo o antagonista...',
+  'Aprofundando camadas emocionais...','Lapidando as reações...','Polindo o texto final...'
+];
+let faseIdx = 0;
+let loadInterval;
+
+function iniciarLoading() {
+  faseIdx = 0;
+  document.getElementById('loading-fase').textContent = fasesLap[0];
+  loadInterval = setInterval(() => {
+    faseIdx = (faseIdx + 1) % fasesLap.length;
+    document.getElementById('loading-fase').textContent = fasesLap[faseIdx];
+  }, 2000);
+  let d = 0;
+  window._di = setInterval(() => {
+    d = (d+1)%4;
+    document.getElementById('loading-dots').textContent = '.'.repeat(d);
+  }, 400);
+}
+function pararLoading() { clearInterval(loadInterval); clearInterval(window._di); }
+
+async function iniciarLapidacao() {
+  const texto = document.getElementById('texto-obra').value.trim();
+  const titulo = document.getElementById('titulo-obra').value.trim() || 'Obra sem título';
+  const autor = document.getElementById('autor-obra').value.trim() || '—';
+  const perfil = document.getElementById('perfil-personagens').value.trim();
+  const intensidade = document.getElementById('intensidade').value;
+  const tipos = Array.from(document.querySelectorAll('.tipo-card.ativo')).map(c => c.dataset.tipo);
+
+  if (!texto) { toast('Cole o texto para lapidar'); return; }
+  if (!tipos.length) { toast('Selecione ao menos um tipo de lapidação'); return; }
+
+  document.getElementById('btn-lapidar').disabled = true;
+  document.getElementById('loading-area').classList.add('visivel');
+  document.getElementById('resultado').classList.remove('visivel');
+  iniciarLoading();
+
+  const system = `Você é um lapidador literário psicológico — especialista em refinar obras com base na psicologia dos personagens.
+
+Responda APENAS em JSON válido, sem markdown, sem backticks.
+
+Estrutura JSON exata:
+{
+  "texto_lapidado": "string (texto completo após lapidação)",
+  "comparativo": [
+    {"original": "string (trecho original)", "lapidado": "string (trecho reescrito)", "motivo": "string"}
+  ],
+  "sugestoes": [
+    {"tipo": "dialogo|reacao|antagonista|emocao|worldbuilding", "titulo": "string", "texto": "string", "original": "string", "lapidado": "string"}
+  ],
+  "relatorio": "string (relatório completo da lapidação)",
+  "ganhos": ["string"]
+}`;
+
+  const user = `Lapidar psicologicamente este texto:
+
+TÍTULO: ${titulo}
+AUTOR: ${autor}
+INTENSIDADE: ${intensidade}
+TIPOS DE LAPIDAÇÃO: ${tipos.join(', ')}
+${perfil ? `\nPERFIL PSICOLÓGICO DOS PERSONAGENS:\n${perfil}` : ''}
+
+TEXTO ORIGINAL:
+${texto.substring(0, 8000)}
+
+Aplique a lapidação psicológica conforme os tipos solicitados e retorne o JSON completo.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 5000,
+        system,
+        messages: [{ role: 'user', content: user }]
+      })
+    });
+    const data = await resp.json();
+    let txt = data.content.map(c => c.text||'').join('').replace(/```json|```/g,'').trim();
+    const lap = JSON.parse(txt);
+    lapidacaoAtual = { lap, titulo, autor, textoOriginal: texto };
+    pararLoading();
+    renderLapidacao(lap);
+  } catch(e) {
+    pararLoading();
+    document.getElementById('loading-area').classList.remove('visivel');
+    document.getElementById('btn-lapidar').disabled = false;
+    toast('Erro — tente novamente');
+    console.error(e);
+  }
+}
+
+function renderLapidacao(lap) {
+  document.getElementById('loading-area').classList.remove('visivel');
+  document.getElementById('resultado').classList.add('visivel');
+  document.getElementById('btn-lapidar').disabled = false;
+
+  // Texto lapidado
+  document.getElementById('texto-lapidado-content').textContent = lap.texto_lapidado || '—';
+
+  // Comparativo
+  const comp = (lap.comparativo || []).map(c => `
+    <div style="margin-bottom:20px">
+      <div class="comparativo">
+        <div class="comp-box comp-antes">
+          <div class="comp-titulo">// ANTES</div>
+          <div class="comp-texto">${c.original}</div>
+        </div>
+        <div class="comp-box comp-depois">
+          <div class="comp-titulo">// DEPOIS</div>
+          <div class="comp-texto">${c.lapidado}</div>
+        </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 4px">◈ ${c.motivo}</div>
+    </div>
+  `).join('');
+  document.getElementById('comparativo-content').innerHTML = comp || '<div style="color:var(--muted);font-style:italic">Sem comparativos disponíveis.</div>';
+
+  // Sugestões
+  const sug = (lap.sugestoes || []).map(s => `
+    <div class="sugestao-item">
+      <span class="sug-tipo ${s.tipo}">${s.tipo}</span>
+      <div class="sug-info">
+        <div class="sug-titulo">${s.titulo}</div>
+        <div class="sug-texto">${s.texto}</div>
+        ${s.original ? `<div class="sug-original">✗ ${s.original}</div>` : ''}
+        ${s.lapidado ? `<div class="sug-lapidado">✓ ${s.lapidado}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('sugestoes-content').innerHTML = sug || '<div style="color:var(--muted);font-style:italic">Sem sugestões adicionais.</div>';
+
+  // Relatório
+  let rel = lap.relatorio || '';
+  if (lap.ganhos?.length) {
+    rel += '\n\nGANHOS DA LAPIDAÇÃO:\n' + lap.ganhos.map(g => `• ${g}`).join('\n');
+  }
+  document.getElementById('relatorio-lap-content').textContent = rel;
+
+  toast('◆ Lapidação concluída');
+  document.getElementById('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function baixar() {
+  if (!lapidacaoAtual) return;
+  const { lap, titulo } = lapidacaoAtual;
+  const txt = `LAPIDAÇÃO PSICOLÓGICA — CELEIRO LITERÁRIO\n${'═'.repeat(60)}\nOBRA: ${titulo}\n\n${lap.texto_lapidado || ''}`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' }));
+  a.download = `lapidado_${(lapidacaoAtual.titulo||'obra').replace(/\s+/g,'-').toLowerCase()}.txt`;
+  a.click();
+  toast('↓ Texto lapidado baixado');
+}
+
+function enviarCatapulta() {
+  if (!lapidacaoAtual) return;
+  localStorage.setItem('catapulta_texto_lapidado', JSON.stringify(lapidacaoAtual));
+  toast('→ Enviado para a Catapulta');
+}
+
+function novaLapidacao() {
+  document.getElementById('resultado').classList.remove('visivel');
+  document.getElementById('texto-obra').value = '';
+  lapidacaoAtual = null;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Pré-carrega raio-x se veio do analisador
+const raiox = localStorage.getItem('lapidar_raio_x_pendente');
+if (raiox) {
+  try {
+    const dados = JSON.parse(raiox);
+    if (dados.analise) {
+      const h = dados.analise.personagens?.map(p => `${p.nome} (${p.tipo}): ${p.motivacao_central}`).join('\n');
+      document.getElementById('perfil-personagens').value = h || '';
+    }
+    localStorage.removeItem('lapidar_raio_x_pendente');
+  } catch(e) {}
+}
+</script>
+</body>
+</html>
