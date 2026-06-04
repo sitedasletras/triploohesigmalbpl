@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analisador Psicológico · OHE-Peçanha</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08070f;
+  --s1: #0f0e1a;
+  --s2: #161525;
+  --border: #2a2840;
+  --violeta: #7c5cbf;
+  --violeta2: #b89ee8;
+  --violeta3: rgba(124,92,191,0.15);
+  --ouro: #c8a96e;
+  --ouro2: #f0d896;
+  --rosa: #d4689a;
+  --verde: #4caf7a;
+  --texto: #e0daf0;
+  --muted: #5c5878;
+  --cormorant: 'Cormorant Garamond', serif;
+  --playfair: 'Playfair Display', serif;
+  --mono: 'DM Mono', monospace;
+  --r: 18px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--cormorant);
+  background: var(--bg);
+  color: var(--texto);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 20% 10%, rgba(124,92,191,0.08), transparent),
+    radial-gradient(ellipse 40% 60% at 80% 90%, rgba(212,104,154,0.06), transparent),
+    radial-gradient(ellipse 30% 40% at 50% 50%, rgba(200,169,110,0.03), transparent);
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(8,7,15,0.96); border-bottom: 1px solid rgba(124,92,191,0.25);
+  backdrop-filter: blur(14px); padding: 12px 28px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.marca { font-family: var(--mono); font-size: 12px; color: var(--violeta2); letter-spacing: 3px; }
+.marca small { display: block; font-size: 9px; color: var(--muted); letter-spacing: 2px; margin-top: 2px; }
+.tnav { display: flex; gap: 6px; flex-wrap: wrap; }
+.tnav a {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--muted);
+  text-decoration: none; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.2s;
+}
+.tnav a:hover { color: var(--violeta2); border-color: var(--violeta); background: var(--violeta3); }
+
+/* ── HERO ── */
+.hero {
+  padding: 60px 28px 50px; text-align: center;
+  border-bottom: 1px solid rgba(124,92,191,0.15); position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '𝚿'; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%,-50%) rotate(-10deg);
+  font-size: 500px; color: rgba(124,92,191,0.025); pointer-events: none; line-height: 1;
+}
+.hero-badge {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 3px;
+  border: 1px solid rgba(124,92,191,0.35); color: rgba(184,158,232,0.7);
+  padding: 5px 18px; border-radius: 999px; display: inline-block; margin-bottom: 22px;
+}
+.hero h1 {
+  font-family: var(--playfair); font-size: clamp(38px,6vw,80px); font-weight: 900;
+  background: linear-gradient(150deg, var(--ouro2) 0%, var(--violeta2) 45%, var(--rosa) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  letter-spacing: 2px; margin-bottom: 12px; line-height: 1.05;
+}
+.hero-sub { font-family: var(--mono); font-size: 10px; letter-spacing: 4px; color: var(--muted); margin-bottom: 18px; }
+.hero-desc { font-size: 19px; font-style: italic; color: rgba(224,218,240,0.6); max-width: 680px; margin: 0 auto; line-height: 1.8; }
+
+/* ── WRAP ── */
+.wrap { max-width: 1100px; margin: auto; padding: 40px 28px 100px; display: flex; flex-direction: column; gap: 36px; }
+
+/* ── PAINEL DE ENTRADA ── */
+.painel-entrada {
+  background: var(--s1); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden;
+}
+.pe-header {
+  padding: 20px 26px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.pe-titulo { font-family: var(--playfair); font-size: 20px; color: var(--ouro2); letter-spacing: 1px; }
+.pe-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-top: 3px; }
+.pe-body { padding: 24px 26px; display: flex; flex-direction: column; gap: 18px; }
+
+.campo-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; display: block; margin-bottom: 8px; }
+textarea, input, select {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  color: var(--texto); font-family: var(--cormorant); font-size: 16px;
+  padding: 12px 16px; border-radius: 10px; outline: none; transition: border-color 0.2s;
+}
+textarea { resize: vertical; min-height: 180px; line-height: 1.7; }
+textarea:focus, input:focus, select:focus { border-color: var(--violeta); }
+textarea::placeholder, input::placeholder { color: var(--muted); font-style: italic; }
+select { font-family: var(--mono); font-size: 12px; }
+select option { background: var(--s1); }
+
+.campos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ── PERSONAGENS ── */
+.personagens-lista { display: flex; flex-direction: column; gap: 8px; }
+.personagem-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px;
+}
+.personagem-row input { border: none; background: transparent; padding: 0; font-size: 15px; flex: 1; }
+.personagem-row input:focus { border: none; }
+.per-tipo {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 999px; border: 1px solid; cursor: pointer;
+  transition: all 0.2s; background: transparent; white-space: nowrap;
+}
+.per-tipo.protagonista { border-color: rgba(200,169,110,0.4); color: var(--ouro); }
+.per-tipo.protagonista.ativo { background: rgba(200,169,110,0.15); }
+.per-tipo.antagonista { border-color: rgba(212,104,154,0.4); color: var(--rosa); }
+.per-tipo.antagonista.ativo { background: rgba(212,104,154,0.12); }
+.per-tipo.secundario { border-color: rgba(124,92,191,0.4); color: var(--violeta2); }
+.per-tipo.secundario.ativo { background: var(--violeta3); }
+.per-remover { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; transition: color 0.2s; padding: 0 4px; }
+.per-remover:hover { color: var(--rosa); }
+
+.btn-add-per {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  padding: 8px 16px; border: 1px dashed var(--border); border-radius: 999px;
+  color: var(--muted); background: transparent; cursor: pointer; transition: all 0.2s;
+  width: fit-content;
+}
+.btn-add-per:hover { border-color: var(--violeta); color: var(--violeta2); }
+
+/* ── BOTÃO ANALISAR ── */
+.btn-analisar {
+  font-family: var(--playfair); font-size: 16px; letter-spacing: 3px; font-weight: 700;
+  padding: 16px 40px; border: 1px solid var(--violeta2); border-radius: 999px;
+  color: var(--violeta2); background: var(--violeta3); cursor: pointer;
+  transition: all 0.3s; text-transform: uppercase; position: relative; overflow: hidden;
+  width: 100%;
+}
+.btn-analisar::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(184,158,232,0.1), transparent);
+  transform: translateX(-100%); transition: transform 0.5s;
+}
+.btn-analisar:hover::before { transform: translateX(100%); }
+.btn-analisar:hover { background: rgba(124,92,191,0.25); border-color: var(--ouro2); color: var(--ouro2); box-shadow: 0 0 40px rgba(124,92,191,0.2); }
+.btn-analisar:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── LOADING ── */
+.loading-area {
+  display: none; text-align: center; padding: 48px;
+  border: 1px solid rgba(124,92,191,0.2); border-radius: var(--r);
+  background: var(--s1);
+}
+.loading-area.visivel { display: block; }
+.loading-simbolo {
+  font-size: 48px; display: block; margin-bottom: 16px;
+  animation: pulsar 2s ease-in-out infinite;
+}
+@keyframes pulsar { 0%,100%{opacity:0.4;transform:scale(1)} 50%{opacity:1;transform:scale(1.1)} }
+.loading-txt { font-family: var(--mono); font-size: 11px; color: var(--violeta2); letter-spacing: 3px; }
+.loading-fase { font-family: var(--cormorant); font-size: 16px; font-style: italic; color: var(--muted); margin-top: 8px; }
+
+/* ── RESULTADO ── */
+.resultado-area {
+  display: none; background: var(--s1); border: 1px solid rgba(124,92,191,0.25);
+  border-radius: var(--r); overflow: hidden;
+}
+.resultado-area.visivel { display: block; }
+
+.resultado-header {
+  padding: 22px 28px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  background: linear-gradient(135deg, rgba(124,92,191,0.08), transparent);
+}
+.resultado-titulo { font-family: var(--playfair); font-size: 22px; color: var(--ouro2); letter-spacing: 1px; }
+.resultado-acoes { display: flex; gap: 8px; }
+
+.btn-acao {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+  padding: 7px 16px; border: 1px solid; border-radius: 999px;
+  cursor: pointer; transition: all 0.2s; background: transparent;
+  text-transform: uppercase;
+}
+.btn-baixar { border-color: var(--verde); color: var(--verde); }
+.btn-baixar:hover { background: rgba(76,175,122,0.1); }
+.btn-novo { border-color: var(--border); color: var(--muted); }
+.btn-novo:hover { border-color: var(--texto); color: var(--texto); }
+.btn-lapidar { border-color: var(--ouro); color: var(--ouro); }
+.btn-lapidar:hover { background: rgba(200,169,110,0.1); }
+
+/* ABAS DO RESULTADO */
+.abas { display: flex; gap: 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.aba {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+  padding: 12px 20px; border: none; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all 0.2s;
+  white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.aba:hover { color: var(--violeta2); }
+.aba.ativa { color: var(--violeta2); border-bottom-color: var(--violeta); }
+
+/* CONTEÚDO DAS ABAS */
+.aba-conteudo { display: none; padding: 28px; }
+.aba-conteudo.ativa { display: block; }
+
+/* CARDS DE PERSONAGEM */
+.personagem-card {
+  background: var(--s2); border: 1px solid var(--border); border-radius: 14px;
+  margin-bottom: 20px; overflow: hidden;
+}
+.pc-header {
+  padding: 16px 20px; display: flex; align-items: center; gap: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.pc-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--playfair); font-size: 18px; font-weight: 900; flex-shrink: 0;
+}
+.pc-avatar.prot { background: rgba(200,169,110,0.12); border: 2px solid rgba(200,169,110,0.4); color: var(--ouro); }
+.pc-avatar.anta { background: rgba(212,104,154,0.1); border: 2px solid rgba(212,104,154,0.35); color: var(--rosa); }
+.pc-avatar.secu { background: var(--violeta3); border: 2px solid rgba(124,92,191,0.35); color: var(--violeta2); }
+.pc-nome { font-family: var(--playfair); font-size: 18px; color: var(--ouro2); margin-bottom: 4px; }
+.pc-tipo-badge {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+  padding: 3px 10px; border-radius: 999px; border: 1px solid;
+}
+.pc-tipo-badge.prot { border-color: rgba(200,169,110,0.4); color: var(--ouro); }
+.pc-tipo-badge.anta { border-color: rgba(212,104,154,0.4); color: var(--rosa); }
+.pc-tipo-badge.secu { border-color: rgba(124,92,191,0.4); color: var(--violeta2); }
+.pc-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.pc-campo { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.pc-campo-titulo {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 2px; color: var(--muted);
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.pc-campo-texto { font-size: 15px; line-height: 1.7; color: rgba(224,218,240,0.8); }
+.pc-campo.full { grid-column: 1 / -1; }
+
+/* MEDIDORES */
+.medidor-wrap { margin-bottom: 10px; }
+.medidor-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 5px; }
+.medidor-barra { height: 3px; background: var(--border); border-radius: 999px; overflow: hidden; }
+.medidor-fill { height: 100%; border-radius: 999px; transition: width 1s ease; }
+.fill-ouro { background: linear-gradient(90deg, var(--ouro), var(--ouro2)); }
+.fill-rosa { background: linear-gradient(90deg, var(--rosa), #f0a0c0); }
+.fill-violeta { background: linear-gradient(90deg, var(--violeta), var(--violeta2)); }
+.fill-verde { background: linear-gradient(90deg, #2a7a4a, var(--verde)); }
+
+/* MAPA EMOCIONAL */
+.mapa-emocional {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap: 10px;
+}
+.emocao-tag {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px; text-align: center;
+}
+.emocao-emoji { font-size: 24px; display: block; margin-bottom: 6px; }
+.emocao-nome { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+.emocao-intensidade { font-family: var(--playfair); font-size: 18px; color: var(--violeta2); font-weight: 700; }
+
+/* COERÊNCIA */
+.coerencia-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px; margin-bottom: 10px;
+}
+.coerencia-icone { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+.coerencia-txt { font-size: 15px; line-height: 1.7; }
+.coerencia-txt strong { font-family: var(--mono); font-size: 11px; color: var(--violeta2); letter-spacing: 1px; display: block; margin-bottom: 4px; }
+
+/* RELATÓRIO TEXTO */
+.relatorio-texto {
+  font-size: 17px; line-height: 1.9; color: rgba(224,218,240,0.85);
+  white-space: pre-wrap; font-family: var(--cormorant);
+}
+.relatorio-texto h2 {
+  font-family: var(--playfair); font-size: 22px; color: var(--ouro2);
+  margin: 28px 0 12px; letter-spacing: 1px; -webkit-text-fill-color: var(--ouro2);
+}
+.relatorio-texto h3 {
+  font-family: var(--playfair); font-size: 18px; color: var(--violeta2);
+  margin: 20px 0 8px; font-style: italic; -webkit-text-fill-color: var(--violeta2);
+}
+.relatorio-texto strong { color: var(--ouro); -webkit-text-fill-color: var(--ouro); }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--s1); border: 1px solid var(--violeta2);
+  color: var(--violeta2); font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+  padding: 12px 20px; border-radius: 10px; z-index: 300;
+  opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+
+@media (max-width: 700px) {
+  .campos-grid { grid-template-columns: 1fr; }
+  .pc-body { grid-template-columns: 1fr; }
+  .pc-campo.full { grid-column: 1; }
+  .wrap { padding: 24px 16px 80px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="marca">ANALISADOR PSICOLÓGICO · OHE-PEÇANHA<small>RAIO-X DE PERSONAGENS · POWERED BY CLAUDE AI</small></div>
+  <nav class="tnav">
+    <a href="espinha_dorsal.html">← Espinha Dorsal</a>
+    <a href="gerador_obra.html">Gerador de Obra</a>
+    <a href="index.html">← SIGMAL HQ</a>
+  </nav>
+</div>
+
+<header class="hero">
+  <div class="hero-badge">𝚿 ANALISADOR PSICOLÓGICO · PERSONAGENS · ARCOS · TRAUMAS · ARQUÉTIPOS</div>
+  <h1>Raio-X Psicológico</h1>
+  <div class="hero-sub">OHE-PEÇANHA · ANÁLISE PROFUNDA DE PERSONAGENS · CLAUDE AI</div>
+  <p class="hero-desc">Cole o texto da sua obra. A IA analisa cada personagem — motivações, traumas, arquétipos, contradições, evolução psicológica e coerência emocional.</p>
+</header>
+
+<main class="wrap">
+
+  <!-- ENTRADA -->
+  <div class="painel-entrada">
+    <div class="pe-header">
+      <div>
+        <div class="pe-titulo">Entrada da Obra</div>
+        <div class="pe-sub">// COLE O TEXTO · DEFINA OS PERSONAGENS · INICIE A ANÁLISE</div>
+      </div>
+    </div>
+    <div class="pe-body">
+
+      <div>
+        <label class="campo-label">// TEXTO DA OBRA (trecho ou completo)</label>
+        <textarea id="texto-obra" placeholder="Cole aqui o texto da sua obra — capítulo, conto, romance ou qualquer trecho que contenha os personagens a serem analisados..."></textarea>
+      </div>
+
+      <div class="campos-grid">
+        <div>
+          <label class="campo-label">// TÍTULO DA OBRA</label>
+          <input type="text" id="titulo-obra" placeholder="Título da obra">
+        </div>
+        <div>
+          <label class="campo-label">// GÊNERO / EIXO</label>
+          <select id="genero-obra">
+            <option value="romance">Romance</option>
+            <option value="conto">Conto</option>
+            <option value="novela">Novela</option>
+            <option value="ficcao">Ficção científica</option>
+            <option value="fantasia">Fantasia</option>
+            <option value="thriller">Thriller / Suspense</option>
+            <option value="drama">Drama literário</option>
+            <option value="hibrido">Híbrido</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="campo-label">// PERSONAGENS A ANALISAR</label>
+        <div class="personagens-lista" id="personagens-lista">
+          <div class="personagem-row" data-id="1">
+            <input type="text" placeholder="Nome do personagem" class="per-nome">
+            <button class="per-tipo protagonista ativo" onclick="ciclaTipo(this)">PROTAGONISTA</button>
+            <button class="per-remover" onclick="removerPersonagem(this)">×</button>
+          </div>
+          <div class="personagem-row" data-id="2">
+            <input type="text" placeholder="Nome do personagem" class="per-nome">
+            <button class="per-tipo antagonista ativo" onclick="ciclaTipo(this)">ANTAGONISTA</button>
+            <button class="per-remover" onclick="removerPersonagem(this)">×</button>
+          </div>
+        </div>
+        <button class="btn-add-per" onclick="adicionarPersonagem()" style="margin-top:10px">+ Adicionar personagem</button>
+      </div>
+
+      <div>
+        <label class="campo-label">// PROFUNDIDADE DA ANÁLISE</label>
+        <select id="profundidade">
+          <option value="completa">Completa — todos os eixos psicológicos</option>
+          <option value="focada">Focada — motivação e arco emocional</option>
+          <option value="conflito">Conflito — antagonismo e tensão narrativa</option>
+          <option value="trauma">Trauma — feridas e gatilhos psicológicos</option>
+        </select>
+      </div>
+
+      <button class="btn-analisar" id="btn-analisar" onclick="iniciarAnalise()">
+        𝚿 INICIAR RAIO-X PSICOLÓGICO
+      </button>
+
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-area" id="loading-area">
+    <span class="loading-simbolo">𝚿</span>
+    <div class="loading-txt">ANALISANDO<span id="loading-dots"></span></div>
+    <div class="loading-fase" id="loading-fase">Lendo o texto da obra...</div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="resultado-area" id="resultado-area">
+    <div class="resultado-header">
+      <div>
+        <div class="resultado-titulo" id="resultado-titulo">Raio-X Psicológico</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:4px" id="resultado-meta">—</div>
+      </div>
+      <div class="resultado-acoes">
+        <button class="btn-acao btn-baixar" onclick="baixarRelatorio()">↓ BAIXAR</button>
+        <button class="btn-acao btn-lapidar" onclick="enviarLapidar()">→ LAPIDAR</button>
+        <button class="btn-acao btn-novo" onclick="novaAnalise()">↺ NOVA</button>
+      </div>
+    </div>
+
+    <div class="abas" id="abas-container">
+      <button class="aba ativa" onclick="setAba('visao-geral',this)">Visão Geral</button>
+      <button class="aba" onclick="setAba('personagens',this)">Personagens</button>
+      <button class="aba" onclick="setAba('mapa-emocional',this)">Mapa Emocional</button>
+      <button class="aba" onclick="setAba('coerencia',this)">Coerência</button>
+      <button class="aba" onclick="setAba('relatorio',this)">Relatório Completo</button>
+    </div>
+
+    <div class="aba-conteudo ativa" id="aba-visao-geral">
+      <div id="visao-geral-content"></div>
+    </div>
+    <div class="aba-conteudo" id="aba-personagens">
+      <div id="personagens-content"></div>
+    </div>
+    <div class="aba-conteudo" id="aba-mapa-emocional">
+      <div id="mapa-emocional-content"></div>
+    </div>
+    <div class="aba-conteudo" id="aba-coerencia">
+      <div id="coerencia-content"></div>
+    </div>
+    <div class="aba-conteudo" id="aba-relatorio">
+      <div class="relatorio-texto" id="relatorio-content"></div>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// ANALISADOR PSICOLÓGICO · OHE-PEÇANHA · CLAUDE AI
+// ══════════════════════════════════════════════════════════════
+
+let analiseAtual = null;
+let contadorPer = 3;
+
+// ── PERSONAGENS ──
+function adicionarPersonagem() {
+  const lista = document.getElementById('personagens-lista');
+  const div = document.createElement('div');
+  div.className = 'personagem-row';
+  div.dataset.id = contadorPer++;
+  div.innerHTML = `
+    <input type="text" placeholder="Nome do personagem" class="per-nome">
+    <button class="per-tipo secundario ativo" onclick="ciclaTipo(this)">SECUNDÁRIO</button>
+    <button class="per-remover" onclick="removerPersonagem(this)">×</button>
+  `;
+  lista.appendChild(div);
+}
+
+function removerPersonagem(btn) {
+  btn.closest('.personagem-row').remove();
+}
+
+function ciclaTipo(btn) {
+  const tipos = ['protagonista','antagonista','secundario'];
+  const labels = ['PROTAGONISTA','ANTAGONISTA','SECUNDÁRIO'];
+  const atual = tipos.findIndex(t => btn.classList.contains(t));
+  const proximo = (atual + 1) % tipos.length;
+  tipos.forEach(t => btn.classList.remove(t));
+  btn.classList.add(tipos[proximo]);
+  btn.textContent = labels[proximo];
+}
+
+function coletarPersonagens() {
+  const rows = document.querySelectorAll('.personagem-row');
+  return Array.from(rows).map(row => {
+    const nome = row.querySelector('.per-nome').value.trim();
+    const tipoBtn = row.querySelector('.per-tipo');
+    const tipo = tipoBtn.classList.contains('protagonista') ? 'protagonista' :
+                 tipoBtn.classList.contains('antagonista') ? 'antagonista' : 'secundario';
+    return { nome, tipo };
+  }).filter(p => p.nome);
+}
+
+// ── ABAS ──
+function setAba(id, btn) {
+  document.querySelectorAll('.aba').forEach(a => a.classList.remove('ativa'));
+  document.querySelectorAll('.aba-conteudo').forEach(c => c.classList.remove('ativa'));
+  btn.classList.add('ativa');
+  document.getElementById(`aba-${id}`).classList.add('ativa');
+}
+
+// ── LOADING ANIMADO ──
+let loadingInterval;
+const fases = [
+  'Lendo o texto da obra...',
+  'Identificando personagens...',
+  'Mapeando motivações...',
+  'Analisando traumas e feridas...',
+  'Construindo arcos psicológicos...',
+  'Detectando arquétipos...',
+  'Avaliando coerência emocional...',
+  'Gerando Raio-X completo...'
+];
+let faseAtual = 0;
+
+function iniciarLoading() {
+  faseAtual = 0;
+  document.getElementById('loading-fase').textContent = fases[0];
+  loadingInterval = setInterval(() => {
+    faseAtual = (faseAtual + 1) % fases.length;
+    document.getElementById('loading-fase').textContent = fases[faseAtual];
+  }, 2000);
+
+  let dots = 0;
+  window._dotsInterval = setInterval(() => {
+    dots = (dots + 1) % 4;
+    document.getElementById('loading-dots').textContent = '.'.repeat(dots);
+  }, 400);
+}
+
+function pararLoading() {
+  clearInterval(loadingInterval);
+  clearInterval(window._dotsInterval);
+}
+
+// ── ANÁLISE PRINCIPAL ──
+async function iniciarAnalise() {
+  const texto = document.getElementById('texto-obra').value.trim();
+  const titulo = document.getElementById('titulo-obra').value.trim() || 'Obra sem título';
+  const genero = document.getElementById('genero-obra').value;
+  const profundidade = document.getElementById('profundidade').value;
+  const personagens = coletarPersonagens();
+
+  if (!texto) { toast('Cole o texto da obra para analisar'); return; }
+  if (!personagens.length) { toast('Adicione ao menos um personagem'); return; }
+
+  // UI
+  document.getElementById('btn-analisar').disabled = true;
+  document.getElementById('loading-area').classList.add('visivel');
+  document.getElementById('resultado-area').classList.remove('visivel');
+  iniciarLoading();
+
+  const listaPersonagens = personagens.map(p => `${p.nome} (${p.tipo})`).join(', ');
+
+  const systemPrompt = `Você é um psicanalista literário especialista em psicologia de personagens, narrativa e arcos emocionais. Analisa obras com profundidade clínica e sensibilidade literária.
+
+Você deve responder APENAS em JSON válido, sem texto antes ou depois, sem markdown, sem backticks.
+
+A estrutura JSON deve ser exatamente:
+{
+  "obra": {
+    "titulo": "string",
+    "genero": "string",
+    "tema_central": "string",
+    "tom_emocional": "string",
+    "potencial_serie": "string"
+  },
+  "personagens": [
+    {
+      "nome": "string",
+      "tipo": "protagonista|antagonista|secundario",
+      "arquetipo": "string",
+      "motivacao_central": "string",
+      "ferida_original": "string",
+      "medo_profundo": "string",
+      "desejo_inconsciente": "string",
+      "mascara_social": "string",
+      "sombra": "string",
+      "arco_emocional": "string",
+      "traumas": ["string"],
+      "gatilhos_narrativos": ["string"],
+      "contradicoes": "string",
+      "evolucao": "string",
+      "forca": 0-100,
+      "vulnerabilidade": 0-100,
+      "complexidade": 0-100,
+      "coerencia": 0-100
+    }
+  ],
+  "mapa_emocional": [
+    {"emocao": "string", "emoji": "string", "intensidade": "string", "personagem": "string"}
+  ],
+  "coerencia_obra": [
+    {"tipo": "✓|⚠|✗", "titulo": "string", "descricao": "string"}
+  ],
+  "recomendacoes": ["string"],
+  "potencial_aprofundamento": "string"
+}`;
+
+  const userPrompt = `Analise esta obra com profundidade psicológica:
+
+TÍTULO: ${titulo}
+GÊNERO: ${genero}
+PROFUNDIDADE SOLICITADA: ${profundidade}
+PERSONAGENS: ${listaPersonagens}
+
+TEXTO:
+${texto.substring(0, 8000)}
+
+Gere o Raio-X Psicológico completo no formato JSON especificado.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+
+    const data = await resp.json();
+    let textoResposta = data.content.map(c => c.text || '').join('');
+    textoResposta = textoResposta.replace(/```json|```/g, '').trim();
+    const analise = JSON.parse(textoResposta);
+
+    analiseAtual = { analise, titulo, personagens };
+    pararLoading();
+    renderResultado(analise, titulo);
+
+  } catch(e) {
+    pararLoading();
+    document.getElementById('loading-area').classList.remove('visivel');
+    document.getElementById('btn-analisar').disabled = false;
+    toast('Erro na análise — tente novamente');
+    console.error(e);
+  }
+}
+
+// ── RENDERIZA RESULTADO ──
+function renderResultado(analise, titulo) {
+  document.getElementById('loading-area').classList.remove('visivel');
+  document.getElementById('resultado-area').classList.add('visivel');
+  document.getElementById('btn-analisar').disabled = false;
+
+  document.getElementById('resultado-titulo').textContent = `Raio-X · ${titulo}`;
+  document.getElementById('resultado-meta').textContent =
+    `${analise.personagens?.length || 0} personagens · ${analise.mapa_emocional?.length || 0} emoções mapeadas · ${new Date().toLocaleDateString('pt-BR')}`;
+
+  renderVisaoGeral(analise);
+  renderPersonagens(analise.personagens || []);
+  renderMapaEmocional(analise.mapa_emocional || []);
+  renderCoerencia(analise.coerencia_obra || []);
+  renderRelatorio(analise);
+
+  toast('✦ Raio-X Psicológico concluído');
+}
+
+// VISÃO GERAL
+function renderVisaoGeral(analise) {
+  const obra = analise.obra || {};
+  const html = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:28px">
+      ${[
+        ['Tema Central', obra.tema_central || '—', '🎭'],
+        ['Tom Emocional', obra.tom_emocional || '—', '🌊'],
+        ['Potencial de Série', obra.potencial_serie || '—', '📚'],
+        ['Personagens', (analise.personagens||[]).length + ' analisados', '👥']
+      ].map(([titulo, valor, emoji]) => `
+        <div style="background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:16px">
+          <div style="font-size:24px;margin-bottom:8px">${emoji}</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">${titulo}</div>
+          <div style="font-size:16px;line-height:1.6;color:var(--texto)">${valor}</div>
+        </div>
+      `).join('')}
+    </div>
+    ${analise.recomendacoes?.length ? `
+      <div style="background:var(--s2);border:1px solid rgba(124,92,191,0.25);border-radius:14px;padding:20px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--violeta2);letter-spacing:2px;margin-bottom:14px">// RECOMENDAÇÕES PSICOLÓGICAS</div>
+        ${analise.recomendacoes.map(r => `
+          <div style="display:flex;gap:10px;margin-bottom:10px;align-items:flex-start">
+            <span style="color:var(--violeta2);flex-shrink:0">◈</span>
+            <span style="font-size:16px;line-height:1.7;color:rgba(224,218,240,0.8)">${r}</span>
+          </div>
+        `).join('')}
+      </div>
+    ` : ''}
+    ${analise.potencial_aprofundamento ? `
+      <div style="background:rgba(200,169,110,0.05);border:1px solid rgba(200,169,110,0.2);border-radius:14px;padding:20px;margin-top:16px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--ouro);letter-spacing:2px;margin-bottom:10px">// POTENCIAL DE APROFUNDAMENTO</div>
+        <div style="font-size:16px;font-style:italic;line-height:1.8;color:rgba(224,218,240,0.75)">${analise.potencial_aprofundamento}</div>
+      </div>
+    ` : ''}
+  `;
+  document.getElementById('visao-geral-content').innerHTML = html;
+}
+
+// PERSONAGENS
+function renderPersonagens(personagens) {
+  const html = personagens.map(p => {
+    const tipoClass = p.tipo === 'protagonista' ? 'prot' : p.tipo === 'antagonista' ? 'anta' : 'secu';
+    const tipoLabel = p.tipo === 'protagonista' ? 'PROTAGONISTA' : p.tipo === 'antagonista' ? 'ANTAGONISTA' : 'SECUNDÁRIO';
+    const inicial = p.nome ? p.nome[0].toUpperCase() : '?';
+    return `
+      <div class="personagem-card">
+        <div class="pc-header">
+          <div class="pc-avatar ${tipoClass}">${inicial}</div>
+          <div>
+            <div class="pc-nome">${p.nome}</div>
+            <span class="pc-tipo-badge ${tipoClass}">${tipoLabel}</span>
+            ${p.arquetipo ? `<span style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-left:8px;letter-spacing:1px">${p.arquetipo}</span>` : ''}
+          </div>
+        </div>
+        <div class="pc-body">
+          ${[
+            ['Motivação Central', p.motivacao_central],
+            ['Ferida Original', p.ferida_original],
+            ['Medo Profundo', p.medo_profundo],
+            ['Desejo Inconsciente', p.desejo_inconsciente],
+            ['Máscara Social', p.mascara_social],
+            ['Sombra', p.sombra]
+          ].filter(([,v]) => v).map(([titulo, valor]) => `
+            <div class="pc-campo">
+              <div class="pc-campo-titulo">${titulo}</div>
+              <div class="pc-campo-texto">${valor}</div>
+            </div>
+          `).join('')}
+          ${p.traumas?.length ? `
+            <div class="pc-campo">
+              <div class="pc-campo-titulo">Traumas</div>
+              <div class="pc-campo-texto">${p.traumas.map(t => `• ${t}`).join('<br>')}</div>
+            </div>
+          ` : ''}
+          ${p.gatilhos_narrativos?.length ? `
+            <div class="pc-campo">
+              <div class="pc-campo-titulo">Gatilhos Narrativos</div>
+              <div class="pc-campo-texto">${p.gatilhos_narrativos.map(g => `• ${g}`).join('<br>')}</div>
+            </div>
+          ` : ''}
+          ${p.arco_emocional ? `
+            <div class="pc-campo full">
+              <div class="pc-campo-titulo">Arco Emocional</div>
+              <div class="pc-campo-texto">${p.arco_emocional}</div>
+            </div>
+          ` : ''}
+          ${p.contradicoes ? `
+            <div class="pc-campo full">
+              <div class="pc-campo-titulo">Contradições</div>
+              <div class="pc-campo-texto">${p.contradicoes}</div>
+            </div>
+          ` : ''}
+          <div class="pc-campo full">
+            <div class="pc-campo-titulo">Medidores Psicológicos</div>
+            ${[
+              ['Força', p.forca, 'fill-ouro'],
+              ['Vulnerabilidade', p.vulnerabilidade, 'fill-rosa'],
+              ['Complexidade', p.complexidade, 'fill-violeta'],
+              ['Coerência', p.coerencia, 'fill-verde']
+            ].map(([label, val, cls]) => `
+              <div class="medidor-wrap">
+                <div class="medidor-label"><span>${label}</span><span>${val || 0}%</span></div>
+                <div class="medidor-barra"><div class="medidor-fill ${cls}" style="width:${val || 0}%"></div></div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('personagens-content').innerHTML = html || '<div style="color:var(--muted);font-style:italic">Nenhum personagem analisado.</div>';
+}
+
+// MAPA EMOCIONAL
+function renderMapaEmocional(emocoes) {
+  const html = `
+    <div style="margin-bottom:20px;font-size:16px;font-style:italic;color:rgba(224,218,240,0.6);line-height:1.7">
+      O mapa emocional revela as emoções dominantes que permeiam a obra e seus personagens.
+    </div>
+    <div class="mapa-emocional">
+      ${emocoes.map(e => `
+        <div class="emocao-tag">
+          <span class="emocao-emoji">${e.emoji || '💫'}</span>
+          <div class="emocao-intensidade">${e.intensidade || '—'}</div>
+          <div class="emocao-nome">${e.emocao || '—'}</div>
+          ${e.personagem ? `<div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:4px">${e.personagem}</div>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `;
+  document.getElementById('mapa-emocional-content').innerHTML = html;
+}
+
+// COERÊNCIA
+function renderCoerencia(itens) {
+  const iconMap = { '✓': '✅', '⚠': '⚠️', '✗': '❌' };
+  const html = `
+    <div style="margin-bottom:20px;font-size:16px;font-style:italic;color:rgba(224,218,240,0.6);line-height:1.7">
+      Avaliação da coerência emocional, psicológica e narrativa da obra.
+    </div>
+    ${itens.map(item => `
+      <div class="coerencia-item">
+        <div class="coerencia-icone">${iconMap[item.tipo] || '◈'}</div>
+        <div class="coerencia-txt">
+          <strong>${item.titulo || '—'}</strong>
+          ${item.descricao || '—'}
+        </div>
+      </div>
+    `).join('')}
+  `;
+  document.getElementById('coerencia-content').innerHTML = html;
+}
+
+// RELATÓRIO COMPLETO
+function renderRelatorio(analise) {
+  const obra = analise.obra || {};
+  let txt = `RAIO-X PSICOLÓGICO\n`;
+  txt += `${analise.titulo || 'Obra'} · ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+  txt += `## OBRA\n\n`;
+  txt += `Tema Central: ${obra.tema_central || '—'}\n`;
+  txt += `Tom Emocional: ${obra.tom_emocional || '—'}\n`;
+  txt += `Potencial de Série: ${obra.potencial_serie || '—'}\n\n`;
+
+  (analise.personagens || []).forEach(p => {
+    txt += `## ${p.nome} · ${p.tipo?.toUpperCase()}\n\n`;
+    txt += `**Arquétipo:** ${p.arquetipo || '—'}\n`;
+    txt += `**Motivação:** ${p.motivacao_central || '—'}\n`;
+    txt += `**Ferida Original:** ${p.ferida_original || '—'}\n`;
+    txt += `**Medo Profundo:** ${p.medo_profundo || '—'}\n`;
+    txt += `**Sombra:** ${p.sombra || '—'}\n`;
+    txt += `**Arco Emocional:** ${p.arco_emocional || '—'}\n\n`;
+  });
+
+  if (analise.recomendacoes?.length) {
+    txt += `## RECOMENDAÇÕES\n\n`;
+    analise.recomendacoes.forEach(r => { txt += `• ${r}\n`; });
+    txt += '\n';
+  }
+
+  if (analise.potencial_aprofundamento) {
+    txt += `## POTENCIAL DE APROFUNDAMENTO\n\n${analise.potencial_aprofundamento}\n`;
+  }
+
+  // Renderiza com formatação
+  const htmlTxt = txt
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  document.getElementById('relatorio-content').innerHTML = htmlTxt;
+}
+
+// ── AÇÕES ──
+function baixarRelatorio() {
+  if (!analiseAtual) return;
+  const { analise, titulo } = analiseAtual;
+  const obra = analise.obra || {};
+
+  let txt = `RAIO-X PSICOLÓGICO — OHE-PEÇANHA\n`;
+  txt += `${'═'.repeat(60)}\n`;
+  txt += `OBRA: ${titulo}\nDATA: ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+  txt += `TEMA CENTRAL: ${obra.tema_central || '—'}\n`;
+  txt += `TOM EMOCIONAL: ${obra.tom_emocional || '—'}\n`;
+  txt += `POTENCIAL DE SÉRIE: ${obra.potencial_serie || '—'}\n\n`;
+
+  (analise.personagens || []).forEach(p => {
+    txt += `${'─'.repeat(60)}\n`;
+    txt += `${p.nome?.toUpperCase()} · ${p.tipo?.toUpperCase()} · ${p.arquetipo}\n\n`;
+    txt += `MOTIVAÇÃO: ${p.motivacao_central || '—'}\n`;
+    txt += `FERIDA ORIGINAL: ${p.ferida_original || '—'}\n`;
+    txt += `MEDO PROFUNDO: ${p.medo_profundo || '—'}\n`;
+    txt += `DESEJO INCONSCIENTE: ${p.desejo_inconsciente || '—'}\n`;
+    txt += `MÁSCARA SOCIAL: ${p.mascara_social || '—'}\n`;
+    txt += `SOMBRA: ${p.sombra || '—'}\n`;
+    txt += `ARCO EMOCIONAL: ${p.arco_emocional || '—'}\n`;
+    txt += `CONTRADIÇÕES: ${p.contradicoes || '—'}\n`;
+    if (p.traumas?.length) txt += `TRAUMAS: ${p.traumas.join(' · ')}\n`;
+    if (p.gatilhos_narrativos?.length) txt += `GATILHOS: ${p.gatilhos_narrativos.join(' · ')}\n`;
+    txt += `\nMEDIDORES: Força ${p.forca}% · Vulnerabilidade ${p.vulnerabilidade}% · Complexidade ${p.complexidade}% · Coerência ${p.coerencia}%\n\n`;
+  });
+
+  if (analise.recomendacoes?.length) {
+    txt += `${'─'.repeat(60)}\nRECOMENDAÇÕES\n\n`;
+    analise.recomendacoes.forEach(r => { txt += `• ${r}\n`; });
+  }
+
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' }));
+  a.download = `raio-x_${titulo.replace(/\s+/g,'-').toLowerCase()}.txt`;
+  a.click();
+  toast('↓ Raio-X baixado');
+}
+
+function enviarLapidar() {
+  if (!analiseAtual) return;
+  const dados = JSON.stringify(analiseAtual);
+  localStorage.setItem('lapidar_raio_x_pendente', dados);
+  toast('→ Enviado para o Lapidar');
+}
+
+function novaAnalise() {
+  document.getElementById('resultado-area').classList.remove('visivel');
+  document.getElementById('texto-obra').value = '';
+  document.getElementById('titulo-obra').value = '';
+  analiseAtual = null;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── TOAST ──
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
