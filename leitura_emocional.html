@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leitura Emocional · OHE-Peçanha</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060a0e;
+  --s1: #0a1018;
+  --s2: #111820;
+  --border: #1e2a38;
+  --azul: #2a6a9e;
+  --azul2: #6aaed8;
+  --azul3: rgba(42,106,158,0.15);
+  --ouro: #c8a96e;
+  --ouro2: #f0d896;
+  --rosa: #d4689a;
+  --verde: #4caf7a;
+  --laranja: #e08040;
+  --texto: #d8e8f0;
+  --muted: #4a5a6a;
+  --caslon: 'Libre Caslon Text', serif;
+  --cormorant: 'Cormorant Garamond', serif;
+  --mono: 'DM Mono', monospace;
+  --r: 18px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--caslon);
+  background: var(--bg);
+  color: var(--texto);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 70% 40% at 30% 0%, rgba(42,106,158,0.07), transparent),
+    radial-gradient(ellipse 50% 50% at 90% 80%, rgba(212,104,154,0.05), transparent);
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,10,14,0.97); border-bottom: 1px solid rgba(42,106,158,0.25);
+  backdrop-filter: blur(14px); padding: 12px 28px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.marca { font-family: var(--mono); font-size: 12px; color: var(--azul2); letter-spacing: 3px; }
+.marca small { display: block; font-size: 9px; color: var(--muted); letter-spacing: 2px; margin-top: 2px; }
+.tnav { display: flex; gap: 6px; flex-wrap: wrap; }
+.tnav a {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--muted);
+  text-decoration: none; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.2s;
+}
+.tnav a:hover { color: var(--azul2); border-color: var(--azul); background: var(--azul3); }
+
+/* ── HERO ── */
+.hero {
+  padding: 60px 28px 50px; text-align: center;
+  border-bottom: 1px solid rgba(42,106,158,0.15); position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '♥'; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%,-50%);
+  font-size: 480px; color: rgba(42,106,158,0.025); pointer-events: none; line-height: 1;
+}
+.hero-badge {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 3px;
+  border: 1px solid rgba(42,106,158,0.35); color: rgba(106,174,216,0.7);
+  padding: 5px 18px; border-radius: 999px; display: inline-block; margin-bottom: 22px;
+}
+.hero h1 {
+  font-family: var(--cormorant); font-size: clamp(38px,6vw,82px); font-weight: 600;
+  font-style: italic;
+  background: linear-gradient(150deg, var(--ouro2) 0%, var(--azul2) 50%, var(--rosa) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 12px; line-height: 1.05;
+}
+.hero-sub { font-family: var(--mono); font-size: 10px; letter-spacing: 4px; color: var(--muted); margin-bottom: 18px; }
+.hero-desc { font-size: 18px; font-style: italic; color: rgba(216,232,240,0.6); max-width: 680px; margin: 0 auto; line-height: 1.9; }
+
+/* ── WRAP ── */
+.wrap { max-width: 1100px; margin: auto; padding: 40px 28px 100px; display: flex; flex-direction: column; gap: 36px; }
+
+/* ── PAINEL ENTRADA ── */
+.painel { background: var(--s1); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.painel-header {
+  padding: 20px 26px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+}
+.painel-titulo { font-family: var(--cormorant); font-size: 22px; font-style: italic; color: var(--ouro2); }
+.painel-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-top: 3px; }
+.painel-body { padding: 24px 26px; display: flex; flex-direction: column; gap: 18px; }
+
+.campo-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; display: block; margin-bottom: 8px; }
+textarea, input, select {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  color: var(--texto); font-family: var(--caslon); font-size: 16px;
+  padding: 12px 16px; border-radius: 10px; outline: none; transition: border-color 0.2s;
+  line-height: 1.7;
+}
+textarea { resize: vertical; min-height: 200px; }
+textarea:focus, input:focus, select:focus { border-color: var(--azul); }
+textarea::placeholder { color: var(--muted); font-style: italic; }
+select, input { font-family: var(--mono); font-size: 12px; }
+select option { background: var(--s1); }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* CHECKBOXES DE FOCO */
+.focos-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+.foco-btn {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+  padding: 7px 14px; border: 1px solid var(--border); border-radius: 999px;
+  background: transparent; color: var(--muted); cursor: pointer; transition: all 0.2s;
+}
+.foco-btn.ativo { border-color: var(--azul); color: var(--azul2); background: var(--azul3); }
+
+/* ── BOTÃO ── */
+.btn-avaliar {
+  font-family: var(--cormorant); font-size: 18px; font-style: italic; font-weight: 600;
+  padding: 16px 40px; border: 1px solid var(--azul2); border-radius: 999px;
+  color: var(--azul2); background: var(--azul3); cursor: pointer;
+  transition: all 0.3s; width: 100%; letter-spacing: 1px;
+}
+.btn-avaliar:hover { background: rgba(42,106,158,0.25); border-color: var(--ouro2); color: var(--ouro2); box-shadow: 0 0 40px rgba(42,106,158,0.2); }
+.btn-avaliar:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── LOADING ── */
+.loading-area {
+  display: none; text-align: center; padding: 56px;
+  border: 1px solid rgba(42,106,158,0.2); border-radius: var(--r); background: var(--s1);
+}
+.loading-area.visivel { display: block; }
+.loading-pulso {
+  width: 60px; height: 60px; border-radius: 50%;
+  border: 2px solid rgba(42,106,158,0.3); border-top-color: var(--azul2);
+  margin: 0 auto 20px; animation: girar 1.2s linear infinite;
+}
+@keyframes girar { to { transform: rotate(360deg); } }
+.loading-txt { font-family: var(--mono); font-size: 11px; color: var(--azul2); letter-spacing: 3px; }
+.loading-fase { font-family: var(--cormorant); font-size: 17px; font-style: italic; color: var(--muted); margin-top: 8px; }
+
+/* ── RESULTADO ── */
+.resultado { display: none; }
+.resultado.visivel { display: block; }
+
+/* NOTA GERAL */
+.nota-geral {
+  background: var(--s1); border: 1px solid rgba(42,106,158,0.3);
+  border-radius: var(--r); padding: 32px; text-align: center; margin-bottom: 28px;
+  background-image: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(42,106,158,0.06), transparent);
+}
+.nota-numero {
+  font-family: var(--cormorant); font-size: 100px; font-weight: 600;
+  line-height: 1; display: block; margin-bottom: 8px;
+}
+.nota-label { font-family: var(--mono); font-size: 11px; letter-spacing: 3px; color: var(--muted); }
+.nota-descricao { font-size: 19px; font-style: italic; color: rgba(216,232,240,0.7); margin-top: 14px; line-height: 1.8; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+/* GRID DE DIMENSÕES */
+.dimensoes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 14px; margin-bottom: 28px; }
+.dimensao-card {
+  background: var(--s1); border: 1px solid var(--border); border-radius: 14px; padding: 18px;
+}
+.dim-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.dim-emoji { font-size: 22px; }
+.dim-titulo { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+.dim-nota { font-family: var(--cormorant); font-size: 28px; font-weight: 600; color: var(--ouro2); margin-left: auto; }
+.dim-barra { height: 3px; background: var(--border); border-radius: 999px; overflow: hidden; margin-bottom: 10px; }
+.dim-fill { height: 100%; border-radius: 999px; transition: width 1s ease; }
+.dim-comentario { font-size: 14px; font-style: italic; color: rgba(216,232,240,0.6); line-height: 1.6; }
+
+/* ABAS */
+.abas { display: flex; gap: 0; border-bottom: 1px solid var(--border); overflow-x: auto; background: var(--s1); border-radius: var(--r) var(--r) 0 0; }
+.aba {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+  padding: 13px 20px; border: none; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all 0.2s;
+  white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.aba:hover { color: var(--azul2); }
+.aba.ativa { color: var(--azul2); border-bottom-color: var(--azul); }
+
+.aba-wrap { background: var(--s1); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.aba-conteudo { display: none; padding: 28px; }
+.aba-conteudo.ativa { display: block; }
+
+/* SEÇÃO DENTRO DAS ABAS */
+.sec { margin-bottom: 28px; }
+.sec-titulo {
+  font-family: var(--mono); font-size: 10px; color: var(--azul2); letter-spacing: 3px;
+  text-transform: uppercase; margin-bottom: 14px; padding-bottom: 8px;
+  border-bottom: 1px solid rgba(42,106,158,0.2);
+}
+
+/* ITEM DE ANÁLISE */
+.item-analise {
+  background: var(--s2); border: 1px solid var(--border); border-radius: 12px;
+  padding: 16px 18px; margin-bottom: 10px;
+}
+.item-analise .ia-titulo {
+  font-family: var(--mono); font-size: 11px; color: var(--azul2); letter-spacing: 1px; margin-bottom: 8px;
+}
+.item-analise .ia-texto { font-size: 16px; line-height: 1.8; color: rgba(216,232,240,0.8); }
+
+/* TERMÔMETRO EMOCIONAL */
+.termometro-lista { display: flex; flex-direction: column; gap: 10px; }
+.termometro-item { display: flex; align-items: center; gap: 14px; }
+.termo-emoji { font-size: 20px; flex-shrink: 0; width: 30px; text-align: center; }
+.termo-nome { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; width: 130px; flex-shrink: 0; }
+.termo-barra-wrap { flex: 1; }
+.termo-barra { height: 6px; background: var(--border); border-radius: 999px; overflow: hidden; }
+.termo-fill { height: 100%; border-radius: 999px; transition: width 1s ease; }
+.termo-valor { font-family: var(--mono); font-size: 10px; color: var(--muted); width: 35px; text-align: right; flex-shrink: 0; }
+
+/* ALERTA / ELOGIO */
+.alerta {
+  display: flex; align-items: flex-start; gap: 12px;
+  border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;
+}
+.alerta.positivo { background: rgba(76,175,122,0.06); border: 1px solid rgba(76,175,122,0.2); }
+.alerta.atencao { background: rgba(224,128,64,0.06); border: 1px solid rgba(224,128,64,0.2); }
+.alerta.critico { background: rgba(212,104,154,0.06); border: 1px solid rgba(212,104,154,0.2); }
+.alerta.sugestao { background: rgba(42,106,158,0.06); border: 1px solid rgba(42,106,158,0.2); }
+.alerta-icone { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+.alerta-txt strong { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; display: block; margin-bottom: 4px; }
+.alerta.positivo .alerta-txt strong { color: var(--verde); }
+.alerta.atencao .alerta-txt strong { color: var(--laranja); }
+.alerta.critico .alerta-txt strong { color: var(--rosa); }
+.alerta.sugestao .alerta-txt strong { color: var(--azul2); }
+.alerta-txt p { font-size: 15px; line-height: 1.7; color: rgba(216,232,240,0.75); }
+
+/* POTENCIAL */
+.potencial-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 10px; }
+.potencial-card {
+  background: var(--s2); border: 1px solid var(--border); border-radius: 12px;
+  padding: 16px; text-align: center;
+}
+.potencial-emoji { font-size: 28px; display: block; margin-bottom: 8px; }
+.potencial-titulo { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+.potencial-valor { font-family: var(--cormorant); font-size: 22px; font-weight: 600; }
+.potencial-desc { font-size: 13px; font-style: italic; color: rgba(216,232,240,0.5); margin-top: 6px; line-height: 1.5; }
+
+/* RELATÓRIO */
+.relatorio-texto {
+  font-family: var(--caslon); font-size: 17px; line-height: 1.9;
+  color: rgba(216,232,240,0.85); white-space: pre-wrap;
+}
+.relatorio-texto h2 { font-family: var(--cormorant); font-size: 24px; font-style: italic; color: var(--ouro2); margin: 28px 0 12px; -webkit-text-fill-color: var(--ouro2); }
+.relatorio-texto h3 { font-family: var(--mono); font-size: 12px; letter-spacing: 2px; color: var(--azul2); margin: 20px 0 8px; -webkit-text-fill-color: var(--azul2); text-transform: uppercase; }
+
+/* AÇÕES */
+.acoes-bar {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  padding: 18px 26px; border-top: 1px solid var(--border); background: var(--s1);
+  border-radius: 0 0 var(--r) var(--r);
+}
+.btn-acao {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+  padding: 8px 18px; border: 1px solid; border-radius: 999px;
+  cursor: pointer; transition: all 0.2s; background: transparent; text-transform: uppercase;
+}
+.btn-dl { border-color: var(--verde); color: var(--verde); }
+.btn-dl:hover { background: rgba(76,175,122,0.1); }
+.btn-lap { border-color: var(--ouro); color: var(--ouro); }
+.btn-lap:hover { background: rgba(200,169,110,0.1); }
+.btn-psi { border-color: rgba(124,92,191,0.5); color: #b89ee8; }
+.btn-psi:hover { background: rgba(124,92,191,0.1); }
+.btn-novo { border-color: var(--border); color: var(--muted); }
+.btn-novo:hover { border-color: var(--texto); color: var(--texto); }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--s1); border: 1px solid var(--azul2);
+  color: var(--azul2); font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+  padding: 12px 20px; border-radius: 10px; z-index: 300;
+  opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+
+@media (max-width: 700px) {
+  .grid2, .grid3 { grid-template-columns: 1fr; }
+  .wrap { padding: 24px 16px 80px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="marca">LEITURA EMOCIONAL · OHE-PEÇANHA<small>AVALIAÇÃO LITERÁRIA · POWERED BY CLAUDE AI</small></div>
+  <nav class="tnav">
+    <a href="analisador_psicologico.html">Analisador Psi</a>
+    <a href="espinha_dorsal.html">← Espinha Dorsal</a>
+    <a href="index.html">← SIGMAL HQ</a>
+  </nav>
+</div>
+
+<header class="hero">
+  <div class="hero-badge">♥ LEITURA EMOCIONAL · AVALIAÇÃO LITERÁRIA · RAIO-X DA OBRA</div>
+  <h1>Leitura Emocional</h1>
+  <div class="hero-sub">OHE-PEÇANHA · AVALIAÇÃO LITERÁRIA PROFUNDA · CLAUDE AI</div>
+  <p class="hero-desc">A obra passa por uma leitura crítica emocional — ritmo, furos, inconsistências, coerência, potencial de série, spin-offs, ganchos e impacto do leitor.</p>
+</header>
+
+<main class="wrap">
+
+  <!-- ENTRADA -->
+  <div class="painel">
+    <div class="painel-header">
+      <div>
+        <div class="painel-titulo">Entrada da Obra</div>
+        <div class="painel-sub">// COLE O TEXTO · CONFIGURE OS FOCOS · INICIE A AVALIAÇÃO</div>
+      </div>
+    </div>
+    <div class="painel-body">
+
+      <div>
+        <label class="campo-label">// TEXTO DA OBRA</label>
+        <textarea id="texto-obra" placeholder="Cole aqui o texto completo ou o trecho que deseja avaliar emocionalmente — quanto mais texto, mais precisa a análise..."></textarea>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <label class="campo-label">// TÍTULO DA OBRA</label>
+          <input type="text" id="titulo-obra" placeholder="Título">
+        </div>
+        <div>
+          <label class="campo-label">// HETERÔNIMO / AUTOR</label>
+          <input type="text" id="autor-obra" placeholder="Nome do heterônimo ou autor">
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <label class="campo-label">// GÊNERO</label>
+          <select id="genero-obra">
+            <option value="romance">Romance</option>
+            <option value="conto">Conto</option>
+            <option value="novela">Novela</option>
+            <option value="ficcao">Ficção científica</option>
+            <option value="fantasia">Fantasia</option>
+            <option value="thriller">Thriller / Suspense</option>
+            <option value="drama">Drama literário</option>
+            <option value="poesia">Poesia em prosa</option>
+            <option value="hibrido">Híbrido</option>
+          </select>
+        </div>
+        <div>
+          <label class="campo-label">// PÚBLICO-ALVO</label>
+          <select id="publico-obra">
+            <option value="adulto">Adulto geral</option>
+            <option value="jovem-adulto">Jovem adulto</option>
+            <option value="literario">Literário / Acadêmico</option>
+            <option value="popular">Popular / Entretenimento</option>
+            <option value="nicho">Nicho específico</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="campo-label">// FOCOS DA AVALIAÇÃO</label>
+        <div class="focos-grid" id="focos-grid">
+          <button class="foco-btn ativo" data-foco="ritmo" onclick="toggleFoco(this)">Ritmo narrativo</button>
+          <button class="foco-btn ativo" data-foco="emocional" onclick="toggleFoco(this)">Impacto emocional</button>
+          <button class="foco-btn ativo" data-foco="furos" onclick="toggleFoco(this)">Furos e inconsistências</button>
+          <button class="foco-btn ativo" data-foco="coerencia" onclick="toggleFoco(this)">Coerência interna</button>
+          <button class="foco-btn ativo" data-foco="serie" onclick="toggleFoco(this)">Potencial de série</button>
+          <button class="foco-btn ativo" data-foco="spinoff" onclick="toggleFoco(this)">Spin-offs</button>
+          <button class="foco-btn ativo" data-foco="ganchos" onclick="toggleFoco(this)">Ganchos narrativos</button>
+          <button class="foco-btn ativo" data-foco="leitor" onclick="toggleFoco(this)">Experiência do leitor</button>
+          <button class="foco-btn" data-foco="mercado" onclick="toggleFoco(this)">Potencial de mercado</button>
+          <button class="foco-btn" data-foco="originalidade" onclick="toggleFoco(this)">Originalidade</button>
+        </div>
+      </div>
+
+      <div>
+        <label class="campo-label">// CONTEXTO ADICIONAL (opcional)</label>
+        <textarea id="contexto-obra" style="min-height:80px" placeholder="Informações adicionais que podem enriquecer a avaliação — onde está na série, intenção do autor, público específico..."></textarea>
+      </div>
+
+      <button class="btn-avaliar" id="btn-avaliar" onclick="iniciarAvaliacao()">
+        ♥ INICIAR LEITURA EMOCIONAL
+      </button>
+
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-area" id="loading-area">
+    <div class="loading-pulso"></div>
+    <div class="loading-txt">LENDO<span id="loading-dots"></span></div>
+    <div class="loading-fase" id="loading-fase">Absorvendo o texto...</div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="resultado" id="resultado">
+
+    <!-- NOTA GERAL -->
+    <div class="nota-geral" id="nota-geral-box">
+      <span class="nota-numero" id="nota-numero" style="color:var(--azul2)">—</span>
+      <div class="nota-label">NOTA LITERÁRIA EMOCIONAL · /10</div>
+      <div class="nota-descricao" id="nota-descricao">—</div>
+    </div>
+
+    <!-- DIMENSÕES -->
+    <div class="dimensoes-grid" id="dimensoes-grid"></div>
+
+    <!-- ABAS -->
+    <div class="aba-wrap">
+      <div class="abas">
+        <button class="aba ativa" onclick="setAba('diagnostico',this)">Diagnóstico</button>
+        <button class="aba" onclick="setAba('termometro',this)">Termômetro</button>
+        <button class="aba" onclick="setAba('potencial',this)">Potencial</button>
+        <button class="aba" onclick="setAba('alertas',this)">Alertas</button>
+        <button class="aba" onclick="setAba('relatorio',this)">Relatório</button>
+      </div>
+
+      <div class="aba-conteudo ativa" id="aba-diagnostico">
+        <div id="diagnostico-content"></div>
+      </div>
+      <div class="aba-conteudo" id="aba-termometro">
+        <div id="termometro-content"></div>
+      </div>
+      <div class="aba-conteudo" id="aba-potencial">
+        <div id="potencial-content"></div>
+      </div>
+      <div class="aba-conteudo" id="aba-alertas">
+        <div id="alertas-content"></div>
+      </div>
+      <div class="aba-conteudo" id="aba-relatorio">
+        <div class="relatorio-texto" id="relatorio-content"></div>
+      </div>
+
+      <div class="acoes-bar">
+        <button class="btn-acao btn-dl" onclick="baixarRelatorio()">↓ BAIXAR RELATÓRIO</button>
+        <button class="btn-acao btn-lap" onclick="enviarLapidar()">→ ENVIAR AO LAPIDAR</button>
+        <button class="btn-acao btn-psi" onclick="enviarAnalisador()">𝚿 ANALISADOR PSI</button>
+        <button class="btn-acao btn-novo" onclick="novaAvaliacao()">↺ NOVA AVALIAÇÃO</button>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// LEITURA EMOCIONAL · OHE-PEÇANHA · CLAUDE AI
+// ══════════════════════════════════════════════════════════════
+
+let avaliacaoAtual = null;
+
+// ── FOCOS ──
+function toggleFoco(btn) {
+  btn.classList.toggle('ativo');
+}
+
+function coletarFocos() {
+  return Array.from(document.querySelectorAll('.foco-btn.ativo')).map(b => b.dataset.foco);
+}
+
+// ── ABAS ──
+function setAba(id, btn) {
+  document.querySelectorAll('.aba').forEach(a => a.classList.remove('ativa'));
+  document.querySelectorAll('.aba-conteudo').forEach(c => c.classList.remove('ativa'));
+  btn.classList.add('ativa');
+  document.getElementById(`aba-${id}`).classList.add('ativa');
+}
+
+// ── LOADING ──
+const fases = [
+  'Absorvendo o texto...','Sentindo o ritmo narrativo...',
+  'Identificando emoções dominantes...','Mapeando furos e inconsistências...',
+  'Avaliando coerência interna...','Detectando ganchos e potencial...',
+  'Calculando impacto emocional...','Redigindo o relatório...'
+];
+let faseIdx = 0;
+let loadingInterval;
+
+function iniciarLoading() {
+  faseIdx = 0;
+  document.getElementById('loading-fase').textContent = fases[0];
+  loadingInterval = setInterval(() => {
+    faseIdx = (faseIdx + 1) % fases.length;
+    document.getElementById('loading-fase').textContent = fases[faseIdx];
+  }, 1800);
+  let dots = 0;
+  window._dotsInt = setInterval(() => {
+    dots = (dots + 1) % 4;
+    document.getElementById('loading-dots').textContent = '.'.repeat(dots);
+  }, 400);
+}
+
+function pararLoading() {
+  clearInterval(loadingInterval);
+  clearInterval(window._dotsInt);
+}
+
+// ── AVALIAÇÃO PRINCIPAL ──
+async function iniciarAvaliacao() {
+  const texto = document.getElementById('texto-obra').value.trim();
+  const titulo = document.getElementById('titulo-obra').value.trim() || 'Obra sem título';
+  const autor = document.getElementById('autor-obra').value.trim() || '—';
+  const genero = document.getElementById('genero-obra').value;
+  const publico = document.getElementById('publico-obra').value;
+  const contexto = document.getElementById('contexto-obra').value.trim();
+  const focos = coletarFocos();
+
+  if (!texto) { toast('Cole o texto da obra para avaliar'); return; }
+  if (!focos.length) { toast('Selecione ao menos um foco de avaliação'); return; }
+
+  document.getElementById('btn-avaliar').disabled = true;
+  document.getElementById('loading-area').classList.add('visivel');
+  document.getElementById('resultado').classList.remove('visivel');
+  iniciarLoading();
+
+  const systemPrompt = `Você é um crítico literário e leitor sensível especialista em avaliação emocional de obras. Lê com olhos de editor, psicólogo e leitor comum ao mesmo tempo.
+
+Responda APENAS em JSON válido, sem texto antes ou depois, sem markdown, sem backticks.
+
+Estrutura JSON exata:
+{
+  "nota_geral": 0-10,
+  "nota_descricao": "string (frase que resume a avaliação)",
+  "dimensoes": [
+    {"emoji": "string", "titulo": "string", "nota": 0-10, "comentario": "string", "cor": "azul|ouro|rosa|verde|laranja"}
+  ],
+  "termometro_emocional": [
+    {"emoji": "string", "emocao": "string", "intensidade": 0-100, "cor": "hex"}
+  ],
+  "diagnostico": [
+    {"titulo": "string", "texto": "string"}
+  ],
+  "potencial": [
+    {"emoji": "string", "titulo": "string", "valor": "string", "descricao": "string"}
+  ],
+  "alertas": [
+    {"tipo": "positivo|atencao|critico|sugestao", "titulo": "string", "texto": "string"}
+  ],
+  "resumo_editorial": "string (parágrafo longo e rico com a avaliação completa)"
+}`;
+
+  const userPrompt = `Faça a Leitura Emocional desta obra:
+
+TÍTULO: ${titulo}
+AUTOR/HETERÔNIMO: ${autor}
+GÊNERO: ${genero}
+PÚBLICO: ${publico}
+FOCOS SOLICITADOS: ${focos.join(', ')}
+${contexto ? `CONTEXTO: ${contexto}` : ''}
+
+TEXTO:
+${texto.substring(0, 9000)}
+
+Gere a avaliação emocional literária completa no formato JSON.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+
+    const data = await resp.json();
+    let txt = data.content.map(c => c.text || '').join('');
+    txt = txt.replace(/```json|```/g, '').trim();
+    const avaliacao = JSON.parse(txt);
+
+    avaliacaoAtual = { avaliacao, titulo, autor, genero };
+    pararLoading();
+    renderResultado(avaliacao, titulo);
+
+  } catch(e) {
+    pararLoading();
+    document.getElementById('loading-area').classList.remove('visivel');
+    document.getElementById('btn-avaliar').disabled = false;
+    toast('Erro na avaliação — tente novamente');
+    console.error(e);
+  }
+}
+
+// ── RENDERIZA ──
+function renderResultado(av, titulo) {
+  document.getElementById('loading-area').classList.remove('visivel');
+  document.getElementById('resultado').classList.add('visivel');
+  document.getElementById('btn-avaliar').disabled = false;
+
+  // NOTA GERAL
+  const nota = av.nota_geral || 0;
+  const corNota = nota >= 8 ? 'var(--verde)' : nota >= 6 ? 'var(--azul2)' : nota >= 4 ? 'var(--laranja)' : 'var(--rosa)';
+  document.getElementById('nota-numero').textContent = nota.toFixed(1);
+  document.getElementById('nota-numero').style.color = corNota;
+  document.getElementById('nota-descricao').textContent = av.nota_descricao || '—';
+
+  // DIMENSÕES
+  const corMap = { azul: 'var(--azul2)', ouro: 'var(--ouro)', rosa: 'var(--rosa)', verde: 'var(--verde)', laranja: 'var(--laranja)' };
+  document.getElementById('dimensoes-grid').innerHTML = (av.dimensoes || []).map(d => {
+    const cor = corMap[d.cor] || 'var(--azul2)';
+    return `
+      <div class="dimensao-card">
+        <div class="dim-header">
+          <span class="dim-emoji">${d.emoji || '◈'}</span>
+          <span class="dim-titulo">${d.titulo}</span>
+          <span class="dim-nota" style="color:${cor}">${d.nota}</span>
+        </div>
+        <div class="dim-barra"><div class="dim-fill" style="width:${(d.nota/10)*100}%;background:${cor}"></div></div>
+        <div class="dim-comentario">${d.comentario || '—'}</div>
+      </div>
+    `;
+  }).join('');
+
+  // ABAS
+  renderDiagnostico(av.diagnostico || []);
+  renderTermometro(av.termometro_emocional || []);
+  renderPotencial(av.potencial || []);
+  renderAlertas(av.alertas || []);
+  renderRelatorio(av, titulo);
+
+  toast('♥ Leitura Emocional concluída');
+  document.getElementById('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderDiagnostico(itens) {
+  document.getElementById('diagnostico-content').innerHTML = itens.map(item => `
+    <div class="item-analise">
+      <div class="ia-titulo">${item.titulo || '—'}</div>
+      <div class="ia-texto">${item.texto || '—'}</div>
+    </div>
+  `).join('') || '<div style="color:var(--muted);font-style:italic">Sem diagnóstico disponível.</div>';
+}
+
+function renderTermometro(emocoes) {
+  document.getElementById('termometro-content').innerHTML = `
+    <div style="margin-bottom:20px;font-size:16px;font-style:italic;color:rgba(216,232,240,0.6);line-height:1.8">
+      Intensidade emocional detectada em cada camada do texto.
+    </div>
+    <div class="termometro-lista">
+      ${emocoes.map(e => `
+        <div class="termometro-item">
+          <span class="termo-emoji">${e.emoji || '◈'}</span>
+          <span class="termo-nome">${e.emocao || '—'}</span>
+          <div class="termo-barra-wrap">
+            <div class="termo-barra">
+              <div class="termo-fill" style="width:${e.intensidade || 0}%;background:${e.cor || 'var(--azul2)'}"></div>
+            </div>
+          </div>
+          <span class="termo-valor">${e.intensidade || 0}%</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderPotencial(itens) {
+  document.getElementById('potencial-content').innerHTML = `
+    <div class="potencial-grid">
+      ${itens.map(p => `
+        <div class="potencial-card">
+          <span class="potencial-emoji">${p.emoji || '◈'}</span>
+          <div class="potencial-titulo">${p.titulo || '—'}</div>
+          <div class="potencial-valor" style="color:var(--azul2)">${p.valor || '—'}</div>
+          <div class="potencial-desc">${p.descricao || ''}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderAlertas(alertas) {
+  const iconMap = { positivo: '✅', atencao: '⚠️', critico: '🔴', sugestao: '💡' };
+  document.getElementById('alertas-content').innerHTML = alertas.map(a => `
+    <div class="alerta ${a.tipo || 'sugestao'}">
+      <span class="alerta-icone">${iconMap[a.tipo] || '◈'}</span>
+      <div class="alerta-txt">
+        <strong>${a.titulo || '—'}</strong>
+        <p>${a.texto || '—'}</p>
+      </div>
+    </div>
+  `).join('') || '<div style="color:var(--muted);font-style:italic">Sem alertas gerados.</div>';
+}
+
+function renderRelatorio(av, titulo) {
+  let txt = `## Leitura Emocional — ${titulo}\n\n`;
+  txt += `Nota Geral: ${av.nota_geral}/10\n${av.nota_descricao}\n\n`;
+  if (av.resumo_editorial) {
+    txt += `## Avaliação Editorial\n\n${av.resumo_editorial}\n\n`;
+  }
+  if (av.dimensoes?.length) {
+    txt += `## Dimensões\n\n`;
+    av.dimensoes.forEach(d => { txt += `### ${d.emoji} ${d.titulo} — ${d.nota}/10\n${d.comentario}\n\n`; });
+  }
+  if (av.alertas?.length) {
+    txt += `## Alertas e Recomendações\n\n`;
+    av.alertas.forEach(a => { txt += `### ${a.titulo}\n${a.texto}\n\n`; });
+  }
+  const html = txt
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  document.getElementById('relatorio-content').innerHTML = html;
+}
+
+// ── AÇÕES ──
+function baixarRelatorio() {
+  if (!avaliacaoAtual) return;
+  const { avaliacao, titulo, autor } = avaliacaoAtual;
+  let txt = `LEITURA EMOCIONAL — OHE-PEÇANHA\n${'═'.repeat(60)}\n`;
+  txt += `OBRA: ${titulo}\nAUTOR: ${autor}\nNOTA: ${avaliacao.nota_geral}/10\n`;
+  txt += `${avaliacao.nota_descricao || ''}\n\n`;
+  if (avaliacao.resumo_editorial) txt += `AVALIAÇÃO EDITORIAL\n${'─'.repeat(40)}\n${avaliacao.resumo_editorial}\n\n`;
+  (avaliacao.dimensoes || []).forEach(d => { txt += `${d.titulo}: ${d.nota}/10\n${d.comentario}\n\n`; });
+  (avaliacao.alertas || []).forEach(a => { txt += `[${a.tipo?.toUpperCase()}] ${a.titulo}\n${a.texto}\n\n`; });
+
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' }));
+  a.download = `leitura_emocional_${titulo.replace(/\s+/g,'-').toLowerCase()}.txt`;
+  a.click();
+  toast('↓ Relatório baixado');
+}
+
+function enviarLapidar() {
+  if (!avaliacaoAtual) return;
+  localStorage.setItem('lapidar_leitura_emocional_pendente', JSON.stringify(avaliacaoAtual));
+  toast('→ Enviado ao Lapidar');
+}
+
+function enviarAnalisador() {
+  if (!avaliacaoAtual) return;
+  localStorage.setItem('analisador_texto_pendente', document.getElementById('texto-obra').value);
+  localStorage.setItem('analisador_titulo_pendente', avaliacaoAtual.titulo);
+  window.open('analisador_psicologico.html', '_blank');
+  toast('𝚿 Abrindo Analisador Psicológico');
+}
+
+function novaAvaliacao() {
+  document.getElementById('resultado').classList.remove('visivel');
+  document.getElementById('texto-obra').value = '';
+  document.getElementById('titulo-obra').value = '';
+  document.getElementById('autor-obra').value = '';
+  avaliacaoAtual = null;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// TOAST
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Pré-carrega texto se veio do analisador
+const textoPendente = localStorage.getItem('analisador_texto_pendente');
+if (textoPendente) {
+  document.getElementById('texto-obra').value = textoPendente;
+  localStorage.removeItem('analisador_texto_pendente');
+}
+const tituloPendente = localStorage.getItem('analisador_titulo_pendente');
+if (tituloPendente) {
+  document.getElementById('titulo-obra').value = tituloPendente;
+  localStorage.removeItem('analisador_titulo_pendente');
+}
+</script>
+</body>
+</html>
