@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Humanizador · OHE-Peçanha</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060508;
+  --s1: #0c0a10;
+  --s2: #141218;
+  --border: #2a2535;
+  --quente: #d4824a;
+  --quente2: #f0b080;
+  --quente3: rgba(212,130,74,0.12);
+  --ouro: #c8a96e;
+  --ouro2: #f0d896;
+  --verde: #4caf7a;
+  --verde2: #80ffb0;
+  --rosa: #d4689a;
+  --violeta: #9b6fd0;
+  --texto: #f0e8e0;
+  --muted: #5a5060;
+  --crimson: 'Crimson Pro', serif;
+  --playfair: 'Playfair Display', serif;
+  --mono: 'DM Mono', monospace;
+  --r: 18px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--crimson);
+  background: var(--bg); color: var(--texto); min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 60% 40% at 30% 0%, rgba(212,130,74,0.07), transparent),
+    radial-gradient(ellipse 40% 50% at 80% 100%, rgba(200,169,110,0.05), transparent);
+}
+
+/* TOPBAR */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,5,8,0.97); border-bottom: 1px solid rgba(212,130,74,0.2);
+  backdrop-filter: blur(14px); padding: 12px 28px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.marca { font-family: var(--mono); font-size: 12px; color: var(--quente2); letter-spacing: 3px; }
+.marca small { display: block; font-size: 9px; color: var(--muted); letter-spacing: 2px; margin-top: 2px; }
+.tnav { display: flex; gap: 6px; flex-wrap: wrap; }
+.tnav a {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--muted);
+  text-decoration: none; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.2s;
+}
+.tnav a:hover { color: var(--quente2); border-color: var(--quente); background: var(--quente3); }
+
+/* HERO */
+.hero {
+  padding: 60px 28px 50px; text-align: center;
+  border-bottom: 1px solid rgba(212,130,74,0.12); position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '✍'; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%,-50%);
+  font-size: 460px; opacity: 0.025; pointer-events: none; line-height: 1;
+}
+.hero-badge {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 3px;
+  border: 1px solid rgba(212,130,74,0.35); color: rgba(240,176,128,0.7);
+  padding: 5px 18px; border-radius: 999px; display: inline-block; margin-bottom: 22px;
+}
+.hero h1 {
+  font-family: var(--playfair); font-size: clamp(36px,6vw,80px); font-weight: 900;
+  background: linear-gradient(150deg, var(--ouro2) 0%, var(--quente2) 50%, var(--quente) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 12px; line-height: 1.05;
+}
+.hero-sub { font-family: var(--mono); font-size: 10px; letter-spacing: 4px; color: var(--muted); margin-bottom: 18px; }
+.hero-desc { font-size: 19px; font-style: italic; color: rgba(240,232,224,0.6); max-width: 680px; margin: 0 auto; line-height: 1.9; }
+
+/* WRAP */
+.wrap { max-width: 1100px; margin: auto; padding: 40px 28px 100px; display: flex; flex-direction: column; gap: 28px; }
+
+/* PAINEL */
+.painel { background: var(--s1); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.painel-header { padding: 20px 26px; border-bottom: 1px solid var(--border); }
+.painel-titulo { font-family: var(--playfair); font-size: 20px; color: var(--ouro2); letter-spacing: 1px; }
+.painel-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-top: 3px; }
+.painel-body { padding: 24px 26px; display: flex; flex-direction: column; gap: 18px; }
+
+.campo-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; display: block; margin-bottom: 8px; }
+textarea, input, select {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  color: var(--texto); font-family: var(--crimson); font-size: 17px;
+  padding: 12px 16px; border-radius: 10px; outline: none; transition: border-color 0.2s; line-height: 1.8;
+}
+textarea { resize: vertical; min-height: 220px; }
+textarea:focus, input:focus, select:focus { border-color: var(--quente); }
+textarea::placeholder { color: var(--muted); font-style: italic; }
+select, input { font-family: var(--mono); font-size: 12px; }
+select option { background: var(--s1); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* PASSAGENS */
+.passagens-config { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 10px; }
+.passagem-card {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 16px; position: relative; overflow: hidden;
+}
+.passagem-card::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%;
+}
+.p1::before { background: var(--quente); }
+.p2::before { background: var(--ouro); }
+.p3::before { background: var(--violeta); }
+.p4::before { background: var(--verde); }
+.passagem-num { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-bottom: 6px; }
+.passagem-nome { font-family: var(--playfair); font-size: 15px; color: var(--ouro2); margin-bottom: 4px; }
+.passagem-desc { font-size: 13px; font-style: italic; color: rgba(240,232,224,0.5); line-height: 1.5; }
+
+/* BOTÃO HUMANIZAR */
+.btn-humanizar {
+  font-family: var(--playfair); font-size: 17px; font-weight: 900;
+  padding: 18px 40px; border: 1px solid var(--quente2); border-radius: 999px;
+  color: var(--quente2); background: var(--quente3); cursor: pointer;
+  transition: all 0.3s; width: 100%; letter-spacing: 2px; position: relative; overflow: hidden;
+}
+.btn-humanizar::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(240,176,128,0.08), transparent);
+  transform: translateX(-100%); transition: transform 0.6s;
+}
+.btn-humanizar:hover::before { transform: translateX(100%); }
+.btn-humanizar:hover { background: rgba(212,130,74,0.2); border-color: var(--ouro2); color: var(--ouro2); box-shadow: 0 0 50px rgba(212,130,74,0.2); }
+.btn-humanizar:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* PIPELINE DE PROGRESSO */
+.pipeline {
+  display: none; background: var(--s1); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 28px; flex-direction: column; gap: 0;
+}
+.pipeline.visivel { display: flex; }
+
+.pipeline-titulo { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 3px; margin-bottom: 24px; }
+
+.etapa-pipeline {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 16px 0; position: relative;
+}
+.etapa-pipeline:not(:last-child)::after {
+  content: ''; position: absolute; left: 20px; top: 52px;
+  width: 2px; height: calc(100% - 20px);
+  background: var(--border);
+}
+.etapa-pipeline.ativa::after { background: var(--quente); }
+.etapa-pipeline.concluida::after { background: var(--verde); }
+
+.etapa-circulo {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 12px; font-weight: 500;
+  border: 2px solid var(--border); background: var(--bg); transition: all 0.5s;
+  position: relative; z-index: 1;
+}
+.etapa-pipeline.aguardando .etapa-circulo { color: var(--muted); }
+.etapa-pipeline.ativa .etapa-circulo {
+  border-color: var(--quente); color: var(--quente2);
+  background: var(--quente3); animation: pulsar 1.5s ease-in-out infinite;
+}
+.etapa-pipeline.concluida .etapa-circulo {
+  border-color: var(--verde); color: var(--verde);
+  background: rgba(76,175,122,0.1);
+}
+.etapa-pipeline.erro .etapa-circulo { border-color: var(--rosa); color: var(--rosa); }
+@keyframes pulsar { 0%,100%{box-shadow:0 0 0 0 rgba(212,130,74,0.4)} 50%{box-shadow:0 0 0 8px rgba(212,130,74,0)} }
+
+.etapa-info { flex: 1; padding-top: 8px; }
+.etapa-nome { font-family: var(--playfair); font-size: 16px; color: var(--ouro2); margin-bottom: 4px; }
+.etapa-detalhe { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+.etapa-pipeline.ativa .etapa-detalhe { color: var(--quente2); }
+.etapa-pipeline.concluida .etapa-detalhe { color: var(--verde); }
+
+.etapa-nota {
+  font-family: var(--mono); font-size: 10px; padding: 4px 10px;
+  border-radius: 999px; border: 1px solid; flex-shrink: 0; margin-top: 10px;
+}
+
+/* BOTÃO EMERGÊNCIA */
+.btn-emergencia {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  padding: 8px 18px; border: 1px solid rgba(212,104,154,0.4); border-radius: 999px;
+  color: var(--rosa); background: transparent; cursor: pointer; transition: all 0.2s;
+  width: fit-content; margin-top: 16px;
+}
+.btn-emergencia:hover { background: rgba(212,104,154,0.1); }
+.btn-emergencia:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* PLACAR DE HUMANIDADE */
+.placar {
+  display: none; background: var(--s1); border: 1px solid rgba(212,130,74,0.25);
+  border-radius: var(--r); padding: 28px;
+  background-image: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(212,130,74,0.05), transparent);
+}
+.placar.visivel { display: block; }
+.placar-titulo { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 3px; margin-bottom: 20px; }
+.placar-nota-wrap { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; }
+.placar-nota {
+  font-family: var(--playfair); font-size: 80px; font-weight: 900; line-height: 1;
+}
+.placar-info { flex: 1; }
+.placar-desc { font-size: 18px; font-style: italic; color: rgba(240,232,224,0.7); line-height: 1.8; margin-bottom: 10px; }
+.placar-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.placar-badge {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+  padding: 4px 12px; border-radius: 999px; border: 1px solid;
+}
+
+/* MÉTRICAS */
+.metricas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 12px; margin-bottom: 24px; }
+.metrica {
+  background: var(--s2); border: 1px solid var(--border); border-radius: 12px; padding: 14px;
+}
+.met-label { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.met-barra { height: 4px; background: var(--border); border-radius: 999px; overflow: hidden; margin-bottom: 6px; }
+.met-fill { height: 100%; border-radius: 999px; transition: width 1s ease; }
+.met-valor { font-family: var(--mono); font-size: 11px; color: var(--quente2); }
+
+/* ABAS */
+.abas { display: flex; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.aba {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+  padding: 13px 20px; border: none; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all 0.2s;
+  white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.aba:hover { color: var(--quente2); }
+.aba.ativa { color: var(--quente2); border-bottom-color: var(--quente); }
+
+.resultado-wrap { background: var(--s1); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; display: none; }
+.resultado-wrap.visivel { display: block; }
+.aba-body { display: none; padding: 28px; }
+.aba-body.ativa { display: block; }
+
+/* TEXTO HUMANIZADO */
+.texto-humanizado {
+  font-family: var(--crimson); font-size: 18px; line-height: 2;
+  color: rgba(240,232,224,0.9); white-space: pre-wrap;
+}
+
+/* MARCADORES DE IA */
+.marca-ia {
+  background: rgba(212,104,154,0.15); border-bottom: 1px solid rgba(212,104,154,0.4);
+  cursor: help; transition: background 0.2s;
+}
+.marca-ia:hover { background: rgba(212,104,154,0.25); }
+
+/* COMPARATIVO */
+.comp-par { margin-bottom: 20px; }
+.comp-antes {
+  background: rgba(212,104,154,0.06); border: 1px solid rgba(212,104,154,0.2);
+  border-radius: 10px 10px 0 0; padding: 14px 16px;
+}
+.comp-depois {
+  background: rgba(76,175,122,0.06); border: 1px solid rgba(76,175,122,0.2);
+  border-radius: 0 0 10px 10px; padding: 14px 16px;
+}
+.comp-label { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.comp-antes .comp-label { color: var(--rosa); }
+.comp-depois .comp-label { color: var(--verde); }
+.comp-txt { font-family: var(--crimson); font-size: 16px; line-height: 1.8; font-style: italic; }
+
+/* MARCAS DETECTADAS */
+.marca-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--s2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 8px;
+}
+.marca-tipo {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+  padding: 3px 8px; border-radius: 999px; border: 1px solid;
+  flex-shrink: 0; text-transform: uppercase;
+}
+.marca-ia-tip { border-color: rgba(212,104,154,0.4); color: var(--rosa); }
+.marca-corrigida { border-color: rgba(76,175,122,0.4); color: var(--verde); }
+.marca-txt { font-size: 14px; line-height: 1.7; color: rgba(240,232,224,0.7); }
+
+/* ACOES */
+.acoes-bar {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  padding: 16px 26px; border-top: 1px solid var(--border);
+}
+.btn-acao {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+  padding: 8px 18px; border: 1px solid; border-radius: 999px;
+  cursor: pointer; transition: all 0.2s; background: transparent; text-transform: uppercase;
+}
+.btn-proximo { border-color: var(--quente2); color: var(--quente2); }
+.btn-proximo:hover { background: var(--quente3); }
+.btn-dl { border-color: var(--verde); color: var(--verde); }
+.btn-dl:hover { background: rgba(76,175,122,0.1); }
+.btn-bib { border-color: var(--ouro); color: var(--ouro); }
+.btn-bib:hover { background: rgba(200,169,110,0.1); }
+.btn-novo { border-color: var(--border); color: var(--muted); }
+.btn-novo:hover { border-color: var(--texto); color: var(--texto); }
+.btn-mais { border-color: rgba(212,130,74,0.4); color: var(--quente2); }
+.btn-mais:hover { background: var(--quente3); }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--s1); border: 1px solid var(--quente2);
+  color: var(--quente2); font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+  padding: 12px 20px; border-radius: 10px; z-index: 300;
+  opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+
+@media (max-width: 700px) {
+  .grid2, .passagens-config { grid-template-columns: 1fr; }
+  .wrap { padding: 24px 16px 80px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="marca">HUMANIZADOR · OHE-PEÇANHA<small>REMOÇÃO DE MARCAS DE IA · VOZ DO HETERÔNIMO · 4 PASSAGENS</small></div>
+  <nav class="tnav">
+    <a href="lapidacao_psicologica.html">← Lapidação Psi</a>
+    <a href="espinha_dorsal.html">Espinha Dorsal</a>
+    <a href="index.html">← SIGMAL HQ</a>
+  </nav>
+</div>
+
+<header class="hero">
+  <div class="hero-badge">✍ HUMANIZADOR · 4 PASSAGENS · INDETECTÁVEL · VOZ DO HETERÔNIMO</div>
+  <h1>Humanizador</h1>
+  <div class="hero-sub">OHE-PEÇANHA · HUMANIZAÇÃO PROFUNDA · REMOÇÃO TOTAL DE MARCAS DE IA</div>
+  <p class="hero-desc">4 passagens progressivas — detecção, purificação, injeção de voz e verificação final. A obra sai indistinguível de escrita humana, com a assinatura do heterônimo.</p>
+</header>
+
+<main class="wrap">
+
+  <!-- ENTRADA -->
+  <div class="painel">
+    <div class="painel-header">
+      <div class="painel-titulo">Entrada para Humanização</div>
+      <div class="painel-sub">// TEXTO · HETERÔNIMO · 4 PASSAGENS AUTOMÁTICAS</div>
+    </div>
+    <div class="painel-body">
+
+      <div>
+        <label class="campo-label">// TEXTO A HUMANIZAR</label>
+        <textarea id="texto-entrada" placeholder="Cole aqui o texto que passou pela Lapidação Psicológica..."></textarea>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <label class="campo-label">// HETERÔNIMO (voz a injetar)</label>
+          <select id="heteronimo-sel">
+            <option value="">— selecionar —</option>
+            <option value="amanda">Amanda Fernanda Fisher Leão</option>
+            <option value="imediato">Imediato Thompson</option>
+            <option value="aurora">Aurora Wings</option>
+            <option value="aj">A.J. dos Santos</option>
+            <option value="amelie">Amélie Maia Hanna</option>
+            <option value="anisio">Anísio Teixeira</option>
+            <option value="articus">Articus da Pérsida</option>
+            <option value="birihani">Birihani Selami Ina Tesifa</option>
+            <option value="caliope">Calíope Papazissis</option>
+            <option value="chesco">Chesco Irlanda</option>
+            <option value="creone">Creone Porfírio</option>
+            <option value="darius">Dárius Ninus Vamus</option>
+            <option value="wagner">Wagner Planas</option>
+            <option value="custom">Outro — descrever abaixo</option>
+          </select>
+        </div>
+        <div>
+          <label class="campo-label">// TÍTULO DA OBRA</label>
+          <input type="text" id="titulo-obra" placeholder="Título da obra">
+        </div>
+      </div>
+
+      <div id="custom-het-wrap" style="display:none">
+        <label class="campo-label">// VOZ E TERRITÓRIO DO HETERÔNIMO</label>
+        <textarea id="custom-het" style="min-height:80px" placeholder="Descreva a voz, território e assinatura narrativa deste heterônimo..."></textarea>
+      </div>
+
+      <!-- PASSAGENS -->
+      <div>
+        <label class="campo-label">// AS 4 PASSAGENS DO HUMANIZADOR</label>
+        <div class="passagens-config">
+          <div class="passagem-card p1">
+            <div class="passagem-num">PASSAGEM 01</div>
+            <div class="passagem-nome">Detecção & Mapeamento</div>
+            <div class="passagem-desc">Identifica todas as marcas de IA — simetria, palavras-gatilho, ritmo mecânico, uniformidade</div>
+          </div>
+          <div class="passagem-card p2">
+            <div class="passagem-num">PASSAGEM 02</div>
+            <div class="passagem-nome">Purificação Estrutural</div>
+            <div class="passagem-desc">Remove marcas detectadas — quebra simetria, varia parágrafos, insere respirações e hesitações</div>
+          </div>
+          <div class="passagem-card p3">
+            <div class="passagem-num">PASSAGEM 03</div>
+            <div class="passagem-nome">Injeção de Voz</div>
+            <div class="passagem-desc">Injeta a assinatura do heterônimo — vocabulário, cadência, marcas únicas, imperfeições humanas</div>
+          </div>
+          <div class="passagem-card p4">
+            <div class="passagem-num">PASSAGEM 04</div>
+            <div class="passagem-nome">Verificação & Blindagem</div>
+            <div class="passagem-desc">Claude avalia o próprio texto — se detectar marcas, faz rodada extra até considerar indetectável</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-humanizar" id="btn-humanizar" onclick="iniciarHumanizacao()">
+        ✍ INICIAR HUMANIZAÇÃO — 4 PASSAGENS
+      </button>
+
+    </div>
+  </div>
+
+  <!-- PIPELINE DE PROGRESSO -->
+  <div class="pipeline" id="pipeline">
+    <div class="pipeline-titulo">// PIPELINE DE HUMANIZAÇÃO EM ANDAMENTO</div>
+
+    <div class="etapa-pipeline aguardando" id="etapa-1">
+      <div class="etapa-circulo" id="circ-1">01</div>
+      <div class="etapa-info">
+        <div class="etapa-nome">Detecção & Mapeamento</div>
+        <div class="etapa-detalhe" id="det-1">Aguardando início...</div>
+      </div>
+    </div>
+    <div class="etapa-pipeline aguardando" id="etapa-2">
+      <div class="etapa-circulo" id="circ-2">02</div>
+      <div class="etapa-info">
+        <div class="etapa-nome">Purificação Estrutural</div>
+        <div class="etapa-detalhe" id="det-2">Aguardando passagem 1...</div>
+      </div>
+    </div>
+    <div class="etapa-pipeline aguardando" id="etapa-3">
+      <div class="etapa-circulo" id="circ-3">03</div>
+      <div class="etapa-info">
+        <div class="etapa-nome">Injeção de Voz do Heterônimo</div>
+        <div class="etapa-detalhe" id="det-3">Aguardando passagem 2...</div>
+      </div>
+    </div>
+    <div class="etapa-pipeline aguardando" id="etapa-4">
+      <div class="etapa-circulo" id="circ-4">04</div>
+      <div class="etapa-info">
+        <div class="etapa-nome">Verificação & Blindagem Final</div>
+        <div class="etapa-detalhe" id="det-4">Aguardando passagem 3...</div>
+      </div>
+    </div>
+
+    <button class="btn-emergencia" id="btn-emergencia" onclick="pararEmergencia()">
+      ⚠ PARADA DE EMERGÊNCIA
+    </button>
+  </div>
+
+  <!-- PLACAR DE HUMANIDADE -->
+  <div class="placar" id="placar">
+    <div class="placar-titulo">// PLACAR DE HUMANIDADE APÓS 4 PASSAGENS</div>
+    <div class="placar-nota-wrap">
+      <div class="placar-nota" id="placar-nota">—</div>
+      <div class="placar-info">
+        <div class="placar-desc" id="placar-desc">—</div>
+        <div class="placar-badges" id="placar-badges"></div>
+      </div>
+    </div>
+    <div class="metricas-grid" id="metricas-grid"></div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="resultado-wrap" id="resultado-wrap">
+    <div class="abas">
+      <button class="aba ativa" onclick="setAba('humanizado',this)">Texto Humanizado</button>
+      <button class="aba" onclick="setAba('marcas',this)">Marcas Detectadas</button>
+      <button class="aba" onclick="setAba('comparativo',this)">Comparativo</button>
+      <button class="aba" onclick="setAba('voz',this)">Voz Injetada</button>
+    </div>
+
+    <div class="aba-body ativa" id="aba-humanizado">
+      <div class="texto-humanizado" id="texto-humanizado-content"></div>
+    </div>
+    <div class="aba-body" id="aba-marcas">
+      <div id="marcas-content"></div>
+    </div>
+    <div class="aba-body" id="aba-comparativo">
+      <div id="comparativo-content"></div>
+    </div>
+    <div class="aba-body" id="aba-voz">
+      <div id="voz-content"></div>
+    </div>
+
+    <div class="acoes-bar">
+      <button class="btn-acao btn-proximo" onclick="irParaRevisao()">→ REVISÃO FERNANDO PEÇANHA</button>
+      <button class="btn-acao btn-mais" onclick="maisUmaPassagem()">↺ MAIS UMA PASSAGEM</button>
+      <button class="btn-acao btn-dl" onclick="baixarHumanizado()">↓ BAIXAR</button>
+      <button class="btn-acao btn-bib" onclick="salvarNaBiblioteca()">📚 BIBLIOTECA</button>
+      <button class="btn-acao btn-novo" onclick="novaHumanizacao()">✕ NOVA</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// HUMANIZADOR · OHE-PEÇANHA
+// 4 Passagens · Remoção de IA · Voz do Heterônimo
+// ══════════════════════════════════════════════════════════════
+
+const HETERONIMOS_VOZ = {
+  amanda: { nome: 'Amanda Fernanda Fisher Leão', voz: 'Narrativa oceânica visceral. Frases que respiram como ondas — algumas longas e arrastadas, outras cortantes como recife. Vocabulário marítimo mesclado ao mítico. Usa elipses inesperadas. Imagens sensoriais densas do mar. Nunca explica o sobrenatural — apenas mostra. Às vezes uma frase incompleta proposital. Coloquialismo pontual em diálogos.' },
+  imediato: { nome: 'Imediato Thompson', voz: 'Épico cosmológico de tempo dilatado. Frases longas e subordinadas, como órbitas. Vocabulário científico mesclado ao mítico. Números e coordenadas estelares aparecem no meio da prosa. Pausas longas entre ideias. Nunca há pressa. O narrador sabe mais do que conta.' },
+  aurora: { nome: 'Aurora Wings', voz: 'Tech-noir espacial. Frases curtas e precisas intercaladas com longas técnicas. Frieza calculada que esconde humanidade. Jargão cibernético naturalizado. O corpo humano descrito como hardware. Emoções traduzidas em falhas de sistema.' },
+  aj: { nome: 'A.J. dos Santos', voz: 'Urbano e cru. Frases curtas. Sem floreio. Vocabulário da rua misturado ao literário de forma inesperada. Diálogos secos. O narrador não julga. Detalhes físicos concretos — cheiro, calor, barulho. Ironia sutil.' },
+  amelie: { nome: 'Amélie Maia Hanna', voz: 'Prosa poética densa. Tempo não-linear — memória e presente se misturam sem aviso. Frases que começam em um lugar e terminam em outro. Imagens europeias de interior. Melancolia lírica. Silêncios entre parágrafos que pesam.' },
+  anisio: { nome: 'Anísio Teixeira', voz: 'Narrador compassivo e lento. Oralidade nordestina naturalizada. O coletivo como personagem. Tempo circular — as mesmas coisas acontecem gerações depois. Descrições da terra e do corpo. Sabedoria popular integrada à narrativa.' },
+  articus: { nome: 'Articus da Pérsida', voz: 'Contador de histórias ancestral. Narrativa em espiral — a história dentro da história. Aforismos que aparecem sem aviso. Voz de quem sabe o fim desde o início. Oriente mítico no vocabulário. Tempo como ilusão.' },
+  birihani: { nome: 'Birihani Selami Ina Tesifa', voz: 'Verso-prosa ritualístico. Ritmo percussivo — pode-se bater o pé lendo. Natureza como entidade com voz. Repetições intencionais como refrão. Oralidade africana do leste. O corpo e a terra são a mesma coisa.' },
+  caliope: { nome: 'Calíope Papazissis', voz: 'Poesia densa com ecos trágicos. O corpo como território de guerra. Grécia interior — não turística. Imagens que sangram. Frases que parecem incompletas mas são cirúrgicas. Mito grego vivendo no cotidiano.' },
+  chesco: { nome: 'Chesco Irlanda', voz: 'Realismo mágico com ironia sutil. Narrador não-confiável que mente com elegância. América Latina onde o impossível é banal. Humor negro discreto. Mistura de registros — culto e popular. O sobrenatural sem explicação.' },
+  creone: { nome: 'Creone Porfírio', voz: 'Narrador clínico e frio. Expõe sem julgar. Linguagem burocrática e literária alternadas. O horror no cotidiano institucional. Frases longas e bem-construídas que escondem monstruosidades. Nunca usa adjetivos morais.' },
+  darius: { nome: 'Dárius Ninus Vamus', voz: 'Tensão paranóica constante. Linguagem que fragmenta sob pressão. Frases interrompidas. O leitor sabe mais que o protagonista — ou menos. Distopia onde a língua é arma. Repetição de palavras como obsessão.' },
+  wagner: { nome: 'Wagner Planas', voz: 'Metaficcional e filosófico. O autor aparece dentro da obra. A forma é o conteúdo. Citações que podem ser reais ou inventadas — nunca se sabe. Humor intelectual. A escrita comentando a si mesma.' },
+};
+
+let estadoAtual = {
+  textoOriginal: '',
+  textoPorPassagem: [],
+  marcasDetectadas: [],
+  heteronimo: null,
+  titulo: '',
+  rodando: false,
+  parado: false,
+  resultadoFinal: null
+};
+
+// ── UI HELPERS ──
+document.getElementById('heteronimo-sel').addEventListener('change', function() {
+  document.getElementById('custom-het-wrap').style.display = this.value === 'custom' ? 'block' : 'none';
+});
+
+function setAba(id, btn) {
+  document.querySelectorAll('.aba').forEach(a => a.classList.remove('ativa'));
+  document.querySelectorAll('.aba-body').forEach(b => b.classList.remove('ativa'));
+  btn.classList.add('ativa');
+  document.getElementById(`aba-${id}`).classList.add('ativa');
+}
+
+function setEtapa(n, estado, detalhe) {
+  const el = document.getElementById(`etapa-${n}`);
+  const circ = document.getElementById(`circ-${n}`);
+  const det = document.getElementById(`det-${n}`);
+  el.className = `etapa-pipeline ${estado}`;
+  if (estado === 'concluida') circ.textContent = '✓';
+  if (estado === 'erro') circ.textContent = '✗';
+  if (detalhe) det.textContent = detalhe;
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── CHAMADA À API ──
+async function chamarClaude(system, user, maxTokens = 4000) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: maxTokens,
+      system,
+      messages: [{ role: 'user', content: user }]
+    })
+  });
+  const data = await resp.json();
+  return data.content.map(c => c.text || '').join('');
+}
+
+async function chamarClaudeJSON(system, user, maxTokens = 3000) {
+  const txt = await chamarClaude(system, user, maxTokens);
+  return JSON.parse(txt.replace(/```json|```/g,'').trim());
+}
+
+// ── PASSAGEM 1: DETECÇÃO ──
+async function passagem1_deteccao(texto) {
+  setEtapa(1, 'ativa', 'Varrendo o texto em busca de marcas de IA...');
+
+  const system = `Você é um detector especializado em marcas de escrita gerada por IA. Analise o texto e identifique TODAS as marcas.
+
+Responda APENAS em JSON:
+{
+  "marcas": [
+    {"tipo": "string", "trecho": "string (até 60 chars)", "motivo": "string"}
+  ],
+  "score_ia": 0-100,
+  "principais_problemas": ["string"],
+  "texto_com_nivel": "baixo|medio|alto|critico"
+}
+
+Tipos de marcas: simetria_excessiva, palavra_gatilho_ia, ritmo_mecanico, paragrafo_uniforme, transicao_artificial, explicacao_desnecessaria, adjetivacao_generica, ausencia_imperfeicao, estrutura_previsivel, voz_neutra_demais`;
+
+  const resultado = await chamarClaudeJSON(system, `Analise este texto:\n\n${texto}`);
+  setEtapa(1, 'concluida', `${resultado.marcas?.length || 0} marcas detectadas · Score IA: ${resultado.score_ia}%`);
+  return resultado;
+}
+
+// ── PASSAGEM 2: PURIFICAÇÃO ──
+async function passagem2_purificacao(texto, marcas) {
+  setEtapa(2, 'ativa', 'Removendo marcas e quebrando padrões artificiais...');
+
+  const listaMarcas = (marcas || []).map(m => `- ${m.tipo}: "${m.trecho}" → ${m.motivo}`).join('\n');
+
+  const system = `Você é um purificador de texto literário. Sua missão é remover TODAS as marcas de escrita de IA mantendo o sentido e a qualidade literária.
+
+REGRAS ABSOLUTAS:
+1. Varie radicalmente o tamanho dos parágrafos — alguns longos, alguns curtíssimos, alguns de uma linha
+2. Quebre a simetria — frases de tamanhos irregulares
+3. Elimine palavras-gatilho de IA: ademais, portanto, além disso, é importante ressaltar, em suma, no entanto (quando repetidos), cabe destacar, vale ressaltar
+4. Insira hesitações, elipses, respirações naturais
+5. Varie a pontuação de forma orgânica
+6. Introduza pequenas "imperfeições" estilísticas que escritores humanos cometem
+7. Mantenha o conteúdo narrativo intacto — só mude a forma
+
+Responda APENAS com o texto purificado, sem comentários.`;
+
+  const resultado = await chamarClaude(system,
+    `MARCAS DETECTADAS PARA CORRIGIR:\n${listaMarcas}\n\nTEXTO ORIGINAL:\n${texto}`, 5000);
+  setEtapa(2, 'concluida', 'Simetria quebrada · Marcas removidas · Respirações inseridas');
+  return resultado;
+}
+
+// ── PASSAGEM 3: INJEÇÃO DE VOZ ──
+async function passagem3_voz(texto, het) {
+  setEtapa(3, 'ativa', `Injetando a voz de ${het.nome}...`);
+
+  const system = `Você é ${het.nome}, heterônimo literário com voz e território únicos.
+
+SUA VOZ E ASSINATURA:
+${het.voz}
+
+MISSÃO: Reescreva o texto integralmente na SUA voz. O texto deve soar como se VOCÊ o tivesse escrito do zero — não como uma adaptação.
+
+REGRAS:
+1. Mantenha TODO o conteúdo narrativo — personagens, eventos, diálogos, trama
+2. Transforme a forma completamente — vocabulário, ritmo, cadência, marcas linguísticas
+3. Insira suas peculiaridades únicas — as que um leitor reconheceria como suas
+4. Nenhuma frase deve soar como IA — cada uma deve soar como escrita à mão por você
+5. Inclua imperfeições humanas naturais da sua escrita específica
+
+Responda APENAS com o texto reescrito na sua voz.`;
+
+  const resultado = await chamarClaude(system, `TEXTO PARA REESCREVER NA SUA VOZ:\n\n${texto}`, 5000);
+  setEtapa(3, 'concluida', `Voz de ${het.nome} injetada · Assinatura estabelecida`);
+  return resultado;
+}
+
+// ── PASSAGEM 4: VERIFICAÇÃO ──
+async function passagem4_verificacao(texto, het) {
+  setEtapa(4, 'ativa', 'Claude verificando o próprio texto — procurando marcas residuais...');
+
+  const system = `Você é um avaliador especialista em detectar texto gerado por IA. Avalie este texto com máxima rigorosidade.
+
+Responda APENAS em JSON:
+{
+  "score_humanidade": 0-100,
+  "indetectavel": true/false,
+  "marcas_residuais": ["string"],
+  "pontos_fortes": ["string"],
+  "avaliacao": "string (parágrafo honesto)",
+  "recomendacao": "aprovado|mais_uma_passagem|revisao_manual",
+  "metricas": {
+    "variedade_ritmica": 0-100,
+    "naturalidade_vocabular": 0-100,
+    "imperfeicoes_humanas": 0-100,
+    "voz_autoral": 0-100,
+    "ausencia_marcas_ia": 0-100
+  }
+}`;
+
+  const resultado = await chamarClaudeJSON(system,
+    `Avalie se este texto parece escrito por ${het.nome} (humano) ou por IA:\n\n${texto}`);
+
+  const nota = resultado.score_humanidade || 0;
+  const status = nota >= 90 ? '✓ INDETECTÁVEL' : nota >= 75 ? '⚠ QUASE LÁ' : '✗ PRECISA MAIS';
+  setEtapa(4, 'concluida', `Score de humanidade: ${nota}% · ${status}`);
+  return resultado;
+}
+
+// ── INICIAR HUMANIZAÇÃO ──
+async function iniciarHumanizacao() {
+  const texto = document.getElementById('texto-entrada').value.trim();
+  const hetKey = document.getElementById('heteronimo-sel').value;
+  const titulo = document.getElementById('titulo-obra').value.trim() || 'Obra sem título';
+
+  if (!texto) { toast('Cole o texto para humanizar'); return; }
+  if (!hetKey) { toast('Selecione o heterônimo'); return; }
+
+  let het = HETERONIMOS_VOZ[hetKey];
+  if (hetKey === 'custom') {
+    het = {
+      nome: 'Heterônimo personalizado',
+      voz: document.getElementById('custom-het').value.trim() || 'Escritor humano com voz única'
+    };
+  }
+
+  estadoAtual = {
+    textoOriginal: texto,
+    textoPorPassagem: [texto],
+    marcasDetectadas: [],
+    heteronimo: het,
+    titulo,
+    rodando: true,
+    parado: false,
+    resultadoFinal: null
+  };
+
+  document.getElementById('btn-humanizar').disabled = true;
+  document.getElementById('pipeline').classList.add('visivel');
+  document.getElementById('placar').classList.remove('visivel');
+  document.getElementById('resultado-wrap').classList.remove('visivel');
+  document.getElementById('btn-emergencia').disabled = false;
+
+  // Reset etapas
+  for (let i = 1; i <= 4; i++) setEtapa(i, 'aguardando', i === 1 ? 'Iniciando...' : `Aguardando passagem ${i-1}...`);
+
+  try {
+    // PASSAGEM 1
+    if (estadoAtual.parado) return;
+    const deteccao = await passagem1_deteccao(texto);
+    estadoAtual.marcasDetectadas = deteccao.marcas || [];
+
+    // PASSAGEM 2
+    if (estadoAtual.parado) return;
+    const purificado = await passagem2_purificacao(texto, estadoAtual.marcasDetectadas);
+    estadoAtual.textoPorPassagem.push(purificado);
+
+    // PASSAGEM 3
+    if (estadoAtual.parado) return;
+    const comVoz = await passagem3_voz(purificado, het);
+    estadoAtual.textoPorPassagem.push(comVoz);
+
+    // PASSAGEM 4
+    if (estadoAtual.parado) return;
+    const verificacao = await passagem4_verificacao(comVoz, het);
+    estadoAtual.resultadoFinal = { texto: comVoz, verificacao, deteccao };
+
+    // Se score baixo, faz mais uma passagem automática
+    if (verificacao.score_humanidade < 85 && !estadoAtual.parado) {
+      setEtapa(4, 'ativa', `Score ${verificacao.score_humanidade}% — rodada extra automática...`);
+      const extra = await passagem3_voz(comVoz, het);
+      const verificacao2 = await passagem4_verificacao(extra, het);
+      estadoAtual.resultadoFinal = { texto: extra, verificacao: verificacao2, deteccao };
+      estadoAtual.textoPorPassagem.push(extra);
+      setEtapa(4, 'concluida', `Score final: ${verificacao2.score_humanidade}% · Rodada extra aplicada`);
+    }
+
+    estadoAtual.rodando = false;
+    renderResultado();
+
+  } catch(e) {
+    estadoAtual.rodando = false;
+    document.getElementById('btn-humanizar').disabled = false;
+    toast('Erro no processo — tente novamente');
+    console.error(e);
+  }
+}
+
+// ── RENDER RESULTADO ──
+function renderResultado() {
+  const { resultadoFinal, marcasDetectadas, textoOriginal, heteronimo } = estadoAtual;
+  if (!resultadoFinal) return;
+
+  const { texto, verificacao } = resultadoFinal;
+  const nota = verificacao.score_humanidade || 0;
+  const corNota = nota >= 90 ? 'var(--verde2)' : nota >= 75 ? 'var(--quente2)' : 'var(--rosa)';
+
+  // PLACAR
+  document.getElementById('placar').classList.add('visivel');
+  document.getElementById('placar-nota').textContent = nota + '%';
+  document.getElementById('placar-nota').style.color = corNota;
+  document.getElementById('placar-desc').textContent = verificacao.avaliacao || '—';
+
+  const badges = [];
+  if (nota >= 90) badges.push({ txt: '✓ INDETECTÁVEL', cor: 'var(--verde)', border: 'rgba(76,175,122,0.4)' });
+  if (nota >= 80) badges.push({ txt: `✦ ${heteronimo.nome.split(' ')[0]}`, cor: 'var(--quente2)', border: 'rgba(212,130,74,0.4)' });
+  if (verificacao.recomendacao === 'aprovado') badges.push({ txt: '✓ APROVADO', cor: 'var(--verde)', border: 'rgba(76,175,122,0.4)' });
+
+  document.getElementById('placar-badges').innerHTML = badges.map(b =>
+    `<span class="placar-badge" style="color:${b.cor};border-color:${b.border}">${b.txt}</span>`
+  ).join('');
+
+  // MÉTRICAS
+  const met = verificacao.metricas || {};
+  const metricasList = [
+    { label: 'Variedade Rítmica', val: met.variedade_ritmica || 0, cor: 'var(--quente2)' },
+    { label: 'Vocabulário Natural', val: met.naturalidade_vocabular || 0, cor: 'var(--ouro2)' },
+    { label: 'Imperfeições Humanas', val: met.imperfeicoes_humanas || 0, cor: 'var(--violeta)' },
+    { label: 'Voz Autoral', val: met.voz_autoral || 0, cor: 'var(--verde)' },
+    { label: 'Ausência de Marcas IA', val: met.ausencia_marcas_ia || 0, cor: 'var(--verde2)' },
+  ];
+  document.getElementById('metricas-grid').innerHTML = metricasList.map(m => `
+    <div class="metrica">
+      <div class="met-label">${m.label}</div>
+      <div class="met-barra"><div class="met-fill" style="width:${m.val}%;background:${m.cor}"></div></div>
+      <div class="met-valor">${m.val}%</div>
+    </div>
+  `).join('');
+
+  // TEXTO HUMANIZADO
+  document.getElementById('texto-humanizado-content').textContent = texto;
+
+  // MARCAS
+  document.getElementById('marcas-content').innerHTML = `
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:16px">
+      // ${marcasDetectadas.length} MARCAS DETECTADAS E CORRIGIDAS
+    </div>
+    ${marcasDetectadas.map(m => `
+      <div class="marca-item">
+        <span class="marca-tipo marca-corrigida">CORRIGIDA</span>
+        <div class="marca-txt">
+          <strong style="font-family:var(--mono);font-size:10px;color:var(--quente2);display:block;margin-bottom:4px">${m.tipo?.replace(/_/g,' ').toUpperCase()}</strong>
+          "${m.trecho}" — ${m.motivo}
+        </div>
+      </div>
+    `).join('')}
+    ${(verificacao.marcas_residuais || []).length > 0 ? `
+      <div style="font-family:var(--mono);font-size:10px;color:var(--rosa);letter-spacing:2px;margin:16px 0 10px">
+        // MARCAS RESIDUAIS (se houver)
+      </div>
+      ${verificacao.marcas_residuais.map(m => `
+        <div class="marca-item">
+          <span class="marca-tipo marca-ia-tip">RESIDUAL</span>
+          <div class="marca-txt">${m}</div>
+        </div>
+      `).join('')}
+    ` : ''}
+  `;
+
+  // COMPARATIVO
+  const original = textoOriginal.substring(0, 800);
+  const humanizado = texto.substring(0, 800);
+  document.getElementById('comparativo-content').innerHTML = `
+    <div class="comp-par">
+      <div class="comp-antes">
+        <div class="comp-label">// TEXTO ORIGINAL (com marcas de IA)</div>
+        <div class="comp-txt">${original}${textoOriginal.length > 800 ? '...' : ''}</div>
+      </div>
+      <div class="comp-depois">
+        <div class="comp-label">// TEXTO HUMANIZADO (voz de ${heteronimo.nome})</div>
+        <div class="comp-txt">${humanizado}${texto.length > 800 ? '...' : ''}</div>
+      </div>
+    </div>
+  `;
+
+  // VOZ
+  document.getElementById('voz-content').innerHTML = `
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--quente2);letter-spacing:2px;margin-bottom:10px">// HETERÔNIMO · VOZ INJETADA</div>
+      <div style="font-family:var(--playfair);font-size:18px;color:var(--ouro2);margin-bottom:8px">${heteronimo.nome}</div>
+      <div style="font-size:15px;font-style:italic;color:rgba(240,232,224,0.6);line-height:1.8">${heteronimo.voz}</div>
+    </div>
+    ${(verificacao.pontos_fortes || []).map(p => `
+      <div style="display:flex;gap:10px;margin-bottom:10px;align-items:flex-start">
+        <span style="color:var(--verde);flex-shrink:0">✓</span>
+        <span style="font-size:15px;line-height:1.7;color:rgba(240,232,224,0.75)">${p}</span>
+      </div>
+    `).join('')}
+  `;
+
+  document.getElementById('resultado-wrap').classList.add('visivel');
+  document.getElementById('btn-humanizar').disabled = false;
+  document.getElementById('btn-emergencia').disabled = true;
+
+  toast(`✦ Humanização concluída · ${nota}% de humanidade`);
+  document.getElementById('placar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── AÇÕES ──
+function pararEmergencia() {
+  estadoAtual.parado = true;
+  estadoAtual.rodando = false;
+  document.getElementById('btn-emergencia').disabled = true;
+  document.getElementById('btn-humanizar').disabled = false;
+
+  // Salva o que tiver até aqui
+  const ultimo = estadoAtual.textoPorPassagem[estadoAtual.textoPorPassagem.length - 1];
+  if (ultimo && ultimo !== estadoAtual.textoOriginal) {
+    estadoAtual.resultadoFinal = {
+      texto: ultimo,
+      verificacao: { score_humanidade: 0, avaliacao: 'Processo interrompido por emergência.', metricas: {} },
+      deteccao: {}
+    };
+    renderResultado();
+    toast('⚠ Processo interrompido — exibindo resultado parcial');
+  } else {
+    toast('⚠ Processo interrompido');
+  }
+}
+
+async function maisUmaPassagem() {
+  if (!estadoAtual.resultadoFinal) return;
+  const textoAtual = estadoAtual.resultadoFinal.texto;
+  const het = estadoAtual.heteronimo;
+
+  document.getElementById('resultado-wrap').classList.remove('visivel');
+  document.getElementById('placar').classList.remove('visivel');
+  setEtapa(3, 'ativa', 'Passagem extra — reforçando a voz...');
+
+  const extra = await passagem3_voz(textoAtual, het);
+  const verificacao = await passagem4_verificacao(extra, het);
+  estadoAtual.resultadoFinal = { texto: extra, verificacao, deteccao: estadoAtual.resultadoFinal.deteccao };
+  estadoAtual.textoPorPassagem.push(extra);
+  renderResultado();
+  toast(`↺ Passagem extra concluída · ${verificacao.score_humanidade}%`);
+}
+
+function irParaRevisao() {
+  if (!estadoAtual.resultadoFinal) return;
+  localStorage.setItem('revisao_fp_texto', estadoAtual.resultadoFinal.texto);
+  localStorage.setItem('revisao_fp_titulo', estadoAtual.titulo);
+  localStorage.setItem('revisao_fp_heteronimo', estadoAtual.heteronimo?.nome || '');
+  localStorage.setItem('revisao_fp_score', estadoAtual.resultadoFinal.verificacao?.score_humanidade || 0);
+  window.location.href = 'revisao_fernando.html';
+}
+
+function baixarHumanizado() {
+  if (!estadoAtual.resultadoFinal) return;
+  const { texto } = estadoAtual.resultadoFinal;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(
+    [`${estadoAtual.titulo}\n${estadoAtual.heteronimo?.nome}\n${'═'.repeat(60)}\n\n${texto}`],
+    { type: 'text/plain;charset=utf-8' }
+  ));
+  a.download = `humanizado_${estadoAtual.titulo.replace(/\s+/g,'-').toLowerCase()}.txt`;
+  a.click();
+  toast('↓ Texto humanizado baixado');
+}
+
+function salvarNaBiblioteca() {
+  if (!estadoAtual.resultadoFinal) return;
+  const obras = JSON.parse(localStorage.getItem('biblioteca_obras') || '[]');
+  obras.unshift({
+    id: 'obra_' + Date.now(),
+    titulo: estadoAtual.titulo,
+    autor: estadoAtual.heteronimo?.nome || '—',
+    eixo: 'prosa',
+    status: 'completa',
+    sinopse: '',
+    texto: estadoAtual.resultadoFinal.texto,
+    adicionadoEm: new Date().toISOString(),
+    scoreHumanidade: estadoAtual.resultadoFinal.verificacao?.score_humanidade || 0,
+    origem: 'humanizador'
+  });
+  localStorage.setItem('biblioteca_obras', JSON.stringify(obras));
+  toast('📚 Salvo na Biblioteca');
+}
+
+function novaHumanizacao() {
+  document.getElementById('texto-entrada').value = '';
+  document.getElementById('titulo-obra').value = '';
+  document.getElementById('resultado-wrap').classList.remove('visivel');
+  document.getElementById('placar').classList.remove('visivel');
+  document.getElementById('pipeline').classList.remove('visivel');
+  estadoAtual = { textoOriginal:'',textoPorPassagem:[],marcasDetectadas:[],heteronimo:null,titulo:'',rodando:false,parado:false,resultadoFinal:null };
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Pré-carrega texto da lapidação se vier de lá
+const textoLap = localStorage.getItem('humanizador_texto_pendente');
+if (textoLap) {
+  document.getElementById('texto-entrada').value = textoLap;
+  localStorage.removeItem('humanizador_texto_pendente');
+}
+const tituloLap = localStorage.getItem('humanizador_titulo_pendente');
+if (tituloLap) {
+  document.getElementById('titulo-obra').value = tituloLap;
+  localStorage.removeItem('humanizador_titulo_pendente');
+}
+const hetLap = localStorage.getItem('humanizador_heteronimo_pendente');
+if (hetLap) {
+  const sel = document.getElementById('heteronimo-sel');
+  const opt = Array.from(sel.options).find(o =>
+    HETERONIMOS_VOZ[o.value]?.nome?.toLowerCase().includes(hetLap.toLowerCase().split(' ')[0])
+  );
+  if (opt) sel.value = opt.value;
+  localStorage.removeItem('humanizador_heteronimo_pendente');
+}
+</script>
+</body>
+</html>
