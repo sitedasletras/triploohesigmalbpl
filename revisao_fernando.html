@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revisão · Fernando Peçanha · OHE</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #05060c;
+  --s1: #090b14;
+  --s2: #0f1120;
+  --border: #1e2235;
+  --fp: #8a6a3a;
+  --fp2: #d4a85a;
+  --fp3: rgba(138,106,58,0.15);
+  --ouro: #c8a96e;
+  --ouro2: #f0d896;
+  --verde: #4caf7a;
+  --verde2: #80ffb0;
+  --rosa: #d4689a;
+  --violeta: #9b6fd0;
+  --azul: #6aaed8;
+  --quente: #d4824a;
+  --texto: #e8e0d0;
+  --muted: #52503a;
+  --cor: 'Cormorant Garamond', serif;
+  --playfair: 'Playfair Display', serif;
+  --mono: 'DM Mono', monospace;
+  --r: 18px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--cor);
+  background: var(--bg); color: var(--texto); min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 60% 40% at 20% 0%, rgba(138,106,58,0.08), transparent),
+    radial-gradient(ellipse 40% 50% at 90% 100%, rgba(200,169,110,0.05), transparent);
+}
+
+/* TOPBAR */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(5,6,12,0.97); border-bottom: 1px solid rgba(138,106,58,0.25);
+  backdrop-filter: blur(14px); padding: 12px 28px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.marca { font-family: var(--mono); font-size: 12px; color: var(--fp2); letter-spacing: 3px; }
+.marca small { display: block; font-size: 9px; color: var(--muted); letter-spacing: 2px; margin-top: 2px; }
+.tnav { display: flex; gap: 6px; flex-wrap: wrap; }
+.tnav a {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--muted);
+  text-decoration: none; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.2s;
+}
+.tnav a:hover { color: var(--fp2); border-color: var(--fp); background: var(--fp3); }
+
+/* HERO */
+.hero {
+  padding: 56px 28px 44px; text-align: center;
+  border-bottom: 1px solid rgba(138,106,58,0.15); position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '⚖'; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%,-50%);
+  font-size: 440px; opacity: 0.022; pointer-events: none; line-height: 1;
+}
+.hero-badge {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 3px;
+  border: 1px solid rgba(138,106,58,0.4); color: rgba(212,168,90,0.7);
+  padding: 5px 18px; border-radius: 999px; display: inline-block; margin-bottom: 20px;
+}
+.hero h1 {
+  font-family: var(--playfair); font-size: clamp(36px,6vw,78px); font-weight: 900;
+  background: linear-gradient(150deg, var(--ouro2) 0%, var(--fp2) 50%, var(--fp) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 10px; line-height: 1.05;
+}
+.hero-sub { font-family: var(--mono); font-size: 10px; letter-spacing: 4px; color: var(--muted); margin-bottom: 16px; }
+.hero-desc { font-size: 18px; font-style: italic; color: rgba(232,224,208,0.6); max-width: 680px; margin: 0 auto; line-height: 1.9; }
+
+/* WRAP */
+.wrap { max-width: 1200px; margin: auto; padding: 36px 28px 100px; display: flex; flex-direction: column; gap: 28px; }
+
+/* PAINEL FP */
+.painel-fp {
+  background: var(--s1); border: 1px solid rgba(138,106,58,0.3);
+  border-radius: var(--r); overflow: hidden;
+  background-image: radial-gradient(ellipse 80% 60% at 0% 50%, rgba(138,106,58,0.05), transparent);
+}
+.fp-header {
+  padding: 20px 26px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 16px;
+}
+.fp-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  border: 2px solid rgba(138,106,58,0.5); background: var(--fp3);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--playfair); font-size: 20px; font-weight: 900; color: var(--fp2);
+  flex-shrink: 0;
+}
+.fp-nome { font-family: var(--playfair); font-size: 20px; color: var(--ouro2); margin-bottom: 3px; }
+.fp-cargo { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; }
+.fp-status {
+  margin-left: auto; font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  padding: 5px 14px; border-radius: 999px; border: 1px solid;
+}
+.fp-status.analisando { border-color: rgba(138,106,58,0.4); color: var(--fp2); background: var(--fp3); animation: pulsar 2s ease-in-out infinite; }
+.fp-status.aguardando { border-color: var(--border); color: var(--muted); }
+.fp-status.aprovado { border-color: rgba(76,175,122,0.4); color: var(--verde); background: rgba(76,175,122,0.06); }
+@keyframes pulsar { 0%,100%{opacity:0.6} 50%{opacity:1} }
+
+/* SUMÁRIO DOS RELATÓRIOS */
+.sumario {
+  display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 12px;
+  padding: 20px 26px; border-bottom: 1px solid var(--border);
+}
+.sum-card {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px;
+  position: relative; overflow: hidden;
+}
+.sum-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; }
+.sum-analisador::before { background: var(--violeta); }
+.sum-emocional::before { background: var(--azul); }
+.sum-lapidacao::before { background: var(--verde); }
+.sum-humanizador::before { background: var(--quente); }
+.sum-titulo { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+.sum-valor { font-family: var(--playfair); font-size: 22px; color: var(--ouro2); font-weight: 700; margin-bottom: 4px; }
+.sum-desc { font-size: 13px; font-style: italic; color: rgba(232,224,208,0.5); line-height: 1.5; }
+
+/* ENTRADA MANUAL */
+.entrada-manual { padding: 20px 26px; display: flex; flex-direction: column; gap: 16px; }
+.campo-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; display: block; margin-bottom: 7px; }
+textarea, input, select {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  color: var(--texto); font-family: var(--cor); font-size: 17px;
+  padding: 12px 16px; border-radius: 10px; outline: none; transition: border-color 0.2s; line-height: 1.8;
+}
+textarea { resize: vertical; min-height: 200px; }
+textarea:focus, input:focus, select:focus { border-color: var(--fp); }
+textarea::placeholder { color: var(--muted); font-style: italic; }
+select, input { font-family: var(--mono); font-size: 12px; }
+select option { background: var(--s1); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* BOTÃO ANÁLISE FP */
+.btn-analisar-fp {
+  font-family: var(--playfair); font-size: 17px; font-weight: 900;
+  padding: 17px 40px; border: 1px solid var(--fp2); border-radius: 999px;
+  color: var(--fp2); background: var(--fp3); cursor: pointer;
+  transition: all 0.3s; width: 100%; letter-spacing: 2px;
+}
+.btn-analisar-fp:hover { background: rgba(138,106,58,0.25); border-color: var(--ouro2); color: var(--ouro2); box-shadow: 0 0 40px rgba(138,106,58,0.2); }
+.btn-analisar-fp:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* LOADING FP */
+.loading-fp {
+  display: none; text-align: center; padding: 48px;
+  background: var(--s1); border: 1px solid rgba(138,106,58,0.2); border-radius: var(--r);
+}
+.loading-fp.visivel { display: block; }
+.fp-pensando { font-size: 48px; display: block; margin-bottom: 16px; animation: pensar 2s ease-in-out infinite; }
+@keyframes pensar { 0%,100%{transform:scale(1) rotate(-5deg)} 50%{transform:scale(1.1) rotate(5deg)} }
+.loading-fp-txt { font-family: var(--mono); font-size: 11px; color: var(--fp2); letter-spacing: 3px; }
+.loading-fp-fase { font-family: var(--cor); font-size: 17px; font-style: italic; color: var(--muted); margin-top: 8px; }
+
+/* PAINEL DE DECISÃO */
+.painel-decisao {
+  display: none; background: var(--s1); border: 1px solid rgba(138,106,58,0.25);
+  border-radius: var(--r); overflow: hidden;
+}
+.painel-decisao.visivel { display: block; }
+
+/* DIAGNÓSTICO FP */
+.diagnostico-fp { padding: 24px 26px; border-bottom: 1px solid var(--border); }
+.diag-titulo { font-family: var(--playfair); font-size: 18px; color: var(--fp2); margin-bottom: 4px; font-style: italic; }
+.diag-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-bottom: 16px; }
+.diag-texto { font-size: 17px; line-height: 1.9; color: rgba(232,224,208,0.8); font-style: italic; }
+
+/* PONTOS DE CORREÇÃO */
+.pontos-wrap { padding: 0 26px 20px; }
+.ponto-titulo { font-family: var(--mono); font-size: 10px; color: var(--fp2); letter-spacing: 3px; margin-bottom: 14px; padding-top: 20px; }
+.ponto-item {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+  margin-bottom: 10px; overflow: hidden;
+}
+.ponto-header {
+  padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: background 0.2s;
+}
+.ponto-header:hover { background: rgba(138,106,58,0.04); }
+.ponto-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 11px; flex-shrink: 0;
+  border: 1px solid;
+}
+.ponto-urgente .ponto-num { border-color: rgba(212,104,154,0.5); color: var(--rosa); background: rgba(212,104,154,0.08); }
+.ponto-importante .ponto-num { border-color: rgba(212,130,74,0.5); color: var(--quente); background: rgba(212,130,74,0.08); }
+.ponto-refinamento .ponto-num { border-color: rgba(138,106,58,0.4); color: var(--fp2); background: var(--fp3); }
+.ponto-info { flex: 1; }
+.ponto-nome { font-family: var(--playfair); font-size: 15px; color: var(--ouro2); margin-bottom: 2px; }
+.ponto-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+.ponto-tipo {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 999px; border: 1px solid; flex-shrink: 0;
+}
+.ponto-urgente .ponto-tipo { border-color: rgba(212,104,154,0.4); color: var(--rosa); }
+.ponto-importante .ponto-tipo { border-color: rgba(212,130,74,0.4); color: var(--quente); }
+.ponto-refinamento .ponto-tipo { border-color: rgba(138,106,58,0.3); color: var(--fp2); }
+
+.ponto-body { display: none; padding: 0 16px 16px; }
+.ponto-body.aberto { display: block; }
+.ponto-trecho-original {
+  background: rgba(212,104,154,0.06); border: 1px solid rgba(212,104,154,0.2);
+  border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
+  font-size: 15px; font-style: italic; line-height: 1.7; color: rgba(232,224,208,0.7);
+}
+.ponto-instrucao {
+  background: rgba(138,106,58,0.06); border: 1px solid rgba(138,106,58,0.2);
+  border-radius: 8px; padding: 12px 14px; margin-bottom: 12px;
+  font-family: var(--mono); font-size: 11px; color: var(--fp2); line-height: 1.7; letter-spacing: 0.5px;
+}
+.ponto-correcao-wrap { display: none; }
+.ponto-correcao-wrap.visivel { display: block; }
+.ponto-correcao {
+  background: rgba(76,175,122,0.06); border: 1px solid rgba(76,175,122,0.25);
+  border-radius: 8px; padding: 14px;
+  font-size: 16px; font-style: italic; line-height: 1.8; color: rgba(232,224,208,0.85);
+  white-space: pre-wrap; margin-bottom: 10px;
+}
+.btn-corrigir {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  padding: 8px 16px; border: 1px solid rgba(138,106,58,0.4); border-radius: 999px;
+  color: var(--fp2); background: var(--fp3); cursor: pointer; transition: all 0.2s;
+}
+.btn-corrigir:hover { background: rgba(138,106,58,0.25); }
+.btn-corrigir:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-aplicar {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  padding: 8px 16px; border: 1px solid rgba(76,175,122,0.4); border-radius: 999px;
+  color: var(--verde); background: rgba(76,175,122,0.06); cursor: pointer; transition: all 0.2s;
+}
+.btn-aplicar:hover { background: rgba(76,175,122,0.15); }
+
+/* TEXTO FINAL */
+.texto-final-wrap { padding: 24px 26px; border-top: 1px solid var(--border); }
+.tf-titulo { font-family: var(--mono); font-size: 10px; color: var(--fp2); letter-spacing: 3px; margin-bottom: 16px; }
+.texto-final-area {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+  padding: 24px; font-family: var(--cor); font-size: 18px; line-height: 2;
+  color: rgba(232,224,208,0.9); white-space: pre-wrap; max-height: 500px; overflow-y: auto;
+  cursor: text;
+}
+.texto-final-area[contenteditable="true"] { border-color: var(--fp); outline: none; }
+
+/* DECISÃO FINAL */
+.decisao-final {
+  padding: 24px 26px; border-top: 1px solid var(--border);
+  background: rgba(138,106,58,0.03);
+}
+.df-titulo { font-family: var(--mono); font-size: 10px; color: var(--fp2); letter-spacing: 3px; margin-bottom: 16px; }
+.decisao-opcoes { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.dec-btn {
+  font-family: var(--playfair); font-size: 14px; font-style: italic; font-weight: 700;
+  padding: 12px 24px; border: 1px solid; border-radius: 999px;
+  cursor: pointer; transition: all 0.25s; background: transparent;
+}
+.dec-aprovar { border-color: var(--verde); color: var(--verde); }
+.dec-aprovar:hover { background: rgba(76,175,122,0.12); box-shadow: 0 0 24px rgba(76,175,122,0.2); }
+.dec-masmorra { border-color: var(--ouro); color: var(--ouro); }
+.dec-masmorra:hover { background: rgba(200,169,110,0.1); }
+.dec-calabouco { border-color: var(--violeta); color: var(--violeta); }
+.dec-calabouco:hover { background: rgba(155,111,208,0.1); }
+.dec-nova-rodada { border-color: var(--quente); color: var(--quente); }
+.dec-nova-rodada:hover { background: rgba(212,130,74,0.1); }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--s1); border: 1px solid var(--fp2);
+  color: var(--fp2); font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+  padding: 12px 20px; border-radius: 10px; z-index: 300;
+  opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* APROVAÇÃO */
+.aprovacao-final {
+  display: none; text-align: center; padding: 56px;
+  background: var(--s1); border: 1px solid rgba(76,175,122,0.3);
+  border-radius: var(--r);
+  background-image: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(76,175,122,0.05), transparent);
+}
+.aprovacao-final.visivel { display: block; }
+.apr-emoji { font-size: 56px; display: block; margin-bottom: 16px; }
+.apr-titulo { font-family: var(--playfair); font-size: 28px; color: var(--verde2); font-style: italic; margin-bottom: 8px; }
+.apr-desc { font-size: 17px; font-style: italic; color: rgba(232,224,208,0.6); max-width: 520px; margin: 0 auto 28px; line-height: 1.9; }
+.apr-acoes { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn-apr {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 2px;
+  padding: 11px 24px; border: 1px solid; border-radius: 999px;
+  cursor: pointer; transition: all 0.2s; background: transparent; text-transform: uppercase;
+}
+.btn-bib { border-color: var(--ouro); color: var(--ouro); }
+.btn-bib:hover { background: rgba(200,169,110,0.1); }
+.btn-masm { border-color: var(--verde); color: var(--verde); }
+.btn-masm:hover { background: rgba(76,175,122,0.1); }
+.btn-calab { border-color: var(--violeta); color: var(--violeta); }
+.btn-calab:hover { background: rgba(155,111,208,0.1); }
+.btn-dl-apr { border-color: var(--azul); color: var(--azul); }
+.btn-dl-apr:hover { background: rgba(106,174,216,0.1); }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+
+@media (max-width: 700px) {
+  .grid2, .grid3, .sumario { grid-template-columns: 1fr; }
+  .wrap { padding: 24px 16px 80px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="marca">REVISÃO · FERNANDO PEÇANHA · OHE<small>CURADORIA FINAL · CORREÇÕES · APROVAÇÃO · DESPACHO</small></div>
+  <nav class="tnav">
+    <a href="humanizador.html">← Humanizador</a>
+    <a href="biblioteca.html">Biblioteca</a>
+    <a href="espinha_dorsal.html">Espinha Dorsal</a>
+    <a href="index.html">← SIGMAL HQ</a>
+  </nav>
+</div>
+
+<header class="hero">
+  <div class="hero-badge">⚖ FERNANDO PEÇANHA · REVISÃO FINAL · CURADORIA · APROVAÇÃO</div>
+  <h1>Revisão Final</h1>
+  <div class="hero-sub">OHE · FERNANDO PEÇANHA · CURADOR MÁXIMO · DECISÃO DEFINITIVA</div>
+  <p class="hero-desc">Fernando Peçanha recebe todos os relatórios, analisa a obra completa, identifica os pontos de correção e convoca o heterônimo para reescrever no seu próprio estilo.</p>
+</header>
+
+<main class="wrap">
+
+  <!-- PAINEL FERNANDO PEÇANHA -->
+  <div class="painel-fp">
+    <div class="fp-header">
+      <div class="fp-avatar">FP</div>
+      <div>
+        <div class="fp-nome">Fernando Peçanha</div>
+        <div class="fp-cargo">CURADOR MÁXIMO · OHE · CONFRARIA DOS HETERÔNIMOS</div>
+      </div>
+      <div class="fp-status aguardando" id="fp-status">AGUARDANDO</div>
+    </div>
+
+    <!-- SUMÁRIO DOS RELATÓRIOS -->
+    <div class="sumario" id="sumario-relatorios">
+      <div class="sum-card sum-analisador">
+        <div class="sum-titulo">Analisador Psicológico</div>
+        <div class="sum-valor" id="sum-analisador">—</div>
+        <div class="sum-desc" id="sum-analisador-desc">Não recebido</div>
+      </div>
+      <div class="sum-card sum-emocional">
+        <div class="sum-titulo">Leitura Emocional</div>
+        <div class="sum-valor" id="sum-emocional">—</div>
+        <div class="sum-desc" id="sum-emocional-desc">Não recebido</div>
+      </div>
+      <div class="sum-card sum-lapidacao">
+        <div class="sum-titulo">Lapidação Psicológica</div>
+        <div class="sum-valor" id="sum-lapidacao">—</div>
+        <div class="sum-desc" id="sum-lapidacao-desc">Não recebido</div>
+      </div>
+      <div class="sum-card sum-humanizador">
+        <div class="sum-titulo">Humanizador</div>
+        <div class="sum-valor" id="sum-humanizador">—</div>
+        <div class="sum-desc" id="sum-humanizador-desc">Não recebido</div>
+      </div>
+    </div>
+
+    <!-- ENTRADA MANUAL -->
+    <div class="entrada-manual">
+      <div>
+        <label class="campo-label">// TEXTO DA OBRA (após todas as etapas)</label>
+        <textarea id="texto-obra" placeholder="Cole aqui o texto final — após Geração, Análise Psicológica, Leitura Emocional, Lapidação e Humanização..."></textarea>
+      </div>
+      <div class="grid2">
+        <div>
+          <label class="campo-label">// TÍTULO DA OBRA</label>
+          <input type="text" id="titulo-obra" placeholder="Título">
+        </div>
+        <div>
+          <label class="campo-label">// HETERÔNIMO</label>
+          <select id="heteronimo-sel">
+            <option value="">— selecionar —</option>
+            <option value="Amanda Fernanda Fisher Leão">Amanda Fernanda Fisher Leão</option>
+            <option value="Imediato Thompson">Imediato Thompson</option>
+            <option value="Aurora Wings">Aurora Wings</option>
+            <option value="A.J. dos Santos">A.J. dos Santos</option>
+            <option value="Amélie Maia Hanna">Amélie Maia Hanna</option>
+            <option value="Anísio Teixeira">Anísio Teixeira</option>
+            <option value="Articus da Pérsida">Articus da Pérsida</option>
+            <option value="Birihani Selami Ina Tesifa">Birihani Selami Ina Tesifa</option>
+            <option value="Calíope Papazissis">Calíope Papazissis</option>
+            <option value="Chesco Irlanda">Chesco Irlanda</option>
+            <option value="Creone Porfírio">Creone Porfírio</option>
+            <option value="Dárius Ninus Vamus">Dárius Ninus Vamus</option>
+            <option value="Wagner Planas">Wagner Planas</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="campo-label">// RELATÓRIOS ANTERIORES (opcional — cole os relatórios do Analisador, Leitura e Lapidação)</label>
+        <textarea id="relatorios-anteriores" style="min-height:100px" placeholder="Cole aqui os relatórios gerados nas etapas anteriores — Fernando Peçanha usará para embasar a análise..."></textarea>
+      </div>
+      <button class="btn-analisar-fp" id="btn-analisar-fp" onclick="iniciarAnalise()">
+        ⚖ FERNANDO PEÇANHA · ANALISAR E IDENTIFICAR CORREÇÕES
+      </button>
+    </div>
+  </div>
+
+  <!-- LOADING FP -->
+  <div class="loading-fp" id="loading-fp">
+    <span class="fp-pensando">⚖</span>
+    <div class="loading-fp-txt">FERNANDO PEÇANHA ANALISANDO<span id="fp-dots"></span></div>
+    <div class="loading-fp-fase" id="fp-fase">Lendo a obra completa...</div>
+  </div>
+
+  <!-- PAINEL DE DECISÃO -->
+  <div class="painel-decisao" id="painel-decisao">
+
+    <!-- DIAGNÓSTICO -->
+    <div class="diagnostico-fp">
+      <div class="diag-titulo">Diagnóstico de Fernando Peçanha</div>
+      <div class="diag-sub">// AVALIAÇÃO CURATORIAL · PONTOS DE CORREÇÃO IDENTIFICADOS</div>
+      <div class="diag-texto" id="diag-texto">—</div>
+    </div>
+
+    <!-- PONTOS DE CORREÇÃO -->
+    <div class="pontos-wrap">
+      <div class="ponto-titulo">// PONTOS DE CORREÇÃO · HETERÔNIMO CONVOCADO</div>
+      <div id="lista-pontos"></div>
+    </div>
+
+    <!-- TEXTO FINAL CONSOLIDADO -->
+    <div class="texto-final-wrap">
+      <div class="tf-titulo">// TEXTO FINAL CONSOLIDADO · EDITÁVEL</div>
+      <div class="texto-final-area" id="texto-final" contenteditable="false"></div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <button onclick="toggleEditar()" style="font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:7px 16px;border:1px solid var(--border);border-radius:999px;color:var(--muted);background:transparent;cursor:pointer;transition:all 0.2s" id="btn-editar-texto">✎ EDITAR MANUALMENTE</button>
+        <button onclick="aplicarTodasCorrecoes()" style="font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:7px 16px;border:1px solid rgba(138,106,58,0.4);border-radius:999px;color:var(--fp2);background:var(--fp3);cursor:pointer;transition:all 0.2s">✦ APLICAR TODAS AS CORREÇÕES</button>
+      </div>
+    </div>
+
+    <!-- DECISÃO FINAL -->
+    <div class="decisao-final">
+      <div class="df-titulo">// FERNANDO PEÇANHA · DECISÃO FINAL</div>
+      <div class="decisao-opcoes">
+        <button class="dec-btn dec-aprovar" onclick="aprovar()">✦ APROVAR OBRA</button>
+        <button class="dec-btn dec-masmorra" onclick="despacharMasmorra()">⏳ MASMORRA</button>
+        <button class="dec-btn dec-calabouco" onclick="despacharCalabouco()">🏰 CALABOUÇO</button>
+        <button class="dec-btn dec-nova-rodada" onclick="novaRodada()">↺ NOVA RODADA</button>
+      </div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px;line-height:1.8">
+        APROVAR → salva na Biblioteca e aguarda despacho · MASMORRA → 750 dias · CALABOUÇO → aguarda catapulta manual · NOVA RODADA → volta para o Humanizador
+      </div>
+    </div>
+
+  </div>
+
+  <!-- APROVAÇÃO FINAL -->
+  <div class="aprovacao-final" id="aprovacao-final">
+    <span class="apr-emoji">✦</span>
+    <div class="apr-titulo" id="apr-titulo">Obra Aprovada por Fernando Peçanha</div>
+    <div class="apr-desc" id="apr-desc">A obra foi aprovada e está pronta para o próximo destino.</div>
+    <div class="apr-acoes">
+      <button class="btn-apr btn-bib" onclick="salvarBiblioteca()">📚 SALVAR NA BIBLIOTECA</button>
+      <button class="btn-apr btn-masm" onclick="enviarMasmorra()">⏳ ENVIAR À MASMORRA</button>
+      <button class="btn-apr btn-calab" onclick="enviarCalabouco()">🏰 ENVIAR AO CALABOUÇO</button>
+      <button class="btn-apr btn-dl-apr" onclick="baixarObra()">↓ BAIXAR OBRA</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// REVISÃO FERNANDO PEÇANHA · OHE
+// Curadoria Final · Correções · Aprovação · Despacho
+// ══════════════════════════════════════════════════════════════
+
+const VOZES_HET = {
+  'Amanda Fernanda Fisher Leão': 'Narrativa oceânica visceral. Frases que respiram como ondas. Vocabulário marítimo e mítico. Usa elipses inesperadas. Imagens sensoriais densas do mar. Nunca explica o sobrenatural.',
+  'Imediato Thompson': 'Épico cosmológico de tempo dilatado. Frases longas e subordinadas. Vocabulário científico mesclado ao mítico. Pausas longas entre ideias.',
+  'Aurora Wings': 'Tech-noir espacial. Frases curtas e precisas. Frieza calculada. Jargão cibernético naturalizado.',
+  'A.J. dos Santos': 'Urbano e cru. Frases curtas. Vocabulário da rua misturado ao literário. Diálogos secos. O narrador não julga.',
+  'Amélie Maia Hanna': 'Prosa poética densa. Tempo não-linear. Frases que começam em um lugar e terminam em outro. Melancolia lírica.',
+  'Anísio Teixeira': 'Narrador compassivo e lento. Oralidade nordestina. O coletivo como personagem. Tempo circular.',
+  'Articus da Pérsida': 'Contador de histórias ancestral. Narrativa em espiral. Aforismos inesperados. Oriente mítico.',
+  'Birihani Selami Ina Tesifa': 'Verso-prosa ritualístico. Ritmo percussivo. Natureza como entidade. Repetições intencionais.',
+  'Calíope Papazissis': 'Poesia densa com ecos trágicos. O corpo como território. Imagens que sangram. Grécia interior.',
+  'Chesco Irlanda': 'Realismo mágico com ironia. Narrador não-confiável. América Latina mágica. Humor negro discreto.',
+  'Creone Porfírio': 'Narrador clínico e frio. Expõe sem julgar. Linguagem burocrática e literária alternadas.',
+  'Dárius Ninus Vamus': 'Tensão paranóica. Linguagem que fragmenta sob pressão. Frases interrompidas. Distopia.',
+  'Wagner Planas': 'Metaficcional e filosófico. O autor dentro da obra. A forma é o conteúdo.',
+};
+
+let estadoRevisao = {
+  textoOriginal: '',
+  textoAtual: '',
+  titulo: '',
+  heteronimo: '',
+  diagnostico: null,
+  pontos: [],
+  correcoesAplicadas: {},
+  aprovado: false
+};
+
+// ── CARREGA DADOS DO PIPELINE ──
+function carregarDoPipeline() {
+  // Texto do humanizador
+  const textoHum = localStorage.getItem('revisao_fp_texto');
+  if (textoHum) {
+    document.getElementById('texto-obra').value = textoHum;
+    localStorage.removeItem('revisao_fp_texto');
+  }
+  const tituloHum = localStorage.getItem('revisao_fp_titulo');
+  if (tituloHum) {
+    document.getElementById('titulo-obra').value = tituloHum;
+    localStorage.removeItem('revisao_fp_titulo');
+  }
+  const hetHum = localStorage.getItem('revisao_fp_heteronimo');
+  if (hetHum) {
+    const sel = document.getElementById('heteronimo-sel');
+    const opt = Array.from(sel.options).find(o => o.value.includes(hetHum.split(' ')[0]));
+    if (opt) sel.value = opt.value;
+    localStorage.removeItem('revisao_fp_heteronimo');
+  }
+  const scoreHum = localStorage.getItem('revisao_fp_score');
+  if (scoreHum) {
+    document.getElementById('sum-humanizador').textContent = scoreHum + '%';
+    document.getElementById('sum-humanizador-desc').textContent = 'Score de humanidade';
+    localStorage.removeItem('revisao_fp_score');
+  }
+
+  // Relatórios das etapas anteriores
+  const raioX = localStorage.getItem('lapidar_raio_x_pendente');
+  if (raioX) {
+    try {
+      const dados = JSON.parse(raioX);
+      document.getElementById('sum-analisador').textContent = (dados.analise?.personagens?.length || 0) + ' pers.';
+      document.getElementById('sum-analisador-desc').textContent = 'Personagens analisados';
+    } catch(e) {}
+  }
+
+  const leitEmoc = localStorage.getItem('lapidar_leitura_emocional_pendente');
+  if (leitEmoc) {
+    try {
+      const dados = JSON.parse(leitEmoc);
+      const nota = dados.avaliacao?.nota_geral;
+      if (nota) {
+        document.getElementById('sum-emocional').textContent = nota + '/10';
+        document.getElementById('sum-emocional-desc').textContent = dados.avaliacao?.nota_descricao?.substring(0,50) || '—';
+      }
+    } catch(e) {}
+  }
+}
+
+// ── LOADING ──
+const faseFP = [
+  'Lendo a obra completa...','Consultando os relatórios anteriores...',
+  'Avaliando a voz do heterônimo...','Identificando pontos de correção...',
+  'Convocando o heterônimo para análise...','Redigindo o diagnóstico curatorial...',
+  'Preparando as instruções de correção...'
+];
+let faseIdx = 0, loadInt;
+
+function iniciarLoading() {
+  faseIdx = 0;
+  document.getElementById('fp-fase').textContent = faseFP[0];
+  loadInt = setInterval(() => {
+    faseIdx = (faseIdx+1) % faseFP.length;
+    document.getElementById('fp-fase').textContent = faseFP[faseIdx];
+  }, 2000);
+  let d = 0;
+  window._di = setInterval(() => {
+    d = (d+1)%4;
+    document.getElementById('fp-dots').textContent = '.'.repeat(d);
+  }, 400);
+  document.getElementById('fp-status').className = 'fp-status analisando';
+  document.getElementById('fp-status').textContent = 'ANALISANDO';
+}
+
+function pararLoading() {
+  clearInterval(loadInt);
+  clearInterval(window._di);
+  document.getElementById('fp-status').className = 'fp-status aguardando';
+  document.getElementById('fp-status').textContent = 'AGUARDANDO DECISÃO';
+}
+
+// ── CHAMADA API ──
+async function chamarClaude(system, user, maxTokens = 4000) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: maxTokens,
+      system, messages: [{ role: 'user', content: user }]
+    })
+  });
+  const data = await resp.json();
+  return data.content.map(c => c.text||'').join('');
+}
+
+async function chamarClaudeJSON(system, user, maxTokens = 3000) {
+  const txt = await chamarClaude(system, user, maxTokens);
+  return JSON.parse(txt.replace(/```json|```/g,'').trim());
+}
+
+// ── ANÁLISE DO FERNANDO PEÇANHA ──
+async function iniciarAnalise() {
+  const texto = document.getElementById('texto-obra').value.trim();
+  const titulo = document.getElementById('titulo-obra').value.trim() || 'Obra sem título';
+  const heteronimo = document.getElementById('heteronimo-sel').value;
+  const relatorios = document.getElementById('relatorios-anteriores').value.trim();
+
+  if (!texto) { toast('Cole o texto da obra'); return; }
+  if (!heteronimo) { toast('Selecione o heterônimo'); return; }
+
+  estadoRevisao.textoOriginal = texto;
+  estadoRevisao.textoAtual = texto;
+  estadoRevisao.titulo = titulo;
+  estadoRevisao.heteronimo = heteronimo;
+
+  document.getElementById('btn-analisar-fp').disabled = true;
+  document.getElementById('loading-fp').classList.add('visivel');
+  document.getElementById('painel-decisao').classList.remove('visivel');
+  document.getElementById('aprovacao-final').classList.remove('visivel');
+  iniciarLoading();
+
+  const vozHet = VOZES_HET[heteronimo] || 'Escritor com voz literária única e território definido.';
+
+  const system = `Você é Fernando Peçanha, curador máximo da OHE (Oficina Heteronímica da Escrita). Sua função é analisar obras com olhar editorial, psicológico e literário — e identificar exatamente o que precisa ser corrigido.
+
+Você conhece profundamente a voz e o território de cada heterônimo. Você é rigoroso, preciso e respeitoso com a arte.
+
+Responda APENAS em JSON válido, sem markdown, sem backticks:
+{
+  "diagnostico_geral": "string (parágrafo rico — avaliação curatorial completa de Fernando Peçanha)",
+  "nota_geral": 0-10,
+  "pontos_correcao": [
+    {
+      "id": "string",
+      "titulo": "string (nome do problema)",
+      "urgencia": "urgente|importante|refinamento",
+      "trecho_original": "string (trecho exato que precisa de correção, máx 200 chars)",
+      "problema": "string (o que está errado)",
+      "instrucao_het": "string (instrução precisa para o heterônimo corrigir no seu próprio estilo)",
+      "localizacao": "string (onde no texto — início, meio, fim, diálogo, etc)"
+    }
+  ],
+  "pontos_fortes": ["string"],
+  "veredito": "aprovado_direto|correcoes_menores|correcoes_maiores|reescrever"
+}`;
+
+  const user = `OBRA PARA REVISÃO FINAL:
+TÍTULO: ${titulo}
+HETERÔNIMO: ${heteronimo}
+VOZ E TERRITÓRIO: ${vozHet}
+${relatorios ? `\nRELATÓRIOS ANTERIORES:\n${relatorios}` : ''}
+
+TEXTO COMPLETO:
+${texto.substring(0, 10000)}
+
+Analise com rigor curatorial. Identifique todos os pontos que precisam de correção para que a obra esteja no mais alto nível literário possível.`;
+
+  try {
+    const analise = await chamarClaudeJSON(system, user, 4000);
+    estadoRevisao.diagnostico = analise;
+    estadoRevisao.pontos = analise.pontos_correcao || [];
+    pararLoading();
+    document.getElementById('loading-fp').classList.remove('visivel');
+    renderDecisao(analise);
+  } catch(e) {
+    pararLoading();
+    document.getElementById('loading-fp').classList.remove('visivel');
+    document.getElementById('btn-analisar-fp').disabled = false;
+    toast('Erro na análise — tente novamente');
+    console.error(e);
+  }
+}
+
+// ── RENDER DECISÃO ──
+function renderDecisao(analise) {
+  document.getElementById('painel-decisao').classList.add('visivel');
+  document.getElementById('fp-status').className = 'fp-status aguardando';
+  document.getElementById('fp-status').textContent = 'AGUARDANDO DECISÃO';
+
+  // DIAGNÓSTICO
+  document.getElementById('diag-texto').textContent = analise.diagnostico_geral || '—';
+
+  // PONTOS
+  const lista = document.getElementById('lista-pontos');
+  if (!analise.pontos_correcao?.length) {
+    lista.innerHTML = `<div style="font-family:var(--mono);font-size:11px;color:var(--verde);letter-spacing:1px;padding:12px 0">✦ Fernando Peçanha não identificou pontos críticos de correção — obra aprovável diretamente.</div>`;
+  } else {
+    lista.innerHTML = analise.pontos_correcao.map((p, i) => `
+      <div class="ponto-item ponto-${p.urgencia}" id="ponto-wrap-${p.id}">
+        <div class="ponto-header" onclick="togglePonto('${p.id}')">
+          <div class="ponto-num">${i+1}</div>
+          <div class="ponto-info">
+            <div class="ponto-nome">${p.titulo}</div>
+            <div class="ponto-meta">${p.localizacao || ''} · ${p.urgencia}</div>
+          </div>
+          <span class="ponto-tipo">${p.urgencia.toUpperCase()}</span>
+        </div>
+        <div class="ponto-body" id="body-${p.id}">
+          <div class="ponto-trecho-original">"${p.trecho_original}"</div>
+          <div class="ponto-instrucao">
+            ⚖ Fernando Peçanha instrui ${estadoRevisao.heteronimo.split(' ')[0]}:<br><br>
+            ${p.instrucao_het}
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <button class="btn-corrigir" id="btn-cor-${p.id}" onclick="corrigirPonto('${p.id}')">
+              ✍ ${estadoRevisao.heteronimo.split(' ')[0]} — CORRIGIR AGORA
+            </button>
+          </div>
+          <div class="ponto-correcao-wrap" id="corr-wrap-${p.id}">
+            <div class="ponto-correcao" id="corr-${p.id}"></div>
+            <button class="btn-aplicar" onclick="aplicarCorrecao('${p.id}')">✓ APLICAR ESTA CORREÇÃO</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // TEXTO FINAL
+  document.getElementById('texto-final').textContent = estadoRevisao.textoAtual;
+
+  document.getElementById('btn-analisar-fp').disabled = false;
+  toast(`⚖ Fernando Peçanha identificou ${analise.pontos_correcao?.length || 0} ponto(s) de correção`);
+
+  // Se aprovado direto
+  if (analise.veredito === 'aprovado_direto') {
+    toast('✦ Fernando Peçanha aprova a obra diretamente!');
+  }
+
+  document.getElementById('painel-decisao').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function togglePonto(id) {
+  const body = document.getElementById(`body-${id}`);
+  body?.classList.toggle('aberto');
+}
+
+// ── CORRIGIR PONTO (heterônimo reescreve) ──
+async function corrigirPonto(id) {
+  const ponto = estadoRevisao.pontos.find(p => p.id === id);
+  if (!ponto) return;
+
+  const btn = document.getElementById(`btn-cor-${id}`);
+  btn.disabled = true;
+  btn.textContent = `${estadoRevisao.heteronimo.split(' ')[0]} escrevendo...`;
+
+  const vozHet = VOZES_HET[estadoRevisao.heteronimo] || '';
+
+  const system = `Você é ${estadoRevisao.heteronimo}, heterônimo literário da OHE.
+
+SUA VOZ E TERRITÓRIO:
+${vozHet}
+
+Fernando Peçanha, seu curador, identificou um problema no seu texto e está pedindo que você corrija. Reescreva APENAS o trecho problemático, mantendo o conteúdo narrativo mas corrigindo o problema apontado.
+
+Escreva exclusivamente na sua voz. Sem comentários, sem explicações — apenas o trecho corrigido.`;
+
+  const user = `TRECHO ORIGINAL COM PROBLEMA:
+"${ponto.trecho_original}"
+
+PROBLEMA IDENTIFICADO:
+${ponto.problema}
+
+INSTRUÇÃO DE FERNANDO PEÇANHA:
+${ponto.instrucao_het}
+
+Reescreva este trecho corrigindo o problema, mantendo sua voz e estilo únicos.`;
+
+  try {
+    const correcao = await chamarClaude(system, user, 1500);
+    document.getElementById(`corr-${id}`).textContent = correcao.trim();
+    document.getElementById(`corr-wrap-${id}`).classList.add('visivel');
+    btn.textContent = `↺ REGENERAR`;
+    btn.disabled = false;
+    estadoRevisao.correcoesAplicadas[id] = { original: ponto.trecho_original, corrigido: correcao.trim() };
+    toast(`✦ ${estadoRevisao.heteronimo.split(' ')[0]} corrigiu o trecho`);
+  } catch(e) {
+    btn.textContent = '✍ TENTAR NOVAMENTE';
+    btn.disabled = false;
+    toast('Erro — tente novamente');
+  }
+}
+
+// ── APLICAR CORREÇÃO NO TEXTO ──
+function aplicarCorrecao(id) {
+  const dados = estadoRevisao.correcoesAplicadas[id];
+  if (!dados) return;
+
+  const textoAtual = estadoRevisao.textoAtual;
+  const novoTexto = textoAtual.replace(dados.original, dados.corrigido);
+
+  if (novoTexto === textoAtual) {
+    // Tenta substituição parcial
+    const palavrasOriginal = dados.original.split(' ').slice(0,5).join(' ');
+    const idx = textoAtual.indexOf(palavrasOriginal);
+    if (idx >= 0) {
+      estadoRevisao.textoAtual = textoAtual.substring(0, idx) + dados.corrigido + textoAtual.substring(idx + dados.original.length);
+    }
+  } else {
+    estadoRevisao.textoAtual = novoTexto;
+  }
+
+  document.getElementById('texto-final').textContent = estadoRevisao.textoAtual;
+
+  // Marca ponto como corrigido
+  const wrap = document.getElementById(`ponto-wrap-${id}`);
+  if (wrap) {
+    wrap.style.opacity = '0.5';
+    wrap.style.borderColor = 'rgba(76,175,122,0.3)';
+  }
+
+  toast('✓ Correção aplicada ao texto');
+}
+
+// ── APLICAR TODAS ──
+async function aplicarTodasCorrecoes() {
+  const pontosPendentes = estadoRevisao.pontos.filter(p => !estadoRevisao.correcoesAplicadas[p.id]);
+
+  if (pontosPendentes.length === 0) {
+    toast('Todas as correções já foram aplicadas');
+    return;
+  }
+
+  toast(`↺ Gerando ${pontosPendentes.length} correções automaticamente...`);
+
+  for (const ponto of pontosPendentes) {
+    await corrigirPonto(ponto.id);
+    await new Promise(r => setTimeout(r, 500));
+    aplicarCorrecao(ponto.id);
+  }
+
+  toast('✦ Todas as correções aplicadas');
+}
+
+// ── EDITAR MANUALMENTE ──
+function toggleEditar() {
+  const el = document.getElementById('texto-final');
+  const btn = document.getElementById('btn-editar-texto');
+  const editando = el.contentEditable === 'true';
+  if (editando) {
+    estadoRevisao.textoAtual = el.textContent;
+    el.contentEditable = 'false';
+    btn.textContent = '✎ EDITAR MANUALMENTE';
+    toast('✓ Edições salvas');
+  } else {
+    el.contentEditable = 'true';
+    el.focus();
+    btn.textContent = '✓ SALVAR EDIÇÕES';
+  }
+}
+
+// ── DECISÕES ──
+function aprovar() {
+  estadoRevisao.textoAtual = document.getElementById('texto-final').textContent;
+  estadoRevisao.aprovado = true;
+
+  document.getElementById('fp-status').className = 'fp-status aprovado';
+  document.getElementById('fp-status').textContent = 'APROVADO';
+
+  document.getElementById('apr-titulo').textContent = `"${estadoRevisao.titulo}" — Aprovada por Fernando Peçanha`;
+  document.getElementById('apr-desc').textContent = `A obra de ${estadoRevisao.heteronimo} passou por todo o pipeline de qualidade e foi aprovada pelo curador máximo da OHE. Pronta para o próximo destino.`;
+
+  document.getElementById('aprovacao-final').classList.add('visivel');
+  document.getElementById('aprovacao-final').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  toast('✦ OBRA APROVADA POR FERNANDO PEÇANHA');
+}
+
+function despacharMasmorra() {
+  estadoRevisao.textoAtual = document.getElementById('texto-final').textContent;
+  registrarMasmorra();
+  toast('⏳ Obra enviada à Masmorra — 750 dias');
+  setTimeout(() => { window.location.href = 'painel_wagner_planas.html'; }, 2000);
+}
+
+function despacharCalabouco() {
+  estadoRevisao.textoAtual = document.getElementById('texto-final').textContent;
+  registrarCalabouco();
+  toast('🏰 Obra enviada ao Calabouço — aguardando Catapulta');
+  setTimeout(() => { window.location.href = 'catapulta.html'; }, 2000);
+}
+
+function novaRodada() {
+  localStorage.setItem('humanizador_texto_pendente', estadoRevisao.textoAtual);
+  localStorage.setItem('humanizador_titulo_pendente', estadoRevisao.titulo);
+  localStorage.setItem('humanizador_heteronimo_pendente', estadoRevisao.heteronimo);
+  toast('↺ Enviando para nova rodada no Humanizador...');
+  setTimeout(() => { window.location.href = 'humanizador.html'; }, 1500);
+}
+
+// ── AÇÕES DA APROVAÇÃO ──
+function salvarBiblioteca() {
+  const obras = JSON.parse(localStorage.getItem('biblioteca_obras') || '[]');
+  obras.unshift({
+    id: 'obra_' + Date.now(),
+    titulo: estadoRevisao.titulo,
+    autor: estadoRevisao.heteronimo,
+    eixo: 'prosa', status: 'completa',
+    sinopse: '',
+    texto: estadoRevisao.textoAtual,
+    adicionadoEm: new Date().toISOString(),
+    aprovadoFP: true,
+    origem: 'revisao_fp'
+  });
+  localStorage.setItem('biblioteca_obras', JSON.stringify(obras));
+  toast('📚 Salvo na Biblioteca');
+}
+
+function enviarMasmorra() {
+  registrarMasmorra();
+  toast('⏳ Enviado à Masmorra · 750 dias');
+}
+
+function registrarMasmorra() {
+  const itens = JSON.parse(localStorage.getItem('masmorra_itens') || '[]');
+  itens.push({
+    id: 'masm_' + Date.now(),
+    titulo: estadoRevisao.titulo,
+    heteronimo: estadoRevisao.heteronimo,
+    conteudo: estadoRevisao.textoAtual,
+    em: new Date().toISOString(),
+    aprovadoFP: true
+  });
+  localStorage.setItem('masmorra_itens', JSON.stringify(itens));
+}
+
+function enviarCalabouco() {
+  registrarCalabouco();
+  toast('🏰 Enviado ao Calabouço');
+}
+
+function registrarCalabouco() {
+  const manuais = JSON.parse(localStorage.getItem('catapulta_manuais') || '[]');
+  manuais.push({
+    id: 'calab_' + Date.now(),
+    titulo: estadoRevisao.titulo,
+    autor: estadoRevisao.heteronimo,
+    eixo: 'prosa',
+    paginas: Math.round(estadoRevisao.textoAtual.split(/\s+/).filter(Boolean).length / 280),
+    sinopse: '',
+    adicionadoEm: new Date().toISOString(),
+    catapultado: false,
+    aprovadoFP: true,
+    origem: 'revisao_fp'
+  });
+  localStorage.setItem('catapulta_manuais', JSON.stringify(manuais));
+}
+
+function baixarObra() {
+  const txt = `${estadoRevisao.titulo.toUpperCase()}\n${estadoRevisao.heteronimo}\nAprovado por Fernando Peçanha · ${new Date().toLocaleDateString('pt-BR')}\n${'═'.repeat(60)}\n\n${estadoRevisao.textoAtual}`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' }));
+  a.download = `${estadoRevisao.titulo.replace(/\s+/g,'-').toLowerCase()}_aprovado.txt`;
+  a.click();
+  toast('↓ Obra baixada');
+}
+
+// ── TOAST ──
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// Inicializa
+carregarDoPipeline();
+</script>
+</body>
+</html>
