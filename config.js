@@ -4,7 +4,7 @@
 // ============================================================
 
 const CONFIG = {
-  ANTHROPIC_API_KEY: "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", // ← insira sua chave aqui
+  ANTHROPIC_API_KEY: "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", // ← insira sua chave aqui
   MODEL: "claude-sonnet-4-20250514",
   MAX_TOKENS: 1024
 };
