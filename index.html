@@ -1979,9 +1979,9 @@ async function processarComFernandoPecanha(i) {
   item.progresso = 10;
   renderizarFila();
   notif('FERNANDO PEÇANHA', `Iniciando curadoria de "${item.titulo}"...`, 'info');
-  const prompt = `Você é Fernando Peçanha, curador da OHE com 44 heterônimos.\n\nENTRADA: ${item.titulo}\nTIPO: ${item.tipo}\nDETALHES: ${item.meta || ''}\nDESTINO: ${item.destino}\n\nHETERÔNIMOS:\n${HETERONIMOS.map(h => `- ${h.nome} | ${h.eixo} | ${h.territorio}`).join('\n')}\n\nMISSÃO:\n1. Escolha o heterônimo mais adequado\n2. Escreva a obra completa com a voz desse heterônimo\n3. Faça uma breve revisão como Fernando Peçanha\n\nFORMATO:\n---HETERÔNIMO ESCOLHIDO---\n[nome]\n\n---OBRA---\n[título]\n\n[texto]\n\n---REVISÃO DE FERNANDO PEÇANHA---\n[comentário]`;
-  try {
-    item.progresso = 30;
+  const prompt = `Você é Fernando Peçanha, curador da OHE com 44 heterônimos.\n\nENTRADA: ${item.titulo}\nTIPO: ${item.tipo}\nDETALHES: ${item.meta || ''}\nDESTINO: ${item.destino}\n\nHETERÔNIMOS:\n${HETERONIMOS.map(h => `- ${h.nome} | ${h.eixo} | ${h.territorio}`).join('\n')}\n\nMISSÃO:\n1. Escolha UM ÚNICO heterônimo mais adequado — sem colaborações, sem vozes múltiplas\n2. Escreva a obra completa com a voz EXCLUSIVA desse heterônimo, respeitando rigorosamente o formato e o tamanho indicados nos DETALHES\n3. Se os DETALHES indicarem um formato específico (cordel, soneto, prosa, etc.), siga esse formato sem desvios\n4. Se os DETALHES indicarem número de páginas, escreva um texto proporcional a esse volume\n5. Faça uma breve revisão como Fernando Peçanha\n\nFORMATO:\n---HETERÔNIMO ESCOLHIDO---\n[nome]\n\n---OBRA---\n[título]\n\n[texto]\n\n---REVISÃO DE FERNANDO PEÇANHA---\n[comentário]`;
+   try {
+     item.progresso = 30;
     renderizarFila();
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
