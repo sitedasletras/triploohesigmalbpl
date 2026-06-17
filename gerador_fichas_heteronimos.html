@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Fichas · Heterônimos OHE</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --ouro: #c9a84c;
+  --ouro-claro: #e8cc7a;
+  --ouro-escuro: #7a5f1a;
+  --creme: #f0e8d0;
+  --prata: #6a7d90;
+  --verde: #00c853;
+  --vermelho: #d32f2f;
+  --roxo: #6a1b9a;
+  --roxo-claro: #ce93d8;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background: var(--preto); color: var(--creme); font-family: 'Crimson Pro', Georgia, serif; min-height: 100vh; padding: 1.5rem; }
+body::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(90deg, rgba(201,168,76,0.02) 0, rgba(201,168,76,0.02) 1px, transparent 1px, transparent 60px), repeating-linear-gradient(0deg, rgba(201,168,76,0.02) 0, rgba(201,168,76,0.02) 1px, transparent 1px, transparent 60px); pointer-events: none; z-index: 0; }
+.container { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+.header { text-align: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(201,168,76,0.15); }
+.header-label { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.35em; color: var(--ouro); opacity: 0.5; text-transform: uppercase; margin-bottom: 0.5rem; }
+.header-titulo { font-family: 'Cinzel', serif; font-size: clamp(1.6rem, 4vw, 2.4rem); color: var(--creme); font-weight: 400; }
+.header-titulo em { color: var(--ouro); font-style: italic; font-family: 'Crimson Pro', serif; }
+.header-sub { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.9rem; color: var(--prata); margin-top: 0.4rem; }
+.painel { background: var(--preto-mid); border: 1px solid rgba(201,168,76,0.12); padding: 1.5rem; margin-bottom: 1.5rem; }
+.painel-titulo { font-family: 'Share Tech Mono', monospace; font-size: 0.52rem; letter-spacing: 0.25em; color: var(--ouro); opacity: 0.5; text-transform: uppercase; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.8rem; }
+.painel-titulo::after { content: ''; flex: 1; height: 1px; background: rgba(201,168,76,0.1); }
+.fg { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 1rem; }
+.fg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.fl { font-family: 'Share Tech Mono', monospace; font-size: 0.48rem; letter-spacing: 0.18em; color: var(--prata); opacity: 0.6; text-transform: uppercase; }
+.fi, .fs, .fta { background: rgba(201,168,76,0.04); border: 1px solid rgba(201,168,76,0.1); color: var(--creme); font-family: 'Crimson Pro', serif; font-size: 0.95rem; padding: 0.55rem 0.8rem; outline: none; transition: border 0.3s; width: 100%; }
+.fi:focus, .fs:focus, .fta:focus { border-color: rgba(201,168,76,0.35); }
+.fs option { background: var(--preto-mid); }
+.fta { resize: vertical; min-height: 80px; }
+.btn-p { background: linear-gradient(135deg, var(--ouro-escuro), var(--ouro)); color: var(--preto); font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; padding: 0.8rem 1.5rem; border: none; cursor: pointer; text-transform: uppercase; transition: all 0.3s; clip-path: polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px)); }
+.btn-p:hover { opacity: 0.85; }
+.btn-p:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-s { background: transparent; color: var(--ouro); font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; padding: 0.8rem 1.5rem; border: 1px solid rgba(201,168,76,0.25); cursor: pointer; text-transform: uppercase; transition: all 0.3s; }
+.btn-s:hover { border-color: var(--ouro); }
+.btn-verde { background: transparent; color: var(--verde); font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; padding: 0.8rem 1.5rem; border: 1px solid rgba(0,200,83,0.3); cursor: pointer; text-transform: uppercase; transition: all 0.3s; }
+.btn-verde:hover { border-color: var(--verde); background: rgba(0,200,83,0.05); }
+.acoes { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.2rem; }
+.log-area { background: rgba(0,0,0,0.3); border: 1px solid rgba(201,168,76,0.08); padding: 0.8rem; margin-top: 1rem; max-height: 200px; overflow-y: auto; font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; color: var(--prata); line-height: 1.8; white-space: pre-wrap; display: none; }
+.log-area.visivel { display: block; }
+.het-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.6rem; margin-bottom: 1rem; max-height: 300px; overflow-y: auto; }
+.het-card { background: rgba(201,168,76,0.04); border: 1px solid rgba(201,168,76,0.1); padding: 0.8rem; cursor: pointer; transition: all 0.3s; }
+.het-card:hover { border-color: rgba(201,168,76,0.3); }
+.het-card.selecionado { border-color: var(--ouro); background: rgba(201,168,76,0.08); }
+.het-card.gerado { border-color: var(--verde); background: rgba(0,200,83,0.06); }
+.het-card.erro { border-color: var(--vermelho); background: rgba(211,47,47,0.06); }
+.het-nome { font-family: 'Cinzel', serif; font-size: 0.78rem; color: var(--creme); margin-bottom: 0.2rem; }
+.het-eixo { font-family: 'Share Tech Mono', monospace; font-size: 0.42rem; letter-spacing: 0.1em; color: var(--ouro); opacity: 0.5; text-transform: uppercase; }
+.het-status { font-family: 'Share Tech Mono', monospace; font-size: 0.42rem; letter-spacing: 0.08em; margin-top: 0.3rem; }
+.st-aguardando { color: var(--prata); }
+.st-gerando { color: var(--ouro); animation: pisca 1s ease-in-out infinite; }
+.st-concluido { color: var(--verde); }
+.st-erro { color: var(--vermelho); }
+@keyframes pisca { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.resultado-area { margin-top: 1rem; }
+.ficha-item { background: rgba(201,168,76,0.04); border: 1px solid rgba(201,168,76,0.1); padding: 1rem; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem; }
+.ficha-nome { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--creme); }
+.ficha-arquivo { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; color: var(--ouro); opacity: 0.6; }
+.modo-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(201,168,76,0.1); }
+.modo-tab { font-family: 'Share Tech Mono', monospace; font-size: 0.52rem; letter-spacing: 0.12em; color: var(--prata); padding: 0.7rem 1.2rem; cursor: pointer; border: none; background: none; text-transform: uppercase; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.3s; }
+.modo-tab:hover { color: var(--ouro); }
+.modo-tab.ativo { color: var(--ouro); border-bottom-color: var(--ouro); }
+.modo-conteudo { display: none; }
+.modo-conteudo.ativo { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-label">// OHE · CELEIRO LITERÁRIO</div>
+    <h1 class="header-titulo">Gerador de <em>Fichas Biográficas</em></h1>
+    <p class="header-sub">Gera HTMLs de biografia no padrão do Celeiro Literário · Fernando Peçanha como curador</p>
+  </div>
+
+  <div class="modo-tabs">
+    <button class="modo-tab ativo" onclick="mudarModo('lote')">📚 LOTE — TODOS OS HETERÔNIMOS</button>
+    <button class="modo-tab" onclick="mudarModo('novo')">✦ NOVO HETERÔNIMO</button>
+  </div>
+
+  <!-- MODO LOTE -->
+  <div class="modo-conteudo ativo" id="modo-lote">
+    <div class="painel">
+      <div class="painel-titulo">Selecionar Heterônimos</div>
+      <div style="display:flex;gap:0.6rem;margin-bottom:1rem;flex-wrap:wrap;">
+        <button class="btn-s" onclick="selecionarTodos()">SELECIONAR TODOS</button>
+        <button class="btn-s" onclick="desselecionarTodos()">DESSELECIONAR</button>
+      </div>
+      <div class="het-grid" id="het-grid"></div>
+      <div class="acoes">
+        <button class="btn-p" onclick="gerarLote()" id="btn-lote">⚡ GERAR FICHAS SELECIONADAS</button>
+      </div>
+      <div class="log-area" id="log-lote"></div>
+    </div>
+    <div class="resultado-area" id="resultado-lote"></div>
+  </div>
+
+  <!-- MODO NOVO HETERÔNIMO -->
+  <div class="modo-conteudo" id="modo-novo">
+    <div class="painel">
+      <div class="painel-titulo">Dados do Novo Heterônimo</div>
+      <div class="fg-grid">
+        <div class="fg">
+          <label class="fl">Nome completo</label>
+          <input type="text" class="fi" id="novo-nome" placeholder="Ex: Mórigan Voss">
+        </div>
+        <div class="fg">
+          <label class="fl">Eixo</label>
+          <select class="fs" id="novo-eixo">
+            <option value="Prosa">Prosa</option>
+            <option value="Poesia">Poesia</option>
+            <option value="Híbrido">Híbrido</option>
+            <option value="Cordel">Cordel</option>
+            <option value="Aberto">Aberto</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Território literário</label>
+        <input type="text" class="fi" id="novo-territorio" placeholder="Ex: Gothic cyberpunk, horror existencial urbano, corpo e máquina">
+      </div>
+      <div class="fg-grid">
+        <div class="fg">
+          <label class="fl">Formato</label>
+          <input type="text" class="fi" id="novo-formato" placeholder="Ex: romance">
+        </div>
+        <div class="fg">
+          <label class="fl">Origem / Naturalidade</label>
+          <input type="text" class="fi" id="novo-origem" placeholder="Ex: Karveth, cidade fictícia">
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Obras publicadas (uma por linha)</label>
+        <textarea class="fta" id="novo-obras" placeholder="Carne de Vidro&#10;O Inventário dos Mortos"></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl">Notas adicionais para a bio (opcional)</label>
+        <textarea class="fta" id="novo-notas" placeholder="Contexto, tom, referências que a bio deve conter..."></textarea>
+      </div>
+      <div class="acoes">
+        <button class="btn-p" onclick="gerarNovo()">✦ GERAR FICHA DO NOVO HETERÔNIMO</button>
+      </div>
+      <div class="log-area" id="log-novo"></div>
+    </div>
+    <div class="resultado-area" id="resultado-novo"></div>
+  </div>
+
+</div>
+
+<script>
+// ===================== DADOS =====================
+const HETERONIMOS = [
+  { nome: 'A.J. dos Santos', eixo: 'Prosa', territorio: 'Chupa-cabras, lobisomens, vampiros', formato: 'conto', origem: 'Itapecerica, MG', obras: ['O Mistério do Chupa-Cabras', 'A Herança do Chupa Cabras', 'Lobisomens & Vampiros'] },
+  { nome: 'Amanda Fernanda Fisher Leão', eixo: 'Prosa', territorio: 'Pirataria, sereias, monstros marinhos', formato: 'conto', origem: 'Caraguatatuba, SP', obras: ['A Saga de Johnny Fisher', 'O Canto da Sereia', 'Terror no Caribe'] },
+  { nome: 'Amélie Maia Hanna', eixo: 'Poesia', territorio: 'Sonetos, memórias, cotidiano', formato: 'soneto', origem: 'Praia Grande / Bertioga, SP', obras: ['Sonetos Volume 1'] },
+  { nome: 'Anísio Teixeira', eixo: 'Híbrido', territorio: 'Zumbis, pós-apocalipse, horror existencial', formato: 'conto', origem: 'Sorocaba, SP', obras: [] },
+  { nome: 'Articus da Persida', eixo: 'Prosa', territorio: 'Templários, cavalaria medieval, amor impossível', formato: 'romance', origem: 'Acre (Terra Santa), 1274', obras: ['O Templário', 'O Legado da Caixa de Pedra', 'O Último Templário'] },
+  { nome: 'Aurora Wings', eixo: 'Híbrido', territorio: 'IA, super-heróis, ficção científica', formato: 'romance', origem: 'Caribe, 2022', obras: ['Ecos da Geleira Eterna', 'Além das Estrelas', 'Distopia'] },
+  { nome: 'Padre Benedicttus Konstantinos', eixo: 'Híbrido', territorio: 'Religião católica, gárgulas, apocalipse', formato: 'conto', origem: 'Catania, Itália', obras: ['Da Batina à Perdição', 'Gárgulas Divinas', 'O Segredo da Linhagem'] },
+  { nome: 'Birihani Selami Ina Tesifa', eixo: 'Poesia', territorio: 'Ghazal, amor, devoção, saudade', formato: 'ghazal', origem: 'Malásia', obras: [] },
+  { nome: 'Calíope Papazissis', eixo: 'Híbrido', territorio: 'Mitologia grega, nórdica, celta', formato: 'prosa poética', origem: 'Hortolândia, SP', obras: [] },
+  { nome: 'Chesco Irlanda', eixo: 'Prosa', territorio: 'Literatura infantil, fábulas', formato: 'conto', origem: 'Duartina, SP', obras: ['Julia e sua Turma', 'O Beija-Flor', 'Minha Infância'] },
+  { nome: 'Clara Mendes Rios', eixo: 'Híbrido', territorio: 'Prosa híbrida, memória, reconstrução feminina', formato: 'prosa poética', origem: 'Sorocaba, SP', obras: [] },
+  { nome: 'Claudiney Aristides Diaz', eixo: 'Aberto', territorio: 'Território a definir — escrita em processo', formato: 'variado', origem: 'Nova Russas, CE', obras: [] },
+  { nome: 'Creone Porfirio', eixo: 'Prosa', territorio: 'Guerras, patriotismo, militarismo', formato: 'romance', origem: 'Ceilândia, DF', obras: ['Questão de Honra', 'A Semente da Esperança'] },
+  { nome: 'Cristovão Duarte', eixo: 'Prosa', territorio: 'Aracnídeos, horror subterrâneo', formato: 'conto', origem: 'Interior do Brasil', obras: ['Aracnídeos — A Teia de Dabi', 'O Monstro do Subsolo'] },
+  { nome: 'Daniel Fernandes', eixo: 'Híbrido', territorio: 'Poesia erótica/hot, teatro, cotidiano urbano', formato: 'poesia', origem: 'São Paulo, SP', obras: ['Corpos Ardentes', 'Libidine', 'A Cobiçada'] },
+  { nome: 'Dárius Ninus Vamus', eixo: 'Híbrido', territorio: 'Futebol, humor, limerick, elegia', formato: 'poesia', origem: 'São Paulo, SP', obras: ['A Lenda do Menino da Bola', 'Limerique', 'Prefaketura de Mayri-link'] },
+  { nome: 'Demetrius Varas', eixo: 'Prosa', territorio: 'Prosa erótica/hot', formato: 'conto', origem: 'São Roque, SP', obras: ['Amor & Submissão', 'Condomínio Lúxuria Towers'] },
+  { nome: 'Din Kin Lin', eixo: 'Híbrido', territorio: 'Dragões, seres místicos do oriente, lendas', formato: 'conto', origem: 'Shanghai / Bairro da Liberdade, SP', obras: ['Haicai', 'O Segredo da Floresta Proibida', 'As Lendas do Oriente'] },
+  { nome: 'Diógenes Bueno de Alencar', eixo: 'Híbrido', territorio: 'Arquipélagos, penínsulas, memória, interior', formato: 'crônica', origem: 'Sobradinho, DF', obras: [] },
+  { nome: 'Hama Amarin', eixo: 'Poesia', territorio: 'Pantum, perdão, ciclos emocionais', formato: 'pantum', origem: 'Guararema, SP', obras: ['Pantum — A Jornada do Perdão'] },
+  { nome: 'Helena Duarte Valença', eixo: 'Prosa', territorio: 'Reconstrução feminina, memória doméstica, silenciamento', formato: 'conto', origem: 'Campinas, SP', obras: [] },
+  { nome: 'Henrich Jones', eixo: 'Prosa', territorio: 'Arqueologia, paleontologia, civilizações antigas', formato: 'romance', origem: 'Brasília, DF', obras: [] },
+  { nome: 'Hernesto Bevilácqua', eixo: 'Poesia', territorio: 'Ode, contemplação, lirismo clássico', formato: 'ode', origem: 'Serra Negra, SP', obras: [] },
+  { nome: 'Horando Almeida Prado', eixo: 'Híbrido', territorio: 'Mar, pesca, litoral sul paulista', formato: 'conto', origem: 'Itanhaém, SP', obras: ['Poemas de um Pescador vol. 1', 'Invasão Salobra'] },
+  { nome: 'Icabode Kahpote', eixo: 'Híbrido', territorio: 'Sextinas, contos póstumos, morte, além-vida', formato: 'sextina', origem: 'Campos do Jordão, SP', obras: ['Obra Póstuma Volume 1', 'Sinos da Esperança'] },
+  { nome: 'Imediato Thompson', eixo: 'Híbrido', territorio: 'Constelação Ophiuchus, Atlantis, cosmologia', formato: 'romance', origem: 'Nova Escócia, Canadá', obras: ['Os Mistérios da 13ª Constelação', 'Atlantida — A Utopia Submersa'] },
+  { nome: 'J.L.Gomes', eixo: 'Híbrido', territorio: 'Espiritismo, pensamentos motivacionais, crônicas', formato: 'crônica', origem: 'Bauru, SP', obras: ['Mensagens e Livramentos', 'Ensinamentos & Pensamentos'] },
+  { nome: 'Jorge Cavalcanti', eixo: 'Cordel', territorio: 'Cordel, cultura popular, oralidade', formato: 'cordel', origem: 'Campos do Jordão, SP', obras: [] },
+  { nome: 'Julia Abdalla', eixo: 'Prosa', territorio: 'Culinária, bem-estar, receitas literárias', formato: 'crônica', origem: 'São Paulo, SP', obras: ['Receitas para Viver Melhor'] },
+  { nome: 'Juka Pituskaq', eixo: 'Poesia', territorio: 'Novo Movimento Estrofista, odes', formato: 'poesia', origem: 'Mairinque, SP', obras: ['A Maldição da Medusa', 'O Livro das Odes'] },
+  { nome: 'Marina Torres Azevedo', eixo: 'Poesia', territorio: 'Poesia de reconstrução feminina, cura, memória', formato: 'poesia', origem: 'Juiz de Fora, MG', obras: [] },
+  { nome: 'Mário Célio Sabino', eixo: 'Híbrido', territorio: 'Terror, fantasmas, ocultismo, paranormal', formato: 'conto', origem: 'Mairinque, SP', obras: ['A Voz do Além', 'O Bosque das Almas Perdidas', 'O Mistério do Trem Fantasma de Mairinque'] },
+  { nome: 'Michelangelo Miguel', eixo: 'Poesia', territorio: 'Poema narrativo, lirismo, memória', formato: 'poesia', origem: 'Mogi das Cruzes, SP', obras: [] },
+  { nome: 'Noraya Sakamoto', eixo: 'Poesia', territorio: 'Haicais, natureza, sensibilidade oriental', formato: 'haicai', origem: 'São Paulo, SP', obras: [] },
+  { nome: 'Pyetra Luyza', eixo: 'Híbrido', territorio: 'Ecoficção, natureza, defesa ambiental', formato: 'conto', origem: 'Santo André, SP', obras: ['Nas Montanhas da Solidão'] },
+  { nome: 'Raimundo José da Silva Nonato', eixo: 'Híbrido', territorio: 'Seca nordestina, memória oral, resistência', formato: 'cordel', origem: 'Peruíbe, SP', obras: [] },
+  { nome: 'Renat Kolotov', eixo: 'Prosa', territorio: 'Revolução Russa, resistência histórica', formato: 'romance', origem: 'Campina das Missões, RS', obras: ['A Flor da Resistência'] },
+  { nome: 'Rovonilson Reigns Bautista', eixo: 'Híbrido', territorio: 'Rap, rua, marquises, arquitetura urbana', formato: 'poesia', origem: 'Santo André, SP', obras: ['O Filho das Ruas', 'Entre Becos e Marquises'] },
+  { nome: 'Sebastião Ferreira dos Anjos', eixo: 'Poesia', territorio: 'Poemas dissertativos, reflexão social', formato: 'poesia', origem: 'Santo Antônio do Monte, MG', obras: [] },
+  { nome: 'Site das Letras Ed. Literárias', eixo: 'Híbrido', territorio: 'Miscelânea, antologias institucionais', formato: 'variado', origem: 'Mairinque, SP', obras: [] },
+  { nome: 'Valter Marques', eixo: 'Híbrido', territorio: 'Erros do passado, dor, diversidade de estilos', formato: 'variado', origem: 'Recife / São Roque', obras: ['As Cores do Meu Dia', 'Mistérios da Herança do Mister Bjorg'] },
+  { nome: 'Victor A. Pereira', eixo: 'Prosa', territorio: 'Mistério, romance policial, investigação', formato: 'romance', origem: 'Bragança Paulista, SP', obras: ['O Segredo da Esfinge', 'Mairinque Segredos nos Trilhos'] },
+  { nome: 'Wagner Planas', eixo: 'Híbrido', territorio: 'Múltiplos — criador do ecossistema', formato: 'variado', origem: 'São Paulo / Mairinque, SP', obras: ['Luz da Manhã', 'Amor e Traição', 'Gárgulas Divinas'] },
+  { nome: 'Wilson Silva', eixo: 'Híbrido', territorio: 'Cotidiano, amor, poesias e prosas líricas', formato: 'variado', origem: 'São Paulo, SP', obras: ['Poemas de um Ajuntador de Letrinhas', 'O Jardim Vol. 1 e 2'] },
+  { nome: 'Yago Mattos', eixo: 'Híbrido', territorio: 'Bruxas, lendas, deuses do mar', formato: 'conto', origem: 'Praia Grande, SP', obras: ['A Maldição das Araucárias', 'A Bruxa da Pedra Baú'] }
+];
+
+let selecionados = new Set();
+let fichasGeradas = {};
+
+// ===================== INIT =====================
+window.addEventListener('load', () => {
+  renderizarGrid();
+
+  // Verificar se veio novo heterônimo da Maternidade
+  const novoHet = localStorage.getItem('novo_heteronimo_pendente');
+  if (novoHet) {
+    try {
+      const dados = JSON.parse(novoHet);
+      mudarModo('novo');
+      if (dados.nome) document.getElementById('novo-nome').value = dados.nome;
+      if (dados.eixo) document.getElementById('novo-eixo').value = dados.eixo;
+      if (dados.territorio) document.getElementById('novo-territorio').value = dados.territorio;
+      if (dados.formato) document.getElementById('novo-formato').value = dados.formato;
+      if (dados.justificativa) document.getElementById('novo-notas').value = dados.justificativa;
+      localStorage.removeItem('novo_heteronimo_pendente');
+      mostrarBanner('✓ Dados do novo heterônimo carregados automaticamente da Maternidade!');
+    } catch(e) {}
+  }
+});
+
+function mostrarBanner(msg) {
+  const b = document.createElement('div');
+  b.style.cssText = 'background:rgba(0,200,83,0.08);border:1px solid rgba(0,200,83,0.3);padding:0.8rem 1.2rem;margin-bottom:1rem;font-family:Share Tech Mono,monospace;font-size:0.52rem;letter-spacing:0.1em;color:#00c853;text-transform:uppercase;';
+  b.textContent = msg;
+  document.querySelector('.container').insertBefore(b, document.querySelector('.modo-tabs'));
+  setTimeout(() => b.remove(), 5000);
+}
+
+function renderizarGrid() {
+  const grid = document.getElementById('het-grid');
+  grid.innerHTML = HETERONIMOS.map((h, i) => `
+    <div class="het-card ${selecionados.has(i) ? 'selecionado' : ''} ${fichasGeradas[i] === 'ok' ? 'gerado' : ''} ${fichasGeradas[i] === 'erro' ? 'erro' : ''}" onclick="toggleHet(${i})">
+      <div class="het-nome">${h.nome}</div>
+      <div class="het-eixo">${h.eixo} · ${h.formato}</div>
+      <div class="het-status ${fichasGeradas[i] === 'ok' ? 'st-concluido' : fichasGeradas[i] === 'gerando' ? 'st-gerando' : fichasGeradas[i] === 'erro' ? 'st-erro' : 'st-aguardando'}" id="status-${i}">
+        ${fichasGeradas[i] === 'ok' ? '✓ gerado' : fichasGeradas[i] === 'gerando' ? '⏳ gerando...' : fichasGeradas[i] === 'erro' ? '✗ erro' : '○ aguardando'}
+      </div>
+    </div>`).join('');
+}
+
+function toggleHet(i) {
+  if (selecionados.has(i)) selecionados.delete(i);
+  else selecionados.add(i);
+  renderizarGrid();
+}
+
+function selecionarTodos() { HETERONIMOS.forEach((_, i) => selecionados.add(i)); renderizarGrid(); }
+function desselecionarTodos() { selecionados.clear(); renderizarGrid(); }
+
+function mudarModo(modo) {
+  document.querySelectorAll('.modo-tab').forEach(t => t.classList.remove('ativo'));
+  document.querySelectorAll('.modo-conteudo').forEach(c => c.classList.remove('ativo'));
+  document.getElementById('modo-' + modo).classList.add('ativo');
+  event.target.classList.add('ativo');
+}
+
+function logLote(msg) {
+  const area = document.getElementById('log-lote');
+  area.classList.add('visivel');
+  area.innerHTML += '> ' + msg + '\n';
+  area.scrollTop = area.scrollHeight;
+}
+
+function logNovo(msg) {
+  const area = document.getElementById('log-novo');
+  area.classList.add('visivel');
+  area.innerHTML += '> ' + msg + '\n';
+  area.scrollTop = area.scrollHeight;
+}
+
+// ===================== GERAR HTML DA FICHA =====================
+function gerarHTMLFicha(nome, eixo, origem, bio, espec, obras, dataAtual) {
+  const nomeSlug = nome.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-');
+  const obrasHTML = obras.length > 0
+    ? `<ul class="obras">${obras.map(o => `<li class="obra">${o}</li>`).join('')}</ul>`
+    : '<p style="font-style:italic;color:#9a8a6a;font-size:0.9rem;">Obras em produção</p>';
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${nome} - Biografia - Site das Letras</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#07182b;--azul-mid:#10294a;--ouro:#d5b354;--ouro2:#f4dc88;--papel:#fff8f0;--tinta:#1a1208;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--papel);color:var(--tinta);font-family:'Libre Baskerville',Georgia,serif;min-height:100vh;flex-wrap:wrap;}
+.cab{background:var(--azul);padding:2rem 3rem;border-bottom:3px solid var(--ouro);}
+.nav{display:flex;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;}
+.nav a{font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:rgba(213,179,84,0.5);text-decoration:none;text-transform:uppercase;}
+.nav a:hover{color:var(--ouro);}
+.nav span{color:rgba(213,179,84,0.2);font-size:0.45rem;}
+.badge{display:inline-block;font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.18em;padding:0.2rem 0.6rem;border:1px solid #ad1457;color:#ad1457;text-transform:uppercase;margin-bottom:0.6rem;}
+.nome{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(1.8rem,5vw,3rem);color:var(--ouro);line-height:1.1;margin-bottom:0.4rem;}
+.origem{font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.12em;color:rgba(213,179,84,0.35);text-transform:uppercase;}
+.conteudo{max-width:780px;margin:0 auto;padding:2.5rem 3rem;}
+.sec-label{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.28em;color:var(--ouro);opacity:0.55;text-transform:uppercase;}
+.linha{width:40%;background:linear-gradient(to right,var(--ouro),transparent);margin:0.8rem 0 1.8rem;}
+.bio{font-size:1rem;line-height:1.9;color:#2a1a08;margin-bottom:2rem;font-family:'Libre Baskerville',Georgia,serif;}
+.espec{background:rgba(213,179,84,0.06);border-left:3px solid var(--ouro);padding:0.9rem 1.3rem;margin-bottom:2rem;font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.08em;}
+.obras{list-style:none;display:flex;flex-direction:column;gap:0.4rem;}
+.obra{background:rgba(213,179,84,0.08);border-bottom:1px solid rgba(213,179,84,0.08);font-size:0.9rem;color:#3a2a10;margin-bottom:0.2rem;}
+.obra::before{content:'—';color:rgba(213,179,84,0.35);flex-shrink:0;}
+.atualizado{font-family:'Space Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:rgba(213,179,84,0.2);text-transform:uppercase;text-align:right;margin-top:2.5rem;}
+.rodape{background:var(--azul-mid);padding:1.5rem 3rem;margin-top:3rem;border-top:1px solid rgba(213,179,84,0.06);}
+.rod-txt{font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.12em;color:rgba(213,179,84,0.25);text-transform:uppercase;line-height:2;}
+.rod-link{color:rgba(213,179,84,0.4);text-decoration:none;}
+.rod-link:hover{color:var(--ouro);}
+@media(max-width:768px){.cab,.conteudo{padding:1.2rem;}.nome{font-size:1.8rem;}}
+</style>
+</head>
+<body>
+<div class="cab">
+  <div class="nav">
+    <a href="portal_instituto_celeiro_literario.html">Celeiro Literário</a><span>/</span>
+    <a href="site_das_letras_edicoes_literarias.html">Site das Letras</a><span>/</span>
+    <a href="site_editorial_biografias.html">Biografias</a><span>/</span>
+    <a href="#" style="color:var(--ouro);">${nome}</a>
+  </div>
+  <div class="badge">${eixo}</div>
+  <div class="nome">${nome}</div>
+  <div class="origem">${origem}</div>
+</div>
+<div class="conteudo">
+  <div class="sec-label">// BIOGRAFIA</div>
+  <div class="linha"></div>
+  <div class="bio">${bio}</div>
+  <div class="espec">${espec}</div>
+  <div class="sec-label">// OBRAS PUBLICADAS</div>
+  <div class="linha"></div>
+  ${obrasHTML}
+  <div class="atualizado">Atualizado em: ${dataAtual}</div>
+</div>
+<div class="rodape">
+  <div class="rod-txt">
+    Site das Letras Edições Literárias &amp; Multimídia<br>
+    SIGMAL — São Roque International Global Music, Arts &amp; Letters Academy<br>
+    <a href="site_editorial_biografias.html" class="rod-link">← Voltar às Biografias</a>
+  </div>
+</div>
+</body>
+</html>`;
+}
+
+// ===================== GERAR BIO VIA API =====================
+async function gerarBioAPI(het) {
+  const prompt = `Você é Fernando Peçanha, curador da OHE — Organização Heterônima Editorial.
+
+Escreva a biografia literária do seguinte heterônimo para publicação no Celeiro Literário:
+
+Nome: ${het.nome}
+Eixo: ${het.eixo}
+Território: ${het.territorio}
+Formato principal: ${het.formato}
+Origem/naturalidade: ${het.origem || 'não especificada'}
+${het.obras && het.obras.length > 0 ? 'Obras: ' + het.obras.join(', ') : ''}
+${het.notas ? 'Notas adicionais: ' + het.notas : ''}
+
+Escreva:
+1. BIO: Um parágrafo de biografia literária (3-5 linhas). Tom elegante, editorial. NÃO mencione que é heterônimo — escreva como se fosse um autor real.
+2. ESPEC: Uma frase curta de especialização (ex: "Poetisa exclusivamente de sonetos — memórias afetivas, cotidiano e emoções tratadas com rigor formal")
+
+Responda EXATAMENTE neste formato:
+---BIO---
+[texto da biografia]
+---ESPEC---
+[frase de especialização]`;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': window.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 500, messages: [{ role: 'user', content: prompt }] })
+  });
+  if (!response.ok) throw new Error('Erro ' + response.status);
+  const data = await response.json();
+  const texto = data.content[0].text;
+  const matchBio = texto.match(/---BIO---\s*([\s\S]*?)---ESPEC---/);
+  const matchEspec = texto.match(/---ESPEC---\s*([\s\S]*?)$/);
+  return {
+    bio: matchBio ? matchBio[1].trim() : texto,
+    espec: matchEspec ? matchEspec[1].trim() : ''
+  };
+}
+
+// ===================== GERAR LOTE =====================
+async function gerarLote() {
+  if (selecionados.size === 0) { alert('Selecione pelo menos um heterônimo.'); return; }
+  document.getElementById('btn-lote').disabled = true;
+  document.getElementById('log-lote').innerHTML = '';
+  document.getElementById('resultado-lote').innerHTML = '';
+  const dataAtual = new Date().toLocaleDateString('pt-BR');
+  const indices = [...selecionados];
+  logLote('Iniciando geração de ' + indices.length + ' fichas...');
+
+  for (const i of indices) {
+    const het = HETERONIMOS[i];
+    fichasGeradas[i] = 'gerando';
+    renderizarGrid();
+    logLote('Gerando: ' + het.nome + '...');
+    try {
+      const { bio, espec } = await gerarBioAPI(het);
+      const html = gerarHTMLFicha(het.nome, het.eixo, het.origem || '', bio, espec, het.obras || [], dataAtual);
+      const nomeSlug = het.nome.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-');
+      const nomeArquivo = 'biografia_' + nomeSlug + '.html';
+      fichasGeradas[i] = 'ok';
+      renderizarGrid();
+      logLote('✓ ' + het.nome + ' → ' + nomeArquivo);
+      // Adicionar botão de download
+      const res = document.getElementById('resultado-lote');
+      const div = document.createElement('div');
+      div.className = 'ficha-item';
+      div.innerHTML = `
+        <div>
+          <div class="ficha-nome">${het.nome}</div>
+          <div class="ficha-arquivo">${nomeArquivo}</div>
+        </div>
+        <button class="btn-verde" onclick="downloadHTML('${nomeArquivo}', this.dataset.html)">⬇ DOWNLOAD</button>`;
+      div.querySelector('button').dataset.html = encodeURIComponent(html);
+      res.appendChild(div);
+    } catch(e) {
+      fichasGeradas[i] = 'erro';
+      renderizarGrid();
+      logLote('✗ ERRO em ' + het.nome + ': ' + e.message);
+    }
+    // Pequena pausa para não sobrecarregar a API
+    await new Promise(r => setTimeout(r, 500));
+  }
+  logLote('Concluído! ' + Object.values(fichasGeradas).filter(v => v === 'ok').length + ' fichas geradas.');
+  document.getElementById('btn-lote').disabled = false;
+}
+
+// ===================== GERAR NOVO =====================
+async function gerarNovo() {
+  const nome = document.getElementById('novo-nome').value.trim();
+  const eixo = document.getElementById('novo-eixo').value;
+  const territorio = document.getElementById('novo-territorio').value.trim();
+  const formato = document.getElementById('novo-formato').value.trim();
+  const origem = document.getElementById('novo-origem').value.trim();
+  const obrasRaw = document.getElementById('novo-obras').value.trim();
+  const notas = document.getElementById('novo-notas').value.trim();
+
+  if (!nome) { alert('Informe o nome do heterônimo.'); return; }
+
+  const obras = obrasRaw ? obrasRaw.split('\n').filter(o => o.trim()) : [];
+  document.getElementById('log-novo').innerHTML = '';
+  document.getElementById('resultado-novo').innerHTML = '';
+  logNovo('Gerando ficha de ' + nome + '...');
+
+  try {
+    const het = { nome, eixo, territorio, formato, origem, obras, notas };
+    const { bio, espec } = await gerarBioAPI(het);
+    const dataAtual = new Date().toLocaleDateString('pt-BR');
+    const html = gerarHTMLFicha(nome, eixo, origem, bio, espec, obras, dataAtual);
+    const nomeSlug = nome.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-');
+    const nomeArquivo = 'biografia_' + nomeSlug + '.html';
+    logNovo('✓ Ficha gerada → ' + nomeArquivo);
+
+    const res = document.getElementById('resultado-novo');
+    res.innerHTML = `
+      <div class="ficha-item">
+        <div>
+          <div class="ficha-nome">${nome}</div>
+          <div class="ficha-arquivo">${nomeArquivo} · Pronto para upload no CeleiroLiterario</div>
+        </div>
+        <button class="btn-verde" id="btn-dl-novo">⬇ DOWNLOAD</button>
+      </div>
+      <div style="background:rgba(0,0,0,0.2);border:1px solid rgba(201,168,76,0.08);padding:1rem;margin-top:0.8rem;font-family:Crimson Pro,serif;font-size:0.9rem;line-height:1.8;color:var(--creme);">
+        <strong style="font-family:Share Tech Mono,monospace;font-size:0.48rem;letter-spacing:0.15em;color:var(--ouro);opacity:0.6;">BIO GERADA:</strong><br><br>
+        ${bio}<br><br>
+        <em style="color:var(--prata);">${espec}</em>
+      </div>`;
+    document.getElementById('btn-dl-novo').onclick = () => downloadHTML(nomeArquivo, encodeURIComponent(html));
+
+  } catch(e) {
+    logNovo('✗ ERRO: ' + e.message);
+  }
+}
+
+// ===================== DOWNLOAD =====================
+function downloadHTML(nomeArquivo, htmlEncoded) {
+  const html = decodeURIComponent(htmlEncoded);
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nomeArquivo; a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
