@@ -2029,11 +2029,27 @@ function enviarParaFila(tipo) {
   let titulo = '', meta = '', destino = 'masmorra';
 
   if (tipo === 'maquina') {
-    titulo = document.getElementById('maq-tema').value || 'Geração automática';
-    const cat = document.getElementById('maq-categoria').value;
-    const het = document.getElementById('maq-heteronimo').value;
-    meta = `${cat || 'Categoria a definir'} · ${het || 'Fernando Peçanha decide'}`;
-    destino = document.getElementById('maq-destino').value?.includes('Calabouço') ? 'calabouco' : 'masmorra';
+  titulo = document.getElementById('maq-tema').value || 'Geração automática';
+  const cat = document.getElementById('maq-categoria').value;
+  const het = document.getElementById('maq-heteronimo').value;
+  const fmto = document.getElementById('maq-formato').value;
+  const cen = document.getElementById('maq-cenario').value;
+  const pers = document.getElementById('maq-personagem').value;
+  const conf = document.getElementById('maq-conflito').value;
+  const tom = document.getElementById('maq-tom').value;
+  const sens = document.getElementById('maq-sensorial').value;
+  const ref = document.getElementById('maq-referencia').value;
+  const instr = document.getElementById('maq-instrucoes').value;
+  meta = `${cat || 'Categoria a definir'} · ${het || 'Fernando Peçanha decide'}` +
+    (fmto ? ` · Formato: ${fmto}` : '') +
+    (cen ? ` · Cenário: ${cen}` : '') +
+    (pers ? ` · Personagem: ${pers}` : '') +
+    (conf ? ` · Conflito: ${conf}` : '') +
+    (tom ? ` · Tom: ${tom}` : '') +
+    (sens ? ` · Sensorial: ${sens}` : '') +
+    (ref ? ` · Ref: ${ref}` : '') +
+    (instr ? ` · ${instr}` : '');
+  destino = document.getElementById('maq-destino').value?.includes('calabouco') ? 'calabouco' : 'masmorra';
   } else if (tipo === 'imagem') {
     titulo = 'Material via imagem';
     meta = document.getElementById('img-descricao').value?.substring(0,60) || 'Imagem enviada';
