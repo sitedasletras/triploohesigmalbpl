@@ -2095,7 +2095,8 @@ function renderizarCalabouco() {
       <div class="cal-titulo">${item.titulo}</div>
       <div class="cal-autor">${item.autor || item.meta || '—'}</div>
       <div class="cal-acoes">
-        <button class="fa-btn" onclick="enviarParaSilo('livro', ${i})">→ SILO</button>
+      <button class="fa-btn" onclick="abrirGerador(${i})">📖 GERAR LIVRO</button>
+      <button class="fa-btn" onclick="enviarParaSilo('livro', ${i})">→ SILO</button>
         <button class="fa-btn" onclick="removerCalabouco(${i})">✕</button>
       </div>
     </div>
@@ -2108,7 +2109,11 @@ function removerCalabouco(i) {
   estado.calabouco.splice(i, 1);
   salvar();
   renderizarCalabouco();
-}
+function abrirGerador(i) {
+  if (!confirm('Abrir Gerador de Livro para "' + estado.calabouco[i].titulo + '"?')) return;
+  localStorage.setItem('gerador_item_atual', JSON.stringify(estado.calabouco[i]));
+  window.open('gerador_livro_calabouco.html', '_blank');
+}}
 
 // ===================== SIGMAL MUSIC =====================
 function abrirNovoEstudio() {
