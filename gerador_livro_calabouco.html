@@ -21,39 +21,17 @@
   --laranja: #e65100;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-body {
-  background: var(--preto);
-  color: var(--creme);
-  font-family: 'Crimson Pro', Georgia, serif;
-  min-height: 100vh;
-  padding: 1.5rem;
-}
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(106,27,154,0.06) 0%, transparent 60%),
-    repeating-linear-gradient(90deg, rgba(201,168,76,0.02) 0, rgba(201,168,76,0.02) 1px, transparent 1px, transparent 60px),
-    repeating-linear-gradient(0deg, rgba(201,168,76,0.02) 0, rgba(201,168,76,0.02) 1px, transparent 1px, transparent 60px);
-  pointer-events: none;
-  z-index: 0;
-}
+body { background: var(--preto); color: var(--creme); font-family: 'Crimson Pro', Georgia, serif; min-height: 100vh; padding: 1.5rem; }
+body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 60% 40% at 20% 10%, rgba(106,27,154,0.06) 0%, transparent 60%), repeating-linear-gradient(90deg, rgba(201,168,76,0.02) 0, rgba(201,168,76,0.02) 1px, transparent 1px, transparent 60px), repeating-linear-gradient(0deg, rgba(201,168,76,0.02) 0, rgba(201,168,76,0.02) 1px, transparent 1px, transparent 60px); pointer-events: none; z-index: 0; }
 .container { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
-
-/* HEADER */
 .header { text-align: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(106,27,154,0.2); }
 .header-label { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.35em; color: var(--roxo-claro); opacity: 0.5; text-transform: uppercase; margin-bottom: 0.5rem; }
 .header-titulo { font-family: 'Cinzel', serif; font-size: clamp(1.8rem, 5vw, 2.8rem); color: var(--creme); font-weight: 400; letter-spacing: 0.05em; }
 .header-titulo em { color: var(--ouro); font-style: italic; font-family: 'Crimson Pro', serif; }
 .header-sub { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.95rem; color: var(--prata); margin-top: 0.5rem; }
-
-/* PAINEL */
 .painel { background: var(--preto-mid); border: 1px solid rgba(106,27,154,0.2); padding: 1.5rem; margin-bottom: 1.5rem; }
 .painel-titulo { font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; letter-spacing: 0.25em; color: var(--roxo-claro); opacity: 0.6; text-transform: uppercase; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.8rem; }
 .painel-titulo::after { content: ''; flex: 1; height: 1px; background: rgba(106,27,154,0.2); }
-
-/* FORMULÁRIO */
 .fg { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 1rem; }
 .fg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .fg-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
@@ -62,8 +40,6 @@ body::before {
 .fi:focus, .fs:focus, .fta:focus { border-color: rgba(106,27,154,0.5); }
 .fs option { background: var(--preto-mid); }
 .fta { resize: vertical; min-height: 80px; }
-
-/* JORNADAS */
 .jornadas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.8rem; margin-bottom: 1rem; }
 .jornada-card { background: rgba(106,27,154,0.04); border: 1px solid rgba(106,27,154,0.15); padding: 1rem; cursor: pointer; transition: all 0.3s; text-align: center; }
 .jornada-card:hover { border-color: rgba(106,27,154,0.4); }
@@ -71,8 +47,6 @@ body::before {
 .jornada-icone { font-size: 1.5rem; margin-bottom: 0.4rem; }
 .jornada-nome { font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--creme); margin-bottom: 0.2rem; }
 .jornada-desc { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.72rem; color: var(--prata); opacity: 0.7; }
-
-/* ARCOS PREVIEW */
 .arcos-preview { background: rgba(106,27,154,0.04); border: 1px solid rgba(106,27,154,0.1); padding: 1rem; margin-bottom: 1rem; display: none; }
 .arcos-preview.visivel { display: block; }
 .arcos-lista { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; margin-top: 0.8rem; }
@@ -81,8 +55,6 @@ body::before {
 .arco-nome { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--creme); margin-bottom: 0.2rem; }
 .arco-desc { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.72rem; color: var(--prata); opacity: 0.6; }
 .arco-paginas { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; color: var(--ouro); margin-top: 0.4rem; }
-
-/* BOTÕES */
 .btn-p { background: linear-gradient(135deg, var(--ouro-escuro), var(--ouro)); color: var(--preto); font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; padding: 0.8rem 1.5rem; border: none; cursor: pointer; text-transform: uppercase; transition: all 0.3s; clip-path: polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px)); }
 .btn-p:hover { opacity: 0.85; transform: translateY(-1px); }
 .btn-p:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
@@ -93,8 +65,10 @@ body::before {
 .btn-verde { background: transparent; color: var(--verde); font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; padding: 0.8rem 1.5rem; border: 1px solid rgba(0,200,83,0.3); cursor: pointer; text-transform: uppercase; transition: all 0.3s; }
 .btn-verde:hover { border-color: var(--verde); background: rgba(0,200,83,0.05); }
 .acoes { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.2rem; }
-
-/* MODAL NOVO HETERÔNIMO */
+.banner-info { padding: 0.8rem 1.2rem; margin-bottom: 1rem; font-family: 'Share Tech Mono', monospace; font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase; display: none; }
+.banner-info.visivel { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+.banner-verde { background: rgba(0,200,83,0.08); border: 1px solid rgba(0,200,83,0.3); color: var(--verde); }
+.banner-laranja { background: rgba(230,81,0,0.08); border: 1px solid rgba(230,81,0,0.3); color: var(--laranja); }
 .modal-overlay { position: fixed; inset: 0; background: rgba(4,8,15,0.97); z-index: 900; display: none; align-items: center; justify-content: center; padding: 1.5rem; }
 .modal-overlay.aberto { display: flex; }
 .modal { background: var(--preto-mid); border: 2px solid var(--laranja); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
@@ -108,8 +82,6 @@ body::before {
 .ficha-key { font-family: 'Share Tech Mono', monospace; font-size: 0.48rem; letter-spacing: 0.1em; color: var(--laranja); text-transform: uppercase; width: 120px; flex-shrink: 0; }
 .ficha-val { font-family: 'Crimson Pro', serif; font-size: 0.95rem; color: var(--creme); }
 .modal-acoes { padding: 1rem 1.5rem; border-top: 1px solid rgba(230,81,0,0.1); display: flex; gap: 0.8rem; flex-wrap: wrap; }
-
-/* PROGRESSO */
 .progresso-painel { background: var(--preto-mid); border: 1px solid rgba(106,27,154,0.2); padding: 1.5rem; margin-bottom: 1.5rem; display: none; }
 .progresso-painel.visivel { display: block; }
 .progresso-titulo { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--creme); margin-bottom: 1.2rem; }
@@ -123,13 +95,6 @@ body::before {
 .barra-prog { height: 3px; background: rgba(106,27,154,0.1); overflow: hidden; }
 .barra-fill { height: 100%; background: linear-gradient(to right, var(--roxo), var(--roxo-claro)); transition: width 0.5s ease; }
 .log-area { background: rgba(0,0,0,0.3); border: 1px solid rgba(106,27,154,0.1); padding: 0.8rem; margin-top: 1rem; max-height: 150px; overflow-y: auto; font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.05em; color: var(--prata); line-height: 1.8; white-space: pre-wrap; }
-
-/* RECUPERAÇÃO */
-.recuperacao-banner { background: rgba(230,81,0,0.08); border: 1px solid rgba(230,81,0,0.3); padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: none; }
-.recuperacao-banner.visivel { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
-.rec-txt { font-family: 'Share Tech Mono', monospace; font-size: 0.52rem; letter-spacing: 0.1em; color: var(--laranja); text-transform: uppercase; }
-
-/* RESULTADO */
 .resultado-painel { background: var(--preto-mid); border: 1px solid rgba(201,168,76,0.15); padding: 1.5rem; margin-bottom: 1.5rem; display: none; }
 .resultado-painel.visivel { display: block; }
 .resultado-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(201,168,76,0.08); flex-wrap: wrap; gap: 1rem; }
@@ -145,16 +110,20 @@ body::before {
 <body>
 <div class="container">
 
-  <!-- HEADER -->
   <div class="header">
     <div class="header-label">// TRIPLOOHESIGMALBPL · CALABOUÇO</div>
     <h1 class="header-titulo">Gerador de <em>Livro</em></h1>
     <p class="header-sub">Geração por arcos narrativos · Fernando Peçanha como curador · Formato A4</p>
   </div>
 
-  <!-- BANNER DE RECUPERAÇÃO -->
-  <div class="recuperacao-banner" id="recuperacao-banner">
-    <span class="rec-txt">⚠ Sessão anterior encontrada — material parcial disponível</span>
+  <!-- BANNER ITEM CARREGADO -->
+  <div class="banner-info banner-verde" id="banner-item-carregado">
+    <span id="banner-item-txt">✓ Item carregado do Calabouço</span>
+  </div>
+
+  <!-- BANNER RECUPERAÇÃO -->
+  <div class="banner-info banner-laranja" id="recuperacao-banner">
+    <span>⚠ Sessão anterior encontrada — material parcial disponível</span>
     <div style="display:flex;gap:0.6rem;">
       <button class="btn-verde" onclick="recuperarSessao()">↺ RECUPERAR</button>
       <button class="btn-s" onclick="descartarSessao()">✕ DESCARTAR</button>
@@ -164,27 +133,24 @@ body::before {
   <!-- PAINEL DE CONFIGURAÇÃO -->
   <div class="painel" id="painel-config">
     <div class="painel-titulo">Configuração do Livro</div>
-
     <div class="fg-grid">
       <div class="fg">
         <label class="fl">Título / Tema do Livro</label>
         <input type="text" class="fi" id="titulo" placeholder="Ex: O Último Templário">
       </div>
       <div class="fg">
-        <label class="fl">Heterônimo (deixe vazio para Fernando Peçanha decidir)</label>
+        <label class="fl">Heterônimo (vazio = Fernando Peçanha decide)</label>
         <input type="text" class="fi" id="heteronimo" placeholder="Fernando Peçanha decide">
       </div>
     </div>
-
     <div class="fg">
-      <label class="fl">Sinopse / Briefing</label>
-      <textarea class="fta" id="sinopse" placeholder="Descreva o tema, personagens principais, tom desejado, referências..."></textarea>
+      <label class="fl">Sinopse / Briefing / Referências</label>
+      <textarea class="fta" id="sinopse" placeholder="Descreva o tema, personagens, tom, referências literárias ou cinematográficas..."></textarea>
     </div>
-
     <div class="fg-grid3">
       <div class="fg">
         <label class="fl">Volume Total (páginas A4)</label>
-        <input type="number" class="fi" id="volume" min="120" max="480" value="200" placeholder="120 a 480">
+        <input type="number" class="fi" id="volume" min="40" max="480" value="120" placeholder="40 a 480">
       </div>
       <div class="fg">
         <label class="fl">Gênero / Formato</label>
@@ -207,44 +173,42 @@ body::before {
       </div>
     </div>
 
-    <!-- JORNADAS -->
     <div class="fg"><label class="fl">Estrutura Narrativa</label></div>
     <div class="jornadas-grid">
       <div class="jornada-card" onclick="selecionarJornada('heroi')" id="j-heroi">
         <div class="jornada-icone">⚔️</div>
         <div class="jornada-nome">Jornada do Herói</div>
-        <div class="jornada-desc">Chamado, provação, retorno transformado</div>
+        <div class="jornada-desc">Chamado, provação, retorno</div>
       </div>
       <div class="jornada-card" onclick="selecionarJornada('vilao')" id="j-vilao">
         <div class="jornada-icone">🜏</div>
         <div class="jornada-nome">Jornada do Vilão</div>
-        <div class="jornada-desc">Origem, corrupção, domínio e queda</div>
+        <div class="jornada-desc">Origem, corrupção, queda</div>
       </div>
       <div class="jornada-card" onclick="selecionarJornada('tragico')" id="j-tragico">
         <div class="jornada-icone">🎭</div>
         <div class="jornada-nome">Arco Trágico</div>
-        <div class="jornada-desc">Ascensão, falha fatal, colapso</div>
+        <div class="jornada-desc">Ascensão, falha, colapso</div>
       </div>
       <div class="jornada-card" onclick="selecionarJornada('redencao')" id="j-redencao">
         <div class="jornada-icone">✦</div>
         <div class="jornada-nome">Arco de Redenção</div>
-        <div class="jornada-desc">Queda, exílio, reconstrução e perdão</div>
+        <div class="jornada-desc">Queda, travessia, perdão</div>
       </div>
       <div class="jornada-card" onclick="selecionarJornada('epico')" id="j-epico">
         <div class="jornada-icone">🌐</div>
         <div class="jornada-nome">Estrutura Épica</div>
-        <div class="jornada-desc">Mundo, guerra, legado civilizacional</div>
+        <div class="jornada-desc">Mundo, guerra, legado</div>
       </div>
     </div>
 
-    <!-- PREVIEW DOS ARCOS -->
     <div class="arcos-preview" id="arcos-preview">
-      <div class="fl">Divisão dos Arcos</div>
+      <div class="fl">Divisão dos Arcos e Fragmentos</div>
       <div class="arcos-lista" id="arcos-lista"></div>
     </div>
 
     <div class="acoes">
-      <button class="btn-p" onclick="iniciarGeracao()" id="btn-gerar">⚡ GERAR LIVRO</button>
+      <button class="btn-p" onclick="iniciarGeracao()">⚡ GERAR LIVRO</button>
       <button class="btn-s" onclick="limpar()">✕ LIMPAR</button>
     </div>
   </div>
@@ -257,13 +221,13 @@ body::before {
         <div class="modal-tit">Fernando Peçanha criou um novo heterônimo</div>
       </div>
       <div class="modal-corpo">
-        <p class="modal-desc">Nenhum dos heterônimos existentes era adequado para este projeto. Fernando Peçanha propõe o nascimento de uma nova identidade literária. Confirme para registrar e continuar a geração.</p>
+        <p class="modal-desc">Nenhum dos 45 heterônimos existentes era adequado. Fernando Peçanha propõe o nascimento de uma nova identidade. Confirme para registrar e continuar.</p>
         <div class="ficha-het" id="ficha-novo-het"></div>
-        <p class="modal-desc" style="font-size:0.82rem;margin-top:0.5rem;">Após confirmar, lembre-se de atualizar o array HETERONIMOS no triploohesigmalbpl e o registro_civil_heteronimico.json no OHE-Peçanha.</p>
+        <p class="modal-desc" style="font-size:0.82rem;margin-top:0.5rem;">⚠ Após confirmar, atualize o array HETERONIMOS no triploohesigmalbpl e o registro_civil_heteronimico.json no OHE-Peçanha.</p>
       </div>
       <div class="modal-acoes">
         <button class="btn-verde" onclick="confirmarNovoHet()">✓ CONFIRMAR E CONTINUAR</button>
-        <button class="btn-s" onclick="cancelarNovoHet()">✕ CANCELAR GERAÇÃO</button>
+        <button class="btn-s" onclick="cancelarNovoHet()">✕ CANCELAR</button>
       </div>
     </div>
   </div>
@@ -294,7 +258,6 @@ body::before {
   </div>
 
 </div>
-
 <script>
 // ===================== ESTADO =====================
 let jornadaSelecionada = null;
@@ -304,52 +267,41 @@ let tituloFinal = '';
 let novoHetDados = null;
 let resolveNovoHet = null;
 let sessaoAtual = null;
+let tomVozGlobal = '';
 
-// ===================== JORNADAS =====================
+// Tokens por chamada e palavras por página A4
+const MAX_TOKENS_POR_CHAMADA = 8000;
+const PALAVRAS_POR_PAGINA_A4 = 400;
+const PALAVRAS_POR_CHAMADA = 5000; // ~12-13 páginas A4 por fragmento
+
 const JORNADAS = {
-  heroi: {
-    nome: 'Jornada do Herói',
-    arcos: [
-      { nome: 'Mundo Ordinário', desc: 'Apresentação do herói, chamado à aventura, recusa, mentor, cruzamento do limiar' },
-      { nome: 'Provação e Transformação', desc: 'Aliados e inimigos, caverna oculta, provação suprema, morte e renascimento' },
-      { nome: 'Retorno', desc: 'Ressurreição, elixir, retorno com o dom, transformação do mundo ordinário' }
-    ]
-  },
-  vilao: {
-    nome: 'Jornada do Vilão',
-    arcos: [
-      { nome: 'Origem e Ferida', desc: 'Mundo original, trauma fundador, primeira escolha sombria, justificativa interna' },
-      { nome: 'Corrupção e Poder', desc: 'Ascensão pelo poder, aliados corrompidos, apagamento da humanidade, ponto sem retorno' },
-      { nome: 'Domínio e Queda', desc: 'Reinado do terror, confronto final, colapso ou apoteose da vilania' }
-    ]
-  },
-  tragico: {
-    nome: 'Arco Trágico',
-    arcos: [
-      { nome: 'Ascensão', desc: 'Protagonista promissor, conquistas, reconhecimento, falha trágica latente' },
-      { nome: 'Crise e Falha Fatal', desc: 'Hubris revelado, escolha errada, perda progressiva, isolamento' },
-      { nome: 'Colapso e Catarse', desc: 'Queda inevitável, reconhecimento tardio, morte ou exílio, lição para o mundo' }
-    ]
-  },
-  redencao: {
-    nome: 'Arco de Redenção',
-    arcos: [
-      { nome: 'Queda e Exílio', desc: 'Erro cometido, consequências, abandono pelos próximos, solidão e vergonha' },
-      { nome: 'Travessia do Deserto', desc: 'Confronto com o passado, encontro com o outro, primeira semente de mudança' },
-      { nome: 'Reconstrução e Perdão', desc: 'Atos de reparação, perdão conquistado ou não, nova identidade, paz possível' }
-    ]
-  },
-  epico: {
-    nome: 'Estrutura Épica',
-    arcos: [
-      { nome: 'O Mundo e Seus Povos', desc: 'Construção do mundo, culturas em conflito, forças em equilíbrio instável, catalisador da guerra' },
-      { nome: 'A Grande Guerra', desc: 'Alianças formadas, batalhas decisivas, traições, sacrifícios, virada do destino' },
-      { nome: 'O Legado', desc: 'Fim do conflito, reconstrução, memória dos mortos, novo equilíbrio, sementes do futuro' }
-    ]
-  }
+  heroi: { nome: 'Jornada do Herói', arcos: [
+    { nome: 'Mundo Ordinário', desc: 'Apresentação do herói, chamado à aventura, recusa, mentor, cruzamento do limiar' },
+    { nome: 'Provação e Transformação', desc: 'Aliados e inimigos, caverna oculta, provação suprema, morte e renascimento' },
+    { nome: 'Retorno', desc: 'Ressurreição, elixir, retorno com o dom, transformação do mundo ordinário' }
+  ]},
+  vilao: { nome: 'Jornada do Vilão', arcos: [
+    { nome: 'Origem e Ferida', desc: 'Mundo original, trauma fundador, primeira escolha sombria' },
+    { nome: 'Corrupção e Poder', desc: 'Ascensão pelo poder, aliados corrompidos, ponto sem retorno' },
+    { nome: 'Domínio e Queda', desc: 'Reinado do terror, confronto final, colapso ou apoteose' }
+  ]},
+  tragico: { nome: 'Arco Trágico', arcos: [
+    { nome: 'Ascensão', desc: 'Protagonista promissor, conquistas, falha trágica latente' },
+    { nome: 'Crise e Falha Fatal', desc: 'Hubris revelado, escolha errada, isolamento progressivo' },
+    { nome: 'Colapso e Catarse', desc: 'Queda inevitável, reconhecimento tardio, lição para o mundo' }
+  ]},
+  redencao: { nome: 'Arco de Redenção', arcos: [
+    { nome: 'Queda e Exílio', desc: 'Erro cometido, consequências, solidão e vergonha' },
+    { nome: 'Travessia do Deserto', desc: 'Confronto com o passado, primeira semente de mudança' },
+    { nome: 'Reconstrução e Perdão', desc: 'Reparação, nova identidade, paz possível' }
+  ]},
+  epico: { nome: 'Estrutura Épica', arcos: [
+    { nome: 'O Mundo e Seus Povos', desc: 'Construção do mundo, culturas em conflito, catalisador da guerra' },
+    { nome: 'A Grande Guerra', desc: 'Alianças, batalhas, traições, sacrifícios, virada do destino' },
+    { nome: 'O Legado', desc: 'Fim do conflito, reconstrução, memória, novo equilíbrio' }
+  ]}
 };
 
-// ===================== LISTA DE HETERÔNIMOS =====================
 const HETERONIMOS_LISTA = [
   'A.J. dos Santos','Amanda Fernanda Fisher Leão','Amélie Maia Hanna','Anísio Teixeira',
   'Articus da Persida','Aurora Wings','Padre Benedicttus Konstantinos','Birihani Selami Ina Tesifa',
@@ -367,12 +319,34 @@ const HETERONIMOS_LISTA = [
 
 // ===================== INIT =====================
 window.addEventListener('load', () => {
+  // 1. Item vindo do Calabouço
+  const itemStr = localStorage.getItem('gerador_item_atual');
+  if (itemStr) {
+    try {
+      const item = JSON.parse(itemStr);
+      if (item.titulo) document.getElementById('titulo').value = item.titulo;
+      if (item.autor && item.autor !== 'A definir') document.getElementById('heteronimo').value = item.autor;
+      if (item.meta) document.getElementById('sinopse').value = item.meta;
+      if (item.tipo) {
+        const tipoMap = { 'romance':'romance','conto':'conto','poesia':'poesia','cordel':'cordel','cronica':'cronica' };
+        const g = tipoMap[item.tipo.toLowerCase()];
+        if (g) document.getElementById('genero').value = g;
+      }
+      const banner = document.getElementById('banner-item-carregado');
+      document.getElementById('banner-item-txt').textContent = '✓ Item carregado do Calabouço: ' + item.titulo;
+      banner.classList.add('visivel');
+      localStorage.removeItem('gerador_item_atual');
+    } catch(e) {}
+  }
+  // 2. Sessão interrompida
   const sessao = localStorage.getItem('gerador_sessao_atual');
   if (sessao) {
-    const dados = JSON.parse(sessao);
-    if (dados && dados.arcosSalvos && dados.arcosSalvos.length > 0) {
-      document.getElementById('recuperacao-banner').classList.add('visivel');
-    }
+    try {
+      const dados = JSON.parse(sessao);
+      if (dados && dados.fragmentosSalvos && dados.fragmentosSalvos.length > 0) {
+        document.getElementById('recuperacao-banner').classList.add('visivel');
+      }
+    } catch(e) {}
   }
 });
 
@@ -382,14 +356,14 @@ function recuperarSessao() {
   if (!sessao) return;
   document.getElementById('recuperacao-banner').classList.remove('visivel');
   document.getElementById('painel-config').style.display = 'none';
-  const res = document.getElementById('resultado-painel');
-  res.classList.add('visivel');
   heteronimoEscolhido = sessao.heteronimo || 'A definir';
   tituloFinal = sessao.titulo || 'Sem título';
-  livroCompleto = sessao.arcosSalvos.join('\n\n');
+  livroCompleto = sessao.fragmentosSalvos.join('\n\n');
+  const res = document.getElementById('resultado-painel');
+  res.classList.add('visivel');
   document.getElementById('res-heteronimo').textContent = heteronimoEscolhido;
   document.getElementById('res-titulo').textContent = tituloFinal + ' (RECUPERADO — INCOMPLETO)';
-  document.getElementById('res-meta').textContent = `Sessão recuperada · ${sessao.arcosSalvos.length} arco(s) gerado(s)`;
+  document.getElementById('res-meta').textContent = `${sessao.fragmentosSalvos.length} fragmento(s) recuperado(s)`;
   document.getElementById('livro-conteudo').textContent = livroCompleto;
 }
 
@@ -403,52 +377,57 @@ function selecionarJornada(tipo) {
   jornadaSelecionada = tipo;
   document.querySelectorAll('.jornada-card').forEach(c => c.classList.remove('selecionada'));
   document.getElementById('j-' + tipo).classList.add('selecionada');
-  const jornada = JORNADAS[tipo];
-  const volume = parseInt(document.getElementById('volume').value) || 200;
+  atualizarPreviewArcos();
+}
+
+function atualizarPreviewArcos() {
+  if (!jornadaSelecionada) return;
+  const jornada = JORNADAS[jornadaSelecionada];
+  const volume = parseInt(document.getElementById('volume').value) || 120;
   const pagPorArco = Math.floor(volume / 3);
   const pagUltimo = volume - (pagPorArco * 2);
-  const preview = document.getElementById('arcos-preview');
-  const lista = document.getElementById('arcos-lista');
-  preview.classList.add('visivel');
-  lista.innerHTML = jornada.arcos.map((arco, i) => `
-    <div class="arco-item">
-      <div class="arco-num">ARCO ${i + 1}</div>
-      <div class="arco-nome">${arco.nome}</div>
-      <div class="arco-desc">${arco.desc}</div>
-      <div class="arco-paginas">~${i < 2 ? pagPorArco : pagUltimo} páginas A4</div>
-    </div>
-  `).join('');
+  const fragPorArco = (arcopags) => Math.max(1, Math.ceil((arcopags * PALAVRAS_POR_PAGINA_A4) / PALAVRAS_POR_CHAMADA));
+
+  document.getElementById('arcos-preview').classList.add('visivel');
+  document.getElementById('arcos-lista').innerHTML = jornada.arcos.map((arco, i) => {
+    const pags = i < 2 ? pagPorArco : pagUltimo;
+    const frags = fragPorArco(pags);
+    return `
+      <div class="arco-item">
+        <div class="arco-num">ARCO ${i+1}</div>
+        <div class="arco-nome">${arco.nome}</div>
+        <div class="arco-desc">${arco.desc}</div>
+        <div class="arco-paginas">~${pags} pág A4 · ${frags} fragmento(s)</div>
+      </div>`;
+  }).join('');
 }
 
 // ===================== LOG =====================
 function log(msg) {
   const area = document.getElementById('log-area');
-  area.innerHTML += `> ${msg}\n`;
+  area.innerHTML += '> ' + msg + '\n';
   area.scrollTop = area.scrollHeight;
 }
 
-// ===================== MODAL NOVO HETERÔNIMO =====================
+// ===================== MODAL NOVO HET =====================
 function mostrarModalNovoHet(dados) {
   return new Promise((resolve) => {
     resolveNovoHet = resolve;
     novoHetDados = dados;
-    const ficha = document.getElementById('ficha-novo-het');
-    ficha.innerHTML = `
+    document.getElementById('ficha-novo-het').innerHTML = `
       <div class="ficha-linha"><span class="ficha-key">Nome</span><span class="ficha-val">${dados.nome}</span></div>
       <div class="ficha-linha"><span class="ficha-key">Eixo</span><span class="ficha-val">${dados.eixo}</span></div>
       <div class="ficha-linha"><span class="ficha-key">Território</span><span class="ficha-val">${dados.territorio}</span></div>
       <div class="ficha-linha"><span class="ficha-key">Formato</span><span class="ficha-val">${dados.formato}</span></div>
-      <div class="ficha-linha"><span class="ficha-key">Vol. Mínimo</span><span class="ficha-val">${dados.volumeMinimo} textos/páginas</span></div>
+      <div class="ficha-linha"><span class="ficha-key">Vol. Mínimo</span><span class="ficha-val">${dados.volumeMinimo}</span></div>
       <div class="ficha-linha"><span class="ficha-key">Destino</span><span class="ficha-val">${dados.destino}</span></div>
-      <div class="ficha-linha"><span class="ficha-key">Justificativa</span><span class="ficha-val">${dados.justificativa || 'Território não coberto pelos heterônimos existentes'}</span></div>
-    `;
+      <div class="ficha-linha"><span class="ficha-key">Justificativa</span><span class="ficha-val">${dados.justificativa || '—'}</span></div>`;
     document.getElementById('modal-het').classList.add('aberto');
   });
 }
 
 function confirmarNovoHet() {
   document.getElementById('modal-het').classList.remove('aberto');
-  // Salvar no localStorage para lembrar
   const novos = JSON.parse(localStorage.getItem('novos_heteronimos') || '[]');
   novos.push({ ...novoHetDados, data: new Date().toLocaleDateString('pt-BR') });
   localStorage.setItem('novos_heteronimos', JSON.stringify(novos));
@@ -460,11 +439,27 @@ function cancelarNovoHet() {
   if (resolveNovoHet) resolveNovoHet(false);
 }
 
+// ===================== CALCULAR FRAGMENTOS =====================
+function calcularFragmentos(volume) {
+  const jornada = JORNADAS[jornadaSelecionada];
+  const pagPorArco = Math.floor(volume / 3);
+  const pagUltimo = volume - (pagPorArco * 2);
+  const pagsPorArco = [pagPorArco, pagPorArco, pagUltimo];
+
+  return jornada.arcos.map((arco, i) => {
+    const pags = pagsPorArco[i];
+    const palavras = pags * PALAVRAS_POR_PAGINA_A4;
+    const numFrags = Math.max(1, Math.ceil(palavras / PALAVRAS_POR_CHAMADA));
+    const palavrasPorFrag = Math.ceil(palavras / numFrags);
+    return { arco, pags, numFrags, palavrasPorFrag, indiceArco: i };
+  });
+}
+
 // ===================== INICIAR GERAÇÃO =====================
 async function iniciarGeracao() {
   const titulo = document.getElementById('titulo').value.trim();
   const sinopse = document.getElementById('sinopse').value.trim();
-  const volume = parseInt(document.getElementById('volume').value) || 200;
+  const volume = parseInt(document.getElementById('volume').value) || 120;
   const genero = document.getElementById('genero').value;
   const heteronimo = document.getElementById('heteronimo').value.trim();
   const destinoFinal = document.getElementById('destino-final').value;
@@ -473,37 +468,44 @@ async function iniciarGeracao() {
   if (!jornadaSelecionada) { alert('Selecione uma estrutura narrativa.'); return; }
 
   const jornada = JORNADAS[jornadaSelecionada];
-  const pagPorArco = Math.floor(volume / 3);
-  const pagUltimo = volume - (pagPorArco * 2);
-  const pagsPorArco = [pagPorArco, pagPorArco, pagUltimo];
+  const planejamento = calcularFragmentos(volume);
+  const totalFragmentos = planejamento.reduce((s, a) => s + a.numFrags, 0);
 
-  // Iniciar sessão de recuperação
-  sessaoAtual = { titulo, heteronimo: heteronimo || 'A definir', jornada: jornadaSelecionada, volume, arcosSalvos: [] };
+  // Iniciar sessão
+  sessaoAtual = { titulo, heteronimo: heteronimo || 'A definir', jornada: jornadaSelecionada, volume, fragmentosSalvos: [] };
   localStorage.setItem('gerador_sessao_atual', JSON.stringify(sessaoAtual));
 
   document.getElementById('painel-config').style.display = 'none';
+  document.getElementById('banner-item-carregado').classList.remove('visivel');
   const progPainel = document.getElementById('progresso-painel');
   progPainel.classList.add('visivel');
-  document.getElementById('prog-titulo').textContent = `Gerando: ${titulo}`;
+  document.getElementById('prog-titulo').textContent = 'Gerando: ' + titulo + ' (' + volume + ' pág · ' + totalFragmentos + ' fragmentos)';
 
+  // Montar barras de progresso
   const arcosProgDiv = document.getElementById('arcos-progresso');
   arcosProgDiv.innerHTML = `
     <div class="arco-progresso">
       <div class="arco-prog-header">
         <span class="arco-prog-nome">Fase 0 · Fernando Peçanha — Curadoria</span>
-        <span class="arco-prog-status ativo" id="status-arco-0">analisando...</span>
+        <span class="arco-prog-status ativo" id="status-fase-0">analisando...</span>
       </div>
-      <div class="barra-prog"><div class="barra-fill" id="barra-arco-0" style="width:30%"></div></div>
-    </div>
-  ` + jornada.arcos.map((arco, i) => `
+      <div class="barra-prog"><div class="barra-fill" id="barra-fase-0" style="width:30%"></div></div>
+    </div>` +
+    planejamento.map((p, i) => `
     <div class="arco-progresso">
       <div class="arco-prog-header">
-        <span class="arco-prog-nome">Arco ${i+1} · ${arco.nome}</span>
-        <span class="arco-prog-status" id="status-arco-${i+1}">aguardando</span>
+        <span class="arco-prog-nome">Arco ${i+1} · ${p.arco.nome} (${p.numFrags} frag · ~${p.pags} pág)</span>
+        <span class="arco-prog-status" id="status-arco-${i}">aguardando</span>
       </div>
-      <div class="barra-prog"><div class="barra-fill" id="barra-arco-${i+1}" style="width:0%"></div></div>
-    </div>
-  `).join('');
+      <div class="barra-prog"><div class="barra-fill" id="barra-arco-${i}" style="width:0%"></div></div>
+    </div>`).join('') + `
+    <div class="arco-progresso">
+      <div class="arco-prog-header">
+        <span class="arco-prog-nome">Revisão Final · Fernando Peçanha</span>
+        <span class="arco-prog-status" id="status-revisao">aguardando</span>
+      </div>
+      <div class="barra-prog"><div class="barra-fill" id="barra-revisao" style="width:0%"></div></div>
+    </div>`;
 
   livroCompleto = '';
   heteronimoEscolhido = heteronimo || 'A definir';
@@ -511,48 +513,46 @@ async function iniciarGeracao() {
   let novoHeteronimoCriado = false;
 
   try {
-    // FASE 0 — Fernando Peçanha analisa e define
+    // FASE 0 — Curadoria
     log('Fernando Peçanha iniciando análise...');
-    const promptEstrutura = `Você é Fernando Peçanha, curador da OHE com os seguintes 45 heterônimos disponíveis:
+    const promptEstrutura = `Você é Fernando Peçanha, curador da OHE com os seguintes 45 heterônimos:
 ${HETERONIMOS_LISTA.join(', ')}
 
 PROJETO:
 Título: ${titulo}
 Sinopse: ${sinopse || 'Não fornecida'}
-Gênero solicitado: ${genero || 'A definir'}
+Gênero: ${genero || 'A definir'}
 Heterônimo sugerido: ${heteronimo || 'Você decide'}
 Jornada: ${jornada.nome}
 Volume: ${volume} páginas A4
 
 INSTRUÇÃO:
-1. Analise se algum dos 45 heterônimos tem território adequado para este projeto
-2. Se SIM: escolha o melhor e justifique brevemente
-3. Se NÃO: crie um novo heterônimo na MATERNIDADE com nome, eixo, território, formato, volumeMinimo e destino adequados, e justifique por que nenhum dos 45 serve
-4. Defina o título definitivo do livro
+1. Analise se algum dos 45 heterônimos tem território adequado
+2. Se SIM: escolha o melhor
+3. Se NÃO: crie um novo com nome, eixo, territorio, formato, volumeMinimo, destino e justificativa
+4. Defina o título definitivo
 5. Defina uma frase de tom/voz para guiar a escrita
 
-Responda EXATAMENTE neste formato:
+Responda EXATAMENTE:
 ---HETERÔNIMO---
-[nome exato]
+[nome]
 ---NOVO (s/n)---
 [s ou n]
 ---SE NOVO: FICHA---
 nome: [nome]
 eixo: [Prosa/Poesia/Híbrido/Cordel]
-territorio: [descrição do território literário]
+territorio: [descrição]
 formato: [romance/conto/poesia/etc]
 volumeMinimo: [número]
 destino: [masmorra/calabouco]
-justificativa: [por que nenhum dos 45 serve]
+justificativa: [motivo]
 ---TÍTULO DEFINITIVO---
 [título]
 ---TOM---
-[frase curta de direção de voz]`;
+[frase de direção de voz]`;
 
     const resEstrutura = await chamarAPI(promptEstrutura, 1000);
-    log('Análise concluída.');
 
-    // Parsear resposta
     const matchHet = resEstrutura.match(/---HETERÔNIMO---\s*([\s\S]*?)---/);
     const matchNovo = resEstrutura.match(/---NOVO \(s\/n\)---\s*([\s\S]*?)---/);
     const matchFicha = resEstrutura.match(/---SE NOVO: FICHA---\s*([\s\S]*?)---/);
@@ -561,32 +561,26 @@ justificativa: [por que nenhum dos 45 serve]
 
     if (matchHet) heteronimoEscolhido = matchHet[1].trim();
     if (matchTit) tituloFinal = matchTit[1].trim();
-    const tomVoz = matchTom ? matchTom[1].trim() : '';
+    tomVozGlobal = matchTom ? matchTom[1].trim() : '';
     const ehNovo = matchNovo && matchNovo[1].trim().toLowerCase() === 's';
 
-    log(`Heterônimo: ${heteronimoEscolhido}`);
-    log(`Título: ${tituloFinal}`);
+    log('Heterônimo: ' + heteronimoEscolhido);
+    log('Título: ' + tituloFinal);
+    if (tomVozGlobal) log('Tom: ' + tomVozGlobal);
 
-    // Se novo heterônimo — mostrar modal e aguardar confirmação
     if (ehNovo && matchFicha) {
-      log('⚠ Novo heterônimo detectado — aguardando confirmação...');
+      log('⚠ Novo heterônimo — aguardando confirmação...');
       const fichaTexto = matchFicha[1].trim();
-      const parseFicha = (campo) => {
-        const m = fichaTexto.match(new RegExp(campo + ':\\s*(.+)'));
-        return m ? m[1].trim() : '';
-      };
+      const parseFicha = (campo) => { const m = fichaTexto.match(new RegExp(campo + ':\\s*(.+)')); return m ? m[1].trim() : ''; };
       novoHetDados = {
         nome: parseFicha('nome') || heteronimoEscolhido,
-        eixo: parseFicha('eixo'),
-        territorio: parseFicha('territorio'),
-        formato: parseFicha('formato'),
-        volumeMinimo: parseFicha('volumeMinimo'),
-        destino: parseFicha('destino'),
-        justificativa: parseFicha('justificativa')
+        eixo: parseFicha('eixo'), territorio: parseFicha('territorio'),
+        formato: parseFicha('formato'), volumeMinimo: parseFicha('volumeMinimo'),
+        destino: parseFicha('destino'), justificativa: parseFicha('justificativa')
       };
       const confirmado = await mostrarModalNovoHet(novoHetDados);
       if (!confirmado) {
-        log('Geração cancelada pelo usuário.');
+        log('Geração cancelada.');
         document.getElementById('painel-config').style.display = 'block';
         progPainel.classList.remove('visivel');
         localStorage.removeItem('gerador_sessao_atual');
@@ -594,86 +588,115 @@ justificativa: [por que nenhum dos 45 serve]
       }
       heteronimoEscolhido = novoHetDados.nome;
       novoHeteronimoCriado = true;
-      log(`Novo heterônimo confirmado: ${heteronimoEscolhido}`);
+      log('Novo heterônimo confirmado: ' + heteronimoEscolhido);
     }
 
-    document.getElementById('barra-arco-0').style.width = '100%';
-    document.getElementById('status-arco-0').textContent = 'concluído ✓';
-    document.getElementById('status-arco-0').className = 'arco-prog-status concluido';
+    document.getElementById('barra-fase-0').style.width = '100%';
+    document.getElementById('status-fase-0').textContent = 'concluído ✓';
+    document.getElementById('status-fase-0').className = 'arco-prog-status concluido';
 
-    // Atualizar sessão
     sessaoAtual.heteronimo = heteronimoEscolhido;
     sessaoAtual.titulo = tituloFinal;
     localStorage.setItem('gerador_sessao_atual', JSON.stringify(sessaoAtual));
 
-    // CABEÇALHO DO LIVRO
-    livroCompleto = `${tituloFinal.toUpperCase()}\n\nHeterônimo: ${heteronimoEscolhido}\nJornada: ${jornada.nome}\nVolume: ${volume} páginas A4\nData: ${new Date().toLocaleDateString('pt-BR')}\n\n${'═'.repeat(60)}\n\n`;
+    // CABEÇALHO
+    livroCompleto = tituloFinal.toUpperCase() + '\n\nHeterônimo: ' + heteronimoEscolhido + '\nJornada: ' + jornada.nome + '\nVolume: ' + volume + ' páginas A4\nData: ' + new Date().toLocaleDateString('pt-BR') + '\n\n' + '═'.repeat(60) + '\n\n';
 
-    // ARCOS 1, 2, 3
-    for (let i = 0; i < jornada.arcos.length; i++) {
-      const arco = jornada.arcos[i];
-      const pags = pagsPorArco[i];
+    // ARCOS — múltiplos fragmentos por arco
+    let resumoAnterior = '';
 
-      document.getElementById(`status-arco-${i+1}`).textContent = 'gerando...';
-      document.getElementById(`status-arco-${i+1}`).className = 'arco-prog-status ativo';
-      document.getElementById(`barra-arco-${i+1}`).style.width = '30%';
+    for (let ai = 0; ai < planejamento.length; ai++) {
+      const { arco, pags, numFrags, palavrasPorFrag } = planejamento[ai];
 
-      log(`Gerando Arco ${i+1}: ${arco.nome} (~${pags} páginas A4)...`);
+      document.getElementById('status-arco-' + ai).textContent = 'gerando...';
+      document.getElementById('status-arco-' + ai).className = 'arco-prog-status ativo';
 
-      const promptArco = `Você é ${heteronimoEscolhido}, escritor da OHE.
-Tom de voz: ${tomVoz}
+      livroCompleto += '\n\n' + '─'.repeat(60) + '\nARCO ' + (ai+1) + ' · ' + arco.nome.toUpperCase() + '\n' + '─'.repeat(60) + '\n\n';
+
+      let textoArco = '';
+
+      for (let fi = 0; fi < numFrags; fi++) {
+        const progBarra = Math.round(((fi + 1) / numFrags) * 100);
+        document.getElementById('barra-arco-' + ai).style.width = (progBarra * 0.9) + '%';
+
+        log('Arco ' + (ai+1) + ' · Fragmento ' + (fi+1) + '/' + numFrags + ' (~' + palavrasPorFrag + ' palavras)...');
+
+        const isFirst = fi === 0;
+        const isLast = fi === numFrags - 1;
+
+        const promptFragmento = `Você é ${heteronimoEscolhido}, escritor da OHE.
+Tom de voz: ${tomVozGlobal}
 Livro: ${tituloFinal}
 Jornada: ${jornada.nome}
 
-ARCO ${i+1} DE 3: ${arco.nome}
-Diretrizes deste arco: ${arco.desc}
+ARCO ${ai+1} DE 3: ${arco.nome}
+Diretrizes: ${arco.desc}
 
-${i > 0 ? `Este é o arco ${i+1}. Mantenha coerência com o que foi estabelecido nos arcos anteriores — personagens, tom, narrativa.` : `Este é o arco inicial. Apresente o mundo, os personagens principais e estabeleça o conflito central com força.`}
+${resumoAnterior ? 'RESUMO DO QUE JÁ FOI ESCRITO:\n' + resumoAnterior + '\n' : ''}
+${!isFirst ? 'Continue EXATAMENTE de onde o fragmento anterior parou. Não repita conteúdo já escrito.' : ai > 0 ? 'Inicie o Arco ' + (ai+1) + ' mantendo coerência com os arcos anteriores.' : 'Inicie o livro. Apresente o mundo e os personagens principais.'}
 
-Escreva o Arco ${i+1} completo, correspondendo a aproximadamente ${pags} páginas A4 (cerca de ${pags * 500} palavras).
-Use capítulos numerados dentro do arco. Mantenha sua voz literária característica.
-NÃO inclua introduções, comentários ou meta-texto. Comece diretamente com a narrativa.`;
+${isLast && numFrags > 1 ? 'Este é o ÚLTIMO fragmento deste arco. Conclua o arco de forma satisfatória.' : ''}
 
-      const textoArco = await chamarAPI(promptArco, 8000);
+Escreva aproximadamente ${palavrasPorFrag} palavras. Use capítulos numerados quando apropriado.
+NÃO inclua meta-comentários. Comece diretamente com a narrativa.`;
 
-      document.getElementById(`barra-arco-${i+1}`).style.width = '100%';
-      document.getElementById(`status-arco-${i+1}`).textContent = 'concluído ✓';
-      document.getElementById(`status-arco-${i+1}`).className = 'arco-prog-status concluido';
+        const fragmento = await chamarAPI(promptFragmento, MAX_TOKENS_POR_CHAMADA);
+        textoArco += fragmento + '\n\n';
 
-      const blocoArco = `\n\n${'─'.repeat(60)}\nARCO ${i+1} · ${arco.nome.toUpperCase()}\n${'─'.repeat(60)}\n\n${textoArco}\n`;
-      livroCompleto += blocoArco;
+        // Salvar fragmento
+        sessaoAtual.fragmentosSalvos.push('ARCO ' + (ai+1) + ' FRAG ' + (fi+1) + ':\n' + fragmento);
+        localStorage.setItem('gerador_sessao_atual', JSON.stringify(sessaoAtual));
+      }
 
-      // Salvar arco imediatamente
-      sessaoAtual.arcosSalvos.push(blocoArco);
-      localStorage.setItem('gerador_sessao_atual', JSON.stringify(sessaoAtual));
+      livroCompleto += textoArco;
 
-      log(`Arco ${i+1} salvo. ✓`);
+      // Resumo do arco para contexto dos próximos
+      log('Gerando resumo do Arco ' + (ai+1) + ' para contexto...');
+      const promptResumo = `Faça um resumo objetivo em 3-5 linhas do seguinte texto, para servir de contexto narrativo:
+
+${textoArco.substring(0, 3000)}...
+
+Responda APENAS com o resumo, sem introduções.`;
+      resumoAnterior = await chamarAPI(promptResumo, 500);
+
+      document.getElementById('barra-arco-' + ai).style.width = '100%';
+      document.getElementById('status-arco-' + ai).textContent = 'concluído ✓';
+      document.getElementById('status-arco-' + ai).className = 'arco-prog-status concluido';
+      log('Arco ' + (ai+1) + ' concluído. ✓');
     }
 
     // REVISÃO FINAL
+    document.getElementById('status-revisao').textContent = 'revisando...';
+    document.getElementById('status-revisao').className = 'arco-prog-status ativo';
+    document.getElementById('barra-revisao').style.width = '50%';
     log('Fernando Peçanha revisando...');
+
     const promptRevisao = `Você é Fernando Peçanha, curador da OHE.
-Acaba de supervisionar a criação do livro "${tituloFinal}" por ${heteronimoEscolhido}.
-Escreva uma revisão editorial breve (máximo 3 parágrafos):
+Acabou de supervisionar a criação do livro "${tituloFinal}" por ${heteronimoEscolhido}.
+Escreva uma revisão editorial (máximo 3 parágrafos):
 - O que funcionou na obra
 - O que caracteriza a voz deste heterônimo neste livro
-- Uma nota final para o arquivo editorial`;
+- Nota final para o arquivo editorial`;
 
     const revisao = await chamarAPI(promptRevisao, 1000);
-    livroCompleto += `\n\n${'═'.repeat(60)}\nREVISÃO DE FERNANDO PEÇANHA\n${'═'.repeat(60)}\n\n${revisao}`;
+    livroCompleto += '\n\n' + '═'.repeat(60) + '\nREVISÃO DE FERNANDO PEÇANHA\n' + '═'.repeat(60) + '\n\n' + revisao;
 
-    log('Livro concluído! ✓');
+    document.getElementById('barra-revisao').style.width = '100%';
+    document.getElementById('status-revisao').textContent = 'concluído ✓';
+    document.getElementById('status-revisao').className = 'arco-prog-status concluido';
+
+    log('Livro concluído! ✓ Total: ' + livroCompleto.split(' ').length + ' palavras aproximadas');
     localStorage.removeItem('gerador_sessao_atual');
     mostrarResultado(destinoFinal, novoHeteronimoCriado);
 
   } catch (err) {
-    log(`ERRO: ${err.message}`);
-    log('Material parcial salvo — use o banner de recuperação para acessar.');
-    alert('Erro na geração: ' + err.message + '\n\nO material gerado até agora foi salvo. Recarregue a página para recuperar.');
+    log('ERRO: ' + err.message);
+    log('Material parcial salvo — use o banner de recuperação.');
+    alert('Erro: ' + err.message + '\n\nMaterial salvo parcialmente. Recarregue para recuperar.');
   }
 }
 
-// ===================== CHAMAR API =====================
+// ===================== API =====================
 async function chamarAPI(prompt, maxTokens) {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -683,88 +706,61 @@ async function chamarAPI(prompt, maxTokens) {
       'anthropic-version': '2023-06-01',
       'anthropic-dangerous-direct-browser-access': 'true'
     },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: maxTokens,
-      messages: [{ role: 'user', content: prompt }]
-    })
+    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: maxTokens, messages: [{ role: 'user', content: prompt }] })
   });
-  if (!response.ok) throw new Error(`Erro ${response.status}`);
+  if (!response.ok) throw new Error('Erro ' + response.status);
   const data = await response.json();
   return data.content[0].text;
 }
 
-// ===================== MOSTRAR RESULTADO =====================
+// ===================== RESULTADO =====================
 function mostrarResultado(destino, novoHet) {
   document.getElementById('progresso-painel').classList.remove('visivel');
   const res = document.getElementById('resultado-painel');
   res.classList.add('visivel');
   document.getElementById('res-heteronimo').textContent = heteronimoEscolhido;
   document.getElementById('res-titulo').textContent = tituloFinal;
-  document.getElementById('res-meta').textContent = `${JORNADAS[jornadaSelecionada].nome} · ${document.getElementById('volume').value} páginas A4 · Destino: ${destino}`;
+  document.getElementById('res-meta').textContent = JORNADAS[jornadaSelecionada].nome + ' · ' + document.getElementById('volume').value + ' pág A4 · ' + destino;
   document.getElementById('livro-conteudo').textContent = livroCompleto;
-
   if (novoHet && novoHetDados) {
-    const aviso = document.getElementById('novo-het-aviso');
-    aviso.classList.add('visivel');
-    aviso.innerHTML = `⚠ NOVO HETERÔNIMO CRIADO: ${novoHetDados.nome} — Atualize o array HETERONIMOS no triploohesigmalbpl e o registro_civil_heteronimico.json no OHE-Peçanha`;
+    const av = document.getElementById('novo-het-aviso');
+    av.classList.add('visivel');
+    av.textContent = '⚠ NOVO HETERÔNIMO: ' + novoHetDados.nome + ' — Atualize HETERONIMOS no triploohesigmalbpl e registro_civil_heteronimico.json no OHE-Peçanha';
   }
-
-  // Salvar no histórico
   const livros = JSON.parse(localStorage.getItem('calabouco_livros') || '[]');
-  livros.push({
-    id: Date.now(),
-    titulo: tituloFinal,
-    heteronimo: heteronimoEscolhido,
-    jornada: jornadaSelecionada,
-    volume: document.getElementById('volume').value,
-    destino,
-    data: new Date().toLocaleDateString('pt-BR'),
-    novoHeteronimo: novoHet ? novoHetDados : null,
-    conteudo: livroCompleto
-  });
+  livros.push({ id: Date.now(), titulo: tituloFinal, heteronimo: heteronimoEscolhido, jornada: jornadaSelecionada, volume: document.getElementById('volume').value, destino, data: new Date().toLocaleDateString('pt-BR'), novoHeteronimo: novoHet ? novoHetDados : null, conteudo: livroCompleto });
   localStorage.setItem('calabouco_livros', JSON.stringify(livros));
 }
 
 // ===================== UTILITÁRIOS =====================
-function copiarLivro() {
-  navigator.clipboard.writeText(livroCompleto).then(() => alert('Livro copiado!'));
-}
-
+function copiarLivro() { navigator.clipboard.writeText(livroCompleto).then(() => alert('Livro copiado!')); }
 function exportarTexto() {
   const blob = new Blob([livroCompleto], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = `${tituloFinal.replace(/\s+/g, '_')}.txt`;
-  a.click();
+  a.href = url; a.download = tituloFinal.replace(/\s+/g,'_') + '.txt'; a.click();
   URL.revokeObjectURL(url);
 }
-
 function novaGeracao() {
   document.getElementById('resultado-painel').classList.remove('visivel');
   document.getElementById('painel-config').style.display = 'block';
   document.getElementById('log-area').innerHTML = '';
   document.getElementById('novo-het-aviso').classList.remove('visivel');
-  livroCompleto = '';
-  novoHetDados = null;
+  livroCompleto = ''; novoHetDados = null;
 }
-
 function limpar() {
   document.getElementById('titulo').value = '';
   document.getElementById('heteronimo').value = '';
   document.getElementById('sinopse').value = '';
-  document.getElementById('volume').value = '200';
+  document.getElementById('volume').value = '120';
   document.getElementById('genero').value = '';
   document.getElementById('destino-final').value = 'calabouco';
   jornadaSelecionada = null;
   document.querySelectorAll('.jornada-card').forEach(c => c.classList.remove('selecionada'));
   document.getElementById('arcos-preview').classList.remove('visivel');
+  document.getElementById('banner-item-carregado').classList.remove('visivel');
 }
-
-document.getElementById('volume').addEventListener('change', () => {
-  if (jornadaSelecionada) selecionarJornada(jornadaSelecionada);
-});
+document.getElementById('volume').addEventListener('change', atualizarPreviewArcos);
 </script>
 </body>
 </html>
