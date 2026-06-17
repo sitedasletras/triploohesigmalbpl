@@ -1939,6 +1939,8 @@ function renderizarFila() {
 }
 
 function moverParaCalabouco(i) {
+  if (!confirm('Mover "' + estado.fila[i].titulo + '" para o Calabouço?')) return;
+  const item = estado.fila.splice(i, 1)[0];
   const item = estado.fila.splice(i, 1)[0];
   item.status = 'consolidado';
   estado.calabouco.push(item);
