@@ -2064,8 +2064,8 @@ function enviarParaFila(tipo) {
     meta = `${document.getElementById('ed-tipo').value || '—'} · Prazo: ${prazo || 'não definido'}`;
     destino = 'masmorra';
   } else if (tipo === 'desafio') {
-    titulo = (document.getElementById('des-ideia').value || '').substring(0, 80) || 'Desafio sem descrição';
-    meta = `Urgência: ${document.getElementById('des-urgencia').value} · Modo Desafio`;
+titulo = (document.getElementById('des-ideia')?.value || '').substring(0, 80) || 'Desafio sem descrição';
+meta = `Urgência: ${document.getElementById('des-urgencia')?.value || 'não definida'} · Modo Desafio`;
     destino = 'calabouco';
   }
 
