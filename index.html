@@ -2063,7 +2063,8 @@ function enviarParaFila(tipo) {
     const prazo = document.getElementById('ed-prazo').value;
     meta = `${document.getElementById('ed-tipo').value || '—'} · Prazo: ${prazo || 'não definido'}`;
     destino = 'masmorra';
-  } else if (tipo === 'desafio') {
+  } else if (tipo === 'desafio') function enviarParaFila(tipo) {
+  alert('ENTROU: ' + tipo);
   titulo = (document.getElementById('des-ideia')?.value || '').substring(0, 80) || 'Desafio sem descrição';
   meta = `Urgência: ${document.getElementById('des-urgencia')?.value || 'não definida'} · Modo Desafio`;
   destino = 'calabouco';
