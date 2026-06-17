@@ -1266,211 +1266,322 @@ body::before {
         </div>
       </div>
 
-      <!-- Painel Máquina -->
-      <div class="painel-entrada" id="painel-maquina">
-        <div class="painel-titulo">// MÁQUINA DE DADOS — GERAÇÃO AUTOMÁTICA</div>
-        <div class="fg-grid">
-          <div class="fg">
-            <label class="fl">Categoria</label>
-            <select class="fs" id="maq-categoria">
-              <option value="">Selecionar...</option>
-              <option>Prosa</option><option>Poesia</option>
-              <option>Híbrido</option><option>Cordel</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="fl">Destino</label>
-            <select class="fs" id="maq-destino">
-              <option value="">Selecionar...</option>
-              <option>Calabouço (obra final)</option>
-              <option>Masmorra (quarentena 750 dias)</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="fl">Tema / Território</label>
-            <input type="text" class="fi" id="maq-tema" placeholder="ex: horror cósmico, amor ribeirinho...">
-          </div>
-          <div class="fg">
-            <label class="fl">Heterônimo sugerido (ou deixar Fernando decidir)</label>
-            <select class="fs" id="maq-heteronimo">
-              <option value="">Fernando Peçanha decide</option>
-              <option>A.J. dos Santos</option><option>Amanda Fernanda Fisher Leão</option>
-              <option>Amélie Maia Hanna</option><option>Anísio Teixeira</option>
-              <option>Articus da Pérsida</option><option>Aurora Wings</option>
-              <option>Padre Benedicttus Konstantinos</option><option>Birihani Selami Ina Tesifa</option>
-              <option>Calíope Papazissis</option><option>Chesco Irlanda</option>
-              <option>Claudiney Aristides Diaz</option><option>Creone Porfírio</option>
-              <option>Cristovão Duarte</option><option>Daniel Fernandes</option>
-              <option>Dárius Ninus Vamus</option><option>Demetrius Varas</option>
-              <option>Din Kin Lin</option><option>Diógenes Bueno de Alencar</option>
-              <option>Hama Amarin</option><option>Hernesto Bevilácqua</option>
-              <option>Horando Almeida Prado</option><option>Icabode Kahpote</option>
-              <option>Imediato Thompson</option><option>J.L.Gomes</option>
-              <option>Jorge Cavalcanti</option><option>Juka Pituskaq</option>
-              <option>Julia Abdalla</option><option>Mário Célio Sabino</option>
-              <option>Michelangelo Miguel</option><option>Pyetra Luyza</option>
-              <option>Raimundo José da Silva Nonato</option><option>Renat Kolotov</option>
-              <option>Rovonilson Reigns Bautista</option><option>Henrich Jones</option>
-              <option>Sebastião Ferreira dos Anjos</option><option>Valter Marques</option>
-              <option>Victor A. Pereira</option><option>Wilson Silva</option>
-              <option>Yago Mattos</option><option>Wagner Planas</option>
-            </select>
-          </div>
-        </div>
-        <div class="fg">
-          <label class="fl">Instruções adicionais</label>
-          <textarea class="fta" id="maq-instrucoes" placeholder="Parâmetros extras para a máquina de dados..."></textarea>
-        </div>
-        <div class="form-acoes">
-          <button class="btn-p" onclick="enviarParaFila('maquina')">ENVIAR PARA FERNANDO PEÇANHA</button>
-          <button class="btn-s" onclick="fecharPainel()">CANCELAR</button>
-        </div>
-      </div>
+                  <!-- Painel Máquina -->
+<div class="painel-entrada" id="painel-maquina">
+  <div class="painel-titulo">// MÁQUINA DE DADOS — GERAÇÃO AUTOMÁTICA</div>
 
-      <!-- Painel Imagem -->
-      <div class="painel-entrada" id="painel-imagem">
-        <div class="painel-titulo">// ENTRADA POR IMAGEM — EDITAL / CHAMADA</div>
-        <div class="upload-zone" onclick="document.getElementById('img-upload').click()">
-          <div class="upload-icon">🖼️</div>
-          <div class="upload-txt">Clique para fazer upload da imagem do edital<br><small>JPG, PNG, PDF aceitos</small></div>
-          <input type="file" id="img-upload" class="upload-input" accept="image/*,.pdf" onchange="carregarImagem(this)">
-        </div>
-        <div id="img-preview" style="display:none; margin-bottom:0.8rem;">
-          <img id="img-preview-src" style="max-width:100%; max-height:200px; border:1px solid rgba(201,168,76,0.2);">
-        </div>
-        <div class="fg-grid">
-          <div class="fg">
-            <label class="fl">Descrição / O que você viu na imagem</label>
-            <textarea class="fta" id="img-descricao" placeholder="Descreva o edital ou o que a imagem representa..."></textarea>
-          </div>
-          <div class="fg">
-            <label class="fl">Categoria resultante</label>
-            <select class="fs" id="img-categoria">
-              <option value="">Selecionar...</option>
-              <option>Prosa</option><option>Poesia</option><option>Híbrido</option><option>Cordel</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-acoes">
-          <button class="btn-p" onclick="enviarParaFila('imagem')">ENVIAR PARA FERNANDO PEÇANHA</button>
-          <button class="btn-s" onclick="fecharPainel()">CANCELAR</button>
-        </div>
-      </div>
+  <!-- FORMATO / TEMPLATE -->
+  <div class="fg">
+    <label class="fl">Formato do texto</label>
+    <select class="fs" id="maq-formato" onchange="aplicarTemplateMaquina()">
+      <option value="">Selecionar formato...</option>
+      <optgroup label="— POESIA —">
+        <option value="cordel">Cordel</option>
+        <option value="soneto">Soneto</option>
+        <option value="haicai">Haicai</option>
+        <option value="ghazal">Ghazal</option>
+        <option value="pantum">Pantum</option>
+        <option value="ode">Ode</option>
+        <option value="trova">Trova</option>
+        <option value="poetrix">Poetrix</option>
+        <option value="poesia-livre">Poesia Livre</option>
+        <option value="poema-narrativo">Poema Narrativo</option>
+      </optgroup>
+      <optgroup label="— PROSA —">
+        <option value="romance">Romance</option>
+        <option value="conto">Conto</option>
+        <option value="cronica">Crônica</option>
+        <option value="prosa-poetica">Prosa Poética</option>
+        <option value="flash-fiction">Flash Fiction</option>
+      </optgroup>
+      <optgroup label="— HÍBRIDO —">
+        <option value="hibrido">Híbrido (Fernando Peçanha decide)</option>
+      </optgroup>
+    </select>
+  </div>
 
-      <!-- Painel Vídeo -->
-      <div class="painel-entrada" id="painel-video">
-        <div class="painel-titulo">// ENTRADA POR LINK DE VÍDEO</div>
-        <div class="fg">
-          <label class="fl">URL do Vídeo (YouTube, etc.)</label>
-          <input type="url" class="fi" id="vid-url" placeholder="https://youtube.com/watch?v=...">
-        </div>
-        <div class="fg-grid">
-          <div class="fg">
-            <label class="fl">O que o vídeo inspira / objetivo</label>
-            <textarea class="fta" id="vid-objetivo" placeholder="Descreva o que este vídeo deve inspirar no autor..."></textarea>
-          </div>
-          <div class="fg">
-            <label class="fl">Categoria</label>
-            <select class="fs" id="vid-categoria">
-              <option value="">Selecionar...</option>
-              <option>Prosa</option><option>Poesia</option><option>Híbrido</option><option>Cordel</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-acoes">
-          <button class="btn-p" onclick="enviarParaFila('video')">ENVIAR PARA FERNANDO PEÇANHA</button>
-          <button class="btn-s" onclick="fecharPainel()">CANCELAR</button>
-        </div>
-      </div>
+  <!-- TEMPLATE PREVIEW -->
+  <div id="maq-template-box" style="display:none;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.15);padding:0.8rem 1rem;margin-bottom:1rem;font-family:'Share Tech Mono',monospace;font-size:0.48rem;letter-spacing:0.05em;color:rgba(201,168,76,0.7);line-height:1.8;white-space:pre-wrap;"></div>
 
-      <!-- Painel Edital -->
-      <div class="painel-entrada" id="painel-edital">
-        <div class="painel-titulo">// ENTRADA DE EDITAL · LEI ROUANET · LEI ALDIR BLANC</div>
-        <div class="fg-grid">
-          <div class="fg">
-            <label class="fl">Nome do Edital / Concurso</label>
-            <input type="text" class="fi" id="ed-nome" placeholder="ex: Prêmio Jabuti 2025...">
-          </div>
-          <div class="fg">
-            <label class="fl">Tipo</label>
-            <select class="fs" id="ed-tipo">
-              <option value="">Selecionar...</option>
-              <option>Lei Rouanet</option><option>Lei Aldir Blanc</option>
-              <option>Concurso Literário</option><option>Antologia</option>
-              <option>Chamada de Obra</option><option>Festival</option><option>Outro</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="fl">Prazo / Data limite</label>
-            <input type="date" class="fi" id="ed-prazo">
-          </div>
-          <div class="fg">
-            <label class="fl">Categoria exigida</label>
-            <select class="fs" id="ed-categoria">
-              <option value="">Selecionar...</option>
-              <option>Prosa</option><option>Poesia</option><option>Híbrido</option><option>Cordel</option><option>Livre</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="fl">Tema / Requisitos</label>
-            <textarea class="fta" id="ed-tema" placeholder="Descreva o tema, requisitos e regras do edital..."></textarea>
-          </div>
-          <div class="fg">
-            <label class="fl">Link do edital</label>
-            <input type="url" class="fi" id="ed-link" placeholder="https://...">
-          </div>
-        </div>
-        <div class="form-acoes">
-          <button class="btn-p" onclick="enviarParaFila('edital')">ENVIAR PARA MASMORRA + FERNANDO PEÇANHA</button>
-          <button class="btn-s" onclick="fecharPainel()">CANCELAR</button>
-        </div>
-      </div>
-
-      <!-- Painel Desafio -->
-      <div class="painel-entrada" id="painel-desafio">
-        <div class="painel-titulo">// MODO DESAFIO — IDEIA RELÂMPAGO</div>
-        <div class="fg">
-          <label class="fl">Sua ideia (escreva como quiser — Fernando Peçanha interpreta)</label>
-          <textarea class="fta" id="des-ideia" placeholder="Escreva sua ideia aqui. Ex: Quero um conto sobre um pescador que encontra uma carta dentro de um peixe, escrita em latim..." style="min-height:120px;"></textarea>
-        </div>
-        <div class="fg-grid">
-          <div class="fg">
-            <label class="fl">Categoria preferida</label>
-            <select class="fs" id="des-categoria">
-              <option value="">Fernando decide</option>
-              <option>Prosa</option><option>Poesia</option><option>Híbrido</option><option>Cordel</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="fl">Urgência</label>
-            <select class="fs" id="des-urgencia">
-              <option>Normal</option><option>Alta</option><option>Imediata</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-acoes">
-          <button class="btn-p" onclick="enviarParaFila('desafio')">LANÇAR DESAFIO</button>
-          <button class="btn-s" onclick="fecharPainel()">CANCELAR</button>
-        </div>
-      </div>
-
-      <!-- Fila de processamento -->
-      <div class="sec-header" style="margin-top:2rem;">
-        <div>
-          <div class="sec-label">// FILA DE PROCESSAMENTO</div>
-          <h2 class="sec-titulo">Fernando <em>Peçanha</em> · Curadoria</h2>
-        </div>
-        <div class="sec-acoes">
-          <button class="btn-s" onclick="limparFilaProcessada()">LIMPAR PROCESSADOS</button>
-        </div>
-      </div>
-      <div class="fila-container" id="fila-ohe">
-        <div class="vazio">
-          <div class="vazio-icon">📬</div>
-          <div class="vazio-txt">Nenhum material na fila.<br>Selecione uma entrada acima para começar.</div>
-        </div>
-      </div>
+  <div class="fg-grid">
+    <div class="fg">
+      <label class="fl">Categoria</label>
+      <select class="fs" id="maq-categoria">
+        <option value="">Fernando Peçanha decide</option>
+        <option>Prosa</option>
+        <option>Poesia</option>
+        <option>Híbrido</option>
+        <option>Cordel</option>
+      </select>
     </div>
+    <div class="fg">
+      <label class="fl">Destino</label>
+      <select class="fs" id="maq-destino">
+        <option value="">Selecionar...</option>
+        <option value="calabouco">Calabouço (obra final)</option>
+        <option value="masmorra">Masmorra (quarentena 750 dias)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="fl">Tema / Território central</label>
+    <input type="text" class="fi" id="maq-tema" placeholder="ex: amor impossível no sertão, guerra medieval, vampiro aristocrático...">
+  </div>
+
+  <!-- DADOS DETALHADOS -->
+  <div class="fg-grid">
+    <div class="fg">
+      <label class="fl">Cenário (lugar, época, clima)</label>
+      <input type="text" class="fi" id="maq-cenario" placeholder="ex: São Paulo anos 80, sertão nordestino, Transilvânia 1642...">
+    </div>
+    <div class="fg">
+      <label class="fl">Personagem principal</label>
+      <input type="text" class="fi" id="maq-personagem" placeholder="ex: pescador caiçara de 60 anos, mãos calejadas...">
+    </div>
+  </div>
+
+  <div class="fg-grid">
+    <div class="fg">
+      <label class="fl">Conflito central</label>
+      <input type="text" class="fi" id="maq-conflito" placeholder="ex: perda da terra, amor proibido, traição, sobrevivência...">
+    </div>
+    <div class="fg">
+      <label class="fl">Tom / Atmosfera</label>
+      <select class="fs" id="maq-tom">
+        <option value="">Fernando Peçanha decide</option>
+        <option>Sombrio e melancólico</option>
+        <option>Épico e grandioso</option>
+        <option>Lírico e contemplativo</option>
+        <option>Humorístico e irônico</option>
+        <option>Dramático e tenso</option>
+        <option>Místico e sobrenatural</option>
+        <option>Crítico e político</option>
+        <option>Romântico e apaixonado</option>
+        <option>Nordestino e popular</option>
+        <option>Urbano e contemporâneo</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="fg-grid">
+    <div class="fg">
+      <label class="fl">Detalhe sensorial (ancora a cena)</label>
+      <input type="text" class="fi" id="maq-sensorial" placeholder="ex: cheiro de chuva na terra seca, luz de neon refletida na poça...">
+    </div>
+    <div class="fg">
+      <label class="fl">Referência literária ou cultural</label>
+      <input type="text" class="fi" id="maq-referencia" placeholder="ex: estilo Guimarães Rosa, clima de O Corvo, ritmo de cordel...">
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="fl">Heterônimo sugerido (ou deixar Fernando Peçanha decidir)</label>
+    <select class="fs" id="maq-heteronimo">
+      <option value="">Fernando Peçanha decide</option>
+      <option>A.J. dos Santos</option><option>Amanda Fernanda Fisher Leão</option>
+      <option>Amélie Maia Hanna</option><option>Anísio Teixeira</option>
+      <option>Articus da Persida</option><option>Aurora Wings</option>
+      <option>Padre Benedicttus Konstantinos</option><option>Birihani Selami Ina Tesifa</option>
+      <option>Calíope Papazissis</option><option>Chesco Irlanda</option>
+      <option>Clara Mendes Rios</option><option>Claudiney Aristides Diaz</option>
+      <option>Creone Porfirio</option><option>Cristovão Duarte</option>
+      <option>Daniel Fernandes</option><option>Dárius Ninus Vamus</option>
+      <option>Demetrius Varas</option><option>Din Kin Lin</option>
+      <option>Diógenes Bueno de Alencar</option><option>Dona Catarina Trovante</option>
+      <option>Hama Amarin</option><option>Helena Duarte Valença</option>
+      <option>Henrich Jones</option><option>Hernesto Bevilácqua</option>
+      <option>Horando Almeida Prado</option><option>Icabode Kahpote</option>
+      <option>Imediato Thompson</option><option>Irmão Ezequias Luz</option>
+      <option>J.L.Gomes</option><option>Jorge Cavalcanti</option>
+      <option>Julia Abdalla</option><option>Juka Pituskaq</option>
+      <option>Marina das Vozes</option><option>Marina Torres Azevedo</option>
+      <option>Mário Célio Sabino</option><option>Michelangelo Miguel</option>
+      <option>Mórigan Voss</option><option>Noraya Sakamoto</option>
+      <option>Pyetra Luyza</option><option>Raimundo José da Silva Nonato</option>
+      <option>Renat Kolotov</option><option>Rovonilson Reigns Bautista</option>
+      <option>Santiago Poetrix</option><option>Sebastião Ferreira dos Anjos</option>
+      <option>Site das Letras Ed. Literárias</option><option>Valter Marques</option>
+      <option>Victor A. Pereira</option><option>Vladislava Karnstein</option>
+      <option>Wagner Planas</option><option>Wilson Silva</option><option>Yago Mattos</option>
+    </select>
+  </div>
+
+  <div class="fg">
+    <label class="fl">Instruções adicionais</label>
+    <textarea class="fta" id="maq-instrucoes" placeholder="Parâmetros extras, restrições, elementos obrigatórios..."></textarea>
+  </div>
+
+  <div class="form-acoes">
+    <button class="btn-p" onclick="gerarDadosMaquina()">✦ GERAR DADOS COM IA</button>
+    <button class="btn-p" onclick="enviarParaFila('maquina')">ENVIAR PARA FERNANDO PEÇANHA</button>
+    <button class="btn-s" onclick="fecharPainel()">CANCELAR</button>
+  </div>
+</div>
+
+<!-- Painel Imagem -->
+<div class="painel-entrada" id="painel-imagem">
+  <div class="painel-titulo">// ENTRADA POR IMAGEM — EDITAL / CHAMADA</div>
+  <div class="upload-zone" onclick="document.getElementById('img-upload').click()">
+    <div class="upload-icon">🖼️</div>
+    <div class="upload-txt">Clique para fazer upload da imagem do edital<br><small>JPG, PNG, PDF aceitos</small>
+      <input type="file" id="img-upload" class="upload-input" accept="image/*,.pdf" onchange="carregarImagem(this)">
+    </div>
+  </div>
+  <div id="img-preview" style="display:none; margin-bottom:0.8rem;">
+    <img id="img-preview-src" style="max-width:100%; max-height:200px; border:1px solid rgba(201,168,76,0.2);">
+  </div>
+  <div class="fg-grid">
+    <div class="fg">
+      <label class="fl">Descrição / O que você viu na imagem</label>
+      <textarea class="fta" id="img-descricao" placeholder="Descreva o edital ou o que a imagem representa..."></textarea>
+    </div>
+    <div class="fg">
+      <label class="fl">Categoria resultante</label>
+      <select class="fs" id="img-categoria">
+        <option value="">Selecionar...</option>
+        <option>Prosa</option><option>Poesia</option><option>Híbrido</option><option>Cordel</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-acoes">
+    <button class="btn-p" onclick="enviarParaFila('imagem')">ENVIAR PARA FERNANDO PEÇANHA</button>
+    <button class="btn-s" onclick="fecharPainel()">CANCELAR</button>
+  </div>
+</div>
+
+<!-- Painel Video -->
+<div class="painel-entrada" id="painel-video">
+  <div class="painel-titulo">// ENTRADA POR LINK DE VÍDEO</div>
+  <div class="fg">
+    <label class="fl">URL do Vídeo (YouTube, etc.)</label>
+    <input type="url" class="fi" id="vid-url" placeholder="https://youtube.com/watch?v=...">
+  </div>
+  <div class="fg-grid">
+    <div class="fg">
+      <label class="fl">O que o vídeo inspira / objetivo</label>
+      <textarea class="fta" id="vid-objetivo" placeholder="Descreva o que este vídeo deve inspirar no autor..."></textarea>
+    </div>
+    <div class="fg">
+      <label class="fl">Categoria</label>
+      <select class="fs" id="vid-categoria">
+        <option value="">Selecionar...</option>
+        <option>Prosa</option><option>Poesia</option><option>Híbrido</option><option>Cordel</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-acoes">
+    <button class="btn-p" onclick="enviarParaFila('video')">ENVIAR PARA FERNANDO PEÇANHA</button>
+    <button class="btn-s" onclick="fecharPainel()">CANCELAR</button>
+  </div>
+</div>
+
+<!-- Painel Edital -->
+<div class="painel-entrada" id="painel-edital">
+  <div class="painel-titulo">// ENTRADA DE EDITAL · LEI ROUANET · LEI ALDIR BLANC</div>
+  <div class="fg-grid">
+    <div class="fg">
+      <label class="fl">Nome do Edital / Concurso</label>
+      <input type="text" class="fi" id="ed-nome" placeholder="ex: Prêmio Jabuti 2025...">
+    </div>
+    <div class="fg">
+      <label class="fl">Tipo</label>
+      <select class="fs" id="ed-tipo">
+        <option value="">Selecionar...</option>
+        <option>Lei Rouanet</option><option>Lei Aldir Blanc</option>
+        <option>Concurso Literário</option><option>Antologia</option>
+        <option>Chamada de Obra</option><option>Festival</option><option>Outro</option>
+      </select>
+    </div>
+  </div>
+  <div class="fg-grid">
+    <div class="fg">
+      <label class="fl">Prazo / Data limite</label>
+      <input type="date" class="fi" id="ed-prazo">
+    </div>
+    <div class="fg">
+      <label class="fl">Categoria exigida</label>
+      <select class="fs" id="ed-categoria">
+        <option value="">Selecionar...</option>
+        <option>Prosa</option><option>Poesia</option><option>Híbrido</option><option>Cordel</option>
+      </select>
+    </div>
+  </div>
+  <div class="fg">
+    <label class="fl">Link do edital</label>
+    <input type="url" class="fi" id="ed-link" placeholder="https://...">
+  </div>
+  <div class="form-acoes">
+    <button class="btn-p" onclick="enviarParaFila('edital')">ENVIAR PARA MASMORRA + FERNANDO PEÇANHA</button>
+    <button class="btn-s" onclick="fecharPainel()">CANCELAR</button>
+  </div>
+</div>
+
+<!-- Painel Desafio -->
+<div class="painel-entrada" id="painel-desafio">
+  <div class="painel-titulo">// MODO DESAFIO — IDEIA RELÂMPAGO</div>
+
+  <!-- FORMATO / TEMPLATE -->
+  <div class="fg">
+    <label class="fl">Formato do texto</label>
+    <select class="fs" id="des-formato" onchange="aplicarTemplateDesafio()">
+      <option value="">Selecionar formato (opcional)...</option>
+      <optgroup label="— POESIA —">
+        <option value="cordel">Cordel</option>
+        <option value="soneto">Soneto</option>
+        <option value="haicai">Haicai</option>
+        <option value="ghazal">Ghazal</option>
+        <option value="pantum">Pantum</option>
+        <option value="ode">Ode</option>
+        <option value="trova">Trova</option>
+        <option value="poetrix">Poetrix</option>
+        <option value="poesia-livre">Poesia Livre</option>
+        <option value="poema-narrativo">Poema Narrativo</option>
+      </optgroup>
+      <optgroup label="— PROSA —">
+        <option value="romance">Romance</option>
+        <option value="conto">Conto</option>
+        <option value="cronica">Crônica</option>
+        <option value="prosa-poetica">Prosa Poética</option>
+        <option value="flash-fiction">Flash Fiction</option>
+      </optgroup>
+      <optgroup label="— HÍBRIDO —">
+        <option value="hibrido">Híbrido (Fernando Peçanha decide)</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <!-- TEMPLATE PREVIEW -->
+  <div id="des-template-box" style="display:none;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.15);padding:0.8rem 1rem;margin-bottom:1rem;font-family:'Share Tech Mono',monospace;font-size:0.48rem;letter-spacing:0.05em;color:rgba(201,168,76,0.7);line-height:1.8;white-space:pre-wrap;"></div>
+
+  <div class="fg">
+    <label class="fl">Sua ideia (escreva como quiser — Fernando Peçanha interpreta)</label>
+    <textarea class="fta" id="des-ideia" placeholder="Escreva sua ideia aqui. Ex: Quero um conto sobre um pescador que encontra uma garrafa com uma mensagem do futuro..." style="min-height:120px;"></textarea>
+  </div>
+
+  <div class="fg-grid">
+    <div class="fg">
+      <label class="fl">Categoria preferida</label>
+      <select class="fs" id="des-categoria">
+        <option value="">Fernando decide</option>
+        <option>Prosa</option><option>Poesia</option><option>Híbrido</option><option>Cordel</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fl">Urgência</label>
+      <select class="fs" id="des-urgencia">
+        <option value="Normal">Normal</option>
+        <option value="Alta">Alta</option>
+        <option value="Imediata" selected>Imediata</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-acoes">
+    <button class="btn-p" onclick="enviarParaFila('desafio')">⚡ LANÇAR DESAFIO</button>
+    <button class="btn-s" onclick="fecharPainel()">CANCELAR</button>
+  </div>
+</div>
 
     <!-- ===== MASMORRA DA TORRE ===== -->
     <div class="ala" id="ala-masmorra">
