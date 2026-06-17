@@ -9,7 +9,6 @@
 :root {
   --preto: #04080f;
   --preto-mid: #080f1a;
-  --azul: #0a1628;
   --ouro: #c9a84c;
   --ouro-claro: #e8cc7a;
   --ouro-escuro: #7a5f1a;
@@ -19,6 +18,7 @@
   --vermelho: #d32f2f;
   --roxo: #6a1b9a;
   --roxo-claro: #ce93d8;
+  --laranja: #e65100;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
@@ -39,354 +39,107 @@ body::before {
   pointer-events: none;
   z-index: 0;
 }
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
-}
+.container { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+
 /* HEADER */
-.header {
-  text-align: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(106,27,154,0.2);
-}
-.header-label {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.5rem;
-  letter-spacing: 0.35em;
-  color: var(--roxo-claro);
-  opacity: 0.5;
-  text-transform: uppercase;
-  margin-bottom: 0.5rem;
-}
-.header-titulo {
-  font-family: 'Cinzel', serif;
-  font-size: clamp(1.8rem, 5vw, 2.8rem);
-  color: var(--creme);
-  font-weight: 400;
-  letter-spacing: 0.05em;
-}
-.header-titulo em {
-  color: var(--ouro);
-  font-style: italic;
-  font-family: 'Crimson Pro', serif;
-}
-.header-sub {
-  font-family: 'Crimson Pro', serif;
-  font-style: italic;
-  font-size: 0.95rem;
-  color: var(--prata);
-  margin-top: 0.5rem;
-}
-/* PAINEL DE CONFIGURAÇÃO */
-.painel {
-  background: var(--preto-mid);
-  border: 1px solid rgba(106,27,154,0.2);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-.painel-titulo {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.55rem;
-  letter-spacing: 0.25em;
-  color: var(--roxo-claro);
-  opacity: 0.6;
-  text-transform: uppercase;
-  margin-bottom: 1.2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
-.painel-titulo::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: rgba(106,27,154,0.2);
-}
+.header { text-align: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(106,27,154,0.2); }
+.header-label { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.35em; color: var(--roxo-claro); opacity: 0.5; text-transform: uppercase; margin-bottom: 0.5rem; }
+.header-titulo { font-family: 'Cinzel', serif; font-size: clamp(1.8rem, 5vw, 2.8rem); color: var(--creme); font-weight: 400; letter-spacing: 0.05em; }
+.header-titulo em { color: var(--ouro); font-style: italic; font-family: 'Crimson Pro', serif; }
+.header-sub { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.95rem; color: var(--prata); margin-top: 0.5rem; }
+
+/* PAINEL */
+.painel { background: var(--preto-mid); border: 1px solid rgba(106,27,154,0.2); padding: 1.5rem; margin-bottom: 1.5rem; }
+.painel-titulo { font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; letter-spacing: 0.25em; color: var(--roxo-claro); opacity: 0.6; text-transform: uppercase; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.8rem; }
+.painel-titulo::after { content: ''; flex: 1; height: 1px; background: rgba(106,27,154,0.2); }
+
+/* FORMULÁRIO */
 .fg { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 1rem; }
 .fg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .fg-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
-.fl {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.48rem;
-  letter-spacing: 0.18em;
-  color: var(--prata);
-  opacity: 0.6;
-  text-transform: uppercase;
-}
-.fi, .fs, .fta {
-  background: rgba(106,27,154,0.04);
-  border: 1px solid rgba(106,27,154,0.15);
-  color: var(--creme);
-  font-family: 'Crimson Pro', serif;
-  font-size: 0.95rem;
-  padding: 0.55rem 0.8rem;
-  outline: none;
-  transition: border 0.3s;
-  width: 100%;
-}
+.fl { font-family: 'Share Tech Mono', monospace; font-size: 0.48rem; letter-spacing: 0.18em; color: var(--prata); opacity: 0.6; text-transform: uppercase; }
+.fi, .fs, .fta { background: rgba(106,27,154,0.04); border: 1px solid rgba(106,27,154,0.15); color: var(--creme); font-family: 'Crimson Pro', serif; font-size: 0.95rem; padding: 0.55rem 0.8rem; outline: none; transition: border 0.3s; width: 100%; }
 .fi:focus, .fs:focus, .fta:focus { border-color: rgba(106,27,154,0.5); }
 .fs option { background: var(--preto-mid); }
 .fta { resize: vertical; min-height: 80px; }
 
 /* JORNADAS */
-.jornadas-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 0.8rem;
-  margin-bottom: 1rem;
-}
-.jornada-card {
-  background: rgba(106,27,154,0.04);
-  border: 1px solid rgba(106,27,154,0.15);
-  padding: 1rem;
-  cursor: pointer;
-  transition: all 0.3s;
-  text-align: center;
-}
+.jornadas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.8rem; margin-bottom: 1rem; }
+.jornada-card { background: rgba(106,27,154,0.04); border: 1px solid rgba(106,27,154,0.15); padding: 1rem; cursor: pointer; transition: all 0.3s; text-align: center; }
 .jornada-card:hover { border-color: rgba(106,27,154,0.4); }
 .jornada-card.selecionada { border-color: var(--roxo-claro); background: rgba(106,27,154,0.12); }
 .jornada-icone { font-size: 1.5rem; margin-bottom: 0.4rem; }
-.jornada-nome {
-  font-family: 'Cinzel', serif;
-  font-size: 0.75rem;
-  color: var(--creme);
-  margin-bottom: 0.2rem;
-}
-.jornada-desc {
-  font-family: 'Crimson Pro', serif;
-  font-style: italic;
-  font-size: 0.72rem;
-  color: var(--prata);
-  opacity: 0.7;
-}
+.jornada-nome { font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--creme); margin-bottom: 0.2rem; }
+.jornada-desc { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.72rem; color: var(--prata); opacity: 0.7; }
 
 /* ARCOS PREVIEW */
-.arcos-preview {
-  background: rgba(106,27,154,0.04);
-  border: 1px solid rgba(106,27,154,0.1);
-  padding: 1rem;
-  margin-bottom: 1rem;
-  display: none;
-}
+.arcos-preview { background: rgba(106,27,154,0.04); border: 1px solid rgba(106,27,154,0.1); padding: 1rem; margin-bottom: 1rem; display: none; }
 .arcos-preview.visivel { display: block; }
-.arcos-lista {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.8rem;
-  margin-top: 0.8rem;
-}
-.arco-item {
-  background: rgba(106,27,154,0.06);
-  border: 1px solid rgba(106,27,154,0.12);
-  padding: 0.8rem;
-}
-.arco-num {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.45rem;
-  letter-spacing: 0.15em;
-  color: var(--roxo-claro);
-  opacity: 0.5;
-  text-transform: uppercase;
-  margin-bottom: 0.2rem;
-}
-.arco-nome {
-  font-family: 'Cinzel', serif;
-  font-size: 0.8rem;
-  color: var(--creme);
-  margin-bottom: 0.2rem;
-}
-.arco-desc {
-  font-family: 'Crimson Pro', serif;
-  font-style: italic;
-  font-size: 0.72rem;
-  color: var(--prata);
-  opacity: 0.6;
-}
-.arco-paginas {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.45rem;
-  color: var(--ouro);
-  margin-top: 0.4rem;
-}
+.arcos-lista { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; margin-top: 0.8rem; }
+.arco-item { background: rgba(106,27,154,0.06); border: 1px solid rgba(106,27,154,0.12); padding: 0.8rem; }
+.arco-num { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; letter-spacing: 0.15em; color: var(--roxo-claro); opacity: 0.5; text-transform: uppercase; margin-bottom: 0.2rem; }
+.arco-nome { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--creme); margin-bottom: 0.2rem; }
+.arco-desc { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.72rem; color: var(--prata); opacity: 0.6; }
+.arco-paginas { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; color: var(--ouro); margin-top: 0.4rem; }
 
 /* BOTÕES */
-.btn-p {
-  background: linear-gradient(135deg, var(--ouro-escuro), var(--ouro));
-  color: var(--preto);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  padding: 0.8rem 1.5rem;
-  border: none;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.3s;
-  clip-path: polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px));
-}
+.btn-p { background: linear-gradient(135deg, var(--ouro-escuro), var(--ouro)); color: var(--preto); font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; padding: 0.8rem 1.5rem; border: none; cursor: pointer; text-transform: uppercase; transition: all 0.3s; clip-path: polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px)); }
 .btn-p:hover { opacity: 0.85; transform: translateY(-1px); }
 .btn-p:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-.btn-s {
-  background: transparent;
-  color: var(--ouro);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.12em;
-  padding: 0.8rem 1.5rem;
-  border: 1px solid rgba(201,168,76,0.25);
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.3s;
-}
+.btn-s { background: transparent; color: var(--ouro); font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; padding: 0.8rem 1.5rem; border: 1px solid rgba(201,168,76,0.25); cursor: pointer; text-transform: uppercase; transition: all 0.3s; }
 .btn-s:hover { border-color: var(--ouro); background: rgba(201,168,76,0.05); }
-.btn-roxo {
-  background: transparent;
-  color: var(--roxo-claro);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.12em;
-  padding: 0.8rem 1.5rem;
-  border: 1px solid rgba(106,27,154,0.4);
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.3s;
-}
+.btn-roxo { background: transparent; color: var(--roxo-claro); font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; padding: 0.8rem 1.5rem; border: 1px solid rgba(106,27,154,0.4); cursor: pointer; text-transform: uppercase; transition: all 0.3s; }
 .btn-roxo:hover { border-color: var(--roxo-claro); background: rgba(106,27,154,0.1); }
+.btn-verde { background: transparent; color: var(--verde); font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; padding: 0.8rem 1.5rem; border: 1px solid rgba(0,200,83,0.3); cursor: pointer; text-transform: uppercase; transition: all 0.3s; }
+.btn-verde:hover { border-color: var(--verde); background: rgba(0,200,83,0.05); }
 .acoes { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.2rem; }
 
+/* MODAL NOVO HETERÔNIMO */
+.modal-overlay { position: fixed; inset: 0; background: rgba(4,8,15,0.97); z-index: 900; display: none; align-items: center; justify-content: center; padding: 1.5rem; }
+.modal-overlay.aberto { display: flex; }
+.modal { background: var(--preto-mid); border: 2px solid var(--laranja); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+.modal-header { padding: 1.2rem 1.5rem; border-bottom: 1px solid rgba(230,81,0,0.2); background: rgba(230,81,0,0.08); }
+.modal-alerta { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; letter-spacing: 0.25em; color: var(--laranja); text-transform: uppercase; margin-bottom: 0.3rem; }
+.modal-tit { font-family: 'Cinzel', serif; font-size: 1.2rem; color: var(--creme); }
+.modal-corpo { padding: 1.5rem; }
+.modal-desc { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.95rem; color: var(--prata); margin-bottom: 1.2rem; line-height: 1.6; }
+.ficha-het { background: rgba(230,81,0,0.06); border: 1px solid rgba(230,81,0,0.2); padding: 1rem; margin-bottom: 1rem; }
+.ficha-linha { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: baseline; }
+.ficha-key { font-family: 'Share Tech Mono', monospace; font-size: 0.48rem; letter-spacing: 0.1em; color: var(--laranja); text-transform: uppercase; width: 120px; flex-shrink: 0; }
+.ficha-val { font-family: 'Crimson Pro', serif; font-size: 0.95rem; color: var(--creme); }
+.modal-acoes { padding: 1rem 1.5rem; border-top: 1px solid rgba(230,81,0,0.1); display: flex; gap: 0.8rem; flex-wrap: wrap; }
+
 /* PROGRESSO */
-.progresso-painel {
-  background: var(--preto-mid);
-  border: 1px solid rgba(106,27,154,0.2);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  display: none;
-}
+.progresso-painel { background: var(--preto-mid); border: 1px solid rgba(106,27,154,0.2); padding: 1.5rem; margin-bottom: 1.5rem; display: none; }
 .progresso-painel.visivel { display: block; }
-.progresso-titulo {
-  font-family: 'Cinzel', serif;
-  font-size: 1.1rem;
-  color: var(--creme);
-  margin-bottom: 1.2rem;
-}
-.arco-progresso {
-  margin-bottom: 1rem;
-}
-.arco-prog-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.4rem;
-}
-.arco-prog-nome {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.52rem;
-  letter-spacing: 0.1em;
-  color: var(--roxo-claro);
-  text-transform: uppercase;
-}
-.arco-prog-status {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.48rem;
-  letter-spacing: 0.1em;
-  color: var(--prata);
-  text-transform: uppercase;
-}
+.progresso-titulo { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--creme); margin-bottom: 1.2rem; }
+.arco-progresso { margin-bottom: 1rem; }
+.arco-prog-header { display: flex; justify-content: space-between; margin-bottom: 0.4rem; }
+.arco-prog-nome { font-family: 'Share Tech Mono', monospace; font-size: 0.52rem; letter-spacing: 0.1em; color: var(--roxo-claro); text-transform: uppercase; }
+.arco-prog-status { font-family: 'Share Tech Mono', monospace; font-size: 0.48rem; letter-spacing: 0.1em; color: var(--prata); text-transform: uppercase; }
 .arco-prog-status.ativo { color: var(--verde); animation: pisca 1.5s ease-in-out infinite; }
 .arco-prog-status.concluido { color: var(--ouro); }
 @keyframes pisca { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.barra-prog {
-  height: 3px;
-  background: rgba(106,27,154,0.1);
-  overflow: hidden;
-}
-.barra-fill {
-  height: 100%;
-  background: linear-gradient(to right, var(--roxo), var(--roxo-claro));
-  transition: width 0.5s ease;
-}
-.log-area {
-  background: rgba(0,0,0,0.3);
-  border: 1px solid rgba(106,27,154,0.1);
-  padding: 0.8rem;
-  margin-top: 1rem;
-  max-height: 120px;
-  overflow-y: auto;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.5rem;
-  letter-spacing: 0.05em;
-  color: var(--prata);
-  line-height: 1.8;
-}
+.barra-prog { height: 3px; background: rgba(106,27,154,0.1); overflow: hidden; }
+.barra-fill { height: 100%; background: linear-gradient(to right, var(--roxo), var(--roxo-claro)); transition: width 0.5s ease; }
+.log-area { background: rgba(0,0,0,0.3); border: 1px solid rgba(106,27,154,0.1); padding: 0.8rem; margin-top: 1rem; max-height: 150px; overflow-y: auto; font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.05em; color: var(--prata); line-height: 1.8; white-space: pre-wrap; }
+
+/* RECUPERAÇÃO */
+.recuperacao-banner { background: rgba(230,81,0,0.08); border: 1px solid rgba(230,81,0,0.3); padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: none; }
+.recuperacao-banner.visivel { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+.rec-txt { font-family: 'Share Tech Mono', monospace; font-size: 0.52rem; letter-spacing: 0.1em; color: var(--laranja); text-transform: uppercase; }
 
 /* RESULTADO */
-.resultado-painel {
-  background: var(--preto-mid);
-  border: 1px solid rgba(201,168,76,0.15);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  display: none;
-}
+.resultado-painel { background: var(--preto-mid); border: 1px solid rgba(201,168,76,0.15); padding: 1.5rem; margin-bottom: 1.5rem; display: none; }
 .resultado-painel.visivel { display: block; }
-.resultado-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(201,168,76,0.08);
-  flex-wrap: wrap;
-  gap: 1rem;
-}
+.resultado-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(201,168,76,0.08); flex-wrap: wrap; gap: 1rem; }
 .resultado-info { flex: 1; }
-.resultado-heteronimo {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.5rem;
-  letter-spacing: 0.2em;
-  color: var(--ouro);
-  opacity: 0.5;
-  text-transform: uppercase;
-  margin-bottom: 0.3rem;
-}
-.resultado-titulo {
-  font-family: 'Cinzel', serif;
-  font-size: 1.4rem;
-  color: var(--creme);
-}
-.resultado-meta {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.48rem;
-  letter-spacing: 0.1em;
-  color: var(--prata);
-  opacity: 0.5;
-  text-transform: uppercase;
-  margin-top: 0.3rem;
-}
-.livro-conteudo {
-  font-family: 'Crimson Pro', serif;
-  font-size: 1rem;
-  line-height: 1.8;
-  color: var(--creme);
-  white-space: pre-wrap;
-  max-height: 600px;
-  overflow-y: auto;
-  padding: 1rem;
-  background: rgba(0,0,0,0.2);
-  border: 1px solid rgba(201,168,76,0.06);
-  margin-bottom: 1rem;
-}
-.arco-separador {
-  text-align: center;
-  padding: 1.5rem 0;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.5rem;
-  letter-spacing: 0.3em;
-  color: var(--ouro);
-  opacity: 0.3;
-  text-transform: uppercase;
-}
+.resultado-heteronimo { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.2em; color: var(--ouro); opacity: 0.5; text-transform: uppercase; margin-bottom: 0.3rem; }
+.resultado-titulo { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--creme); }
+.resultado-meta { font-family: 'Share Tech Mono', monospace; font-size: 0.48rem; letter-spacing: 0.1em; color: var(--prata); opacity: 0.5; text-transform: uppercase; margin-top: 0.3rem; }
+.novo-het-aviso { background: rgba(0,200,83,0.06); border: 1px solid rgba(0,200,83,0.2); padding: 0.8rem 1rem; margin-bottom: 1rem; font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.1em; color: var(--verde); text-transform: uppercase; display: none; }
+.novo-het-aviso.visivel { display: block; }
+.livro-conteudo { font-family: 'Crimson Pro', serif; font-size: 1rem; line-height: 1.8; color: var(--creme); white-space: pre-wrap; max-height: 600px; overflow-y: auto; padding: 1rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(201,168,76,0.06); margin-bottom: 1rem; }
 </style>
 </head>
 <body>
@@ -397,6 +150,15 @@ body::before {
     <div class="header-label">// TRIPLOOHESIGMALBPL · CALABOUÇO</div>
     <h1 class="header-titulo">Gerador de <em>Livro</em></h1>
     <p class="header-sub">Geração por arcos narrativos · Fernando Peçanha como curador · Formato A4</p>
+  </div>
+
+  <!-- BANNER DE RECUPERAÇÃO -->
+  <div class="recuperacao-banner" id="recuperacao-banner">
+    <span class="rec-txt">⚠ Sessão anterior encontrada — material parcial disponível</span>
+    <div style="display:flex;gap:0.6rem;">
+      <button class="btn-verde" onclick="recuperarSessao()">↺ RECUPERAR</button>
+      <button class="btn-s" onclick="descartarSessao()">✕ DESCARTAR</button>
+    </div>
   </div>
 
   <!-- PAINEL DE CONFIGURAÇÃO -->
@@ -410,13 +172,13 @@ body::before {
       </div>
       <div class="fg">
         <label class="fl">Heterônimo (deixe vazio para Fernando Peçanha decidir)</label>
-        <input type="text" class="fi" id="heteronimo" placeholder="Ex: Articus da Persida">
+        <input type="text" class="fi" id="heteronimo" placeholder="Fernando Peçanha decide">
       </div>
     </div>
 
     <div class="fg">
       <label class="fl">Sinopse / Briefing</label>
-      <textarea class="fta" id="sinopse" placeholder="Descreva o tema, personagens principais, tom desejado..."></textarea>
+      <textarea class="fta" id="sinopse" placeholder="Descreva o tema, personagens principais, tom desejado, referências..."></textarea>
     </div>
 
     <div class="fg-grid3">
@@ -446,9 +208,7 @@ body::before {
     </div>
 
     <!-- JORNADAS -->
-    <div class="fg">
-      <label class="fl">Estrutura Narrativa</label>
-    </div>
+    <div class="fg"><label class="fl">Estrutura Narrativa</label></div>
     <div class="jornadas-grid">
       <div class="jornada-card" onclick="selecionarJornada('heroi')" id="j-heroi">
         <div class="jornada-icone">⚔️</div>
@@ -489,6 +249,25 @@ body::before {
     </div>
   </div>
 
+  <!-- MODAL NOVO HETERÔNIMO -->
+  <div class="modal-overlay" id="modal-het">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-alerta">⚠ Maternidade dos Heterônimos — Novo Nascimento</div>
+        <div class="modal-tit">Fernando Peçanha criou um novo heterônimo</div>
+      </div>
+      <div class="modal-corpo">
+        <p class="modal-desc">Nenhum dos heterônimos existentes era adequado para este projeto. Fernando Peçanha propõe o nascimento de uma nova identidade literária. Confirme para registrar e continuar a geração.</p>
+        <div class="ficha-het" id="ficha-novo-het"></div>
+        <p class="modal-desc" style="font-size:0.82rem;margin-top:0.5rem;">Após confirmar, lembre-se de atualizar o array HETERONIMOS no triploohesigmalbpl e o registro_civil_heteronimico.json no OHE-Peçanha.</p>
+      </div>
+      <div class="modal-acoes">
+        <button class="btn-verde" onclick="confirmarNovoHet()">✓ CONFIRMAR E CONTINUAR</button>
+        <button class="btn-s" onclick="cancelarNovoHet()">✕ CANCELAR GERAÇÃO</button>
+      </div>
+    </div>
+  </div>
+
   <!-- PROGRESSO -->
   <div class="progresso-painel" id="progresso-painel">
     <div class="progresso-titulo" id="prog-titulo">Gerando livro...</div>
@@ -510,6 +289,7 @@ body::before {
         <button class="btn-s" onclick="novaGeracao()">↺ NOVA GERAÇÃO</button>
       </div>
     </div>
+    <div class="novo-het-aviso" id="novo-het-aviso"></div>
     <div class="livro-conteudo" id="livro-conteudo"></div>
   </div>
 
@@ -517,12 +297,13 @@ body::before {
 
 <script>
 // ===================== ESTADO =====================
-const ANTHROPIC_API_KEY = window.ANTHROPIC_API_KEY || '';
-
 let jornadaSelecionada = null;
 let livroCompleto = '';
 let heteronimoEscolhido = '';
 let tituloFinal = '';
+let novoHetDados = null;
+let resolveNovoHet = null;
+let sessaoAtual = null;
 
 // ===================== JORNADAS =====================
 const JORNADAS = {
@@ -568,21 +349,67 @@ const JORNADAS = {
   }
 };
 
+// ===================== LISTA DE HETERÔNIMOS =====================
+const HETERONIMOS_LISTA = [
+  'A.J. dos Santos','Amanda Fernanda Fisher Leão','Amélie Maia Hanna','Anísio Teixeira',
+  'Articus da Persida','Aurora Wings','Padre Benedicttus Konstantinos','Birihani Selami Ina Tesifa',
+  'Calíope Papazissis','Chesco Irlanda','Clara Mendes Rios','Claudiney Aristides Diaz',
+  'Creone Porfirio','Cristovão Duarte','Daniel Fernandes','Dárius Ninus Vamus',
+  'Demetrius Varas','Din Kin Lin','Diógenes Bueno de Alencar','Hama Amarin',
+  'Helena Duarte Valença','Henrich Jones','Hernesto Bevilácqua','Horando Almeida Prado',
+  'Icabode Kahpote','Imediato Thompson','J.L.Gomes','Jorge Cavalcanti',
+  'Julia Abdalla','Juka Pituskaq','Marina Torres Azevedo','Mário Célio Sabino',
+  'Michelangelo Miguel','Noraya Sakamoto','Pyetra Luyza','Raimundo José da Silva Nonato',
+  'Renat Kolotov','Rovonilson Reigns Bautista','Sebastião Ferreira dos Anjos',
+  'Site das Letras Ed. Literárias','Valter Marques','Victor A. Pereira',
+  'Wagner Planas','Wilson Silva','Yago Mattos'
+];
+
+// ===================== INIT =====================
+window.addEventListener('load', () => {
+  const sessao = localStorage.getItem('gerador_sessao_atual');
+  if (sessao) {
+    const dados = JSON.parse(sessao);
+    if (dados && dados.arcosSalvos && dados.arcosSalvos.length > 0) {
+      document.getElementById('recuperacao-banner').classList.add('visivel');
+    }
+  }
+});
+
+// ===================== RECUPERAÇÃO =====================
+function recuperarSessao() {
+  const sessao = JSON.parse(localStorage.getItem('gerador_sessao_atual'));
+  if (!sessao) return;
+  document.getElementById('recuperacao-banner').classList.remove('visivel');
+  document.getElementById('painel-config').style.display = 'none';
+  const res = document.getElementById('resultado-painel');
+  res.classList.add('visivel');
+  heteronimoEscolhido = sessao.heteronimo || 'A definir';
+  tituloFinal = sessao.titulo || 'Sem título';
+  livroCompleto = sessao.arcosSalvos.join('\n\n');
+  document.getElementById('res-heteronimo').textContent = heteronimoEscolhido;
+  document.getElementById('res-titulo').textContent = tituloFinal + ' (RECUPERADO — INCOMPLETO)';
+  document.getElementById('res-meta').textContent = `Sessão recuperada · ${sessao.arcosSalvos.length} arco(s) gerado(s)`;
+  document.getElementById('livro-conteudo').textContent = livroCompleto;
+}
+
+function descartarSessao() {
+  localStorage.removeItem('gerador_sessao_atual');
+  document.getElementById('recuperacao-banner').classList.remove('visivel');
+}
+
 // ===================== SELECIONAR JORNADA =====================
 function selecionarJornada(tipo) {
   jornadaSelecionada = tipo;
   document.querySelectorAll('.jornada-card').forEach(c => c.classList.remove('selecionada'));
   document.getElementById('j-' + tipo).classList.add('selecionada');
-
   const jornada = JORNADAS[tipo];
   const volume = parseInt(document.getElementById('volume').value) || 200;
   const pagPorArco = Math.floor(volume / 3);
   const pagUltimo = volume - (pagPorArco * 2);
-
   const preview = document.getElementById('arcos-preview');
   const lista = document.getElementById('arcos-lista');
   preview.classList.add('visivel');
-
   lista.innerHTML = jornada.arcos.map((arco, i) => `
     <div class="arco-item">
       <div class="arco-num">ARCO ${i + 1}</div>
@@ -598,6 +425,39 @@ function log(msg) {
   const area = document.getElementById('log-area');
   area.innerHTML += `> ${msg}\n`;
   area.scrollTop = area.scrollHeight;
+}
+
+// ===================== MODAL NOVO HETERÔNIMO =====================
+function mostrarModalNovoHet(dados) {
+  return new Promise((resolve) => {
+    resolveNovoHet = resolve;
+    novoHetDados = dados;
+    const ficha = document.getElementById('ficha-novo-het');
+    ficha.innerHTML = `
+      <div class="ficha-linha"><span class="ficha-key">Nome</span><span class="ficha-val">${dados.nome}</span></div>
+      <div class="ficha-linha"><span class="ficha-key">Eixo</span><span class="ficha-val">${dados.eixo}</span></div>
+      <div class="ficha-linha"><span class="ficha-key">Território</span><span class="ficha-val">${dados.territorio}</span></div>
+      <div class="ficha-linha"><span class="ficha-key">Formato</span><span class="ficha-val">${dados.formato}</span></div>
+      <div class="ficha-linha"><span class="ficha-key">Vol. Mínimo</span><span class="ficha-val">${dados.volumeMinimo} textos/páginas</span></div>
+      <div class="ficha-linha"><span class="ficha-key">Destino</span><span class="ficha-val">${dados.destino}</span></div>
+      <div class="ficha-linha"><span class="ficha-key">Justificativa</span><span class="ficha-val">${dados.justificativa || 'Território não coberto pelos heterônimos existentes'}</span></div>
+    `;
+    document.getElementById('modal-het').classList.add('aberto');
+  });
+}
+
+function confirmarNovoHet() {
+  document.getElementById('modal-het').classList.remove('aberto');
+  // Salvar no localStorage para lembrar
+  const novos = JSON.parse(localStorage.getItem('novos_heteronimos') || '[]');
+  novos.push({ ...novoHetDados, data: new Date().toLocaleDateString('pt-BR') });
+  localStorage.setItem('novos_heteronimos', JSON.stringify(novos));
+  if (resolveNovoHet) resolveNovoHet(true);
+}
+
+function cancelarNovoHet() {
+  document.getElementById('modal-het').classList.remove('aberto');
+  if (resolveNovoHet) resolveNovoHet(false);
 }
 
 // ===================== INICIAR GERAÇÃO =====================
@@ -617,78 +477,148 @@ async function iniciarGeracao() {
   const pagUltimo = volume - (pagPorArco * 2);
   const pagsPorArco = [pagPorArco, pagPorArco, pagUltimo];
 
-  // Esconder config, mostrar progresso
+  // Iniciar sessão de recuperação
+  sessaoAtual = { titulo, heteronimo: heteronimo || 'A definir', jornada: jornadaSelecionada, volume, arcosSalvos: [] };
+  localStorage.setItem('gerador_sessao_atual', JSON.stringify(sessaoAtual));
+
   document.getElementById('painel-config').style.display = 'none';
   const progPainel = document.getElementById('progresso-painel');
   progPainel.classList.add('visivel');
   document.getElementById('prog-titulo').textContent = `Gerando: ${titulo}`;
 
-  // Montar barras de progresso
   const arcosProgDiv = document.getElementById('arcos-progresso');
-  arcosProgDiv.innerHTML = jornada.arcos.map((arco, i) => `
+  arcosProgDiv.innerHTML = `
+    <div class="arco-progresso">
+      <div class="arco-prog-header">
+        <span class="arco-prog-nome">Fase 0 · Fernando Peçanha — Curadoria</span>
+        <span class="arco-prog-status ativo" id="status-arco-0">analisando...</span>
+      </div>
+      <div class="barra-prog"><div class="barra-fill" id="barra-arco-0" style="width:30%"></div></div>
+    </div>
+  ` + jornada.arcos.map((arco, i) => `
     <div class="arco-progresso">
       <div class="arco-prog-header">
         <span class="arco-prog-nome">Arco ${i+1} · ${arco.nome}</span>
-        <span class="arco-prog-status" id="status-arco-${i}">aguardando</span>
+        <span class="arco-prog-status" id="status-arco-${i+1}">aguardando</span>
       </div>
-      <div class="barra-prog"><div class="barra-fill" id="barra-arco-${i}" style="width:0%"></div></div>
+      <div class="barra-prog"><div class="barra-fill" id="barra-arco-${i+1}" style="width:0%"></div></div>
     </div>
   `).join('');
 
   livroCompleto = '';
   heteronimoEscolhido = heteronimo || 'A definir';
   tituloFinal = titulo;
+  let novoHeteronimoCriado = false;
 
   try {
-    // CHAMADA 0 — Fernando Peçanha define o heterônimo e a estrutura
-    log('Fernando Peçanha iniciando curadoria...');
-    const promptEstrutura = `Você é Fernando Peçanha, curador da OHE.
-TÍTULO: ${titulo}
-SINOPSE: ${sinopse || 'Não fornecida'}
-GÊNERO: ${genero || 'A definir'}
-JORNADA: ${jornada.nome}
-HETERÔNIMO SUGERIDO: ${heteronimo || 'Escolha o mais adequado'}
-VOLUME TOTAL: ${volume} páginas A4
+    // FASE 0 — Fernando Peçanha analisa e define
+    log('Fernando Peçanha iniciando análise...');
+    const promptEstrutura = `Você é Fernando Peçanha, curador da OHE com os seguintes 45 heterônimos disponíveis:
+${HETERONIMOS_LISTA.join(', ')}
 
-Defina:
-1. O heterônimo que escreverá este livro (nome exato)
-2. O título definitivo do livro
-3. Uma frase de tom/voz para guiar os arcos
+PROJETO:
+Título: ${titulo}
+Sinopse: ${sinopse || 'Não fornecida'}
+Gênero solicitado: ${genero || 'A definir'}
+Heterônimo sugerido: ${heteronimo || 'Você decide'}
+Jornada: ${jornada.nome}
+Volume: ${volume} páginas A4
 
-Responda APENAS neste formato:
+INSTRUÇÃO:
+1. Analise se algum dos 45 heterônimos tem território adequado para este projeto
+2. Se SIM: escolha o melhor e justifique brevemente
+3. Se NÃO: crie um novo heterônimo na MATERNIDADE com nome, eixo, território, formato, volumeMinimo e destino adequados, e justifique por que nenhum dos 45 serve
+4. Defina o título definitivo do livro
+5. Defina uma frase de tom/voz para guiar a escrita
+
+Responda EXATAMENTE neste formato:
 ---HETERÔNIMO---
-[nome]
+[nome exato]
+---NOVO (s/n)---
+[s ou n]
+---SE NOVO: FICHA---
+nome: [nome]
+eixo: [Prosa/Poesia/Híbrido/Cordel]
+territorio: [descrição do território literário]
+formato: [romance/conto/poesia/etc]
+volumeMinimo: [número]
+destino: [masmorra/calabouco]
+justificativa: [por que nenhum dos 45 serve]
 ---TÍTULO DEFINITIVO---
 [título]
 ---TOM---
 [frase curta de direção de voz]`;
 
-    const resEstrutura = await chamarAPI(promptEstrutura, 500);
+    const resEstrutura = await chamarAPI(promptEstrutura, 1000);
+    log('Análise concluída.');
+
+    // Parsear resposta
     const matchHet = resEstrutura.match(/---HETERÔNIMO---\s*([\s\S]*?)---/);
+    const matchNovo = resEstrutura.match(/---NOVO \(s\/n\)---\s*([\s\S]*?)---/);
+    const matchFicha = resEstrutura.match(/---SE NOVO: FICHA---\s*([\s\S]*?)---/);
     const matchTit = resEstrutura.match(/---TÍTULO DEFINITIVO---\s*([\s\S]*?)---/);
     const matchTom = resEstrutura.match(/---TOM---\s*([\s\S]*?)$/);
 
     if (matchHet) heteronimoEscolhido = matchHet[1].trim();
     if (matchTit) tituloFinal = matchTit[1].trim();
     const tomVoz = matchTom ? matchTom[1].trim() : '';
+    const ehNovo = matchNovo && matchNovo[1].trim().toLowerCase() === 's';
 
     log(`Heterônimo: ${heteronimoEscolhido}`);
     log(`Título: ${tituloFinal}`);
-    log(`Tom: ${tomVoz}`);
+
+    // Se novo heterônimo — mostrar modal e aguardar confirmação
+    if (ehNovo && matchFicha) {
+      log('⚠ Novo heterônimo detectado — aguardando confirmação...');
+      const fichaTexto = matchFicha[1].trim();
+      const parseFicha = (campo) => {
+        const m = fichaTexto.match(new RegExp(campo + ':\\s*(.+)'));
+        return m ? m[1].trim() : '';
+      };
+      novoHetDados = {
+        nome: parseFicha('nome') || heteronimoEscolhido,
+        eixo: parseFicha('eixo'),
+        territorio: parseFicha('territorio'),
+        formato: parseFicha('formato'),
+        volumeMinimo: parseFicha('volumeMinimo'),
+        destino: parseFicha('destino'),
+        justificativa: parseFicha('justificativa')
+      };
+      const confirmado = await mostrarModalNovoHet(novoHetDados);
+      if (!confirmado) {
+        log('Geração cancelada pelo usuário.');
+        document.getElementById('painel-config').style.display = 'block';
+        progPainel.classList.remove('visivel');
+        localStorage.removeItem('gerador_sessao_atual');
+        return;
+      }
+      heteronimoEscolhido = novoHetDados.nome;
+      novoHeteronimoCriado = true;
+      log(`Novo heterônimo confirmado: ${heteronimoEscolhido}`);
+    }
+
+    document.getElementById('barra-arco-0').style.width = '100%';
+    document.getElementById('status-arco-0').textContent = 'concluído ✓';
+    document.getElementById('status-arco-0').className = 'arco-prog-status concluido';
+
+    // Atualizar sessão
+    sessaoAtual.heteronimo = heteronimoEscolhido;
+    sessaoAtual.titulo = tituloFinal;
+    localStorage.setItem('gerador_sessao_atual', JSON.stringify(sessaoAtual));
 
     // CABEÇALHO DO LIVRO
-    livroCompleto = `${tituloFinal.toUpperCase()}\n\nHeterônimo: ${heteronimoEscolhido}\nJornada: ${jornada.nome}\nVolume: ${volume} páginas A4\n\n${'═'.repeat(60)}\n\n`;
+    livroCompleto = `${tituloFinal.toUpperCase()}\n\nHeterônimo: ${heteronimoEscolhido}\nJornada: ${jornada.nome}\nVolume: ${volume} páginas A4\nData: ${new Date().toLocaleDateString('pt-BR')}\n\n${'═'.repeat(60)}\n\n`;
 
-    // CHAMADAS 1, 2, 3 — Um arco por vez
+    // ARCOS 1, 2, 3
     for (let i = 0; i < jornada.arcos.length; i++) {
       const arco = jornada.arcos[i];
       const pags = pagsPorArco[i];
 
-      document.getElementById(`status-arco-${i}`).textContent = 'gerando...';
-      document.getElementById(`status-arco-${i}`).className = 'arco-prog-status ativo';
-      document.getElementById(`barra-arco-${i}`).style.width = '30%';
+      document.getElementById(`status-arco-${i+1}`).textContent = 'gerando...';
+      document.getElementById(`status-arco-${i+1}`).className = 'arco-prog-status ativo';
+      document.getElementById(`barra-arco-${i+1}`).style.width = '30%';
 
-      log(`Gerando Arco ${i+1}: ${arco.nome} (~${pags} páginas)...`);
+      log(`Gerando Arco ${i+1}: ${arco.nome} (~${pags} páginas A4)...`);
 
       const promptArco = `Você é ${heteronimoEscolhido}, escritor da OHE.
 Tom de voz: ${tomVoz}
@@ -698,42 +628,48 @@ Jornada: ${jornada.nome}
 ARCO ${i+1} DE 3: ${arco.nome}
 Diretrizes deste arco: ${arco.desc}
 
-${i > 0 ? `Continuação do que foi escrito nos arcos anteriores. Mantenha coerência de personagens, tom e narrativa.` : `Este é o arco inicial. Apresente o mundo, os personagens principais e estabeleça o conflito central.`}
+${i > 0 ? `Este é o arco ${i+1}. Mantenha coerência com o que foi estabelecido nos arcos anteriores — personagens, tom, narrativa.` : `Este é o arco inicial. Apresente o mundo, os personagens principais e estabeleça o conflito central com força.`}
 
 Escreva o Arco ${i+1} completo, correspondendo a aproximadamente ${pags} páginas A4 (cerca de ${pags * 500} palavras).
-Use capítulos numerados. Mantenha sua voz literária característica.
-NÃO inclua introduções ou comentários fora da narrativa. Comece diretamente com o texto.`;
+Use capítulos numerados dentro do arco. Mantenha sua voz literária característica.
+NÃO inclua introduções, comentários ou meta-texto. Comece diretamente com a narrativa.`;
 
       const textoArco = await chamarAPI(promptArco, 8000);
 
-      document.getElementById(`barra-arco-${i}`).style.width = '100%';
-      document.getElementById(`status-arco-${i}`).textContent = 'concluído ✓';
-      document.getElementById(`status-arco-${i}`).className = 'arco-prog-status concluido';
+      document.getElementById(`barra-arco-${i+1}`).style.width = '100%';
+      document.getElementById(`status-arco-${i+1}`).textContent = 'concluído ✓';
+      document.getElementById(`status-arco-${i+1}`).className = 'arco-prog-status concluido';
 
-      livroCompleto += `\n\n${'─'.repeat(60)}\nARCO ${i+1} · ${arco.nome.toUpperCase()}\n${'─'.repeat(60)}\n\n${textoArco}\n`;
-      log(`Arco ${i+1} concluído.`);
+      const blocoArco = `\n\n${'─'.repeat(60)}\nARCO ${i+1} · ${arco.nome.toUpperCase()}\n${'─'.repeat(60)}\n\n${textoArco}\n`;
+      livroCompleto += blocoArco;
+
+      // Salvar arco imediatamente
+      sessaoAtual.arcosSalvos.push(blocoArco);
+      localStorage.setItem('gerador_sessao_atual', JSON.stringify(sessaoAtual));
+
+      log(`Arco ${i+1} salvo. ✓`);
     }
 
-    // REVISÃO FINAL — Fernando Peçanha
-    log('Fernando Peçanha fazendo revisão final...');
+    // REVISÃO FINAL
+    log('Fernando Peçanha revisando...');
     const promptRevisao = `Você é Fernando Peçanha, curador da OHE.
-Acabou de supervisionar a criação do livro "${tituloFinal}" por ${heteronimoEscolhido}.
-Escreva uma breve revisão editorial do livro completo (máximo 3 parágrafos):
-- O que funcionou
-- O que caracteriza a voz do heterônimo nesta obra
-- Uma nota final para o arquivo`;
+Acaba de supervisionar a criação do livro "${tituloFinal}" por ${heteronimoEscolhido}.
+Escreva uma revisão editorial breve (máximo 3 parágrafos):
+- O que funcionou na obra
+- O que caracteriza a voz deste heterônimo neste livro
+- Uma nota final para o arquivo editorial`;
 
     const revisao = await chamarAPI(promptRevisao, 1000);
     livroCompleto += `\n\n${'═'.repeat(60)}\nREVISÃO DE FERNANDO PEÇANHA\n${'═'.repeat(60)}\n\n${revisao}`;
 
-    log('Livro concluído!');
-    mostrarResultado(destinoFinal);
+    log('Livro concluído! ✓');
+    localStorage.removeItem('gerador_sessao_atual');
+    mostrarResultado(destinoFinal, novoHeteronimoCriado);
 
   } catch (err) {
     log(`ERRO: ${err.message}`);
-    alert('Erro na geração: ' + err.message);
-    document.getElementById('painel-config').style.display = 'block';
-    progPainel.classList.remove('visivel');
+    log('Material parcial salvo — use o banner de recuperação para acessar.');
+    alert('Erro na geração: ' + err.message + '\n\nO material gerado até agora foi salvo. Recarregue a página para recuperar.');
   }
 }
 
@@ -759,17 +695,22 @@ async function chamarAPI(prompt, maxTokens) {
 }
 
 // ===================== MOSTRAR RESULTADO =====================
-function mostrarResultado(destino) {
+function mostrarResultado(destino, novoHet) {
   document.getElementById('progresso-painel').classList.remove('visivel');
   const res = document.getElementById('resultado-painel');
   res.classList.add('visivel');
-
   document.getElementById('res-heteronimo').textContent = heteronimoEscolhido;
   document.getElementById('res-titulo').textContent = tituloFinal;
-  document.getElementById('res-meta').textContent = `${jornadaSelecionada ? JORNADAS[jornadaSelecionada].nome : ''} · ${document.getElementById('volume').value} páginas A4 · Destino: ${destino}`;
+  document.getElementById('res-meta').textContent = `${JORNADAS[jornadaSelecionada].nome} · ${document.getElementById('volume').value} páginas A4 · Destino: ${destino}`;
   document.getElementById('livro-conteudo').textContent = livroCompleto;
 
-  // Salvar no localStorage
+  if (novoHet && novoHetDados) {
+    const aviso = document.getElementById('novo-het-aviso');
+    aviso.classList.add('visivel');
+    aviso.innerHTML = `⚠ NOVO HETERÔNIMO CRIADO: ${novoHetDados.nome} — Atualize o array HETERONIMOS no triploohesigmalbpl e o registro_civil_heteronimico.json no OHE-Peçanha`;
+  }
+
+  // Salvar no histórico
   const livros = JSON.parse(localStorage.getItem('calabouco_livros') || '[]');
   livros.push({
     id: Date.now(),
@@ -777,8 +718,9 @@ function mostrarResultado(destino) {
     heteronimo: heteronimoEscolhido,
     jornada: jornadaSelecionada,
     volume: document.getElementById('volume').value,
-    destino: destino,
+    destino,
     data: new Date().toLocaleDateString('pt-BR'),
+    novoHeteronimo: novoHet ? novoHetDados : null,
     conteudo: livroCompleto
   });
   localStorage.setItem('calabouco_livros', JSON.stringify(livros));
@@ -786,7 +728,7 @@ function mostrarResultado(destino) {
 
 // ===================== UTILITÁRIOS =====================
 function copiarLivro() {
-  navigator.clipboard.writeText(livroCompleto).then(() => alert('Livro copiado para a área de transferência!'));
+  navigator.clipboard.writeText(livroCompleto).then(() => alert('Livro copiado!'));
 }
 
 function exportarTexto() {
@@ -803,7 +745,9 @@ function novaGeracao() {
   document.getElementById('resultado-painel').classList.remove('visivel');
   document.getElementById('painel-config').style.display = 'block';
   document.getElementById('log-area').innerHTML = '';
+  document.getElementById('novo-het-aviso').classList.remove('visivel');
   livroCompleto = '';
+  novoHetDados = null;
 }
 
 function limpar() {
@@ -818,7 +762,6 @@ function limpar() {
   document.getElementById('arcos-preview').classList.remove('visivel');
 }
 
-// Atualizar preview ao mudar volume
 document.getElementById('volume').addEventListener('change', () => {
   if (jornadaSelecionada) selecionarJornada(jornadaSelecionada);
 });
