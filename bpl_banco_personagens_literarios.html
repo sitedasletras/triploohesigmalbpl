@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BPL — Banco de Personagens Literários · Operacional</title>
+<script src="config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -428,8 +429,32 @@ footer p{font-size:13px;line-height:1.8}
         </div>
       </div>
 
+      <!-- GERAÇÃO VIA IA -->
+      <div style="margin:16px 0;padding:16px;background:rgba(156,39,176,0.08);border:1px solid rgba(156,39,176,0.25);border-radius:8px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.1em;color:#ce93d8;margin-bottom:8px;">// GERAÇÃO AUTOMÁTICA VIA IA</div>
+        <div class="mat-campo wide">
+          <label>Descreva o personagem livremente</label>
+          <textarea id="iaDescricao" placeholder="Ex: Uma detetive aposentada de 60 anos, nascida no Recife, que volta ao trabalho para investigar o sumiço da filha. Carrega culpa pelo passado, bebe demais, mas tem intuição aguçada e humor seco. Especialista em interrogatório..." style="min-height:100px;"></textarea>
+        </div>
+        <button class="btn-gerar" onclick="gerarComIA()" style="background:linear-gradient(135deg,#7b1fa2,#9c27b0);margin-top:8px;" id="btn-gerar-ia">🤖 GERAR FICHA COMPLETA COM IA</button>
+        <button class="btn-gerar" onclick="retomarGeracaoBPL()" id="btn-retomar-bpl" style="display:none;background:#1b5e20;margin-top:8px;">↩ RETOMAR GERAÇÃO INTERROMPIDA</button>
+        <div id="bpl-log" style="display:none;margin-top:8px;padding:8px;background:rgba(0,0,0,0.3);font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(240,236,224,0.6);line-height:1.8;max-height:80px;overflow-y:auto;border-radius:4px;"></div>
+      </div>
+
+      <!-- MODAL APROVAÇÃO BPL -->
+      <div id="bpl-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:1rem;">
+        <div style="background:#1a0a2e;border:1px solid rgba(156,39,176,0.4);border-radius:8px;max-width:600px;width:100%;max-height:85vh;overflow-y:auto;padding:1.5rem;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.1em;color:#ce93d8;margin-bottom:0.8rem;">// FICHA GERADA — APROVAÇÃO</div>
+          <pre id="bpl-preview" style="font-family:Georgia,serif;font-size:13px;color:#f0e8d4;white-space:pre-wrap;line-height:1.7;background:rgba(0,0,0,0.3);padding:1rem;border-radius:4px;max-height:50vh;overflow-y:auto;margin-bottom:1rem;"></pre>
+          <div style="display:flex;gap:1rem;">
+            <button onclick="resolverBPL(true)" style="flex:1;background:#7b1fa2;color:#fff;border:none;padding:0.8rem;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;border-radius:4px;">✓ APROVAR E REGISTRAR</button>
+            <button onclick="resolverBPL(false)" style="flex:1;background:transparent;color:#ef5350;border:1px solid #ef5350;padding:0.8rem;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;border-radius:4px;">✗ REFAZER</button>
+          </div>
+        </div>
+      </div>
+
       <div style="margin-top:6px">
-        <button class="btn-gerar" onclick="gerarArtista()">🌱 Registrar nascimento na Maternidade</button>
+        <button class="btn-gerar" onclick="gerarArtista()">🌱 Registrar nascimento manualmente</button>
       </div>
 
       <div class="mat-resultado" id="matResultado">
@@ -734,6 +759,278 @@ se escreve a cada obra em que trabalhar.`
   document.getElementById('matProtocolo').textContent = num
   document.getElementById('matResultado').classList.add('vis')
   filtrar()
+}
+
+// ===================== BPL — GERAÇÃO VIA IA =====================
+let _resolveBPL = null;
+
+async function fetchComRetryBPL(url, options, tentativas = 3, intervalo = 2000) {
+  for (let i = 0; i < tentativas; i++) {
+    try {
+      return await fetch(url, options);
+    } catch(e) {
+      if (i < tentativas - 1) {
+        bplLog(`⚠ Sem conexão. Tentando em ${intervalo/1000}s... (${i+1}/${tentativas})`);
+        await new Promise(r => setTimeout(r, intervalo));
+        intervalo = Math.floor(intervalo * 1.5);
+      } else throw e;
+    }
+  }
+}
+
+window.addEventListener('online', () => {
+  const pausada = localStorage.getItem('bpl_pausado');
+  if (pausada) {
+    document.getElementById('btn-retomar-bpl').style.display = 'block';
+    alert('Conexão restaurada! Clique em RETOMAR para continuar a geração.');
+  }
+});
+
+function bplLog(msg) {
+  const el = document.getElementById('bpl-log');
+  el.style.display = 'block';
+  el.innerHTML += msg + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+function resolverBPL(aprovado) {
+  document.getElementById('bpl-modal').style.display = 'none';
+  const fn = _resolveBPL;
+  _resolveBPL = null;
+  if (fn) fn(aprovado);
+}
+
+function mostrarModalBPL(texto) {
+  return new Promise(resolve => {
+    _resolveBPL = resolve;
+    document.getElementById('bpl-preview').textContent = texto.substring(0, 4000) + (texto.length > 4000 ? '\n\n[... continua ...]' : '');
+    document.getElementById('bpl-modal').style.display = 'flex';
+  });
+}
+
+async function gerarComIA() {
+  const descricao = document.getElementById('iaDescricao').value.trim();
+  if (!descricao) { alert('Descreva o personagem antes de gerar.'); return; }
+
+  document.getElementById('btn-gerar-ia').disabled = true;
+  document.getElementById('bpl-log').innerHTML = '';
+  bplLog('▶ Iniciando geração da ficha...');
+
+  const prompt = `Você é o curador do BPL — Banco de Personagens Literários da OHE.
+
+DESCRIÇÃO DO PERSONAGEM:
+${descricao}
+
+MISSÃO: Gere a ficha completa e detalhada deste personagem literário.
+
+FORMATO DE RESPOSTA (siga exatamente):
+
+REGISTRO CIVIL HETERONÔMICO — BPL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NOME ARTÍSTICO: [nome completo]
+ORIGEM / NACIONALIDADE: [origem]
+GÊNERO: [feminino/masculino/não-binário]
+ARQUÉTIPO: [herói, sombra, mentor, trickster, etc.]
+ESPECIALIDADE: [drama, comédia, suspense, etc.]
+
+PERFIL FÍSICO:
+[descrição física detalhada — altura, olhos, cabelo, postura, marcas, forma de se mover]
+
+PERFIL PSICOLÓGICO:
+[personalidade, temperamento, mecanismos de defesa, contradições internas]
+
+HISTÓRIA E TRAUMAS:
+[backstory, eventos formativos, feridas que carrega]
+
+DESEJOS E MEDOS:
+[o que mais quer, o que mais teme, motivação central]
+
+VOZ E EXPRESSÃO:
+[como fala, vocabulário, ritmo de fala, silêncios, gestual]
+
+RELAÇÕES TÍPICAS:
+[como se relaciona com outros personagens, padrões de vínculo]
+
+FORMATOS QUE DOMINA:
+[prosa, teatro, poesia, cordel, conto, romance, etc.]
+
+OBRA DE NASCIMENTO:
+[título sugerido ou "A definir"]
+
+NOTA DO CURADOR:
+[observação de Fernando Peçanha sobre o potencial dramático deste personagem]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Este personagem é imortal. Não envelhece. Sua biografia se escreve a cada obra em que aparecer.`;
+
+  // Salvar estado
+  localStorage.setItem('bpl_pausado', JSON.stringify({ descricao, fase: 'gerando' }));
+
+  try {
+    const resp = await fetchComRetryBPL('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': window.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 2048, messages: [{ role: 'user', content: prompt }] })
+    }, 3, 2000);
+
+    if (!resp.ok) throw new Error(`Erro ${resp.status}`);
+    const data = await resp.json();
+    const ficha = data.content[0].text;
+
+    bplLog('✓ Ficha gerada! Aguardando aprovação...');
+
+    const aprovado = await mostrarModalBPL(ficha);
+    if (!aprovado) {
+      bplLog('✗ Rejeitado. Ajuste a descrição e tente novamente.');
+      document.getElementById('btn-gerar-ia').disabled = false;
+      return;
+    }
+
+    // Extrair nome da ficha
+    const matchNome = ficha.match(/NOME ARTÍSTICO:\s*(.+)/);
+    const nome = matchNome ? matchNome[1].trim() : 'Personagem sem nome';
+
+    // Registrar no banco
+    const novoId = 'BPL-IA-' + String(ARTISTAS.length + artistas_gerados.length + 1).padStart(3, '0');
+    const novoArtista = {
+      id: novoId,
+      nome,
+      iniciais: iniciais(nome),
+      origem: 'Gerado por IA',
+      genero: ficha.match(/GÊNERO:\s*(\w+)/)?.[1]?.[0]?.toUpperCase() || 'M',
+      especialidade: 'drama',
+      formatos: ['prosa'],
+      personalidade: ficha,
+      fisico: 'Ver ficha completa',
+      obras: []
+    };
+
+    artistas_gerados.push(novoArtista);
+    artistas.push(novoArtista);
+    localStorage.setItem('bpl_artistas_gerados', JSON.stringify(artistas_gerados));
+    localStorage.removeItem('bpl_pausado');
+    document.getElementById('btn-retomar-bpl').style.display = 'none';
+
+    // Mostrar no resultado
+    document.getElementById('matPre').textContent = ficha;
+    document.getElementById('matProtocolo').textContent = novoId;
+    document.getElementById('matResultado').classList.add('vis');
+
+    document.getElementById('totalArtistas').textContent = artistas.length;
+    filtrar();
+    bplLog('✓ Personagem registrado: ' + nome);
+
+    // Salvar no GitHub
+    if (window.GITHUB_TOKEN) {
+      const slug = nome.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').substring(0,50);
+      const caminho = `bpl/personagens/${slug}.md`;
+      const base64 = btoa(unescape(encodeURIComponent(`# ${nome}\n\n${ficha}`)));
+      try {
+        await fetch(`https://api.github.com/repos/${window.GITHUB_OWNER}/${window.GITHUB_REPO}/contents/${caminho}`, {
+          method: 'PUT',
+          headers: { 'Authorization': `token ${window.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `[BPL] ${nome}`, content: base64, branch: 'main' })
+        });
+        bplLog('✓ Salvo no GitHub: /' + caminho);
+      } catch(e) { bplLog('⚠ Erro ao salvar no GitHub: ' + e.message); }
+    }
+
+  } catch(e) {
+    bplLog('✗ Erro: ' + e.message);
+  }
+  document.getElementById('btn-gerar-ia').disabled = false;
+}
+
+async function retomarGeracaoBPL() {
+  const estado = localStorage.getItem('bpl_pausado');
+  if (!estado) return;
+  const { descricao } = JSON.parse(estado);
+  document.getElementById('iaDescricao').value = descricao;
+  bplLog('↩ Retomando geração...');
+  await gerarComIA();
+}
+
+// Verificar se há geração pausada
+window.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('bpl_pausado')) {
+    document.getElementById('btn-retomar-bpl').style.display = 'block';
+  }
+});
+
+// ===================== GERAÇÃO DE ROSTO — STABILITY AI =====================
+async function gerarRosto(nomePersonagem, descricaoFisica, genero) {
+  if (!window.STABILITY_API_KEY) {
+    alert('Chave da Stability AI não configurada no config.js');
+    return null;
+  }
+
+  // Montar prompt de retrato baseado na descrição
+  const generoPrompt = genero === 'feminino' ? 'woman' : genero === 'masculino' ? 'man' : 'person';
+  const prompt = `Portrait of a ${generoPrompt}, ${descricaoFisica}, dramatic literary character, cinematic lighting, realistic, high detail, artistic portrait photography, neutral background, expressive face`;
+  const negativePrompt = 'cartoon, anime, deformed, ugly, blurry, watermark, text, logo';
+
+  try {
+    const resp = await fetch('https://api.stability.ai/v2beta/stable-image/generate/core', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${window.STABILITY_API_KEY}`,
+        'Accept': 'image/*'
+      },
+      body: (() => {
+        const fd = new FormData();
+        fd.append('prompt', prompt);
+        fd.append('negative_prompt', negativePrompt);
+        fd.append('aspect_ratio', '1:1');
+        fd.append('output_format', 'jpeg');
+        return fd;
+      })()
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.message || `Erro ${resp.status}`);
+    }
+
+    const blob = await resp.blob();
+    return URL.createObjectURL(blob);
+
+  } catch(e) {
+    console.error('Erro Stability AI:', e);
+    alert('Erro ao gerar rosto: ' + e.message);
+    return null;
+  }
+}
+
+async function gerarRostoPersonagem(id) {
+  const artista = artistas.find(a => a.id === id);
+  if (!artista) return;
+
+  const btn = document.querySelector(`[data-gerar-rosto="${id}"]`);
+  if (btn) { btn.textContent = '⏳ Gerando...'; btn.disabled = true; }
+
+  // Usar personalidade como base da descrição física
+  const descricao = artista.fisico && artista.fisico !== 'A ser definido em obra'
+    ? artista.fisico
+    : artista.personalidade.substring(0, 200);
+
+  const genero = artista.genero === 'F' ? 'feminino' : artista.genero === 'M' ? 'masculino' : 'nao-binario';
+  const urlImagem = await gerarRosto(artista.nome, descricao, genero);
+
+  if (urlImagem) {
+    // Salvar URL no artista
+    artista.fotoUrl = urlImagem;
+    localStorage.setItem('bpl_artistas_gerados', JSON.stringify(artistas_gerados));
+
+    // Atualizar visual na ficha
+    const iniciais = document.querySelector(`[data-iniciais="${id}"]`);
+    if (iniciais) {
+      iniciais.innerHTML = `<img src="${urlImagem}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${artista.nome}">`;
+    }
+    alert(`✓ Rosto de ${artista.nome} gerado com sucesso!`);
+  }
+
+  if (btn) { btn.textContent = '🎨 Gerar Rosto'; btn.disabled = false; }
 }
 
 // INICIALIZAR
