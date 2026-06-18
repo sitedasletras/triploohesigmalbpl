@@ -4,7 +4,7 @@
 // ============================================================
 
 const CONFIG = {
-  ANTHROPIC_API_KEY: "COLE_SUA_CHAVE_AQUI", // ← substitua pelo valor gerado em console.anthropic.com
+  ANTHROPIC_API_KEY: "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", // ← substitua pelo valor gerado em console.anthropic.com
   MODEL: "claude-sonnet-4-6",
   MAX_TOKENS: 1024,
   GITHUB_TOKEN: "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",
