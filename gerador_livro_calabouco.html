@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Livro · Calabouço</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --ouro: #c9a84c;
+  --ouro-claro: #e8cc7a;
+  --ouro-escuro: #7a5f1a;
+  --creme: #f0e8d0;
+  --prata: #6a7d90;
+  --verde: #00c853;
+  --vermelho: #d32f2f;
+  --roxo: #6a1b9a;
+  --roxo-claro: #ce93d8;
+  --laranja: #e65100;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background: var(--preto); color: var(--creme); font-family: 'Crimson Pro', Georgia, serif; min-height: 100vh; padding: 1.5rem; }
+body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 60% 40% at 20% 10%, rgba(106,27,154,0.06) 0%, transparent 60%), repeating-linear-gradient(90deg, rgba(201,168,76,0.02) 0, rgba(201,168,76,0.02) 1px, transparent 1px, transparent 60px), repeating-linear-gradient(0deg, rgba(201,168,76,0.02) 0, rgba(201,168,76,0.02) 1px, transparent 1px, transparent 60px); pointer-events: none; z-index: 0; }
+.container { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+.header { text-align: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(106,27,154,0.2); }
+.header-label { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.35em; color: var(--roxo-claro); opacity: 0.5; text-transform: uppercase; margin-bottom: 0.5rem; }
+.header-titulo { font-family: 'Cinzel', serif; font-size: clamp(1.8rem, 5vw, 2.8rem); color: var(--creme); font-weight: 400; letter-spacing: 0.05em; }
+.header-titulo em { color: var(--ouro); font-style: italic; font-family: 'Crimson Pro', serif; }
+.header-sub { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.95rem; color: var(--prata); margin-top: 0.5rem; }
+.painel { background: var(--preto-mid); border: 1px solid rgba(106,27,154,0.2); padding: 1.5rem; margin-bottom: 1.5rem; }
+.painel-titulo { font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; letter-spacing: 0.25em; color: var(--roxo-claro); opacity: 0.6; text-transform: uppercase; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.8rem; }
+.painel-titulo::after { content: ''; flex: 1; height: 1px; background: rgba(106,27,154,0.2); }
+.fg { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 1rem; }
+.fg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.fg-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+.fl { font-family: 'Share Tech Mono', monospace; font-size: 0.48rem; letter-spacing: 0.18em; color: var(--prata); opacity: 0.6; text-transform: uppercase; }
+.fi, .fs, .fta { background: rgba(106,27,154,0.04); border: 1px solid rgba(106,27,154,0.15); color: var(--creme); font-family: 'Crimson Pro', serif; font-size: 0.95rem; padding: 0.55rem 0.8rem; outline: none; transition: border 0.3s; width: 100%; }
+.fi:focus, .fs:focus, .fta:focus { border-color: rgba(106,27,154,0.5); }
+.fs option { background: var(--preto-mid); }
+.fta { resize: vertical; min-height: 80px; }
+.jornadas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.8rem; margin-bottom: 1rem; }
+.jornada-card { background: rgba(106,27,154,0.04); border: 1px solid rgba(106,27,154,0.15); padding: 1rem; cursor: pointer; transition: all 0.3s; text-align: center; }
+.jornada-card:hover { border-color: rgba(106,27,154,0.4); }
+.jornada-card.selecionada { border-color: var(--roxo-claro); background: rgba(106,27,154,0.12); }
+.jornada-icone { font-size: 1.5rem; margin-bottom: 0.4rem; }
+.jornada-nome { font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--creme); margin-bottom: 0.2rem; }
+.jornada-desc { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.72rem; color: var(--prata); opacity: 0.7; }
+.arcos-preview { background: rgba(106,27,154,0.04); border: 1px solid rgba(106,27,154,0.1); padding: 1rem; margin-bottom: 1rem; display: none; }
+.arcos-preview.visivel { display: block; }
+.arcos-lista { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; margin-top: 0.8rem; }
+.arco-item { background: rgba(106,27,154,0.06); border: 1px solid rgba(106,27,154,0.12); padding: 0.8rem; }
+.arco-num { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; letter-spacing: 0.15em; color: var(--roxo-claro); opacity: 0.5; text-transform: uppercase; margin-bottom: 0.2rem; }
+.arco-nome { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--creme); margin-bottom: 0.2rem; }
+.arco-desc { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.72rem; color: var(--prata); opacity: 0.6; }
+.arco-paginas { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; color: var(--ouro); margin-top: 0.4rem; }
+.btn-p { background: linear-gradient(135deg, var(--ouro-escuro), var(--ouro)); color: var(--preto); font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; padding: 0.8rem 1.5rem; border: none; cursor: pointer; text-transform: uppercase; transition: all 0.3s; clip-path: polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px)); }
+.btn-p:hover { opacity: 0.85; transform: translateY(-1px); }
+.btn-p:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.btn-s { background: transparent; color: var(--ouro); font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; padding: 0.8rem 1.5rem; border: 1px solid rgba(201,168,76,0.25); cursor: pointer; text-transform: uppercase; transition: all 0.3s; }
+.btn-s:hover { border-color: var(--ouro); background: rgba(201,168,76,0.05); }
+.btn-roxo { background: transparent; color: var(--roxo-claro); font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; padding: 0.8rem 1.5rem; border: 1px solid rgba(106,27,154,0.4); cursor: pointer; text-transform: uppercase; transition: all 0.3s; }
+.btn-roxo:hover { border-color: var(--roxo-claro); background: rgba(106,27,154,0.1); }
+.btn-verde { background: transparent; color: var(--verde); font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; padding: 0.8rem 1.5rem; border: 1px solid rgba(0,200,83,0.3); cursor: pointer; text-transform: uppercase; transition: all 0.3s; }
+.btn-verde:hover { border-color: var(--verde); background: rgba(0,200,83,0.05); }
+.acoes { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.2rem; }
+.banner-info { padding: 0.8rem 1.2rem; margin-bottom: 1rem; font-family: 'Share Tech Mono', monospace; font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase; display: none; }
+.banner-info.visivel { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+.banner-verde { background: rgba(0,200,83,0.08); border: 1px solid rgba(0,200,83,0.3); color: var(--verde); }
+.banner-laranja { background: rgba(230,81,0,0.08); border: 1px solid rgba(230,81,0,0.3); color: var(--laranja); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(4,8,15,0.97); z-index: 900; display: none; align-items: center; justify-content: center; padding: 1.5rem; }
+.modal-overlay.aberto { display: flex; }
+.modal { background: var(--preto-mid); border: 2px solid var(--laranja); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+.modal-header { padding: 1.2rem 1.5rem; border-bottom: 1px solid rgba(230,81,0,0.2); background: rgba(230,81,0,0.08); }
+.modal-alerta { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; letter-spacing: 0.25em; color: var(--laranja); text-transform: uppercase; margin-bottom: 0.3rem; }
+.modal-tit { font-family: 'Cinzel', serif; font-size: 1.2rem; color: var(--creme); }
+.modal-corpo { padding: 1.5rem; }
+.modal-desc { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.95rem; color: var(--prata); margin-bottom: 1.2rem; line-height: 1.6; }
+.ficha-het { background: rgba(230,81,0,0.06); border: 1px solid rgba(230,81,0,0.2); padding: 1rem; margin-bottom: 1rem; }
+.ficha-linha { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: baseline; }
+.ficha-key { font-family: 'Share Tech Mono', monospace; font-size: 0.48rem; letter-spacing: 0.1em; color: var(--laranja); text-transform: uppercase; width: 120px; flex-shrink: 0; }
+.ficha-val { font-family: 'Crimson Pro', serif; font-size: 0.95rem; color: var(--creme); }
+.modal-acoes { padding: 1rem 1.5rem; border-top: 1px solid rgba(230,81,0,0.1); display: flex; gap: 0.8rem; flex-wrap: wrap; }
+.progresso-painel { background: var(--preto-mid); border: 1px solid rgba(106,27,154,0.2); padding: 1.5rem; margin-bottom: 1.5rem; display: none; }
+.progresso-painel.visivel { display: block; }
+.progresso-titulo { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--creme); margin-bottom: 1.2rem; }
+.arco-progresso { margin-bottom: 1rem; }
+.arco-prog-header { display: flex; justify-content: space-between; margin-bottom: 0.4rem; }
+.arco-prog-nome { font-family: 'Share Tech Mono', monospace; font-size: 0.52rem; letter-spacing: 0.1em; color: var(--roxo-claro); text-transform: uppercase; }
+.arco-prog-status { font-family: 'Share Tech Mono', monospace; font-size: 0.48rem; letter-spacing: 0.1em; color: var(--prata); text-transform: uppercase; }
+.arco-prog-status.ativo { color: var(--verde); animation: pisca 1.5s ease-in-out infinite; }
+.arco-prog-status.concluido { color: var(--ouro); }
+@keyframes pisca { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.barra-prog { height: 3px; background: rgba(106,27,154,0.1); overflow: hidden; }
+.barra-fill { height: 100%; background: linear-gradient(to right, var(--roxo), var(--roxo-claro)); transition: width 0.5s ease; }
+.log-area { background: rgba(0,0,0,0.3); border: 1px solid rgba(106,27,154,0.1); padding: 0.8rem; margin-top: 1rem; max-height: 150px; overflow-y: auto; font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.05em; color: var(--prata); line-height: 1.8; white-space: pre-wrap; }
+.resultado-painel { background: var(--preto-mid); border: 1px solid rgba(201,168,76,0.15); padding: 1.5rem; margin-bottom: 1.5rem; display: none; }
+.resultado-painel.visivel { display: block; }
+.resultado-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(201,168,76,0.08); flex-wrap: wrap; gap: 1rem; }
+.resultado-info { flex: 1; }
+.resultado-heteronimo { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.2em; color: var(--ouro); opacity: 0.5; text-transform: uppercase; margin-bottom: 0.3rem; }
+.resultado-titulo { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--creme); }
+.resultado-meta { font-family: 'Share Tech Mono', monospace; font-size: 0.48rem; letter-spacing: 0.1em; color: var(--prata); opacity: 0.5; text-transform: uppercase; margin-top: 0.3rem; }
+.novo-het-aviso { background: rgba(0,200,83,0.06); border: 1px solid rgba(0,200,83,0.2); padding: 0.8rem 1rem; margin-bottom: 1rem; font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.1em; color: var(--verde); text-transform: uppercase; display: none; }
+.novo-het-aviso.visivel { display: block; }
+.livro-conteudo { font-family: 'Crimson Pro', serif; font-size: 1rem; line-height: 1.8; color: var(--creme); white-space: pre-wrap; max-height: 600px; overflow-y: auto; padding: 1rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(201,168,76,0.06); margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-label">// TRIPLOOHESIGMALBPL · CALABOUÇO</div>
+    <h1 class="header-titulo">Gerador de <em>Livro</em></h1>
+    <p class="header-sub">Geração por arcos narrativos · Fernando Peçanha como curador · Formato A4</p>
+  </div>
+
+  <!-- BANNER ITEM CARREGADO -->
+  <div class="banner-info banner-verde" id="banner-item-carregado">
+    <span id="banner-item-txt">✓ Item carregado do Calabouço</span>
+  </div>
+
+  <!-- BANNER RECUPERAÇÃO -->
+  <div class="banner-info banner-laranja" id="recuperacao-banner">
+    <span>⚠ Sessão anterior encontrada — material parcial disponível</span>
+    <div style="display:flex;gap:0.6rem;">
+      <button class="btn-verde" onclick="recuperarSessao()">↺ RECUPERAR</button>
+      <button class="btn-s" onclick="descartarSessao()">✕ DESCARTAR</button>
+    </div>
+  </div>
+
+  <!-- PAINEL DE CONFIGURAÇÃO -->
+  <div class="painel" id="painel-config">
+    <div class="painel-titulo">Configuração do Livro</div>
+    <div class="fg-grid">
+      <div class="fg">
+        <label class="fl">Título / Tema do Livro</label>
+        <input type="text" class="fi" id="titulo" placeholder="Ex: O Último Templário">
+      </div>
+      <div class="fg">
+        <label class="fl">Heterônimo (vazio = Fernando Peçanha decide)</label>
+        <input type="text" class="fi" id="heteronimo" placeholder="Fernando Peçanha decide">
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Sinopse / Briefing / Referências</label>
+      <textarea class="fta" id="sinopse" placeholder="Descreva o tema, personagens, tom, referências literárias ou cinematográficas..."></textarea>
+    </div>
+    <div class="fg-grid3">
+      <div class="fg">
+        <label class="fl">Volume Total (páginas A4)</label>
+        <input type="number" class="fi" id="volume" min="40" max="480" value="120" placeholder="40 a 480">
+      </div>
+      <div class="fg">
+        <label class="fl">Gênero / Formato</label>
+        <select class="fs" id="genero">
+          <option value="">Fernando Peçanha decide</option>
+          <option value="romance">Romance</option>
+          <option value="conto">Coletânea de Contos</option>
+          <option value="poesia">Livro de Poesia</option>
+          <option value="cordel">Cordel</option>
+          <option value="cronica">Crônicas</option>
+          <option value="hibrido">Híbrido</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Destino Final</label>
+        <select class="fs" id="destino-final">
+          <option value="calabouco">Calabouço → Celeiro</option>
+          <option value="masmorra">Masmorra (acumular)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="fg"><label class="fl">Estrutura Narrativa</label></div>
+    <div class="jornadas-grid">
+      <div class="jornada-card" onclick="selecionarJornada('heroi')" id="j-heroi">
+        <div class="jornada-icone">⚔️</div>
+        <div class="jornada-nome">Jornada do Herói</div>
+        <div class="jornada-desc">Chamado, provação, retorno</div>
+      </div>
+      <div class="jornada-card" onclick="selecionarJornada('vilao')" id="j-vilao">
+        <div class="jornada-icone">🜏</div>
+        <div class="jornada-nome">Jornada do Vilão</div>
+        <div class="jornada-desc">Origem, corrupção, queda</div>
+      </div>
+      <div class="jornada-card" onclick="selecionarJornada('tragico')" id="j-tragico">
+        <div class="jornada-icone">🎭</div>
+        <div class="jornada-nome">Arco Trágico</div>
+        <div class="jornada-desc">Ascensão, falha, colapso</div>
+      </div>
+      <div class="jornada-card" onclick="selecionarJornada('redencao')" id="j-redencao">
+        <div class="jornada-icone">✦</div>
+        <div class="jornada-nome">Arco de Redenção</div>
+        <div class="jornada-desc">Queda, travessia, perdão</div>
+      </div>
+      <div class="jornada-card" onclick="selecionarJornada('epico')" id="j-epico">
+        <div class="jornada-icone">🌐</div>
+        <div class="jornada-nome">Estrutura Épica</div>
+        <div class="jornada-desc">Mundo, guerra, legado</div>
+      </div>
+    </div>
+
+    <div class="arcos-preview" id="arcos-preview">
+      <div class="fl">Divisão dos Arcos e Fragmentos</div>
+      <div class="arcos-lista" id="arcos-lista"></div>
+    </div>
+
+    <div class="acoes">
+      <button class="btn-p" onclick="iniciarGeracao()">⚡ GERAR LIVRO</button>
+      <button class="btn-s" onclick="limpar()">✕ LIMPAR</button>
+    </div>
+  </div>
+
+  <!-- MODAL NOVO HETERÔNIMO -->
+  <div class="modal-overlay" id="modal-het">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-alerta">⚠ Maternidade dos Heterônimos — Novo Nascimento</div>
+        <div class="modal-tit">Fernando Peçanha criou um novo heterônimo</div>
+      </div>
+      <div class="modal-corpo">
+        <p class="modal-desc">Nenhum dos 51 heterônimos existentes era adequado. Fernando Peçanha propõe o nascimento de uma nova identidade. Confirme para registrar e continuar.</p>
+        <div class="ficha-het" id="ficha-novo-het"></div>
+        <p class="modal-desc" style="font-size:0.82rem;margin-top:0.5rem;">⚠ Após confirmar, atualize o array HETERONIMOS no triploohesigmalbpl e o registro_civil_heteronimico.json no OHE-Peçanha.</p>
+      </div>
+      <div class="modal-acoes">
+        <button class="btn-verde" onclick="confirmarNovoHet()">✓ CONFIRMAR E CONTINUAR</button>
+        <button class="btn-s" onclick="cancelarNovoHet()">✕ CANCELAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESSO -->
+  <div class="progresso-painel" id="progresso-painel">
+    <div class="progresso-titulo" id="prog-titulo">Gerando livro...</div>
+    <div id="arcos-progresso"></div>
+    <div class="log-area" id="log-area"></div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="resultado-painel" id="resultado-painel">
+    <div class="resultado-header">
+      <div class="resultado-info">
+        <div class="resultado-heteronimo" id="res-heteronimo"></div>
+        <div class="resultado-titulo" id="res-titulo"></div>
+        <div class="resultado-meta" id="res-meta"></div>
+      </div>
+      <div class="acoes">
+        <button class="btn-p" onclick="copiarLivro()">📋 COPIAR LIVRO</button>
+        <button class="btn-roxo" onclick="exportarTexto()">⬇ EXPORTAR .TXT</button>
+        <button class="btn-s" onclick="novaGeracao()">↺ NOVA GERAÇÃO</button>
+      </div>
+    </div>
+    <div class="novo-het-aviso" id="novo-het-aviso"></div>
+    <div class="livro-conteudo" id="livro-conteudo"></div>
+  </div>
+
+</div>
+<script>
+// ===================== ESTADO =====================
+let jornadaSelecionada = null;
+let livroCompleto = '';
+let heteronimoEscolhido = '';
+let tituloFinal = '';
+let novoHetDados = null;
+let resolveNovoHet = null;
+let sessaoAtual = null;
+let tomVozGlobal = '';
+
+// Tokens por chamada e palavras por página A4
+const MAX_TOKENS_POR_CHAMADA = 8000;
+const PALAVRAS_POR_PAGINA_A4 = 400;
+const PALAVRAS_POR_CHAMADA = 5000; // ~12-13 páginas A4 por fragmento
+
+const JORNADAS = {
+  heroi: { nome: 'Jornada do Herói', arcos: [
+    { nome: 'Mundo Ordinário', desc: 'Apresentação do herói, chamado à aventura, recusa, mentor, cruzamento do limiar' },
+    { nome: 'Provação e Transformação', desc: 'Aliados e inimigos, caverna oculta, provação suprema, morte e renascimento' },
+    { nome: 'Retorno', desc: 'Ressurreição, elixir, retorno com o dom, transformação do mundo ordinário' }
+  ]},
+  vilao: { nome: 'Jornada do Vilão', arcos: [
+    { nome: 'Origem e Ferida', desc: 'Mundo original, trauma fundador, primeira escolha sombria' },
+    { nome: 'Corrupção e Poder', desc: 'Ascensão pelo poder, aliados corrompidos, ponto sem retorno' },
+    { nome: 'Domínio e Queda', desc: 'Reinado do terror, confronto final, colapso ou apoteose' }
+  ]},
+  tragico: { nome: 'Arco Trágico', arcos: [
+    { nome: 'Ascensão', desc: 'Protagonista promissor, conquistas, falha trágica latente' },
+    { nome: 'Crise e Falha Fatal', desc: 'Hubris revelado, escolha errada, isolamento progressivo' },
+    { nome: 'Colapso e Catarse', desc: 'Queda inevitável, reconhecimento tardio, lição para o mundo' }
+  ]},
+  redencao: { nome: 'Arco de Redenção', arcos: [
+    { nome: 'Queda e Exílio', desc: 'Erro cometido, consequências, solidão e vergonha' },
+    { nome: 'Travessia do Deserto', desc: 'Confronto com o passado, primeira semente de mudança' },
+    { nome: 'Reconstrução e Perdão', desc: 'Reparação, nova identidade, paz possível' }
+  ]},
+  epico: { nome: 'Estrutura Épica', arcos: [
+    { nome: 'O Mundo e Seus Povos', desc: 'Construção do mundo, culturas em conflito, catalisador da guerra' },
+    { nome: 'A Grande Guerra', desc: 'Alianças, batalhas, traições, sacrifícios, virada do destino' },
+    { nome: 'O Legado', desc: 'Fim do conflito, reconstrução, memória, novo equilíbrio' }
+  ]}
+};
+
+const HETERONIMOS_LISTA = [
+  'A.J. dos Santos','Amanda Fernanda Fisher Leão','Amélie Maia Hanna','Anísio Teixeira',
+  'Articus da Persida','Aurora Wings','Padre Benedicttus Konstantinos','Birihani Selami Ina Tesifa',
+  'Calíope Papazissis','Chesco Irlanda','Clara Mendes Rios','Claudiney Aristides Diaz',
+  'Creone Porfirio','Cristovão Duarte','Daniel Fernandes','Dárius Ninus Vamus',
+  'Demetrius Varas','Din Kin Lin','Diógenes Bueno de Alencar','Hama Amarin',
+  'Helena Duarte Valença','Henrich Jones','Hernesto Bevilácqua','Horando Almeida Prado',
+  'Icabode Kahpote','Imediato Thompson','J.L.Gomes','Jorge Cavalcanti',
+  'Julia Abdalla','Juka Pituskaq','Marina Torres Azevedo','Mário Célio Sabino',
+  'Michelangelo Miguel','Noraya Sakamoto','Pyetra Luyza','Raimundo José da Silva Nonato',
+  'Renat Kolotov','Rovonilson Reigns Bautista','Sebastião Ferreira dos Anjos',
+  'Site das Letras Ed. Literárias','Valter Marques','Victor A. Pereira',
+  'Wagner Planas','Wilson Silva','Yago Mattos'
+];
+
+// ===================== INIT =====================
+window.addEventListener('load', () => {
+  // 1. Item vindo do Calabouço
+  const itemStr = localStorage.getItem('gerador_item_atual');
+  if (itemStr) {
+    try {
+      const item = JSON.parse(itemStr);
+      if (item.titulo) document.getElementById('titulo').value = item.titulo;
+      if (item.autor && item.autor !== 'A definir') document.getElementById('heteronimo').value = item.autor;
+      if (item.meta) document.getElementById('sinopse').value = item.meta;
+      if (item.tipo) {
+        const tipoMap = { 'romance':'romance','conto':'conto','poesia':'poesia','cordel':'cordel','cronica':'cronica' };
+        const g = tipoMap[item.tipo.toLowerCase()];
+        if (g) document.getElementById('genero').value = g;
+      }
+      const banner = document.getElementById('banner-item-carregado');
+      document.getElementById('banner-item-txt').textContent = '✓ Item carregado do Calabouço: ' + item.titulo;
+      banner.classList.add('visivel');
+      localStorage.removeItem('gerador_item_atual');
+    } catch(e) {}
+  }
+  // 2. Sessão interrompida
+  const sessao = localStorage.getItem('gerador_sessao_atual');
+  if (sessao) {
+    try {
+      const dados = JSON.parse(sessao);
+      if (dados && dados.fragmentosSalvos && dados.fragmentosSalvos.length > 0) {
+        document.getElementById('recuperacao-banner').classList.add('visivel');
+      }
+    } catch(e) {}
+  }
+});
+
+// ===================== RECUPERAÇÃO =====================
+function recuperarSessao() {
+  const sessao = JSON.parse(localStorage.getItem('gerador_sessao_atual'));
+  if (!sessao) return;
+  document.getElementById('recuperacao-banner').classList.remove('visivel');
+  document.getElementById('painel-config').style.display = 'none';
+  heteronimoEscolhido = sessao.heteronimo || 'A definir';
+  tituloFinal = sessao.titulo || 'Sem título';
+  livroCompleto = sessao.fragmentosSalvos.join('\n\n');
+  const res = document.getElementById('resultado-painel');
+  res.classList.add('visivel');
+  document.getElementById('res-heteronimo').textContent = heteronimoEscolhido;
+  document.getElementById('res-titulo').textContent = tituloFinal + ' (RECUPERADO — INCOMPLETO)';
+  document.getElementById('res-meta').textContent = `${sessao.fragmentosSalvos.length} fragmento(s) recuperado(s)`;
+  document.getElementById('livro-conteudo').textContent = livroCompleto;
+}
+
+function descartarSessao() {
+  localStorage.removeItem('gerador_sessao_atual');
+  document.getElementById('recuperacao-banner').classList.remove('visivel');
+}
+
+// ===================== SELECIONAR JORNADA =====================
+function selecionarJornada(tipo) {
+  jornadaSelecionada = tipo;
+  document.querySelectorAll('.jornada-card').forEach(c => c.classList.remove('selecionada'));
+  document.getElementById('j-' + tipo).classList.add('selecionada');
+  atualizarPreviewArcos();
+}
+
+function atualizarPreviewArcos() {
+  if (!jornadaSelecionada) return;
+  const jornada = JORNADAS[jornadaSelecionada];
+  const volume = parseInt(document.getElementById('volume').value) || 120;
+  const pagPorArco = Math.floor(volume / 3);
+  const pagUltimo = volume - (pagPorArco * 2);
+  const fragPorArco = (arcopags) => Math.max(1, Math.ceil((arcopags * PALAVRAS_POR_PAGINA_A4) / PALAVRAS_POR_CHAMADA));
+
+  document.getElementById('arcos-preview').classList.add('visivel');
+  document.getElementById('arcos-lista').innerHTML = jornada.arcos.map((arco, i) => {
+    const pags = i < 2 ? pagPorArco : pagUltimo;
+    const frags = fragPorArco(pags);
+    return `
+      <div class="arco-item">
+        <div class="arco-num">ARCO ${i+1}</div>
+        <div class="arco-nome">${arco.nome}</div>
+        <div class="arco-desc">${arco.desc}</div>
+        <div class="arco-paginas">~${pags} pág A4 · ${frags} fragmento(s)</div>
+      </div>`;
+  }).join('');
+}
+
+// ===================== LOG =====================
+function log(msg) {
+  const area = document.getElementById('log-area');
+  area.innerHTML += '> ' + msg + '\n';
+  area.scrollTop = area.scrollHeight;
+}
+
+// ===================== MODAL NOVO HET =====================
+function mostrarModalNovoHet(dados) {
+  return new Promise((resolve) => {
+    resolveNovoHet = resolve;
+    novoHetDados = dados;
+    document.getElementById('ficha-novo-het').innerHTML = `
+      <div class="ficha-linha"><span class="ficha-key">Nome</span><span class="ficha-val">${dados.nome}</span></div>
+      <div class="ficha-linha"><span class="ficha-key">Eixo</span><span class="ficha-val">${dados.eixo}</span></div>
+      <div class="ficha-linha"><span class="ficha-key">Território</span><span class="ficha-val">${dados.territorio}</span></div>
+      <div class="ficha-linha"><span class="ficha-key">Formato</span><span class="ficha-val">${dados.formato}</span></div>
+      <div class="ficha-linha"><span class="ficha-key">Vol. Mínimo</span><span class="ficha-val">${dados.volumeMinimo}</span></div>
+      <div class="ficha-linha"><span class="ficha-key">Destino</span><span class="ficha-val">${dados.destino}</span></div>
+      <div class="ficha-linha"><span class="ficha-key">Justificativa</span><span class="ficha-val">${dados.justificativa || '—'}</span></div>`;
+    document.getElementById('modal-het').classList.add('aberto');
+  });
+}
+
+function confirmarNovoHet() {
+  document.getElementById('modal-het').classList.remove('aberto');
+  const novos = JSON.parse(localStorage.getItem('novos_heteronimos') || '[]');
+  novos.push({ ...novoHetDados, data: new Date().toLocaleDateString('pt-BR') });
+  localStorage.setItem('novos_heteronimos', JSON.stringify(novos));
+  if (resolveNovoHet) resolveNovoHet(true);
+}
+
+function cancelarNovoHet() {
+  document.getElementById('modal-het').classList.remove('aberto');
+  if (resolveNovoHet) resolveNovoHet(false);
+}
+
+// ===================== CALCULAR FRAGMENTOS =====================
+function calcularFragmentos(volume) {
+  const jornada = JORNADAS[jornadaSelecionada];
+  const pagPorArco = Math.floor(volume / 3);
+  const pagUltimo = volume - (pagPorArco * 2);
+  const pagsPorArco = [pagPorArco, pagPorArco, pagUltimo];
+
+  return jornada.arcos.map((arco, i) => {
+    const pags = pagsPorArco[i];
+    const palavras = pags * PALAVRAS_POR_PAGINA_A4;
+    const numFrags = Math.max(1, Math.ceil(palavras / PALAVRAS_POR_CHAMADA));
+    const palavrasPorFrag = Math.ceil(palavras / numFrags);
+    return { arco, pags, numFrags, palavrasPorFrag, indiceArco: i };
+  });
+}
+
+// ===================== INICIAR GERAÇÃO =====================
+async function iniciarGeracao() {
+  const titulo = document.getElementById('titulo').value.trim();
+  const sinopse = document.getElementById('sinopse').value.trim();
+  const volume = parseInt(document.getElementById('volume').value) || 120;
+  const genero = document.getElementById('genero').value;
+  const heteronimo = document.getElementById('heteronimo').value.trim();
+  const destinoFinal = document.getElementById('destino-final').value;
+
+  if (!titulo) { alert('Informe o título ou tema do livro.'); return; }
+  if (!jornadaSelecionada) { alert('Selecione uma estrutura narrativa.'); return; }
+
+  const jornada = JORNADAS[jornadaSelecionada];
+  const planejamento = calcularFragmentos(volume);
+  const totalFragmentos = planejamento.reduce((s, a) => s + a.numFrags, 0);
+
+  // Iniciar sessão
+  sessaoAtual = { titulo, heteronimo: heteronimo || 'A definir', jornada: jornadaSelecionada, volume, fragmentosSalvos: [] };
+  localStorage.setItem('gerador_sessao_atual', JSON.stringify(sessaoAtual));
+
+  document.getElementById('painel-config').style.display = 'none';
+  document.getElementById('banner-item-carregado').classList.remove('visivel');
+  const progPainel = document.getElementById('progresso-painel');
+  progPainel.classList.add('visivel');
+  document.getElementById('prog-titulo').textContent = 'Gerando: ' + titulo + ' (' + volume + ' pág · ' + totalFragmentos + ' fragmentos)';
+
+  // Montar barras de progresso
+  const arcosProgDiv = document.getElementById('arcos-progresso');
+  arcosProgDiv.innerHTML = `
+    <div class="arco-progresso">
+      <div class="arco-prog-header">
+        <span class="arco-prog-nome">Fase 0 · Fernando Peçanha — Curadoria</span>
+        <span class="arco-prog-status ativo" id="status-fase-0">analisando...</span>
+      </div>
+      <div class="barra-prog"><div class="barra-fill" id="barra-fase-0" style="width:30%"></div></div>
+    </div>` +
+    planejamento.map((p, i) => `
+    <div class="arco-progresso">
+      <div class="arco-prog-header">
+        <span class="arco-prog-nome">Arco ${i+1} · ${p.arco.nome} (${p.numFrags} frag · ~${p.pags} pág)</span>
+        <span class="arco-prog-status" id="status-arco-${i}">aguardando</span>
+      </div>
+      <div class="barra-prog"><div class="barra-fill" id="barra-arco-${i}" style="width:0%"></div></div>
+    </div>`).join('') + `
+    <div class="arco-progresso">
+      <div class="arco-prog-header">
+        <span class="arco-prog-nome">Revisão Final · Fernando Peçanha</span>
+        <span class="arco-prog-status" id="status-revisao">aguardando</span>
+      </div>
+      <div class="barra-prog"><div class="barra-fill" id="barra-revisao" style="width:0%"></div></div>
+    </div>`;
+
+  livroCompleto = '';
+  heteronimoEscolhido = heteronimo || 'A definir';
+  tituloFinal = titulo;
+  let novoHeteronimoCriado = false;
+
+  try {
+    // FASE 0 — Curadoria
+    log('Fernando Peçanha iniciando análise...');
+    const promptEstrutura = `Você é Fernando Peçanha, curador da OHE com os seguintes 51 heterônimos:
+${HETERONIMOS_LISTA.join(', ')}
+
+PROJETO:
+Título: ${titulo}
+Sinopse: ${sinopse || 'Não fornecida'}
+Gênero: ${genero || 'A definir'}
+Heterônimo sugerido: ${heteronimo || 'Você decide'}
+Jornada: ${jornada.nome}
+Volume: ${volume} páginas A4
+
+INSTRUÇÃO:
+1. Analise se algum dos 51 heterônimos tem território adequado
+2. Se SIM: escolha o melhor
+3. Se NÃO: crie um novo com nome, eixo, territorio, formato, volumeMinimo, destino e justificativa
+4. Defina o título definitivo
+5. Defina uma frase de tom/voz para guiar a escrita
+
+Responda EXATAMENTE:
+---HETERÔNIMO---
+[nome]
+---NOVO (s/n)---
+[s ou n]
+---SE NOVO: FICHA---
+nome: [nome]
+eixo: [Prosa/Poesia/Híbrido/Cordel]
+territorio: [descrição]
+formato: [romance/conto/poesia/etc]
+volumeMinimo: [número]
+destino: [masmorra/calabouco]
+justificativa: [motivo]
+---TÍTULO DEFINITIVO---
+[título]
+---TOM---
+[frase de direção de voz]`;
+
+    const resEstrutura = await chamarAPI(promptEstrutura, 1000);
+
+    const matchHet = resEstrutura.match(/---HETERÔNIMO---\s*([\s\S]*?)---/);
+    const matchNovo = resEstrutura.match(/---NOVO \(s\/n\)---\s*([\s\S]*?)---/);
+    const matchFicha = resEstrutura.match(/---SE NOVO: FICHA---\s*([\s\S]*?)---/);
+    const matchTit = resEstrutura.match(/---TÍTULO DEFINITIVO---\s*([\s\S]*?)---/);
+    const matchTom = resEstrutura.match(/---TOM---\s*([\s\S]*?)$/);
+
+    if (matchHet) heteronimoEscolhido = matchHet[1].trim();
+    if (matchTit) tituloFinal = matchTit[1].trim();
+    tomVozGlobal = matchTom ? matchTom[1].trim() : '';
+    const ehNovo = matchNovo && matchNovo[1].trim().toLowerCase() === 's';
+
+    log('Heterônimo: ' + heteronimoEscolhido);
+    log('Título: ' + tituloFinal);
+    if (tomVozGlobal) log('Tom: ' + tomVozGlobal);
+
+    if (ehNovo && matchFicha) {
+      log('⚠ Novo heterônimo — aguardando confirmação...');
+      const fichaTexto = matchFicha[1].trim();
+      const parseFicha = (campo) => { const m = fichaTexto.match(new RegExp(campo + ':\\s*(.+)')); return m ? m[1].trim() : ''; };
+      novoHetDados = {
+        nome: parseFicha('nome') || heteronimoEscolhido,
+        eixo: parseFicha('eixo'), territorio: parseFicha('territorio'),
+        formato: parseFicha('formato'), volumeMinimo: parseFicha('volumeMinimo'),
+        destino: parseFicha('destino'), justificativa: parseFicha('justificativa')
+      };
+      const confirmado = await mostrarModalNovoHet(novoHetDados);
+      if (!confirmado) {
+        log('Geração cancelada.');
+        document.getElementById('painel-config').style.display = 'block';
+        progPainel.classList.remove('visivel');
+        localStorage.removeItem('gerador_sessao_atual');
+        return;
+      }
+      heteronimoEscolhido = novoHetDados.nome;
+      novoHeteronimoCriado = true;
+      log('Novo heterônimo confirmado: ' + heteronimoEscolhido);
+    }
+
+    document.getElementById('barra-fase-0').style.width = '100%';
+    document.getElementById('status-fase-0').textContent = 'concluído ✓';
+    document.getElementById('status-fase-0').className = 'arco-prog-status concluido';
+
+    sessaoAtual.heteronimo = heteronimoEscolhido;
+    sessaoAtual.titulo = tituloFinal;
+    localStorage.setItem('gerador_sessao_atual', JSON.stringify(sessaoAtual));
+
+    // CABEÇALHO
+    livroCompleto = tituloFinal.toUpperCase() + '\n\nHeterônimo: ' + heteronimoEscolhido + '\nJornada: ' + jornada.nome + '\nVolume: ' + volume + ' páginas A4\nData: ' + new Date().toLocaleDateString('pt-BR') + '\n\n' + '═'.repeat(60) + '\n\n';
+
+    // ARCOS — múltiplos fragmentos por arco
+    let resumoAnterior = '';
+
+    for (let ai = 0; ai < planejamento.length; ai++) {
+      const { arco, pags, numFrags, palavrasPorFrag } = planejamento[ai];
+
+      document.getElementById('status-arco-' + ai).textContent = 'gerando...';
+      document.getElementById('status-arco-' + ai).className = 'arco-prog-status ativo';
+
+      livroCompleto += '\n\n' + '─'.repeat(60) + '\nARCO ' + (ai+1) + ' · ' + arco.nome.toUpperCase() + '\n' + '─'.repeat(60) + '\n\n';
+
+      let textoArco = '';
+
+      for (let fi = 0; fi < numFrags; fi++) {
+        const progBarra = Math.round(((fi + 1) / numFrags) * 100);
+        document.getElementById('barra-arco-' + ai).style.width = (progBarra * 0.9) + '%';
+
+        log('Arco ' + (ai+1) + ' · Fragmento ' + (fi+1) + '/' + numFrags + ' (~' + palavrasPorFrag + ' palavras)...');
+
+        const isFirst = fi === 0;
+        const isLast = fi === numFrags - 1;
+
+        const promptFragmento = `Você é ${heteronimoEscolhido}, escritor da OHE.
+Tom de voz: ${tomVozGlobal}
+Livro: ${tituloFinal}
+Jornada: ${jornada.nome}
+
+ARCO ${ai+1} DE 3: ${arco.nome}
+Diretrizes: ${arco.desc}
+
+${resumoAnterior ? 'RESUMO DO QUE JÁ FOI ESCRITO:\n' + resumoAnterior + '\n' : ''}
+${!isFirst ? 'Continue EXATAMENTE de onde o fragmento anterior parou. Não repita conteúdo já escrito.' : ai > 0 ? 'Inicie o Arco ' + (ai+1) + ' mantendo coerência com os arcos anteriores.' : 'Inicie o livro. Apresente o mundo e os personagens principais.'}
+
+${isLast && numFrags > 1 ? 'Este é o ÚLTIMO fragmento deste arco. Conclua o arco de forma satisfatória.' : ''}
+
+REGRAS OBRIGATÓRIAS DE FORMATAÇÃO:
+- Diálogos SEMPRE com travessão (—) e verbo dicendi identificado
+- NUNCA usar travessão no meio de frases narrativas — use vírgula
+- Cada parágrafo tem seu próprio espaço com linha em branco entre eles
+- Títulos de capítulos CENTRALIZADOS e com dizeres curtos
+- Texto JUSTIFICADO
+- PROIBIDO comentários editoriais, ganchos explicativos ou análises fora da narrativa
+- O texto deve ser humanizado, sem rastro de IA
+- Jornada do Herói e/ou Vilão com arcos narrativos bem definidos
+
+Escreva aproximadamente ${palavrasPorFrag} palavras. Use capítulos numerados quando apropriado.
+NÃO inclua meta-comentários. Comece diretamente com a narrativa.`;
+
+        const fragmento = await chamarAPI(promptFragmento, MAX_TOKENS_POR_CHAMADA);
+        textoArco += fragmento + '\n\n';
+
+        // Salvar fragmento
+        sessaoAtual.fragmentosSalvos.push('ARCO ' + (ai+1) + ' FRAG ' + (fi+1) + ':\n' + fragmento);
+        localStorage.setItem('gerador_sessao_atual', JSON.stringify(sessaoAtual));
+      }
+
+      livroCompleto += textoArco;
+
+      // APROVAÇÃO DO ARCO
+      log('⏸ Aguardando aprovação do Arco ' + (ai+1) + '...');
+      const aprovado = await mostrarAprovacaoArco(ai+1, arco.nome, textoArco);
+      if (!aprovado) {
+        log('✗ Arco ' + (ai+1) + ' rejeitado. Gerando novamente...');
+        ai--; // Refaz o arco atual
+        livroCompleto = livroCompleto.substring(0, livroCompleto.lastIndexOf('\n\n' + '─'.repeat(60)));
+        continue;
+      }
+      log('✓ Arco ' + (ai+1) + ' aprovado!');
+
+      // Resumo do arco para contexto dos próximos
+      log('Gerando resumo do Arco ' + (ai+1) + ' para contexto...');
+      const promptResumo = `Faça um resumo objetivo em 3-5 linhas do seguinte texto, para servir de contexto narrativo:
+
+${textoArco.substring(0, 3000)}...
+
+Responda APENAS com o resumo, sem introduções.`;
+      resumoAnterior = await chamarAPI(promptResumo, 500);
+
+      document.getElementById('barra-arco-' + ai).style.width = '100%';
+      document.getElementById('status-arco-' + ai).textContent = 'concluído ✓';
+      document.getElementById('status-arco-' + ai).className = 'arco-prog-status concluido';
+      log('Arco ' + (ai+1) + ' concluído. ✓');
+    }
+
+    // REVISÃO FINAL
+    document.getElementById('status-revisao').textContent = 'revisando...';
+    document.getElementById('status-revisao').className = 'arco-prog-status ativo';
+    document.getElementById('barra-revisao').style.width = '50%';
+    log('Fernando Peçanha revisando...');
+
+    const promptRevisao = `Você é Fernando Peçanha, curador da OHE.
+Acabou de supervisionar a criação do livro "${tituloFinal}" por ${heteronimoEscolhido}.
+Escreva uma revisão editorial (máximo 3 parágrafos):
+- O que funcionou na obra
+- O que caracteriza a voz deste heterônimo neste livro
+- Nota final para o arquivo editorial`;
+
+    const revisao = await chamarAPI(promptRevisao, 1000);
+    livroCompleto += '\n\n' + '═'.repeat(60) + '\nREVISÃO DE FERNANDO PEÇANHA\n' + '═'.repeat(60) + '\n\n' + revisao;
+
+    document.getElementById('barra-revisao').style.width = '100%';
+    document.getElementById('status-revisao').textContent = 'concluído ✓';
+    document.getElementById('status-revisao').className = 'arco-prog-status concluido';
+
+    log('Livro concluído! ✓ Total: ' + livroCompleto.split(' ').length + ' palavras aproximadas');
+    localStorage.removeItem('gerador_sessao_atual');
+    mostrarResultado(destinoFinal, novoHeteronimoCriado);
+
+  } catch (err) {
+    log('ERRO: ' + err.message);
+    log('Material parcial salvo — use o banner de recuperação.');
+    alert('Erro: ' + err.message + '\n\nMaterial salvo parcialmente. Recarregue para recuperar.');
+  }
+}
+
+// ===================== API =====================
+// ===================== APROVAÇÃO POR ARCO =====================
+let resolveAprovacao = null;
+
+function mostrarAprovacaoArco(numArco, nomeArco, textoArco) {
+  return new Promise((resolve) => {
+    resolveAprovacao = resolve;
+    const modal = document.getElementById('modal-aprovacao');
+    document.getElementById('aprv-arco-num').textContent = 'Arco ' + numArco + ' · ' + nomeArco;
+    document.getElementById('aprv-texto').textContent = textoArco.substring(0, 2000) + (textoArco.length > 2000 ? '\n\n[... texto continua ...]' : '');
+    modal.style.display = 'flex';
+  });
+}
+
+function aprovarArco() {
+  document.getElementById('modal-aprovacao').style.display = 'none';
+  if (resolveAprovacao) resolveAprovacao(true);
+}
+
+function rejeitarArco() {
+  document.getElementById('modal-aprovacao').style.display = 'none';
+  if (resolveAprovacao) resolveAprovacao(false);
+}
+
+// ===================== SALVAR NO GITHUB =====================
+async function salvarLivroNoGitHub(titulo, autor, conteudo, destino) {
+  try {
+    if (!window.GITHUB_TOKEN) { log('⚠ GitHub token não configurado'); return; }
+    const autorSlug = autor.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const tituloSlug = titulo.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 60);
+    const data = new Date().toISOString().split('T')[0];
+    const pasta = destino === 'calabouco' ? `calabouco/heteronimos/${autorSlug}` : `masmorra/heteronimos/${autorSlug}`;
+    const nomeArquivo = `${pasta}/${data}-${tituloSlug}.md`;
+    const conteudoBase64 = btoa(unescape(encodeURIComponent(conteudo)));
+    let sha = null;
+    try {
+      const check = await fetch(`https://api.github.com/repos/${window.GITHUB_OWNER}/${window.GITHUB_REPO}/contents/${nomeArquivo}`, { headers: { 'Authorization': `token ${window.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+      if (check.ok) { const ex = await check.json(); sha = ex.sha; }
+    } catch(e) {}
+    const body = { message: `[LIVRO] ${autor} — ${titulo}`, content: conteudoBase64, branch: 'main' };
+    if (sha) body.sha = sha;
+    const resp = await fetch(`https://api.github.com/repos/${window.GITHUB_OWNER}/${window.GITHUB_REPO}/contents/${nomeArquivo}`, { method: 'PUT', headers: { 'Authorization': `token ${window.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (resp.ok) { log('✓ Livro salvo no GitHub: /' + pasta + '/'); }
+    else { const err = await resp.json(); log('⚠ Erro GitHub: ' + (err.message || 'desconhecido')); }
+  } catch(e) { log('⚠ Erro ao salvar no GitHub: ' + e.message); }
+}
+
+async function chamarAPI(prompt, maxTokens) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': window.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: maxTokens, messages: [{ role: 'user', content: prompt }] })
+  });
+  if (!response.ok) throw new Error('Erro ' + response.status);
+  const data = await response.json();
+  return data.content[0].text;
+}
+
+// ===================== RESULTADO =====================
+function mostrarResultado(destino, novoHet) {
+  document.getElementById('progresso-painel').classList.remove('visivel');
+  const res = document.getElementById('resultado-painel');
+  res.classList.add('visivel');
+  document.getElementById('res-heteronimo').textContent = heteronimoEscolhido;
+  document.getElementById('res-titulo').textContent = tituloFinal;
+  document.getElementById('res-meta').textContent = JORNADAS[jornadaSelecionada].nome + ' · ' + document.getElementById('volume').value + ' pág A4 · ' + destino;
+  document.getElementById('livro-conteudo').textContent = livroCompleto;
+  if (novoHet && novoHetDados) {
+    const av = document.getElementById('novo-het-aviso');
+    av.classList.add('visivel');
+    av.textContent = '⚠ NOVO HETERÔNIMO: ' + novoHetDados.nome + ' — Atualize HETERONIMOS no triploohesigmalbpl e registro_civil_heteronimico.json no OHE-Peçanha';
+  }
+  // Montar livro completo com estrutura editorial
+  const anoAtual = new Date().getFullYear();
+  const volumeVal = document.getElementById('volume').value;
+  const livroEditorial = `SITE DAS LETRAS EDIÇÕES LITERÁRIAS
+#${heteronimoEscolhido}
+
+
+${tituloFinal.toUpperCase()}
+
+Autor: ${heteronimoEscolhido}
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${tituloFinal}
+
+${heteronimoEscolhido}
+
+Site das Letras
+Edições Literárias
+${anoAtual}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Capa: Site das Letras
+
+FICHA CATALOGRÁFICA
+
+${heteronimoEscolhido.split(' ').pop()}, ${heteronimoEscolhido}
+${tituloFinal} / ${heteronimoEscolhido}. – 1. ed.
+São Paulo, SP, Brasil / Site das Letras Edições Literárias – ${anoAtual}
+ISBN: _______________
+I. Título
+II. Site das Letras Edições Literárias
+1. (categoria) 2. (categoria) 3. (categoria)
+B-869._
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PREFÁCIO
+
+[A ser gerado por heterônimo secundário]
+
+Site das Letras Edições Literárias
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SUMÁRIO
+
+Prólogo (se houver)
+Capítulos
+Epílogo (se houver)
+Posfácio (se houver)
+Biografia
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                    ${tituloFinal.toUpperCase()}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${livroCompleto}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BIOGRAFIA
+
+${heteronimoEscolhido} é escritor da OHE — Organização Heterônima Editorial.
+[Biografia completa disponível no Registro Civil Heteronímico]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SITE DAS LETRAS EDIÇÕES LITERÁRIAS`;
+
+  livroCompleto = livroEditorial;
+  document.getElementById('livro-conteudo').textContent = livroCompleto;
+
+  // Salvar no GitHub
+  salvarLivroNoGitHub(tituloFinal, heteronimoEscolhido, livroCompleto, destino);
+
+  const livros = JSON.parse(localStorage.getItem('calabouco_livros') || '[]');
+  livros.push({ id: Date.now(), titulo: tituloFinal, heteronimo: heteronimoEscolhido, jornada: jornadaSelecionada, volume: volumeVal, destino, data: new Date().toLocaleDateString('pt-BR'), novoHeteronimo: novoHet ? novoHetDados : null, conteudo: livroCompleto });
+  localStorage.setItem('calabouco_livros', JSON.stringify(livros));
+}
+
+// ===================== UTILITÁRIOS =====================
+function copiarLivro() { navigator.clipboard.writeText(livroCompleto).then(() => alert('Livro copiado!')); }
+function exportarTexto() {
+  const blob = new Blob([livroCompleto], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = tituloFinal.replace(/\s+/g,'_') + '.txt'; a.click();
+  URL.revokeObjectURL(url);
+}
+function novaGeracao() {
+  document.getElementById('resultado-painel').classList.remove('visivel');
+  document.getElementById('painel-config').style.display = 'block';
+  document.getElementById('log-area').innerHTML = '';
+  document.getElementById('novo-het-aviso').classList.remove('visivel');
+  livroCompleto = ''; novoHetDados = null;
+}
+function limpar() {
+  document.getElementById('titulo').value = '';
+  document.getElementById('heteronimo').value = '';
+  document.getElementById('sinopse').value = '';
+  document.getElementById('volume').value = '120';
+  document.getElementById('genero').value = '';
+  document.getElementById('destino-final').value = 'calabouco';
+  jornadaSelecionada = null;
+  document.querySelectorAll('.jornada-card').forEach(c => c.classList.remove('selecionada'));
+  document.getElementById('arcos-preview').classList.remove('visivel');
+  document.getElementById('banner-item-carregado').classList.remove('visivel');
+}
+document.getElementById('volume').addEventListener('change', atualizarPreviewArcos);
+</script>
+</body>
+</html>
