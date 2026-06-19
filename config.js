@@ -4,12 +4,13 @@
 // ============================================================
 
 const CONFIG = {
-  ANTHROPIC_API_KEY: "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", // ← substitua pelo valor gerado em console.anthropic.com
+  ANTHROPIC_API_KEY: "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",
   MODEL: "claude-sonnet-4-6",
   MAX_TOKENS: 1024,
   GITHUB_TOKEN: "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",
   GITHUB_OWNER: "sitedasletras",
-  GITHUB_REPO: "triploohesigmalbpl"
+  GITHUB_REPO: "triploohesigmalbpl",
+  STABILITY_API_KEY: "sk-MUyr0gAR6H9JRh8IrfNh0Ppzgz51DdUNxQHGyz7PIBq16W2r"
 };
 
 // Torna a config disponível globalmente
@@ -19,3 +20,4 @@ window.ANTHROPIC_MAX_TOKENS = CONFIG.MAX_TOKENS;
 window.GITHUB_TOKEN = CONFIG.GITHUB_TOKEN;
 window.GITHUB_OWNER = CONFIG.GITHUB_OWNER;
 window.GITHUB_REPO = CONFIG.GITHUB_REPO;
+window.STABILITY_API_KEY = CONFIG.STABILITY_API_KEY;
