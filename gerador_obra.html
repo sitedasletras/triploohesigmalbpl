@@ -1110,12 +1110,12 @@ function confirmarNovoHeteronimo() {
   const territorio = document.getElementById('novo-het-territorio').value.trim();
   if (!nome || !territorio) { toast('// PREENCHA NOME E TERRITÓRIO'); return; }
 
-  const key = nome.toLowerCase().replace(/\s+/g, '_').substring(0,12);
-  HETERONIMOS[key] = {
-    nome, eixo, territorio,
-    arco: eixo === 'Poesia' || eixo === 'Cordel' ? 'JORNADA DO HERÓI' : 'JORNADA DO HERÓI',
-    voz: territorio
-  };
+  const key = nome.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'').substring(0,30);
+
+  HETERONIMOS[key] = { nome, eixo, territorio,
+    arco:'JORNADA DO HERÓI', voz:territorio };
 
   const sel = document.getElementById('heteronimo-select');
   const opt = document.createElement('option');
@@ -1125,6 +1125,167 @@ function confirmarNovoHeteronimo() {
   carregarHeteronimo();
   fecharModal();
   toast(`✦ ${nome} · REGISTRADO NA MATERNIDADE`);
+
+  // ── AUTOMAÇÃO: Gerar biografia e publicar no Celeiro ──
+  gerarEPublicarBiografia({ id:key, nome, eixo, territorio });
+}
+
+// ── GERA BIOGRAFIA VIA IA E PUBLICA NO CELEIRO ───────────
+async function gerarEPublicarBiografia(autor) {
+  toast(`✦ Fernando Peçanha escrevendo biografia de ${autor.nome}...`);
+  try {
+    // 1. Gerar biografia via API
+    const prompt = `Você é Fernando Peçanha, curador da OHE — Oficina Heteronômica da Escrita.
+
+Escreva a biografia literária completa do heterônimo abaixo para publicação no Celeiro Literário.
+
+NOME: ${autor.nome}
+EIXO: ${autor.eixo}
+TERRITÓRIO NARRATIVO: ${autor.territorio}
+
+A biografia deve ter:
+- Parágrafo 1: origens, infância, formação — vivida como ficção biográfica
+- Parágrafo 2: descoberta da escrita, influências, voz literária
+- Parágrafo 3: obras, temas recorrentes, assinatura estética
+- Linha de especialidade: uma frase que define o território soberano deste heterônimo
+
+Escreva em terceira pessoa, tom literário elevado, entre 250 e 350 palavras.
+Responda APENAS com o texto da biografia, sem títulos ou marcadores.`;
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:800,
+        messages:[{ role:'user', content: prompt }]
+      })
+    });
+    const data = await resp.json();
+    const textoBio = data.content?.[0]?.text?.trim()||'';
+    if(!textoBio){ toast('// ERRO AO GERAR BIOGRAFIA'); return; }
+
+    // 2. Montar HTML da página de biografia
+    const htmlBio = gerarHtmlBiografia(autor, textoBio);
+
+    // 3. Publicar no CeleiroLiterario via GitHub
+    const token = localStorage.getItem('gh_token')||'';
+    const repo = 'sitedasletras/CeleiroLiterario';
+    const branch = 'main';
+    if(!token){ toast('// Configure o Token GitHub para publicar a biografia'); return; }
+
+    const caminho = `biografia_${autor.id}.html`;
+    // Verificar se já existe (pegar SHA)
+    let sha = null;
+    try {
+      const r = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}?ref=${branch}`,{
+        headers:{'Authorization':`token ${token}`,'Accept':'application/vnd.github.v3+json'}
+      });
+      if(r.ok){ const d=await r.json(); sha=d.sha; }
+    } catch(_){}
+
+    const body = {
+      message:`[OHE] Nova biografia: ${autor.nome}`,
+      content: btoa(unescape(encodeURIComponent(htmlBio))),
+      branch
+    };
+    if(sha) body.sha = sha;
+
+    const pub = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}`,{
+      method:'PUT',
+      headers:{
+        'Authorization':`token ${token}`,
+        'Accept':'application/vnd.github.v3+json',
+        'Content-Type':'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    if(pub.ok){
+      toast(`✦ Biografia de ${autor.nome} publicada no Celeiro Literário ✓`);
+      // Salvar no localStorage para uso imediato pelo diagramador
+      localStorage.setItem(`celeiro_bio_${autor.id}`, textoBio);
+      localStorage.setItem(`celeiro_bio_nome_${autor.id}`, autor.nome);
+    } else {
+      const err = await pub.json();
+      toast(`// ERRO NA PUBLICAÇÃO: ${err.message||pub.status}`);
+    }
+  } catch(e) {
+    toast(`// ERRO: ${e.message}`);
+    console.error(e);
+  }
+}
+
+// ── HTML DA PÁGINA DE BIOGRAFIA (padrão Celeiro) ─────────
+function gerarHtmlBiografia(autor, textoBio) {
+  const cores = {
+    poesia:'#c97a7a', prosa:'#c9a84c', hibrido:'#7aaac9',
+    cordel:'#e8a040', oriental:'#c97a7a', tecnico:'#7ac97a'
+  };
+  const cor = cores[autor.eixo?.toLowerCase()]||'#c9a84c';
+  const data = new Date().toLocaleDateString('pt-BR');
+  const paragrafos = textoBio.split('\n\n').filter(Boolean)
+    .map(p=>`<p style="margin-bottom:1.4em;line-height:1.9;font-size:1.02rem;color:#2a1a08;">${p.trim()}</p>`)
+    .join('');
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${autor.nome} · Biografia · Celeiro Literário</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#fff8df;color:#1a1208;font-family:'Cormorant Garamond',Georgia,serif;min-height:100vh;}
+.cab{background:#07182b;padding:2rem 3rem;border-bottom:3px solid ${cor};}
+.cab-nav{display:flex;gap:1rem;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;}
+.cab-nav a{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.15em;color:rgba(213,179,84,.5);text-decoration:none;text-transform:uppercase;}
+.eixo-badge{display:inline-block;font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.2em;padding:.25rem .7rem;border:1px solid ${cor};color:${cor};text-transform:uppercase;margin-bottom:.8rem;}
+.autor-nome{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(2rem,5vw,3.5rem);color:${cor};line-height:1.1;margin-bottom:.3rem;}
+.autor-eixo{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.15em;color:rgba(213,179,84,.4);text-transform:uppercase;}
+.conteudo{max-width:800px;margin:0 auto;padding:3rem;}
+.sec-label{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.3em;color:${cor};opacity:.6;text-transform:uppercase;margin-bottom:.8rem;}
+.linha{width:50px;height:2px;background:linear-gradient(to right,${cor},transparent);margin:1rem 0 2rem;}
+.bio-texto{margin-bottom:2.5rem;}
+.ohe-badge{background:rgba(7,24,43,.06);border-left:3px solid ${cor};padding:1rem 1.5rem;margin-top:2rem;font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.08em;color:#3a2a10;line-height:1.7;}
+.rodape{background:#07182b;padding:2rem 3rem;margin-top:4rem;text-align:center;border-top:1px solid rgba(213,179,84,.15);}
+.rodape-txt{font-family:'Space Mono',monospace;font-size:.45rem;letter-spacing:.15em;color:rgba(213,179,84,.3);text-transform:uppercase;line-height:2;}
+.rodape-link{color:rgba(213,179,84,.5);text-decoration:none;}
+@media(max-width:768px){.cab,.conteudo{padding:1.5rem;}.autor-nome{font-size:2rem;}}
+</style>
+</head>
+<body>
+<div class="cab">
+  <div class="cab-nav">
+    <a href="celeiro_hall.html">Celeiro Literário</a>
+    <span style="color:rgba(213,179,84,.2);">/</span>
+    <a href="site_editorial_biografias.html">Biografias</a>
+    <span style="color:rgba(213,179,84,.2);">/</span>
+    <a href="#" style="color:${cor};">${autor.nome}</a>
+  </div>
+  <div class="eixo-badge">// ${autor.eixo||'Literatura'}</div>
+  <div class="autor-nome">${autor.nome}</div>
+  <div class="autor-eixo">// OHE · SIGMAL · Celeiro Literário</div>
+</div>
+<div class="conteudo">
+  <div class="sec-label">// Biografia</div>
+  <div class="linha"></div>
+  <div class="bio-texto">${paragrafos}</div>
+  <div class="ohe-badge">
+    ✦ ${autor.nome} é heterônimo da OHE — Oficina Heteronômica da Escrita · SIGMAL<br>
+    Território: ${autor.territorio||autor.eixo}<br>
+    Gerado por Fernando Peçanha · ${data}
+  </div>
+</div>
+<div class="rodape">
+  <div class="rodape-txt">
+    Celeiro Literário · Instituto Cultural · <a href="celeiro_hall.html" class="rodape-link">celeiro-literario.vercel.app</a><br>
+    Biografia gerada automaticamente pelo Sistema OHE-Peçanha · ${data}
+  </div>
+</div>
+</body>
+</html>`;
 }
 
 // ─── INICIAR OBRA ─────────────────────────────────────────────────────────────
