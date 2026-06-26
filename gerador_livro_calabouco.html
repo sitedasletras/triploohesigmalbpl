@@ -535,6 +535,28 @@ async function iniciarGeracao() {
   tituloFinal = titulo;
   let novoHeteronimoCriado = false;
 
+  // ── VERIFICAR RETOMADA ──────────────────────────────────
+  const retomada = verificarRetomada();
+  let arcoInicio = 0, fragInicio = 0;
+  let resumoAnterior = '';
+
+  if (retomada && retomada.sessao.titulo === titulo) {
+    const confirmar = confirm(
+      `⚡ RETOMAR GERAÇÃO\n\n"${titulo}" foi interrompida no Arco ${retomada.arco + 1}, Fragmento ${retomada.frag + 1}.\n\nDeseja continuar de onde parou?`
+    );
+    if (confirmar) {
+      livroCompleto = retomada.livro;
+      arcoInicio    = retomada.arco;
+      fragInicio    = retomada.frag;
+      resumoAnterior = localStorage.getItem(CK_RESUMO) || '';
+      log(`⚡ RETOMANDO do Arco ${arcoInicio + 1}, Fragmento ${fragInicio + 1}...`);
+    } else {
+      limparCheckpoints();
+    }
+  } else {
+    limparCheckpoints();
+  }
+
   try {
     // FASE 0 — Curadoria
     log('Fernando Peçanha iniciando análise...');
@@ -626,25 +648,29 @@ justificativa: [motivo]
     livroCompleto = tituloFinal.toUpperCase() + '\n\nHeterônimo: ' + heteronimoEscolhido + '\nJornada: ' + jornada.nome + '\nVolume: ' + volume + ' páginas A4\nData: ' + new Date().toLocaleDateString('pt-BR') + '\n\n' + '═'.repeat(60) + '\n\n';
 
     // ARCOS — múltiplos fragmentos por arco
-    let resumoAnterior = '';
+    // (resumoAnterior já definido acima — zerado ou recuperado do checkpoint)
 
-    for (let ai = 0; ai < planejamento.length; ai++) {
+    for (let ai = arcoInicio; ai < planejamento.length; ai++) {
       const { arco, pags, numFrags, palavrasPorFrag } = planejamento[ai];
 
       document.getElementById('status-arco-' + ai).textContent = 'gerando...';
       document.getElementById('status-arco-' + ai).className = 'arco-prog-status ativo';
 
-      livroCompleto += '\n\n' + '─'.repeat(60) + '\nARCO ' + (ai+1) + ' · ' + arco.nome.toUpperCase() + '\n' + '─'.repeat(60) + '\n\n';
+      // Se é retomada no meio de um arco, não adiciona cabeçalho duplicado
+      if (ai > arcoInicio || fragInicio === 0) {
+        livroCompleto += '\n\n' + '─'.repeat(60) + '\nARCO ' + (ai+1) + ' · ' + arco.nome.toUpperCase() + '\n' + '─'.repeat(60) + '\n\n';
+      }
 
       let textoArco = '';
+      const fiInicio = (ai === arcoInicio) ? fragInicio : 0;
 
-      for (let fi = 0; fi < numFrags; fi++) {
+      for (let fi = fiInicio; fi < numFrags; fi++) {
         const progBarra = Math.round(((fi + 1) / numFrags) * 100);
         document.getElementById('barra-arco-' + ai).style.width = (progBarra * 0.9) + '%';
 
         log('Arco ' + (ai+1) + ' · Fragmento ' + (fi+1) + '/' + numFrags + ' (~' + palavrasPorFrag + ' palavras)...');
 
-        const isFirst = fi === 0;
+        const isFirst = fi === 0 && ai === 0;
         const isLast = fi === numFrags - 1;
         const isLastArco = ai === planejamento.length - 1;
 
@@ -679,10 +705,14 @@ NÃO inclua meta-comentários. Comece diretamente com a narrativa.`;
         const fragmento = await chamarAPI(promptFragmento, MAX_TOKENS_POR_CHAMADA);
         textoArco += fragmento + '\n\n';
 
-        // Salvar fragmento
+        // ── CHECKPOINT após cada fragmento ──
         sessaoAtual.fragmentosSalvos.push('ARCO ' + (ai+1) + ' FRAG ' + (fi+1) + ':\n' + fragmento);
-        localStorage.setItem('gerador_sessao_atual', JSON.stringify(sessaoAtual));
+        salvarCheckpoint(ai, fi + 1, livroCompleto + textoArco, resumoAnterior, sessaoAtual);
+        log(`✓ Checkpoint salvo — Arco ${ai+1}, Frag ${fi+1}/${numFrags}`);
       }
+
+      // Resetar fragInicio para próximos arcos
+      fragInicio = 0;
 
       livroCompleto += textoArco;
 
@@ -733,13 +763,21 @@ Escreva uma revisão editorial (máximo 3 parágrafos):
     document.getElementById('status-revisao').className = 'arco-prog-status concluido';
 
     log('Livro concluído! ✓ Total: ' + livroCompleto.split(' ').length + ' palavras aproximadas');
-    localStorage.removeItem('gerador_sessao_atual');
+    // ── Limpar checkpoints — geração concluída com sucesso ──
+    limparCheckpoints();
     mostrarResultado(destinoFinal, novoHeteronimoCriado);
 
   } catch (err) {
-    log('ERRO: ' + err.message);
-    log('Material parcial salvo — use o banner de recuperação.');
-    alert('Erro: ' + err.message + '\n\nMaterial salvo parcialmente. Recarregue para recuperar.');
+    log('✗ ERRO: ' + err.message);
+    log('⚡ Checkpoint salvo — REABRA esta página para retomar de onde parou.');
+    const alerta = document.getElementById('banner-retomada') || document.createElement('div');
+    alerta.id = 'banner-retomada';
+    alerta.style.cssText = 'background:rgba(245,127,23,.12);border:1px solid rgba(245,127,23,.4);border-radius:10px;padding:14px;margin:12px 0;font-family:Share Tech Mono,monospace;font-size:.7rem;color:#f57f17;line-height:1.7;';
+    alerta.innerHTML = `⚡ GERAÇÃO INTERROMPIDA — "${tituloFinal}"<br>
+    Checkpoint salvo automaticamente.<br>
+    <strong>Reabra esta página e clique em "Gerar Livro" com o mesmo título para retomar.</strong><br>
+    <button onclick="limparCheckpoints();this.parentElement.remove();" style="margin-top:8px;background:rgba(245,127,23,.2);border:1px solid rgba(245,127,23,.4);color:#f57f17;border-radius:6px;padding:4px 12px;font-family:inherit;font-size:.65rem;cursor:pointer;">✕ Descartar progresso</button>`;
+    document.getElementById('arcos-progresso').appendChild(alerta);
   }
 }
 
@@ -790,20 +828,87 @@ async function salvarLivroNoGitHub(titulo, autor, conteudo, destino) {
   } catch(e) { log('⚠ Erro ao salvar no GitHub: ' + e.message); }
 }
 
-async function chamarAPI(prompt, maxTokens) {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': window.ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: maxTokens, messages: [{ role: 'user', content: prompt }] })
-  });
-  if (!response.ok) throw new Error('Erro ' + response.status);
-  const data = await response.json();
-  return data.content[0].text;
+// ===================== API COM RETRY E CHECKPOINT =====================
+
+// Chaves de checkpoint no localStorage
+const CK_SESSAO   = 'gerador_sessao_atual';
+const CK_LIVRO    = 'gerador_livro_parcial';
+const CK_ARCO     = 'gerador_arco_atual';
+const CK_FRAG     = 'gerador_frag_atual';
+const CK_RESUMO   = 'gerador_resumo_anterior';
+
+async function chamarAPI(prompt, maxTokens, tentativas = 4, delayBase = 3000) {
+  for (let t = 1; t <= tentativas; t++) {
+    try {
+      const controller = new AbortController();
+      // Timeout de 120s por chamada
+      const timeout = setTimeout(() => controller.abort(), 120000);
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': window.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: maxTokens,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      clearTimeout(timeout);
+      if (!response.ok) {
+        const err = await response.json().catch(()=>({}));
+        throw new Error(`Erro ${response.status}: ${err.error?.message||'API indisponível'}`);
+      }
+      const data = await response.json();
+      return data.content[0].text;
+    } catch(e) {
+      const ultimo = t === tentativas;
+      const msg = e.name === 'AbortError' ? 'Timeout (120s)' : e.message;
+      log(`⚠ Tentativa ${t}/${tentativas} falhou: ${msg}`);
+      if (ultimo) throw new Error(`Falha após ${tentativas} tentativas: ${msg}`);
+      // Backoff exponencial: 3s, 6s, 12s
+      const espera = delayBase * Math.pow(2, t - 1);
+      log(`⏳ Aguardando ${Math.round(espera/1000)}s antes de tentar novamente...`);
+      await new Promise(r => setTimeout(r, espera));
+    }
+  }
+}
+
+// Salvar checkpoint completo do estado atual
+function salvarCheckpoint(ai, fi, livroAteAgora, resumoAnt, sessao) {
+  try {
+    localStorage.setItem(CK_LIVRO,   livroAteAgora);
+    localStorage.setItem(CK_ARCO,    String(ai));
+    localStorage.setItem(CK_FRAG,    String(fi));
+    localStorage.setItem(CK_RESUMO,  resumoAnt||'');
+    localStorage.setItem(CK_SESSAO,  JSON.stringify(sessao));
+  } catch(e) {
+    console.warn('Checkpoint não salvo (localStorage cheio?):', e);
+  }
+}
+
+// Limpar todos os checkpoints
+function limparCheckpoints() {
+  [CK_SESSAO, CK_LIVRO, CK_ARCO, CK_FRAG, CK_RESUMO].forEach(k => localStorage.removeItem(k));
+}
+
+// Verificar se há geração interrompida para retomar
+function verificarRetomada() {
+  const livro  = localStorage.getItem(CK_LIVRO);
+  const arco   = localStorage.getItem(CK_ARCO);
+  const frag   = localStorage.getItem(CK_FRAG);
+  const sessao = localStorage.getItem(CK_SESSAO);
+  if (livro && arco !== null && frag !== null && sessao) {
+    try {
+      const s = JSON.parse(sessao);
+      return { livro, arco: parseInt(arco), frag: parseInt(frag), sessao: s };
+    } catch(_) { return null; }
+  }
+  return null;
 }
 
 // ===================== RESULTADO =====================
