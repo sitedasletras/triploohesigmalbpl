@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MÁQUINA DESAFIO · Fernando Peçanha · OHE</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #04080f;
+    color: #f0e8d0;
+    font-family: 'Georgia', serif;
+    padding: 1.2rem;
+    min-height: 100vh;
+  }
+
+  .topo {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+  }
+  .topo-titulo {
+    font-family: 'Cinzel', 'Georgia', serif;
+    font-size: clamp(1.2rem, 5vw, 1.8rem);
+    color: #c9a84c;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.3rem;
+  }
+  .topo-sub {
+    font-family: monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.25em;
+    color: #6a7d90;
+    text-transform: uppercase;
+  }
+
+  .bloco {
+    background: rgba(201,168,76,0.04);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .label {
+    font-family: monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.22em;
+    color: #c9a84c;
+    opacity: 0.6;
+    text-transform: uppercase;
+    margin-bottom: 0.7rem;
+    display: block;
+  }
+
+  /* Botões de época */
+  .epoca-grupo { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .btn-epoca {
+    font-family: monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    padding: 0.75rem 1.4rem;
+    border: 1px solid rgba(201,168,76,0.25);
+    background: transparent;
+    color: #6a7d90;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    border-radius: 4px;
+    flex: 1;
+    min-width: 80px;
+  }
+  .btn-epoca:hover { color: #c9a84c; border-color: rgba(201,168,76,0.5); }
+  .btn-epoca.ativo {
+    background: rgba(201,168,76,0.12);
+    color: #c9a84c;
+    border-color: #c9a84c;
+  }
+
+  /* Campo universo */
+  .universo-input {
+    width: 100%;
+    background: rgba(201,168,76,0.04);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 4px;
+    color: #f0e8d0;
+    font-family: 'Georgia', serif;
+    font-size: 1rem;
+    padding: 0.8rem 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .universo-input:focus { border-color: #c9a84c; }
+  .universo-input::placeholder { color: rgba(201,168,76,0.3); font-style: italic; }
+
+  .exemplos {
+    font-family: monospace;
+    font-size: 0.52rem;
+    color: #6a7d90;
+    margin-top: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+  .exemplos span {
+    display: inline-block;
+    background: rgba(201,168,76,0.06);
+    border: 1px solid rgba(201,168,76,0.12);
+    border-radius: 3px;
+    padding: 2px 8px;
+    margin: 2px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .exemplos span:hover { background: rgba(201,168,76,0.12); color: #c9a84c; }
+
+  /* Botão lançar */
+  .btn-lancar {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #7a5f1a, #c9a84c);
+    color: #04080f;
+    font-family: monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 0.5rem;
+  }
+  .btn-lancar:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* Log */
+  .log {
+    font-family: monospace;
+    font-size: 0.6rem;
+    color: #4caf50;
+    background: rgba(0,0,0,0.3);
+    border-radius: 4px;
+    padding: 0.6rem;
+    margin-top: 0.8rem;
+    display: none;
+    white-space: pre-wrap;
+  }
+  .log.erro { color: #ff6b6b; }
+
+  /* Resultado */
+  .resultado { display: none; margin-top: 1.2rem; }
+
+  .het-card {
+    background: rgba(201,168,76,0.06);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1rem;
+  }
+  .het-tag {
+    font-family: monospace;
+    font-size: 0.45rem;
+    letter-spacing: 0.25em;
+    color: #c9a84c;
+    opacity: 0.5;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .het-nome {
+    font-family: 'Cinzel', 'Georgia', serif;
+    font-size: 1.1rem;
+    color: #c9a84c;
+    margin-bottom: 0.3rem;
+  }
+  .het-info {
+    font-family: monospace;
+    font-size: 0.55rem;
+    color: #6a7d90;
+    letter-spacing: 0.08em;
+  }
+  .het-apresentacao {
+    font-style: italic;
+    font-size: 0.82rem;
+    color: #b0a080;
+    line-height: 1.65;
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid rgba(201,168,76,0.1);
+  }
+
+  .obra-card {
+    background: rgba(201,168,76,0.02);
+    border: 1px solid rgba(201,168,76,0.1);
+    border-radius: 8px;
+    padding: 1.2rem;
+  }
+  .obra-titulo {
+    font-family: 'Cinzel', 'Georgia', serif;
+    font-size: 1rem;
+    color: #f0e8d0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+  }
+  .obra-txt {
+    font-size: 0.92rem;
+    line-height: 1.8;
+    color: #e8dfc8;
+    white-space: pre-wrap;
+    max-height: 55vh;
+    overflow-y: auto;
+  }
+
+  .acoes {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+  .btn-acao {
+    font-family: monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    padding: 0.65rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    flex: 1;
+  }
+  .btn-acao.novo { background: linear-gradient(135deg,#7a5f1a,#c9a84c); color: #04080f; border: none; }
+  .btn-acao.dl { background: transparent; border: 1px solid #4caf50; color: #4caf50; }
+</style>
+</head>
+<body>
+
+<div class="topo">
+  <div class="topo-titulo">✦ MÁQUINA DESAFIO</div>
+  <div class="topo-sub">Fernando Peçanha · OHE · Geração Surpresa</div>
+</div>
+
+<!-- ÉPOCA -->
+<div class="bloco">
+  <span class="label">Época</span>
+  <div class="epoca-grupo">
+    <button class="btn-epoca" id="ep-passado"  onclick="selEpoca('passado')">⏮ PASSADO</button>
+    <button class="btn-epoca" id="ep-presente" onclick="selEpoca('presente')">⏺ PRESENTE</button>
+    <button class="btn-epoca" id="ep-futuro"   onclick="selEpoca('futuro')">⏭ FUTURO</button>
+  </div>
+</div>
+
+<!-- UNIVERSO -->
+<div class="bloco">
+  <span class="label">Universo / Cenário</span>
+  <input class="universo-input" id="universo" type="text"
+    placeholder="ex: medieval, cyberpunk, sertão nordestino..."
+    oninput="checar()" onkeydown="if(event.key==='Enter') lancar()">
+  <div class="exemplos">
+    Sugestões:
+    <span onclick="setUni('medieval')">medieval</span>
+    <span onclick="setUni('cyberpunk')">cyberpunk</span>
+    <span onclick="setUni('sertão nordestino')">sertão nordestino</span>
+    <span onclick="setUni('vitoriano')">vitoriano</span>
+    <span onclick="setUni('Tokyo moderno')">Tokyo moderno</span>
+    <span onclick="setUni('Lisboa colonial')">Lisboa colonial</span>
+    <span onclick="setUni('distopia')">distopia</span>
+    <span onclick="setUni('renascimento italiano')">renascimento italiano</span>
+    <span onclick="setUni('Amazônia')">Amazônia</span>
+    <span onclick="setUni('guerra fria')">guerra fria</span>
+  </div>
+</div>
+
+<!-- BOTÃO -->
+<button class="btn-lancar" id="btn-lancar" onclick="lancar()" disabled>
+  ✦ LANÇAR DESAFIO
+</button>
+
+<!-- LOG -->
+<div class="log" id="log"></div>
+
+<!-- RESULTADO -->
+<div class="resultado" id="resultado">
+
+  <div class="het-card">
+    <div class="het-tag">// heterônimo escolhido por Fernando Peçanha</div>
+    <div class="het-nome" id="res-het-nome">—</div>
+    <div class="het-info" id="res-het-info"></div>
+    <div class="het-apresentacao" id="res-het-apres"></div>
+  </div>
+
+  <div class="obra-card">
+    <div class="obra-titulo" id="res-obra-titulo">—</div>
+    <div class="obra-txt" id="res-obra-txt"></div>
+  </div>
+
+  <div class="acoes">
+    <button class="btn-acao dl" onclick="baixar()">⬇ BAIXAR .TXT</button>
+    <button class="btn-acao novo" onclick="resetar()">✦ NOVO DESAFIO</button>
+  </div>
+
+</div>
+
+<script>
+let _epoca = '';
+let _semente = null;
+
+// Carregar API key do config (triplo) ou localStorage
+function getApiKey() {
+  if (window.ANTHROPIC_API_KEY) return window.ANTHROPIC_API_KEY;
+  return localStorage.getItem('hub_apikey') || '';
+}
+
+function selEpoca(e) {
+  _epoca = e;
+  document.querySelectorAll('.btn-epoca').forEach(b => b.classList.remove('ativo'));
+  document.getElementById('ep-' + e).classList.add('ativo');
+  checar();
+}
+
+function setUni(v) {
+  document.getElementById('universo').value = v;
+  checar();
+}
+
+function checar() {
+  const uni = document.getElementById('universo').value.trim();
+  document.getElementById('btn-lancar').disabled = !(_epoca && uni);
+}
+
+function log(msg, erro) {
+  const el = document.getElementById('log');
+  el.style.display = 'block';
+  el.className = 'log' + (erro ? ' erro' : '');
+  el.textContent = msg;
+}
+
+async function lancar() {
+  const apiKey = getApiKey();
+  if (!apiKey) { log('⚠ API Key não encontrada. Verifique o config.js.', true); return; }
+
+  const universo = document.getElementById('universo').value.trim();
+  if (!_epoca || !universo) return;
+
+  const btn = document.getElementById('btn-lancar');
+  btn.textContent = '⟳ FERNANDO PEÇANHA ESTÁ ESCOLHENDO...';
+  btn.disabled = true;
+  document.getElementById('resultado').style.display = 'none';
+  log('Enviando desafio para Fernando Peçanha...');
+
+  const epocaDesc = {
+    passado: 'PASSADO — tempos históricos, antes do século XX',
+    presente: 'PRESENTE — contemporâneo, mundo atual',
+    futuro: 'FUTURO — especulativo, distópico ou utópico'
+  };
+
+  const prompt = `Você é Fernando Peçanha, curador da OHE — Organização Heteronímica Editorial.
+
+O produtor lançou um DESAFIO com os seguintes parâmetros:
+- ÉPOCA: ${epocaDesc[_epoca]}
+- UNIVERSO/CENÁRIO: ${universo}
+
+SUA MISSÃO COMPLETA:
+1. Escolha o heterônimo mais adequado do seu repertório para este desafio
+2. Decida TUDO: gênero (prosa, poesia ou cordel), tema, personagens, conflito, tom, destino (calabouço ou masmorra)
+3. Apresente brevemente o heterônimo escolhido (2-3 frases sobre quem é e por que foi escolhido para este desafio)
+4. Escreva a OBRA SEMENTE completa — literária, humanizada, sem rastro de IA:
+   - Prosa: 500 a 1.500 palavras
+   - Poesia: 20 a 60 versos
+   - Cordel: mínimo 10 estrofes (sextilha, rima em 2,4,6, métrica 7 sílabas)
+
+REGRAS:
+- Prosa: parágrafos separados por linha em branco, travessão (—) só em diálogos
+- Poesia: maiúscula e pontuação em cada verso
+- Tom literário elevado — como se fosse publicado hoje por uma editora independente de prestígio
+
+FORMATO DE RESPOSTA (siga exatamente, sem alterar os marcadores):
+---HETERÔNIMO---
+[nome completo]
+
+---EIXO---
+[eixo literário em uma linha]
+
+---APRESENTAÇÃO---
+[2 a 3 frases sobre o heterônimo e por que foi escolhido para este desafio]
+
+---OBRA---
+[título completo]
+
+[texto completo da obra semente]`;
+
+  try {
+    log('Aguardando Fernando Peçanha...');
+
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4096,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    log('Status: ' + r.status);
+
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({ error: { message: 'Erro desconhecido' } }));
+      throw new Error(err.error?.message || 'Erro ' + r.status);
+    }
+
+    const data = await r.json();
+    const txt = (data.content || []).map(b => b.text || '').join('').trim();
+
+    log('Recebido. Tokens: input=' + (data.usage?.input_tokens||'?') + ' output=' + (data.usage?.output_tokens||'?'));
+
+    // Extrair seções
+    const mHet   = txt.match(/---HETERÔNIMO---\s*([\s\S]*?)(?=---EIXO---)/);
+    const mEixo  = txt.match(/---EIXO---\s*([\s\S]*?)(?=---APRESENTAÇÃO---)/);
+    const mApres = txt.match(/---APRESENTAÇÃO---\s*([\s\S]*?)(?=---OBRA---)/);
+    const mObra  = txt.match(/---OBRA---\s*([\s\S]*?)$/);
+
+    const het   = mHet   ? mHet[1].trim()   : 'Fernando Peçanha';
+    const eixo  = mEixo  ? mEixo[1].trim()  : '';
+    const apres = mApres ? mApres[1].trim()  : '';
+    const obra  = mObra  ? mObra[1].trim()   : txt;
+    const linhas = obra.split('\n');
+    const titulo = linhas[0].trim() || 'Sem título';
+    const corpo  = linhas.slice(1).join('\n').trim();
+
+    _semente = { het, eixo, apres, titulo, corpo, epoca: _epoca, universo };
+
+    // Preencher resultado
+    document.getElementById('res-het-nome').textContent = het;
+    document.getElementById('res-het-info').textContent = eixo ? '✦ ' + eixo + ' · ' + _epoca.toUpperCase() + ' · ' + universo : '';
+    document.getElementById('res-het-apres').textContent = apres ? '"' + apres + '"' : '';
+    document.getElementById('res-obra-titulo').textContent = titulo;
+    document.getElementById('res-obra-txt').textContent = corpo;
+    document.getElementById('resultado').style.display = 'block';
+
+    btn.textContent = '✦ LANÇAR DESAFIO';
+    btn.disabled = false;
+
+  } catch(e) {
+    log('ERRO: ' + e.message, true);
+    btn.textContent = '✦ LANÇAR DESAFIO';
+    btn.disabled = false;
+  }
+}
+
+function baixar() {
+  if (!_semente) return;
+  const conteudo = `${_semente.het}\n${_semente.eixo}\n\n${_semente.titulo}\n\n${_semente.corpo}`;
+  const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = _semente.titulo.replace(/[^a-zA-Z0-9\s]/g, '').trim().replace(/\s+/g, '_') + '.txt';
+  a.click();
+}
+
+function resetar() {
+  _semente = null;
+  _epoca = '';
+  document.querySelectorAll('.btn-epoca').forEach(b => b.classList.remove('ativo'));
+  document.getElementById('universo').value = '';
+  document.getElementById('resultado').style.display = 'none';
+  document.getElementById('log').style.display = 'none';
+  document.getElementById('btn-lancar').disabled = true;
+  document.getElementById('btn-lancar').textContent = '✦ LANÇAR DESAFIO';
+}
+</script>
+</body>
+</html>
