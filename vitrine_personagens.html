@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VITRINE DE PERSONAGENS · OHE</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #04080f;
+    color: #f0e8d0;
+    font-family: 'Georgia', serif;
+    padding: 1.2rem;
+    min-height: 100vh;
+  }
+
+  .topo {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+  }
+  .topo-titulo {
+    font-family: 'Cinzel', 'Georgia', serif;
+    font-size: clamp(1.1rem, 5vw, 1.6rem);
+    color: #c9a84c;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.3rem;
+  }
+  .topo-sub {
+    font-family: monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.25em;
+    color: #6a7d90;
+    text-transform: uppercase;
+  }
+
+  /* Filtros */
+  .filtros {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .btn-filtro {
+    font-family: monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(201,168,76,0.25);
+    background: transparent;
+    color: #6a7d90;
+    cursor: pointer;
+    text-transform: uppercase;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+  .btn-filtro:hover { color: #c9a84c; border-color: rgba(201,168,76,0.5); }
+  .btn-filtro.ativo { background: rgba(201,168,76,0.12); color: #c9a84c; border-color: #c9a84c; }
+
+  /* Busca */
+  .busca-wrap { margin-bottom: 1.5rem; }
+  .busca-input {
+    width: 100%;
+    background: rgba(201,168,76,0.04);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 4px;
+    color: #f0e8d0;
+    font-family: 'Georgia', serif;
+    font-size: 0.9rem;
+    padding: 0.7rem 1rem;
+    outline: none;
+  }
+  .busca-input:focus { border-color: #c9a84c; }
+  .busca-input::placeholder { color: rgba(201,168,76,0.3); font-style: italic; }
+
+  /* Cards de obra */
+  .obra-bloco {
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(201,168,76,0.12);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .obra-header {
+    background: rgba(201,168,76,0.06);
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+  }
+  .obra-titulo {
+    font-family: 'Cinzel', 'Georgia', serif;
+    font-size: 0.95rem;
+    color: #c9a84c;
+  }
+  .obra-autor {
+    font-family: monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.1em;
+    color: #6a7d90;
+    margin-top: 0.2rem;
+  }
+  .obra-data {
+    font-family: monospace;
+    font-size: 0.48rem;
+    color: #6a7d90;
+    opacity: 0.5;
+    margin-top: 0.1rem;
+  }
+
+  /* Cards de personagem */
+  .pers-lista { padding: 0.8rem; display: flex; flex-direction: column; gap: 0.6rem; }
+
+  .pers-card {
+    border-radius: 6px;
+    padding: 0.8rem 1rem;
+    border-left: 3px solid;
+  }
+  .pers-card.protagonista {
+    background: rgba(76,175,80,0.06);
+    border-color: #4caf50;
+  }
+  .pers-card.antagonista {
+    background: rgba(244,67,54,0.06);
+    border-color: #f44336;
+  }
+  .pers-card.secundario {
+    background: rgba(96,125,139,0.06);
+    border-color: #607d8b;
+  }
+
+  .pers-tipo {
+    font-family: monospace;
+    font-size: 0.45rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+  .protagonista .pers-tipo { color: #4caf50; }
+  .antagonista .pers-tipo  { color: #f44336; }
+  .secundario .pers-tipo   { color: #607d8b; }
+
+  .pers-nome {
+    font-family: 'Cinzel', 'Georgia', serif;
+    font-size: 0.95rem;
+    color: #f0e8d0;
+    margin-bottom: 0.3rem;
+  }
+  .pers-desc {
+    font-size: 0.8rem;
+    color: #b0a080;
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .pers-papel {
+    font-family: monospace;
+    font-size: 0.5rem;
+    color: #6a7d90;
+    margin-top: 0.3rem;
+  }
+
+  /* Vazio */
+  .vazio {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6a7d90;
+  }
+  .vazio-ico { font-size: 2rem; margin-bottom: 0.8rem; }
+  .vazio-txt { font-family: monospace; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; }
+  .vazio-sub { font-size: 0.75rem; font-style: italic; margin-top: 0.5rem; opacity: 0.6; }
+
+  /* Contador */
+  .contador {
+    font-family: monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.15em;
+    color: #6a7d90;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .contador span { color: #c9a84c; }
+
+  /* Botão limpar */
+  .btn-limpar {
+    font-family: monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(244,67,54,0.3);
+    background: transparent;
+    color: #f44336;
+    cursor: pointer;
+    text-transform: uppercase;
+    border-radius: 4px;
+    margin-left: auto;
+    display: block;
+    margin-bottom: 1rem;
+    transition: all 0.2s;
+  }
+  .btn-limpar:hover { background: rgba(244,67,54,0.1); }
+</style>
+</head>
+<body>
+
+<div class="topo">
+  <div class="topo-titulo">✦ VITRINE DE PERSONAGENS</div>
+  <div class="topo-sub">OHE · Patrimônio de Personagens · Fernando Peçanha</div>
+</div>
+
+<!-- Busca -->
+<div class="busca-wrap">
+  <input class="busca-input" id="busca" type="text" placeholder="Buscar por nome, obra ou autor..."
+    oninput="renderizar()">
+</div>
+
+<!-- Filtros -->
+<div class="filtros">
+  <button class="btn-filtro ativo" onclick="setFiltro('todos', this)">Todos</button>
+  <button class="btn-filtro" onclick="setFiltro('protagonista', this)">👑 Protagonistas</button>
+  <button class="btn-filtro" onclick="setFiltro('antagonista', this)">⚔️ Antagonistas</button>
+  <button class="btn-filtro" onclick="setFiltro('secundario', this)">👥 Secundários</button>
+</div>
+
+<!-- Contador -->
+<div class="contador" id="contador">Carregando...</div>
+
+<!-- Botão limpar -->
+<button class="btn-limpar" onclick="limparVitrine()">✕ Limpar vitrine</button>
+
+<!-- Lista -->
+<div id="lista"></div>
+
+<script>
+let filtroAtivo = 'todos';
+let vitrine = [];
+
+function carregar() {
+  try {
+    vitrine = JSON.parse(localStorage.getItem('vitrine_personagens') || '[]');
+  } catch(e) {
+    vitrine = [];
+  }
+}
+
+function setFiltro(f, btn) {
+  filtroAtivo = f;
+  document.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  renderizar();
+}
+
+function renderizar() {
+  const busca = document.getElementById('busca').value.toLowerCase().trim();
+  const lista = document.getElementById('lista');
+  const contador = document.getElementById('contador');
+
+  if (vitrine.length === 0) {
+    lista.innerHTML = `
+      <div class="vazio">
+        <div class="vazio-ico">📚</div>
+        <div class="vazio-txt">Nenhum personagem ainda</div>
+        <div class="vazio-sub">Os personagens aparecem aqui automaticamente quando você gerar obras pela Máquina Desafio</div>
+      </div>`;
+    contador.innerHTML = 'Nenhuma obra com personagens registrados';
+    return;
+  }
+
+  // Filtrar obras
+  let obrasFiltradas = vitrine.filter(o => {
+    const temBusca = !busca ||
+      (o.obra || '').toLowerCase().includes(busca) ||
+      (o.autor || '').toLowerCase().includes(busca) ||
+      (o.protagonista?.nome || '').toLowerCase().includes(busca) ||
+      (o.antagonista?.nome || '').toLowerCase().includes(busca) ||
+      (o.secundarios || []).some(s => (s.nome || '').toLowerCase().includes(busca));
+
+    if (!temBusca) return false;
+
+    if (filtroAtivo === 'todos') return true;
+    if (filtroAtivo === 'protagonista') return !!o.protagonista?.nome;
+    if (filtroAtivo === 'antagonista') return !!o.antagonista?.nome;
+    if (filtroAtivo === 'secundario') return (o.secundarios || []).length > 0;
+    return true;
+  });
+
+  // Contar personagens
+  let totalPers = 0;
+  obrasFiltradas.forEach(o => {
+    if (o.protagonista?.nome) totalPers++;
+    if (o.antagonista?.nome) totalPers++;
+    totalPers += (o.secundarios || []).length;
+  });
+
+  contador.innerHTML = `<span>${totalPers}</span> personagem(ns) em <span>${obrasFiltradas.length}</span> obra(s)`;
+
+  if (obrasFiltradas.length === 0) {
+    lista.innerHTML = `
+      <div class="vazio">
+        <div class="vazio-ico">🔍</div>
+        <div class="vazio-txt">Nenhum resultado</div>
+        <div class="vazio-sub">Tente outro termo ou filtro</div>
+      </div>`;
+    return;
+  }
+
+  lista.innerHTML = obrasFiltradas.map((o, idx) => {
+    let persHTML = '';
+
+    // Protagonista
+    if (o.protagonista?.nome && (filtroAtivo === 'todos' || filtroAtivo === 'protagonista')) {
+      persHTML += `
+        <div class="pers-card protagonista">
+          <div class="pers-tipo">👑 Protagonista</div>
+          <div class="pers-nome">${o.protagonista.nome}</div>
+          <div class="pers-desc">${o.protagonista.descricao || ''}</div>
+          ${o.protagonista.papel ? `<div class="pers-papel">${o.protagonista.papel}</div>` : ''}
+        </div>`;
+    }
+
+    // Antagonista
+    if (o.antagonista?.nome && (filtroAtivo === 'todos' || filtroAtivo === 'antagonista')) {
+      persHTML += `
+        <div class="pers-card antagonista">
+          <div class="pers-tipo">⚔️ Antagonista</div>
+          <div class="pers-nome">${o.antagonista.nome}</div>
+          <div class="pers-desc">${o.antagonista.descricao || ''}</div>
+          ${o.antagonista.papel ? `<div class="pers-papel">${o.antagonista.papel}</div>` : ''}
+        </div>`;
+    }
+
+    // Secundários
+    if ((filtroAtivo === 'todos' || filtroAtivo === 'secundario') && (o.secundarios || []).length > 0) {
+      o.secundarios.forEach(s => {
+        if (!s.nome) return;
+        persHTML += `
+          <div class="pers-card secundario">
+            <div class="pers-tipo">👥 Secundário</div>
+            <div class="pers-nome">${s.nome}</div>
+            <div class="pers-desc">${s.descricao || ''}</div>
+            ${s.papel ? `<div class="pers-papel">${s.papel}</div>` : ''}
+          </div>`;
+      });
+    }
+
+    if (!persHTML) return '';
+
+    const dataStr = o.data ? new Date(o.data).toLocaleDateString('pt-BR') : '';
+
+    return `
+      <div class="obra-bloco">
+        <div class="obra-header">
+          <div class="obra-titulo">${o.obra || 'Obra sem título'}</div>
+          <div class="obra-autor">${o.autor || 'Autor desconhecido'}</div>
+          ${dataStr ? `<div class="obra-data">${dataStr}</div>` : ''}
+        </div>
+        <div class="pers-lista">${persHTML}</div>
+      </div>`;
+  }).join('');
+}
+
+function limparVitrine() {
+  if (!confirm('Tem certeza? Isso apaga todos os personagens da Vitrine.')) return;
+  localStorage.removeItem('vitrine_personagens');
+  vitrine = [];
+  renderizar();
+}
+
+// Inicializar
+carregar();
+renderizar();
+</script>
+</body>
+</html>
