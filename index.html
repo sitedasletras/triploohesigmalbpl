@@ -2375,6 +2375,127 @@ function renderizarFila() {
 
 
 // ===================== PAIOL · RENDERIZAÇÃO =====================
+// ═══════════════════════════════════════════════════════════
+// ATUALIZAÇÃO AUTOMÁTICA DE BIOGRAFIA NO CELEIRO
+// ═══════════════════════════════════════════════════════════
+async function atualizarBiografiaComObra(item) {
+  const token = window.GITHUB_TOKEN || localStorage.getItem('gh_token');
+  if (!token) return; // sem token, silenciosamente ignora
+
+  const repo = 'sitedasletras/CeleiroLiterario';
+  const branch = 'main';
+
+  // Converter nome do autor para ID
+  const autorId = (item.autor || '')
+    .toLowerCase().normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+
+  if (!autorId) return;
+
+  const caminhoHtml = `biografia_${autorId}.html`;
+
+  // 1. Buscar HTML atual da biografia no Celeiro
+  let htmlAtual = '';
+  let shaAtual = null;
+  try {
+    const r = await fetch(
+      `https://api.github.com/repos/${repo}/contents/${caminhoHtml}?ref=${branch}`,
+      { headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' } }
+    );
+    if (r.ok) {
+      const d = await r.json();
+      shaAtual = d.sha;
+      htmlAtual = decodeURIComponent(escape(atob(d.content.replace(/\n/g, ''))));
+    }
+  } catch(_) {}
+
+  const dataPublicacao = new Date().toLocaleDateString('pt-BR');
+  const obraEntry = `<li style="padding:.4em 0;border-bottom:1px solid rgba(213,179,84,.1);font-size:.95rem;color:#2a1a08;">— ${item.titulo} <span style="font-family:'Space Mono',monospace;font-size:.65em;color:rgba(213,179,84,.5);">(${dataPublicacao})</span></li>`;
+
+  let htmlNovo = '';
+
+  if (htmlAtual) {
+    // 2a. Biografia existe — inserir nova obra na lista
+    if (htmlAtual.includes('id="lista-obras"')) {
+      // Lista já existe — adicionar item
+      htmlNovo = htmlAtual.replace(
+        'id="lista-obras">',
+        `id="lista-obras">\n      ${obraEntry}`
+      );
+    } else if (htmlAtual.includes('class="obras-lista"')) {
+      htmlNovo = htmlAtual.replace(
+        'class="obras-lista">',
+        `class="obras-lista">\n      ${obraEntry}`
+      );
+    } else {
+      // Adicionar seção de obras antes do rodapé
+      const secaoObras = `
+<div style="margin-top:2rem;">
+  <div style="font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.3em;color:rgba(213,179,84,.6);text-transform:uppercase;margin-bottom:.8rem;">// Obras</div>
+  <ul id="lista-obras" style="list-style:none;padding:0;">
+    ${obraEntry}
+  </ul>
+</div>`;
+      htmlNovo = htmlAtual.replace('<div class="rodape">', secaoObras + '\n<div class="rodape">');
+    }
+  } else {
+    // 2b. Biografia não existe ainda — criar uma básica
+    htmlNovo = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>${item.autor} · Biografia · Celeiro Literário</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#fff8df;color:#1a1208;font-family:'Cormorant Garamond',Georgia,serif;min-height:100vh;}.cab{background:#07182b;padding:2rem 3rem;border-bottom:3px solid #c9a84c;}.autor-nome{font-size:2.5rem;color:#c9a84c;font-weight:700;margin-bottom:.3rem;}.cab-sub{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.15em;color:rgba(201,168,76,.4);text-transform:uppercase;}.conteudo{max-width:800px;margin:0 auto;padding:3rem;}.rodape{background:#07182b;padding:2rem;text-align:center;margin-top:4rem;border-top:1px solid rgba(213,179,84,.15);font-family:'Space Mono',monospace;font-size:.45rem;color:rgba(213,179,84,.3);text-transform:uppercase;}</style>
+</head>
+<body>
+<div class="cab">
+  <div class="autor-nome">${item.autor}</div>
+  <div class="cab-sub">// OHE · SIGMAL · Celeiro Literário</div>
+</div>
+<div class="conteudo">
+  <div style="font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.3em;color:rgba(201,168,76,.6);text-transform:uppercase;margin-bottom:1rem;">// Obras</div>
+  <ul id="lista-obras" style="list-style:none;padding:0;">
+    ${obraEntry}
+  </ul>
+  <p style="margin-top:2rem;font-size:.8rem;font-family:'Space Mono',monospace;color:rgba(201,168,76,.3);">Biografia completa em atualização · Fernando Peçanha · ${dataPublicacao}</p>
+</div>
+<div class="rodape">Celeiro Literário · Instituto Cultural · celeiro-literario.vercel.app</div>
+</body>
+</html>`;
+  }
+
+  // 3. Publicar HTML atualizado no Celeiro
+  const body = {
+    message: `[OHE] Atualiza biografia: ${item.autor} + "${item.titulo}"`,
+    content: btoa(unescape(encodeURIComponent(htmlNovo))),
+    branch
+  };
+  if (shaAtual) body.sha = shaAtual;
+
+  const pub = await fetch(
+    `https://api.github.com/repos/${repo}/contents/${caminhoHtml}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    }
+  );
+
+  if (pub.ok) {
+    console.log(`✓ Biografia de ${item.autor} atualizada no Celeiro com "${item.titulo}"`);
+    notif('BIOGRAFIA', `Biografia de ${item.autor} atualizada no Celeiro com "${item.titulo}"`, 'sucesso');
+  } else {
+    const err = await pub.json();
+    console.warn('Erro ao atualizar biografia:', err.message);
+  }
+}
+
 function renderizarPaiol() {
   // Literário
   const elLit = document.getElementById('grade-paiol-literario');
@@ -2469,37 +2590,81 @@ async function dispararCatapulta(itemDireto, idxDireto) {
       const autorSlug = (item.autor || 'sem-autor').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       const tituloSlug = (item.titulo || 'sem-titulo').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 60);
       const data = new Date().toISOString().split('T')[0];
-      const nomeArquivo = 'recepcao/literario/' + data + '-' + autorSlug + '-' + tituloSlug + '.md';
 
-      const conteudoMd = '# ' + item.titulo + '\n\n'
+      // ── Buscar dados do heterônimo no registro OHE ──
+      const hetDados = HETERONIMOS.find(h => h.nome === item.autor) || {};
+
+      // ═══════════════════════════════════════════════
+      // ARQUIVO 1 — OBRA LITERÁRIA (vai para o Lapidar)
+      // ═══════════════════════════════════════════════
+      const nomeArquivoObra = 'recepcao/literario/' + data + '-' + autorSlug + '-' + tituloSlug + '.md';
+      const conteudoObra = '# ' + item.titulo + '\n\n'
         + '**Autor:** ' + (item.autor || 'A definir') + '\n'
         + '**Tipo:** ' + (item.tipo || 'Obra') + '\n'
         + '**Data de expedição:** ' + data + '\n'
         + '**Origem:** Paiol · Triploohesigmalbpl · Catapulta\n\n---\n\n'
         + (item.conteudo || '');
 
-      const conteudoB64 = btoa(unescape(encodeURIComponent(conteudoMd)));
+      const conteudoObraB64 = btoa(unescape(encodeURIComponent(conteudoObra)));
 
-      let sha = null;
+      let shaObra = null;
       try {
-        const check = await fetch('https://api.github.com/repos/' + window.GITHUB_OWNER + '/' + REPO_CELEIRO + '/contents/' + nomeArquivo,
+        const check = await fetch('https://api.github.com/repos/' + window.GITHUB_OWNER + '/' + REPO_CELEIRO + '/contents/' + nomeArquivoObra,
           { headers: { 'Authorization': 'token ' + window.GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json' } });
-        if (check.ok) { const ex = await check.json(); sha = ex.sha; }
+        if (check.ok) { const ex = await check.json(); shaObra = ex.sha; }
       } catch(e) {}
 
-      const body = { message: '[CATAPULTA] ' + item.autor + ' — ' + item.titulo, content: conteudoB64, branch: 'main' };
-      if (sha) body.sha = sha;
+      const bodyObra = { message: '[CATAPULTA·OBRA] ' + item.autor + ' — ' + item.titulo, content: conteudoObraB64, branch: 'main' };
+      if (shaObra) bodyObra.sha = shaObra;
 
-      const resp = await fetch('https://api.github.com/repos/' + window.GITHUB_OWNER + '/' + REPO_CELEIRO + '/contents/' + nomeArquivo,
-        { method: 'PUT', headers: { 'Authorization': 'token ' + window.GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const respObra = await fetch('https://api.github.com/repos/' + window.GITHUB_OWNER + '/' + REPO_CELEIRO + '/contents/' + nomeArquivoObra,
+        { method: 'PUT', headers: { 'Authorization': 'token ' + window.GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(bodyObra) });
 
-      if (resp.ok) {
+      // ═══════════════════════════════════════════════
+      // ARQUIVO 2 — FICHA TÉCNICA DO AUTOR (vai para Dep. Técnico/Pré-Pós-Textuais)
+      // ═══════════════════════════════════════════════
+      const nomeArquivoFicha = 'recepcao/tecnico/' + data + '-' + autorSlug + '-' + tituloSlug + '-ficha.json';
+      const fichaAutor = {
+        heteronimo: item.autor || 'A definir',
+        titulo: item.titulo || '',
+        eixo: hetDados.eixo || item.eixo || '',
+        territorio: hetDados.territorio || item.territorio || '',
+        tom: hetDados.tom || item.tom || '',
+        formato: hetDados.formato || item.formato || '',
+        biografia: item.biografia || hetDados.biografia || '',
+        dataExpedicao: data,
+        origem: 'Catapulta · Triploohesigmalbpl · OHE'
+      };
+
+      const conteudoFichaB64 = btoa(unescape(encodeURIComponent(JSON.stringify(fichaAutor, null, 2))));
+
+      let shaFicha = null;
+      try {
+        const check2 = await fetch('https://api.github.com/repos/' + window.GITHUB_OWNER + '/' + REPO_CELEIRO + '/contents/' + nomeArquivoFicha,
+          { headers: { 'Authorization': 'token ' + window.GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json' } });
+        if (check2.ok) { const ex2 = await check2.json(); shaFicha = ex2.sha; }
+      } catch(e) {}
+
+      const bodyFicha = { message: '[CATAPULTA·FICHA] ' + item.autor + ' — ' + item.titulo, content: conteudoFichaB64, branch: 'main' };
+      if (shaFicha) bodyFicha.sha = shaFicha;
+
+      const respFicha = await fetch('https://api.github.com/repos/' + window.GITHUB_OWNER + '/' + REPO_CELEIRO + '/contents/' + nomeArquivoFicha,
+        { method: 'PUT', headers: { 'Authorization': 'token ' + window.GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(bodyFicha) });
+
+      // ── Resultado ──
+      if (respObra.ok && respFicha.ok) {
         item.expedido = true;
         item.dataExpedicao = data;
         salvar();
-        notif('🏹 CATAPULTA', '"' + item.titulo + '" expedido ao Celeiro → Lapidar!', 'sucesso');
+        notif('🏹 CATAPULTA', '"' + item.titulo + '" expedido ao Celeiro → 2 arquivos: Obra + Ficha Técnica!', 'sucesso');
+        // ── Atualizar biografia do autor no Celeiro ──
+        if(item.autor && item.titulo){
+          atualizarBiografiaComObra(item).catch(e=>console.warn('Bio não atualizada:',e));
+        }
+      } else if (respObra.ok) {
+        notif('⚠ CATAPULTA PARCIAL', '"' + item.titulo + '" enviado (obra OK, ficha com erro).', 'erro');
       } else {
-        const err = await resp.json();
+        const err = await respObra.json().catch(()=>({message:'Erro desconhecido'}));
         notif('ERRO CATAPULTA', err.message || 'Erro desconhecido', 'erro');
       }
     } catch(e) {
@@ -2765,7 +2930,7 @@ async function processarComFernandoPecanha(i) {
   item.progresso = 10;
   renderizarFila();
   notif('FERNANDO PEÇANHA', `Iniciando curadoria de "${item.titulo}"...`, 'info');
-  const prompt = `Você é Fernando Peçanha, curador da OHE com 51 heterônimos.\n\nENTRADA: ${item.titulo}\nTIPO: ${item.tipo}\nDETALHES: ${item.meta || ''}\nDESTINO: ${item.destino}\n\nHETERÔNIMOS DISPONÍVEIS:\n${HETERONIMOS.map(h => `- ${h.nome} | ${h.eixo} | ${h.territorio} | formato: ${h.formato}`).join('\n')}\n\nREGRAS ABSOLUTAS — NUNCA VIOLE:\n\nREGRA 1 — HETERÔNIMO:\n- Se o usuário mencionou explicitamente um nome de heterônimo nos DETALHES ou na ENTRADA, use ESSE heterônimo obrigatoriamente, sem exceção.\n- Só escolha livremente se nenhum nome foi especificado.\n- NUNCA use colaborações ou vozes múltiplas. UM ÚNICO heterônimo por obra.\n- Se nenhum heterônimo disponível for adequado: crie um novo na MATERNIDADE.\n\nREGRA 2 — FORMATO:\n- Respeite rigorosamente o formato especificado (cordel, soneto, prosa, conto, etc.).\n- O template é apenas guia de estrutura — NÃO fixa quantidade de versos por estrofe a menos que o usuário especifique.\n- Se o usuário indicar número de estrofes, versos ou páginas, siga exatamente.\n\nREGRA 3 — POESIA GERAL (soneto, ode, haicai, ghazal, pantum, trova, poetrix, poesia livre, poema narrativo):\n- Todo verso termina com pontuação obrigatória (vírgula, ponto, ponto e vírgula, reticências, exclamação ou interrogação).\n- Todo verso começa com letra MAIÚSCULA.\n- Sem exceções para essas duas regras.\n\nREGRA 4 — CORDEL (quando formato = cordel):\n- Verificar nos DETALHES quantos versos por estrofe foram especificados (6, 7, 8 ou 10).\n- Se não especificado, usar 6 versos (sextilha) como padrão.\n- SEXTILHA (6 versos): rima obrigatória nas linhas 2, 4 e 6 de cada estrofe (esquema XAXAXA).\n- SÉTIMA (7 versos): rima nas linhas 2, 4, 5 e 7 (esquema XAXAABX ou variação).\n- OITAVA (8 versos): rima nas linhas 2, 4, 6 e 8 (esquema XAXAXAXA).\n- DÉCIMA (10 versos): rima nas linhas 2, 4, 6, 8 e 10 (esquema XAXAXAXAXA).\n- Métrica de 7 sílabas poéticas (setissílabo) em todos os versos.\n- Todo verso termina com pontuação. Todo verso começa com maiúscula.\n- Tom pode ser: épico, dramático, lírico, humorístico ou crítico-político.\n\nREGRA 5 — PROSA (conto, romance, crônica, flash-fiction, prosa poética):\n- Estrutura narrativa com COMEÇO, MEIO e FIM. Pode ter capítulos.\n- Usar SEMPRE a Jornada do Herói e/ou Jornada da Vilania com arcos narrativos.\n- Diálogos SEMPRE com travessão (—) e verbo dicendi identificado.\n- NUNCA usar travessão no meio de frases narrativas — use vírgula.\n- Cada parágrafo ocupa seu próprio espaço com linha em branco entre eles.\n- PROIBIDO: comentários editoriais, ganchos explicativos, análises do tipo "📌 Gancho para o próximo capítulo".\n- PROIBIDO: listas de frases curtas empilhadas sem parágrafo próprio.\n- O texto deve ser humanizado, sem qualquer rastro ou sinal de produção por IA.\n\nREGRA 6 — FORMATAÇÃO GERAL:\n- Texto em modo JUSTIFICADO.\n- Títulos de capítulos: CENTRALIZADOS, dizeres curtos.\n- Travessão (—) apenas em diálogos. NUNCA para substituir vírgula em frases narrativas.\n- Parágrafo novo = linha nova com espaço de separação.\n\nREGRA 7 — REVISÃO OBRIGATÓRIA antes de entregar:\n- Verificar travessões indevidos em frases narrativas → substituir por vírgula.\n- Verificar espaçamento correto entre parágrafos.\n- Verificar e remover todos os comentários editoriais.\n- Verificar pontuação e maiúscula em cada verso de poesia/cordel.\n- Verificar rima e métrica do cordel conforme versos especificados.\n- Verificar verbos dicendi em todos os diálogos.\n\nMISSÃO:\n1. Identifique se há heterônimo especificado (REGRA 1)\n2. Identifique o formato e aplique as regras correspondentes (REGRAS 2, 3, 4)\n3. Escreva a obra completa dentro do limite de tokens disponível\n4. Aplique a revisão obrigatória (REGRA 6)\n5. Faça breve comentário como Fernando Peçanha\n\nFORMATO DE RESPOSTA:\n---HETERÔNIMO ESCOLHIDO---\n[nome]\n\n---NOVO HETERÔNIMO (se criado)---\n[nome | eixo | territorio | formato | volumeMinimo | destino] ou "Não foi necessário criar novo heterônimo."\n\n---OBRA---\n[título]\n\n[texto]\n\n---REVISÃO DE FERNANDO PEÇANHA---\n[comentário]`;
+  const prompt = `Você é Fernando Peçanha, curador da OHE com 51 heterônimos.\n\nENTRADA: ${item.titulo}\nTIPO: ${item.tipo}\nDETALHES: ${item.meta || ''}\nDESTINO: ${item.destino}\n\nHETERÔNIMOS DISPONÍVEIS:\n${HETERONIMOS.map(h => `- ${h.nome} | ${h.eixo} | ${h.territorio} | formato: ${h.formato}`).join('\n')}\n\nREGRAS ABSOLUTAS — NUNCA VIOLE:\n\nREGRA 1 — HETERÔNIMO:\n- Se o usuário mencionou explicitamente um nome de heterônimo nos DETALHES ou na ENTRADA, use ESSE heterônimo obrigatoriamente, sem exceção.\n- Só escolha livremente se nenhum nome foi especificado.\n- NUNCA use colaborações ou vozes múltiplas. UM ÚNICO heterônimo por obra.\n- Se nenhum heterônimo disponível for adequado: crie um novo na MATERNIDADE.\n\nREGRA 2 — FORMATO:\n- Respeite rigorosamente o formato especificado (cordel, soneto, prosa, conto, etc.).\n- O template é apenas guia de estrutura — NÃO fixa quantidade de versos por estrofe a menos que o usuário especifique.\n- Se o usuário indicar número de estrofes, versos ou páginas, siga exatamente.\n\nREGRA 3 — POESIA GERAL (soneto, ode, haicai, ghazal, pantum, trova, poetrix, poesia livre, poema narrativo):\n- Todo verso termina com pontuação obrigatória (vírgula, ponto, ponto e vírgula, reticências, exclamação ou interrogação).\n- Todo verso começa com letra MAIÚSCULA.\n- Sem exceções para essas duas regras.\n\nREGRA 4 — CORDEL (quando formato = cordel):\n- Verificar nos DETALHES quantos versos por estrofe foram especificados (6, 7, 8 ou 10).\n- Se não especificado, usar 6 versos (sextilha) como padrão.\n- SEXTILHA (6 versos): rima obrigatória nas linhas 2, 4 e 6 de cada estrofe (esquema XAXAXA).\n- SÉTIMA (7 versos): rima nas linhas 2, 4, 5 e 7 (esquema XAXAABX ou variação).\n- OITAVA (8 versos): rima nas linhas 2, 4, 6 e 8 (esquema XAXAXAXA).\n- DÉCIMA (10 versos): rima nas linhas 2, 4, 6, 8 e 10 (esquema XAXAXAXAXA).\n- Métrica de 7 sílabas poéticas (setissílabo) em todos os versos.\n- Todo verso termina com pontuação. Todo verso começa com maiúscula.\n- Tom pode ser: épico, dramático, lírico, humorístico ou crítico-político.\n\nREGRA 5 — PROSA (conto, romance, crônica, flash-fiction, prosa poética):\n- Estrutura narrativa com COMEÇO, MEIO e FIM. Pode ter capítulos.\n- Usar SEMPRE a Jornada do Herói e/ou Jornada da Vilania com arcos narrativos.\n- Diálogos SEMPRE com travessão (—) e verbo dicendi identificado.\n- NUNCA usar travessão no meio de frases narrativas — use vírgula.\n- Cada parágrafo ocupa seu próprio espaço com linha em branco entre eles.\n- PROIBIDO: comentários editoriais, ganchos explicativos, análises do tipo "📌 Gancho para o próximo capítulo".\n- PROIBIDO: listas de frases curtas empilhadas sem parágrafo próprio.\n- O texto deve ser humanizado, sem qualquer rastro ou sinal de produção por IA.\n\nREGRA 6 — FORMATAÇÃO GERAL:\n- Texto em modo JUSTIFICADO.\n- Títulos de capítulos: CENTRALIZADOS, dizeres curtos.\n- Travessão (—) apenas em diálogos. NUNCA para substituir vírgula em frases narrativas.\n- Parágrafo novo = linha nova com espaço de separação.\n\nREGRA 7 — REVISÃO OBRIGATÓRIA antes de entregar:\n- Verificar travessões indevidos em frases narrativas → substituir por vírgula.\n- Verificar espaçamento correto entre parágrafos.\n- Verificar e remover todos os comentários editoriais.\n- Verificar pontuação e maiúscula em cada verso de poesia/cordel.\n- Verificar rima e métrica do cordel conforme versos especificados.\n- Verificar verbos dicendi em todos os diálogos.\n\nMISSÃO:\n1. Identifique se há heterônimo especificado (REGRA 1)\n2. Identifique o formato e aplique as regras correspondentes (REGRAS 2, 3, 4)\n3. Escreva a obra completa dentro do limite de tokens disponível\n4. Aplique a revisão obrigatória (REGRA 6)\n5. Faça breve comentário como Fernando Peçanha\n\nFORMATO DE RESPOSTA:\n---HETERÔNIMO ESCOLHIDO---\n[nome]\n\n---NOVO HETERÔNIMO (se criado)---\n[nome | eixo | territorio | formato | volumeMinimo | destino] ou "Não foi necessário criar novo heterônimo."\n\n---OBRA---\n[título]\n\n[texto]\n\n---DADOS DO AUTOR---\nEIXO: [eixo literário]\nTERRITÓRIO: [temas e territórios do heterônimo]\nTOM: [tom predominante da escrita]\nBIOGRAFIA: [parágrafo biográfico literário em terceira pessoa, 80 a 120 palavras, tom elevado]\n\n---REVISÃO DE FERNANDO PEÇANHA---\n[comentário]`;
   try {
      item.progresso = 30;
     renderizarFila();
@@ -2805,6 +2970,19 @@ async function processarComFernandoPecanha(i) {
     const matchRevisao = texto.match(/---REVISÃO DE FERNANDO PEÇANHA---\s*([\s\S]*?)$/);
     item.conteudo = matchObra ? matchObra[1].trim() : texto;
     item.revisao = matchRevisao ? matchRevisao[1].trim() : '';
+    // Extrair DADOS DO AUTOR gerados pelo Fernando Pecanha
+    const matchDadosAutor = texto.match(/---DADOS DO AUTOR---[\s\S]*?(?=---|$)/);
+    if (matchDadosAutor) {
+      const dTxt = matchDadosAutor[0];
+      const mEixo = dTxt.match(/EIXO:\s*(.+)/);
+      const mTerr = dTxt.match(/TERRITÓRIO:\s*(.+)/);
+      const mTom  = dTxt.match(/TOM:\s*(.+)/);
+      const mBio  = dTxt.match(/BIOGRAFIA:\s*([\s\S]+)/);
+      if (mEixo)  item.eixo      = mEixo[1].trim();
+      if (mTerr)  item.territorio = mTerr[1].trim();
+      if (mTom)   item.tom        = mTom[1].trim();
+      if (mBio)   item.biografia  = mBio[1].replace(/---[\s\S]*$/,'').trim();
+    }
     item.textoCompleto = texto;
     item.dataProcessamento = new Date().toLocaleDateString('pt-BR');
 
@@ -2919,6 +3097,10 @@ function liberarMasmorra(i) {
   renderizarMasmorra();
   renderizarCalabouco();
   notif('LIBERADO!', `"${item.titulo}" saiu da Masmorra e entrou no Calabouço.`, 'sucesso');
+  // ── Atualizar biografia do autor com nova obra ──
+  if(item.autor && item.titulo){
+    atualizarBiografiaComObra(item).catch(e=>console.warn('Bio não atualizada:',e));
+  }
 }
 
 function verificarLiberacoes() {
@@ -3254,7 +3436,7 @@ const HETERONIMOS = [
   { nome: 'Wagner Planas', eixo: 'Híbrido', territorio: 'Múltiplos — criador do ecossistema', formato: 'variado', volumeMinimo: 10, destino: 'masmorra' },
   { nome: 'Wilson Silva', eixo: 'Híbrido', territorio: 'Cotidiano, amor, poesias e prosas líricas', formato: 'variado', volumeMinimo: 30, destino: 'masmorra' },
   { nome: 'Yago Mattos', eixo: 'Híbrido', territorio: 'Bruxas, lendas, deuses do mar', formato: 'conto', volumeMinimo: 12, destino: 'masmorra' },
-  { nome: 'Mórigan Voss', eixo: 'Híbrido', territorio: 'Gothic cyberpunk, decadência tecnológica, horror existencial urbano, corpo e máquina', formato: 'romance', volumeMinimo: 120, destino: 'calabouco' },
+  { nome: 'Mórigan Voss', eixo: 'Prosa', territorio: 'Amor impossível, luto, fronteiras entre mundos, o que persiste depois da perda', formato: 'romance', volumeMinimo: 120, destino: 'calabouco', tom: 'literário elevado, linguagem densa, emocionalmente preciso' },
   { nome: 'Dona Catarina Trovante', eixo: 'Poesia', territorio: 'Trovas, quadras métricas, temas nacionais, amor, resistência', formato: 'trova', volumeMinimo: 40, destino: 'masmorra' },
   { nome: 'Vladislava Karnstein', eixo: 'Híbrido', territorio: 'Vampirismo aristocrático, sedução sombria, memórias de uma condessa imortal', formato: 'romance', volumeMinimo: 120, destino: 'calabouco' },
   { nome: 'Santiago Poetrix', eixo: 'Híbrido', territorio: 'Poetrix — forma híbrida entre poesia e prosa poética, Santos SP', formato: 'poetrix', volumeMinimo: 30, destino: 'masmorra' },
