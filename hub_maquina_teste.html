@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HUB TESTE · Máquina Livre · Fernando Peçanha</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #04080f; color: #f0e8d0; font-family: 'Georgia', serif; padding: 1rem; min-height: 100vh; }
+  h1 { font-family: monospace; font-size: 0.7rem; letter-spacing: 0.3em; color: #c9a84c; opacity: 0.6; text-transform: uppercase; margin-bottom: 1.5rem; text-align: center; }
+
+  .bloco { background: rgba(201,168,76,0.04); border: 1px solid rgba(201,168,76,0.15); border-radius: 8px; padding: 1.2rem; margin-bottom: 1rem; }
+  .label { font-family: monospace; font-size: 0.55rem; letter-spacing: 0.2em; color: #c9a84c; opacity: 0.6; text-transform: uppercase; margin-bottom: 0.6rem; display: block; }
+
+  .btn-grupo { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .btn-op { font-family: monospace; font-size: 0.62rem; letter-spacing: 0.1em; padding: 0.7rem 1.2rem; border: 1px solid rgba(201,168,76,0.25); background: transparent; color: #6a7d90; cursor: pointer; text-transform: uppercase; transition: all 0.2s; border-radius: 4px; }
+  .btn-op:hover { color: #c9a84c; border-color: rgba(201,168,76,0.5); }
+  .btn-op.ativo-tipo { background: rgba(201,168,76,0.12); color: #c9a84c; border-color: #c9a84c; }
+  .btn-op.ativo-calabouco { background: rgba(230,81,0,0.12); color: #e65100; border-color: #e65100; }
+  .btn-op.ativo-masmorra { background: rgba(211,47,47,0.12); color: #ff6b6b; border-color: #d32f2f; }
+
+  .dest-desc { font-style: italic; font-size: 0.75rem; color: #6a7d90; margin-top: 0.5rem; opacity: 0.7; }
+
+  .btn-gerar { width: 100%; padding: 0.9rem; background: linear-gradient(135deg, #7a5f1a, #c9a84c); color: #04080f; font-family: monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; border: none; border-radius: 4px; cursor: pointer; transition: opacity 0.2s; margin-top: 0.5rem; }
+  .btn-gerar:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .resultado { display: none; background: rgba(201,168,76,0.03); border: 1px solid rgba(201,168,76,0.12); border-radius: 8px; padding: 1rem; margin-top: 1rem; }
+  .resultado-het { font-family: monospace; font-size: 0.55rem; color: #c9a84c; margin-bottom: 0.6rem; letter-spacing: 0.1em; }
+  .resultado-txt { font-size: 0.9rem; line-height: 1.75; color: #f0e8d0; white-space: pre-wrap; max-height: 50vh; overflow-y: auto; }
+
+  .acoes { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.8rem; }
+  .btn-acao { font-family: monospace; font-size: 0.58rem; letter-spacing: 0.1em; padding: 0.6rem 1rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
+  .btn-acao.primario { background: linear-gradient(135deg,#7a5f1a,#c9a84c); color: #04080f; border: none; }
+  .btn-acao.secundario { background: transparent; border: 1px solid rgba(201,168,76,0.3); color: #c9a84c; }
+  .btn-acao.download { background: transparent; border: 1px solid #4caf50; color: #4caf50; }
+
+  .log { font-family: monospace; font-size: 0.6rem; color: #4caf50; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 0.6rem; margin-top: 0.8rem; min-height: 40px; white-space: pre-wrap; display: none; }
+  .log.erro { color: #ff6b6b; }
+
+  .api-key-wrap { margin-bottom: 1rem; }
+  .api-input { width: 100%; background: rgba(201,168,76,0.05); border: 1px solid rgba(201,168,76,0.2); color: #f0e8d0; font-family: monospace; font-size: 0.7rem; padding: 0.6rem 0.8rem; border-radius: 4px; outline: none; }
+  .api-input:focus { border-color: #c9a84c; }
+</style>
+</head>
+<body>
+
+<h1>// HUB TESTE · MÁQUINA LIVRE · FERNANDO PEÇANHA</h1>
+
+<!-- API KEY -->
+<div class="bloco api-key-wrap">
+  <span class="label">API Key Anthropic</span>
+  <input class="api-input" id="api-key" type="password" placeholder="sk-ant-..." 
+    oninput="localStorage.setItem('hub_apikey', this.value)">
+  <div style="font-size:.65rem;color:#6a7d90;margin-top:.4rem;font-family:monospace;">
+    Salva automaticamente no localStorage
+  </div>
+</div>
+
+<!-- TIPO -->
+<div class="bloco">
+  <span class="label">O que você quer?</span>
+  <div class="btn-grupo">
+    <button class="btn-op" id="tipo-prosa"  onclick="selTipo('prosa')">📖 PROSA</button>
+    <button class="btn-op" id="tipo-poesia" onclick="selTipo('poesia')">🎭 POESIA</button>
+    <button class="btn-op" id="tipo-cordel" onclick="selTipo('cordel')">📜 CORDEL</button>
+  </div>
+</div>
+
+<!-- DESTINO -->
+<div class="bloco">
+  <span class="label">Destino</span>
+  <div class="btn-grupo">
+    <button class="btn-op" id="dest-calabouco" onclick="selDest('calabouco')">⚡ CALABOUÇO</button>
+    <button class="btn-op" id="dest-masmorra"  onclick="selDest('masmorra')">⛓ MASMORRA</button>
+  </div>
+  <div class="dest-desc" id="dest-desc">
+    Calabouço = semente para virar livro imediatamente · Masmorra = 750 dias de quarentena
+  </div>
+</div>
+
+<!-- BOTÃO GERAR -->
+<button class="btn-gerar" id="btn-gerar" onclick="gerar()" disabled>✦ GERAR</button>
+
+<!-- LOG DE DEBUG -->
+<div class="log" id="log"></div>
+
+<!-- RESULTADO -->
+<div class="resultado" id="resultado">
+  <div class="resultado-het" id="res-het"></div>
+  <div class="resultado-txt" id="res-txt"></div>
+  <div class="acoes">
+    <button class="btn-acao download" onclick="baixar()">⬇ BAIXAR .TXT</button>
+    <button class="btn-acao secundario" onclick="gerar()">✦ GERAR OUTRA</button>
+  </div>
+</div>
+
+<script>
+// ── Estado ──
+let _tipo = '', _dest = '', _semente = null;
+
+// ── Carregar API key salva ──
+window.addEventListener('DOMContentLoaded', () => {
+  const k = localStorage.getItem('hub_apikey');
+  if (k) document.getElementById('api-key').value = k;
+});
+
+function log(msg, erro) {
+  const el = document.getElementById('log');
+  el.style.display = 'block';
+  el.className = 'log' + (erro ? ' erro' : '');
+  el.textContent = msg;
+}
+
+function selTipo(t) {
+  _tipo = t;
+  document.querySelectorAll('[id^="tipo-"]').forEach(b => {
+    b.classList.remove('ativo-tipo');
+  });
+  document.getElementById('tipo-' + t).classList.add('ativo-tipo');
+  checar();
+}
+
+function selDest(d) {
+  _dest = d;
+  document.querySelectorAll('[id^="dest-"]').forEach(b => {
+    b.classList.remove('ativo-calabouco', 'ativo-masmorra');
+  });
+  document.getElementById('dest-' + d).classList.add('ativo-' + d);
+  document.getElementById('dest-desc').textContent = d === 'calabouco'
+    ? 'Calabouço — semente para virar livro imediatamente.'
+    : 'Masmorra — quarentena 750 dias. Download disponível a qualquer hora.';
+  checar();
+}
+
+function checar() {
+  document.getElementById('btn-gerar').disabled = !(_tipo && _dest);
+}
+
+async function gerar() {
+  const apiKey = document.getElementById('api-key').value.trim();
+  if (!apiKey) { log('⚠ Informe a API Key antes de gerar.', true); return; }
+  if (!_tipo || !_dest) { log('⚠ Selecione tipo e destino.', true); return; }
+
+  const btn = document.getElementById('btn-gerar');
+  btn.textContent = '⟳ GERANDO...';
+  btn.disabled = true;
+  document.getElementById('resultado').style.display = 'none';
+  log('Enviando para Fernando Peçanha...');
+
+  const tipos = {
+    prosa: 'Prosa (romance, conto ou crônica)',
+    poesia: 'Poesia (forma livre ou clássica)',
+    cordel: 'Cordel nordestino (sextilha, métrica 7 sílabas)'
+  };
+
+  const prompt = `Você é Fernando Peçanha, curador da OHE — Organização Heteronímica Editorial — com 51 heterônimos sob sua tutela.
+
+O produtor quer uma SEMENTE LITERÁRIA do tipo: ${tipos[_tipo]}.
+Destino: ${_dest === 'calabouco' ? 'Calabouço — semente para desenvolvimento imediato em livro' : 'Masmorra — quarentena de 750 dias'}.
+
+SUA MISSÃO:
+1. Escolha o heterônimo mais adequado para este tipo de obra
+2. Decida TUDO internamente: tema, cenário, personagens, conflito, tom, época
+3. Escreva a SEMENTE LITERÁRIA completa:
+   - Prosa/Cordel: 500 a 1.500 palavras
+   - Poesia: 20 a 60 versos
+4. Tom literário elevado, humanizado, sem rastro de IA
+
+REGRAS DE ESCRITA:
+- Prosa: parágrafos separados por linha em branco, travessão (—) só em diálogos, sem comentários editoriais
+- Poesia: cada verso começa com maiúscula e termina com pontuação adequada
+- Cordel: sextilha (6 versos), rima em 2,4,6, métrica de 7 sílabas
+
+FORMATO DE RESPOSTA (siga exatamente):
+---HETERÔNIMO---
+[nome do heterônimo escolhido]
+
+---OBRA---
+[título da obra]
+
+[texto completo da semente]`;
+
+  try {
+    log('Aguardando resposta da API...');
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4096,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    log('Status HTTP: ' + r.status);
+
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({ error: { message: 'Erro desconhecido' } }));
+      throw new Error(err.error?.message || 'Erro ' + r.status);
+    }
+
+    const data = await r.json();
+    log('Resposta recebida. Tokens: input=' + (data.usage?.input_tokens||'?') + ' output=' + (data.usage?.output_tokens||'?'));
+
+    const txt = (data.content || []).map(b => b.text || '').join('').trim();
+
+    const mH = txt.match(/---HETERÔNIMO---\s*([\s\S]*?)(?=---OBRA---)/);
+    const mO = txt.match(/---OBRA---\s*([\s\S]*?)$/);
+
+    const het = mH ? mH[1].trim() : 'Fernando Peçanha';
+    const obra = mO ? mO[1].trim() : txt;
+    const titulo = obra.split('\n')[0].trim() || 'Semente sem título';
+
+    _semente = { titulo, autor: het, tipo: _tipo, destino: _dest, conteudo: obra };
+
+    document.getElementById('res-het').textContent = '✦ ' + het + ' · ' + titulo;
+    document.getElementById('res-txt').textContent = obra;
+    document.getElementById('resultado').style.display = 'block';
+
+    btn.textContent = '✦ GERAR OUTRA';
+    btn.disabled = false;
+
+  } catch(e) {
+    log('ERRO: ' + e.message, true);
+    btn.textContent = '✦ GERAR';
+    btn.disabled = false;
+  }
+}
+
+function baixar() {
+  if (!_semente) return;
+  const blob = new Blob([_semente.conteudo], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = _semente.titulo.replace(/[^a-zA-Z0-9\s]/g, '').trim().replace(/\s+/g, '_') + '.txt';
+  a.click();
+}
+</script>
+</body>
+</html>
