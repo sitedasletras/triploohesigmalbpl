@@ -270,6 +270,19 @@
   </div>
 </div>
 
+<!-- OBSERVAÇÃO OPCIONAL -->
+<div class="bloco" style="padding:0.8rem 1.2rem;">
+  <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;">
+    <input type="checkbox" id="chk-obs" onchange="toggleObs()" style="width:16px;height:16px;accent-color:#c9a84c;">
+    <span style="font-family:monospace;font-size:0.52rem;letter-spacing:0.2em;color:#c9a84c;opacity:0.6;text-transform:uppercase;">Azeitar o desafio (opcional)</span>
+  </label>
+  <div id="obs-wrap" style="display:none;margin-top:0.8rem;">
+    <textarea id="obs-texto" placeholder="Ex: quero que tenha um cavaleiro feminino, ou que o desfecho seja ambíguo, ou que use linguagem arcaica..."
+      style="width:100%;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.2);border-radius:4px;color:#f0e8d0;font-family:Georgia,serif;font-size:0.85rem;padding:0.7rem 0.9rem;outline:none;min-height:80px;resize:vertical;line-height:1.6;"></textarea>
+    <div style="font-family:monospace;font-size:0.5rem;color:#6a7d90;margin-top:0.3rem;opacity:0.7;">Fernando Peçanha vai considerar mas continua decidindo o essencial</div>
+  </div>
+</div>
+
 <!-- BOTÃO -->
 <button class="btn-lancar" id="btn-lancar" onclick="lancar()" disabled>
   ✦ LANÇAR DESAFIO
@@ -295,6 +308,7 @@
 
   <div class="acoes">
     <button class="btn-acao dl" onclick="baixar()">⬇ BAIXAR .TXT</button>
+    <button class="btn-acao novo" onclick="enviarParaProducao()" style="background:linear-gradient(135deg,#1a3a7a,#4a7ac9);color:white;border:none;">→ LINHA DE PRODUÇÃO</button>
     <button class="btn-acao novo" onclick="resetar()">✦ NOVO DESAFIO</button>
   </div>
 
@@ -308,6 +322,11 @@ let _semente = null;
 function getApiKey() {
   if (window.ANTHROPIC_API_KEY) return window.ANTHROPIC_API_KEY;
   return localStorage.getItem('hub_apikey') || '';
+}
+
+function toggleObs() {
+  const wrap = document.getElementById('obs-wrap');
+  wrap.style.display = document.getElementById('chk-obs').checked ? 'block' : 'none';
 }
 
 function selEpoca(e) {
@@ -353,11 +372,13 @@ async function lancar() {
     futuro: 'FUTURO — especulativo, distópico ou utópico'
   };
 
+const obs = document.getElementById('chk-obs').checked ? document.getElementById('obs-texto').value.trim() : '';
+
   const prompt = `Você é Fernando Peçanha, curador da OHE — Organização Heteronímica Editorial.
 
 O produtor lançou um DESAFIO com os seguintes parâmetros:
 - ÉPOCA: ${epocaDesc[_epoca]}
-- UNIVERSO/CENÁRIO: ${universo}
+- UNIVERSO/CENÁRIO: ${universo}${obs ? '\n- OBSERVAÇÕES DO PRODUTOR: ' + obs : ''}
 
 SUA MISSÃO COMPLETA:
 1. Escolha o heterônimo mais adequado do seu repertório para este desafio
@@ -460,6 +481,32 @@ function baixar() {
   a.href = URL.createObjectURL(blob);
   a.download = _semente.titulo.replace(/[^a-zA-Z0-9\s]/g, '').trim().replace(/\s+/g, '_') + '.txt';
   a.click();
+}
+
+function enviarParaProducao() {
+  if (!_semente) return;
+  // Salvar no localStorage para obra_ativa.html do Celeiro
+  const pacoteObra = {
+    titulo: _semente.titulo,
+    autor: _semente.het,
+    conteudo: _semente.corpo,
+    origem: 'Máquina Desafio · ' + _semente.epoca + ' · ' + _semente.universo,
+    data: new Date().toLocaleDateString('pt-BR')
+  };
+  const fichaAutor = {
+    heteronimo: _semente.het,
+    titulo: _semente.titulo,
+    eixo: _semente.eixo,
+    biografia: _semente.apres,
+    origem: 'Máquina Desafio'
+  };
+  localStorage.setItem('obra_ativa_texto', pacoteObra.conteudo);
+  localStorage.setItem('obra_ativa_texto_nome', pacoteObra.titulo);
+  localStorage.setItem('obra_autor', pacoteObra.autor);
+  localStorage.setItem('obra_titulo', pacoteObra.titulo);
+  localStorage.setItem('ficha_tecnica_autor', JSON.stringify(fichaAutor));
+  localStorage.setItem('catapulta_ficha_tecnica', JSON.stringify(fichaAutor));
+  alert('✓ Obra enviada para a Linha de Produção!\nAbra a Central da Obra no Celeiro Literário.');
 }
 
 function resetar() {
