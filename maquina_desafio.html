@@ -248,6 +248,15 @@
   <div class="topo-sub">Fernando Peçanha · OHE · Geração Surpresa</div>
 </div>
 
+<!-- API KEY -->
+<div class="bloco" id="bloco-apikey">
+  <span class="label">API Key Anthropic</span>
+  <input type="password" id="api-key" placeholder="sk-ant-..."
+    style="width:100%;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.2);border-radius:4px;color:#f0e8d0;font-family:monospace;font-size:0.75rem;padding:0.65rem 0.9rem;outline:none;"
+    oninput="localStorage.setItem('hub_apikey',this.value);verificarKey()">
+  <div style="font-family:monospace;font-size:0.48rem;color:#6a7d90;margin-top:0.4rem;">Salva automaticamente</div>
+</div>
+
 <!-- ÉPOCA -->
 <div class="bloco">
   <span class="label">Época</span>
@@ -331,7 +340,16 @@ let _semente = null;
 // Carregar API key do config (triplo) ou localStorage
 function getApiKey() {
   if (window.ANTHROPIC_API_KEY) return window.ANTHROPIC_API_KEY;
+  const campo = document.getElementById('api-key');
+  if (campo && campo.value.trim()) return campo.value.trim();
   return localStorage.getItem('hub_apikey') || '';
+}
+
+function verificarKey() {
+  // Ocultar campo se key válida
+  const k = getApiKey();
+  const bloco = document.getElementById('bloco-apikey');
+  if (bloco) bloco.style.opacity = k.startsWith('sk-') ? '0.4' : '1';
 }
 
 function toggleObs() {
@@ -689,6 +707,13 @@ function resetar() {
   document.getElementById('btn-lancar').disabled = true;
   document.getElementById('btn-lancar').textContent = '✦ LANÇAR DESAFIO';
 }
+
+// Carregar key salva
+window.addEventListener('DOMContentLoaded', () => {
+  const k = localStorage.getItem('hub_apikey');
+  const campo = document.getElementById('api-key');
+  if (k && campo) { campo.value = k; verificarKey(); }
+});
 </script>
 </body>
 </html>
