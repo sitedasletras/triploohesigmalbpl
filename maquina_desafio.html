@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MÁQUINA DESAFIO · Fernando Peçanha · OHE</title>
+<script src="config.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -203,13 +204,21 @@
     border-bottom: 1px solid rgba(201,168,76,0.1);
   }
   .obra-txt {
-    font-size: 0.92rem;
-    line-height: 1.8;
-    color: #e8dfc8;
-    white-space: pre-wrap;
-    max-height: 55vh;
+    font-size: 1rem;
+    line-height: 1.9;
+    color: #1a1a1a;
+    background: #ffffff;
+    padding: 2rem 2.5rem;
+    max-height: 60vh;
     overflow-y: auto;
+    font-family: 'Georgia', serif;
+    border-radius: 4px;
   }
+  .obra-txt p {
+    margin-bottom: 1.1em;
+    text-indent: 1.5em;
+  }
+  .obra-txt p:first-child { text-indent: 0; }
 
   .acoes {
     display: flex;
@@ -307,8 +316,9 @@
   </div>
 
   <div class="acoes">
-    <button class="btn-acao dl" onclick="baixar()">⬇ BAIXAR .TXT</button>
-    <button class="btn-acao novo" onclick="enviarParaProducao()" style="background:linear-gradient(135deg,#1a3a7a,#4a7ac9);color:white;border:none;">→ LINHA DE PRODUÇÃO</button>
+    <button class="btn-acao dl" onclick="baixar()">⬇ BAIXAR</button>
+    <button class="btn-acao" onclick="enviarDestino('calabouco')" style="background:rgba(230,81,0,0.15);border:1px solid #e65100;color:#e65100;">⚡ CALABOUÇO</button>
+    <button class="btn-acao" onclick="enviarDestino('masmorra')" style="background:rgba(211,47,47,0.15);border:1px solid #d32f2f;color:#ff6b6b;">⛓ MASMORRA</button>
     <button class="btn-acao novo" onclick="resetar()">✦ NOVO DESAFIO</button>
   </div>
 
@@ -460,17 +470,142 @@ FORMATO DE RESPOSTA (siga exatamente, sem alterar os marcadores):
     document.getElementById('res-het-info').textContent = eixo ? '✦ ' + eixo + ' · ' + _epoca.toUpperCase() + ' · ' + universo : '';
     document.getElementById('res-het-apres').textContent = apres ? '"' + apres + '"' : '';
     document.getElementById('res-obra-titulo').textContent = titulo;
-    document.getElementById('res-obra-txt').textContent = corpo;
+    // Renderizar como Word — parágrafos reais
+    const paragrafos = corpo.split(/\n\n+/).filter(p => p.trim());
+    document.getElementById('res-obra-txt').innerHTML = paragrafos
+      .map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`)
+      .join('');
     document.getElementById('resultado').style.display = 'block';
 
     btn.textContent = '✦ LANÇAR DESAFIO';
     btn.disabled = false;
+
+    // Salvar biografia automaticamente
+    await salvarBiografiaGitHub(_semente);
+
+    // Extrair e salvar personagens automaticamente
+    await extrairESalvarPersonagens(_semente);
 
   } catch(e) {
     log('ERRO: ' + e.message, true);
     btn.textContent = '✦ LANÇAR DESAFIO';
     btn.disabled = false;
   }
+}
+
+// Salvar biografia no GitHub (CeleiroLiterario/biografias/)
+async function salvarBiografiaGitHub(s) {
+  try {
+    const token = window.GITHUB_TOKEN || localStorage.getItem('gh_token');
+    const owner = window.GITHUB_OWNER || 'sitedasletras';
+    if (!token) { log('⚠ GitHub token não encontrado — biografia não salva remotamente'); return; }
+
+    const slug = s.het.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const nomeArq = 'biografias/' + slug + '.json';
+    const bio = {
+      nome: s.het,
+      eixo: s.eixo,
+      apresentacao: s.apres,
+      obraEstreia: s.titulo,
+      epocaDesafio: s.epoca,
+      universoDesafio: s.universo,
+      dataCriacao: new Date().toISOString(),
+      origem: 'Máquina Desafio · OHE'
+    };
+
+    // Verificar se já existe
+    let sha = null;
+    try {
+      const chk = await fetch(`https://api.github.com/repos/${owner}/CeleiroLiterario/contents/${nomeArq}`,
+        { headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' } });
+      if (chk.ok) { const ex = await chk.json(); sha = ex.sha; }
+    } catch(_) {}
+
+    const body = { message: '[BIO] ' + s.het + ' — Máquina Desafio', content: btoa(unescape(encodeURIComponent(JSON.stringify(bio, null, 2)))), branch: 'main' };
+    if (sha) body.sha = sha;
+
+    const r = await fetch(`https://api.github.com/repos/${owner}/CeleiroLiterario/contents/${nomeArq}`,
+      { method: 'PUT', headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+
+    if (r.ok) log('✓ Biografia de ' + s.het + ' salva no Celeiro.');
+    else log('⚠ Biografia gerada mas não salva remotamente.');
+  } catch(e) { log('⚠ Erro ao salvar biografia: ' + e.message); }
+}
+
+// Extrair personagens da obra e salvar
+async function extrairESalvarPersonagens(s) {
+  try {
+    const apiKey = getApiKey();
+    if (!apiKey) return;
+
+    log('Extraindo personagens da obra...');
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6', max_tokens: 800,
+        messages: [{ role: 'user', content:
+          `Leia esta obra e extraia os personagens. Retorne APENAS JSON, sem explicações:
+{
+  "protagonista": {"nome":"","descricao":"","papel":""},
+  "antagonista": {"nome":"","descricao":"","papel":""},
+  "secundarios": [{"nome":"","descricao":"","papel":""}]
+}
+Se não houver antagonista, deixe vazio. Máximo 3 secundários.
+
+OBRA: ${s.titulo}
+${s.corpo.substring(0, 3000)}`
+        }]
+      })
+    });
+    const d = await r.json();
+    const txt = (d.content||[]).map(b=>b.text||'').join('').trim();
+    const personagens = JSON.parse(txt.replace(/```json|```/g,'').trim());
+    personagens.obra = s.titulo;
+    personagens.autor = s.het;
+    personagens.data = new Date().toISOString();
+
+    // Salvar no localStorage (Vitrine)
+    const vitrine = JSON.parse(localStorage.getItem('vitrine_personagens') || '[]');
+    vitrine.unshift(personagens);
+    if (vitrine.length > 200) vitrine.splice(200);
+    localStorage.setItem('vitrine_personagens', JSON.stringify(vitrine));
+
+    // Salvar no GitHub também
+    const token = window.GITHUB_TOKEN || localStorage.getItem('gh_token');
+    const owner = window.GITHUB_OWNER || 'sitedasletras';
+    if (token) {
+      const slug = s.titulo.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').substring(0,50);
+      const nomeArq = 'personagens/' + slug + '.json';
+      const body = { message: '[PERSONAGENS] ' + s.titulo, content: btoa(unescape(encodeURIComponent(JSON.stringify(personagens, null, 2)))), branch: 'main' };
+      await fetch(`https://api.github.com/repos/${owner}/CeleiroLiterario/contents/${nomeArq}`,
+        { method: 'PUT', headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    }
+
+    log('✓ Personagens de "' + s.titulo + '" salvos na Vitrine.');
+    mostrarPersonagens(personagens);
+  } catch(e) { log('⚠ Personagens não extraídos: ' + e.message); }
+}
+
+// Mostrar card de personagens abaixo do resultado
+function mostrarPersonagens(p) {
+  let html = '<div style="margin-top:1rem;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:8px;padding:1rem;">';
+  html += '<div style="font-family:monospace;font-size:.5rem;letter-spacing:.2em;color:#c9a84c;opacity:.5;text-transform:uppercase;margin-bottom:.8rem;">// PERSONAGENS · VITRINE</div>';
+  if (p.protagonista?.nome) html += `<div style="margin-bottom:.6rem;"><span style="font-family:monospace;font-size:.52rem;color:#4caf50;letter-spacing:.1em;">PROTAGONISTA</span><br><b style="color:#f0e8d0;">${p.protagonista.nome}</b> — <span style="font-size:.8rem;color:#b0a080;">${p.protagonista.descricao||''}</span></div>`;
+  if (p.antagonista?.nome) html += `<div style="margin-bottom:.6rem;"><span style="font-family:monospace;font-size:.52rem;color:#e65100;letter-spacing:.1em;">ANTAGONISTA</span><br><b style="color:#f0e8d0;">${p.antagonista.nome}</b> — <span style="font-size:.8rem;color:#b0a080;">${p.antagonista.descricao||''}</span></div>`;
+  if (p.secundarios?.length) {
+    html += '<div><span style="font-family:monospace;font-size:.52rem;color:#6a7d90;letter-spacing:.1em;">SECUNDÁRIOS</span><br>';
+    p.secundarios.forEach(s => { html += `<div style="font-size:.8rem;color:#b0a080;margin-top:.3rem;"><b style="color:#f0e8d0;">${s.nome}</b> — ${s.descricao||''}</div>`; });
+    html += '</div>';
+  }
+  html += '</div>';
+  const res = document.getElementById('resultado');
+  const existing = document.getElementById('card-personagens');
+  if (existing) existing.remove();
+  const div = document.createElement('div');
+  div.id = 'card-personagens';
+  div.innerHTML = html;
+  res.appendChild(div);
 }
 
 function baixar() {
@@ -507,6 +642,41 @@ function enviarParaProducao() {
   localStorage.setItem('ficha_tecnica_autor', JSON.stringify(fichaAutor));
   localStorage.setItem('catapulta_ficha_tecnica', JSON.stringify(fichaAutor));
   alert('✓ Obra enviada para a Linha de Produção!\nAbra a Central da Obra no Celeiro Literário.');
+}
+
+function enviarDestino(dest) {
+  if (!_semente) return;
+  // Salvar no localStorage para o triplo
+  const estado = JSON.parse(localStorage.getItem('sigmal_estado') || '{"calabouco":[],"masmorra":[],"paiol":{"literario":[]}}');
+  const item = {
+    id: Date.now(),
+    titulo: _semente.titulo,
+    tipo: 'livro',
+    destino: dest,
+    status: 'processado',
+    progresso: 100,
+    autor: _semente.het,
+    conteudo: _semente.corpo,
+    eixo: _semente.eixo,
+    biografia: _semente.apres,
+    dataProcessamento: new Date().toLocaleDateString('pt-BR'),
+    origem: 'Máquina Desafio · ' + _semente.epoca + ' · ' + _semente.universo
+  };
+  if (dest === 'calabouco') {
+    if (!estado.calabouco) estado.calabouco = [];
+    estado.calabouco.push(item);
+    alert('⚡ "' + _semente.titulo + '" enviado ao Calabouço!\nAbra o triplo para ver.');
+  } else {
+    if (!estado.masmorra) estado.masmorra = [];
+    estado.masmorra.push({
+      ...item,
+      dataEntrada: new Date().toISOString(),
+      dataLiberacao: new Date(Date.now() + 750*24*60*60*1000).toISOString(),
+      diasTotal: 750
+    });
+    alert('⛓ "' + _semente.titulo + '" enviado à Masmorra (750 dias)!\nAbra o triplo para ver.');
+  }
+  localStorage.setItem('sigmal_estado', JSON.stringify(estado));
 }
 
 function resetar() {
