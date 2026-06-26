@@ -243,6 +243,38 @@ body::before {
 }
 .btn-sair:hover { color: var(--ouro); }
 
+/* ===================== MODAL SALDO ===================== */
+#modal-saldo {
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+}
+#modal-saldo.aberto { display: flex; }
+.saldo-box {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.25);
+  padding: 2rem; width: 340px; max-width: 95vw;
+  clip-path: polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+}
+.saldo-box-titulo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem; letter-spacing: 0.3em; color: var(--ouro);
+  opacity: 0.6; text-transform: uppercase; margin-bottom: 1.5rem;
+}
+.saldo-linha {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.6rem 0; border-bottom: 1px solid rgba(201,168,76,0.06);
+  font-family: 'Share Tech Mono', monospace; font-size: 0.58rem;
+  color: var(--prata);
+}
+.saldo-linha span { color: var(--ouro); }
+.saldo-input-wrap { margin: 1.2rem 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.saldo-input-label { font-family: 'Share Tech Mono', monospace; font-size: 0.48rem; letter-spacing: 0.18em; color: var(--prata); opacity: 0.6; text-transform: uppercase; }
+.saldo-input { background: rgba(201,168,76,0.05); border: 1px solid rgba(201,168,76,0.2); color: var(--creme); font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; padding: 0.6rem 0.8rem; outline: none; width: 100%; }
+.saldo-input:focus { border-color: var(--ouro); }
+.saldo-hist { margin-top: 1rem; max-height: 140px; overflow-y: auto; }
+.saldo-hist-item { font-family: 'Share Tech Mono', monospace; font-size: 0.48rem; color: var(--prata); opacity: 0.55; padding: 0.25rem 0; border-bottom: 1px solid rgba(201,168,76,0.04); display: flex; justify-content: space-between; }
+
 /* Status do sistema */
 .sistema-status {
   display: flex;
@@ -1084,10 +1116,37 @@ body::before {
 <!-- ===================== APP ===================== -->
 <div id="app">
 
+  <!-- MODAL SALDO API -->
+  <div id="modal-saldo">
+    <div class="saldo-box">
+      <div class="saldo-box-titulo">// SALDO ANTHROPIC API</div>
+      <div class="saldo-linha">Saldo atual <span id="ms-atual">$20,41</span></div>
+      <div class="saldo-linha">Gasto total registrado <span id="ms-gasto">$0,00</span></div>
+      <div class="saldo-linha">Chamadas realizadas <span id="ms-chamadas">0</span></div>
+      <div class="saldo-linha">Último sync <span id="ms-sync">—</span></div>
+      <div class="saldo-input-wrap">
+        <div class="saldo-input-label">Atualizar saldo (informe o valor atual em $)</div>
+        <input class="saldo-input" id="saldo-novo-valor" type="number" step="0.01" min="0" placeholder="Ex: 20.41">
+      </div>
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+        <button class="btn-p" onclick="salvarNovoSaldo()" style="flex:1;">✓ SALVAR SALDO</button>
+        <button class="btn-s" onclick="window.open('https://console.anthropic.com/settings/billing','_blank')" style="flex:1;border-color:#f57f17;color:#f57f17;">💳 RECARREGAR</button>
+        <button class="btn-s" onclick="document.getElementById('modal-saldo').classList.remove('aberto')" style="flex:1;">FECHAR</button>
+      </div>
+      <div class="saldo-hist" id="saldo-hist"></div>
+    </div>
+  </div>
+
   <!-- TOPO -->
   <div class="topo">
     <div class="topo-esq">
-      <div class="topo-logo">SIGMAL HQ</div>
+      <div class="topo-logo" id="widget-saldo" onclick="abrirPainelSaldo()" title="Clique para gerenciar saldo" style="cursor:pointer;display:flex;flex-direction:column;gap:0.1rem;">
+        <div id="saldo-valor" style="font-size:1.1rem;line-height:1;">$20,41</div>
+        <div id="saldo-barra-wrap" style="width:100%;height:3px;background:rgba(201,168,76,0.15);border-radius:2px;margin-top:2px;">
+          <div id="saldo-barra" style="height:100%;border-radius:2px;background:var(--verde);width:100%;transition:width 0.5s,background 0.5s;"></div>
+        </div>
+        <div id="saldo-label" style="font-family:'Share Tech Mono',monospace;font-size:0.38rem;letter-spacing:0.12em;color:var(--prata);opacity:0.6;text-transform:uppercase;">restam de $20,41</div>
+      </div>
       <div class="topo-sep"></div>
       <div class="topo-sub">
         PAINEL CENTRAL INTEGRADO<br>
@@ -3877,6 +3936,142 @@ function init() {
 }
 
 // Auto-login se já autenticado
+
+// ===================== SISTEMA DE SALDO API =====================
+const PRECO_INPUT_POR_TOKEN  = 3.00 / 1_000_000;   // $3/M tokens input  (Sonnet 4.6)
+const PRECO_OUTPUT_POR_TOKEN = 15.00 / 1_000_000;  // $15/M tokens output (Sonnet 4.6)
+
+function carregarSaldo() {
+  const s = localStorage.getItem('sigmal_saldo');
+  return s ? JSON.parse(s) : {
+    saldoInicial: 20.41,
+    saldoAtual: 20.41,
+    gastoTotal: 0,
+    chamadas: 0,
+    historico: [],
+    ultimoSync: null
+  };
+}
+
+function salvarSaldo(dados) {
+  localStorage.setItem('sigmal_saldo', JSON.stringify(dados));
+}
+
+function registrarChamadaAPI(inputTokens, outputTokens, origem) {
+  const dados = carregarSaldo();
+  const custo = (inputTokens * PRECO_INPUT_POR_TOKEN) + (outputTokens * PRECO_OUTPUT_POR_TOKEN);
+  dados.gastoTotal   = +(dados.gastoTotal + custo).toFixed(6);
+  dados.saldoAtual   = +(dados.saldoAtual - custo).toFixed(6);
+  dados.chamadas     += 1;
+  dados.ultimoSync   = new Date().toISOString();
+  dados.historico.unshift({
+    data: new Date().toLocaleString('pt-BR'),
+    origem: origem || 'triplo',
+    custo: custo.toFixed(5),
+    inputTokens, outputTokens
+  });
+  if (dados.historico.length > 100) dados.historico = dados.historico.slice(0, 100);
+  salvarSaldo(dados);
+  atualizarWidgetSaldo(dados);
+}
+
+function atualizarWidgetSaldo(dados) {
+  if (!dados) dados = carregarSaldo();
+  const pct = Math.max(0, Math.min(100, (dados.saldoAtual / dados.saldoInicial) * 100));
+  const cor = pct > 30 ? 'var(--verde)' : pct > 10 ? 'var(--laranja)' : 'var(--vermelho)';
+  const elValor = document.getElementById('saldo-valor');
+  const elBarra = document.getElementById('saldo-barra');
+  const elLabel = document.getElementById('saldo-label');
+  if (elValor) elValor.textContent = '$' + dados.saldoAtual.toFixed(2);
+  if (elBarra) { elBarra.style.width = pct + '%'; elBarra.style.background = cor; }
+  if (elLabel) {
+    elLabel.style.color = pct > 30 ? '' : pct > 10 ? 'var(--laranja)' : 'var(--vermelho)';
+    elLabel.textContent = 'restam de $' + dados.saldoInicial.toFixed(2);
+  }
+  // Alerta quando baixo
+  if (pct <= 10 && pct > 0) notif('⚠ SALDO BAIXO', 'Saldo API abaixo de 10%! Recarregue em console.anthropic.com', 'erro');
+  if (dados.saldoAtual <= 0) notif('🔴 SEM SALDO', 'Saldo API zerado! Recarregue em console.anthropic.com/settings/billing', 'erro');
+}
+
+function abrirPainelSaldo() {
+  const dados = carregarSaldo();
+  document.getElementById('ms-atual').textContent    = '$' + dados.saldoAtual.toFixed(2);
+  document.getElementById('ms-gasto').textContent    = '$' + dados.gastoTotal.toFixed(4);
+  document.getElementById('ms-chamadas').textContent = dados.chamadas;
+  document.getElementById('ms-sync').textContent     = dados.ultimoSync
+    ? new Date(dados.ultimoSync).toLocaleString('pt-BR') : '—';
+  document.getElementById('saldo-novo-valor').value  = dados.saldoAtual.toFixed(2);
+  // Histórico
+  const hist = document.getElementById('saldo-hist');
+  if (dados.historico.length) {
+    hist.innerHTML = '<div style="font-family:Share Tech Mono,monospace;font-size:.45rem;color:rgba(201,168,76,.4);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.4rem;">// Últimas chamadas</div>'
+      + dados.historico.slice(0,20).map(h =>
+        `<div class="saldo-hist-item"><span>${h.data} · ${h.origem}</span><span>-$${h.custo}</span></div>`
+      ).join('');
+  } else {
+    hist.innerHTML = '';
+  }
+  document.getElementById('modal-saldo').classList.add('aberto');
+}
+
+function salvarNovoSaldo() {
+  const val = parseFloat(document.getElementById('saldo-novo-valor').value);
+  if (isNaN(val) || val < 0) { notif('ERRO', 'Valor inválido.', 'erro'); return; }
+  const dados = carregarSaldo();
+  dados.saldoInicial = val;
+  dados.saldoAtual   = val;
+  dados.gastoTotal   = 0;
+  dados.chamadas     = 0;
+  dados.historico    = [];
+  dados.ultimoSync   = new Date().toISOString();
+  salvarSaldo(dados);
+  atualizarWidgetSaldo(dados);
+  document.getElementById('modal-saldo').classList.remove('aberto');
+  notif('SALDO ATUALIZADO', 'Novo saldo: $' + val.toFixed(2), 'sucesso');
+}
+
+// Interceptar todas as chamadas fetch à API Anthropic para registrar tokens
+const _fetchOriginal = window.fetch;
+window.fetch = async function(...args) {
+  const resp = await _fetchOriginal.apply(this, args);
+  try {
+    const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
+    if (url.includes('anthropic.com/v1/messages')) {
+      const clone = resp.clone();
+      clone.json().then(data => {
+        if (data?.usage) {
+          const origem = url.includes('celeiro') ? 'celeiro' : 'triplo';
+          registrarChamadaAPI(
+            data.usage.input_tokens  || 0,
+            data.usage.output_tokens || 0,
+            origem
+          );
+        }
+      }).catch(()=>{});
+    }
+  } catch(_) {}
+  return resp;
+};
+
+// Sync às 8h Brasília (11h UTC)
+function agendarSyncDiario() {
+  const agora = new Date();
+  const syncUTC = new Date(Date.UTC(agora.getUTCFullYear(), agora.getUTCMonth(), agora.getUTCDate(), 11, 0, 0));
+  if (syncUTC <= agora) syncUTC.setUTCDate(syncUTC.getUTCDate() + 1);
+  const ms = syncUTC - agora;
+  setTimeout(() => {
+    atualizarWidgetSaldo();
+    notif('SYNC', 'Saldo API atualizado às 8h Brasília.', 'sucesso');
+    agendarSyncDiario();
+  }, ms);
+}
+
+// Inicializar widget ao carregar
+document.addEventListener('DOMContentLoaded', () => {
+  atualizarWidgetSaldo();
+  agendarSyncDiario();
+});
+
 if (localStorage.getItem('sigmal_hq_auth') === '1') {
   document.getElementById('tela-login').classList.add('oculto');
   document.getElementById('app').style.display = 'block';
