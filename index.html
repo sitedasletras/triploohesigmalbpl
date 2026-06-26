@@ -1153,13 +1153,7 @@ body::before {
   <!-- TOPO -->
   <div class="topo">
     <div class="topo-esq">
-      <div class="topo-logo" id="widget-saldo" onclick="abrirPainelSaldo()" title="Clique para gerenciar saldo" style="cursor:pointer;display:flex;flex-direction:column;gap:0.1rem;">
-        <div id="saldo-valor" style="font-size:1.1rem;line-height:1;">$20,41</div>
-        <div id="saldo-barra-wrap" style="width:100%;height:3px;background:rgba(201,168,76,0.15);border-radius:2px;margin-top:2px;">
-          <div id="saldo-barra" style="height:100%;border-radius:2px;background:var(--verde);width:100%;transition:width 0.5s,background 0.5s;"></div>
-        </div>
-        <div id="saldo-label" style="font-family:'Share Tech Mono',monospace;font-size:0.38rem;letter-spacing:0.12em;color:var(--prata);opacity:0.6;text-transform:uppercase;">restam de $20,41</div>
-      </div>
+      <div class="topo-logo">SIGMAL HQ</div>
       <div class="topo-sep"></div>
       <div class="topo-sub">
         PAINEL CENTRAL INTEGRADO<br>
@@ -1167,6 +1161,13 @@ body::before {
       </div>
     </div>
     <div class="topo-dir">
+      <div id="widget-saldo" onclick="abrirPainelSaldo()" title="Clique para gerenciar saldo" style="cursor:pointer;display:flex;flex-direction:column;align-items:flex-end;gap:0.1rem;min-width:80px;">
+        <div id="saldo-valor" style="font-family:'Cinzel',serif;font-size:0.85rem;color:var(--ouro);line-height:1;">$20,41</div>
+        <div style="width:80px;height:2px;background:rgba(201,168,76,0.15);border-radius:2px;">
+          <div id="saldo-barra" style="height:100%;border-radius:2px;background:var(--verde);width:100%;transition:width 0.5s,background 0.5s;"></div>
+        </div>
+        <div id="saldo-label" style="font-family:'Share Tech Mono',monospace;font-size:0.35rem;letter-spacing:0.08em;color:var(--prata);opacity:0.5;text-transform:uppercase;">restam</div>
+      </div>
       <div class="sistema-status" id="status-sistema">
         <div class="status-dot"></div>
         SISTEMA ATIVO
