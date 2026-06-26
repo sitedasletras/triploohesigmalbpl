@@ -320,7 +320,11 @@
   </div>
 
   <div class="obra-card">
-    <div class="obra-titulo" id="res-obra-titulo">—</div>
+    <div style="background:#ffffff;padding:1.5rem 2.5rem 0.5rem 2.5rem;border-radius:4px 4px 0 0;">
+      <div id="res-obra-titulo" style="font-family:'Times New Roman',serif;font-size:1.15rem;font-weight:700;color:#1a1a1a;text-align:center;margin-bottom:0.3rem;">—</div>
+      <div id="res-obra-autor" style="font-family:'Times New Roman',serif;font-size:0.85rem;color:#4a4a4a;text-align:center;margin-bottom:1rem;">—</div>
+      <div style="border-top:1px solid #e0e0e0;"></div>
+    </div>
     <div class="obra-txt" id="res-obra-txt"></div>
   </div>
 
@@ -417,10 +421,31 @@ SUA MISSÃO COMPLETA:
    - Poesia: 20 a 60 versos
    - Cordel: mínimo 10 estrofes (sextilha, rima em 2,4,6, métrica 7 sílabas)
 
-REGRAS:
-- Prosa: parágrafos separados por linha em branco, travessão (—) só em diálogos
+REGRAS DE ESCRITA — OBRIGATÓRIAS:
+
+PERSONAGENS:
+- Todo personagem sem exceção deve ter NOME e SOBRENOME próprios
+- NUNCA usar "o filho de", "a mulher de", "o amigo do" — todo mundo tem nome
+- Personagens secundários são pessoas reais na história, não funções
+
+DIÁLOGOS:
+- Travessão (—) para abrir fala, seguido do texto da fala
+- Verbo de elocução natural: disse, respondeu, murmurou, perguntou, pensou
+- Nunca frases soltas sem contexto — sempre há ação ou reação junto
+
+NARRATIVA:
+- Sem repetições desnecessárias — se o personagem foi, foi. Não explicar como não foi
+- Sem lista de negações: "não foi de bicicleta, não foi de carro, não foi de avião"
+- Cada frase carrega peso — cortar tudo que não acrescenta
+- Mostrar não explicar — o leitor é inteligente
+- Sem marcadores de IA: "é importante notar", "vale ressaltar", "em suma"
+
+TIPOGRAFIA:
+- Título em negrito tamanho 14
+- Texto corpo tamanho 12
+- Parágrafos separados por linha em branco
 - Poesia: maiúscula e pontuação em cada verso
-- Tom literário elevado — como se fosse publicado hoje por uma editora independente de prestígio
+- Cordel: mínimo 10 estrofes, sextilha, rima em 2,4,6, métrica 7 sílabas
 
 FORMATO DE RESPOSTA (siga exatamente, sem alterar os marcadores):
 ---HETERÔNIMO---
@@ -488,6 +513,7 @@ FORMATO DE RESPOSTA (siga exatamente, sem alterar os marcadores):
     document.getElementById('res-het-info').textContent = eixo ? '✦ ' + eixo + ' · ' + _epoca.toUpperCase() + ' · ' + universo : '';
     document.getElementById('res-het-apres').textContent = apres ? '"' + apres + '"' : '';
     document.getElementById('res-obra-titulo').textContent = titulo;
+    document.getElementById('res-obra-autor').textContent = 'Autor: ' + het;
     // Renderizar como Word — parágrafos reais
     const paragrafos = corpo.split(/\n\n+/).filter(p => p.trim());
     document.getElementById('res-obra-txt').innerHTML = paragrafos
@@ -628,7 +654,7 @@ function mostrarPersonagens(p) {
 
 function baixar() {
   if (!_semente) return;
-  const conteudo = `${_semente.het}\n${_semente.eixo}\n\n${_semente.titulo}\n\n${_semente.corpo}`;
+  const conteudo = `${_semente.titulo}\n\nAutor: ${_semente.het}\n\n${_semente.corpo}`;
   const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -664,8 +690,9 @@ function enviarParaProducao() {
 
 function enviarDestino(dest) {
   if (!_semente) return;
-  // Salvar no localStorage para o triplo
-  const estado = JSON.parse(localStorage.getItem('sigmal_estado') || '{"calabouco":[],"masmorra":[],"paiol":{"literario":[]}}');
+  // Usar a mesma chave do triplo
+  const CHAVE = 'sigmal_hq_estado';
+  const estado = JSON.parse(localStorage.getItem(CHAVE) || localStorage.getItem('sigmal_estado') || '{"calabouco":[],"masmorra":[],"paiol":{"literario":[]}}');
   const item = {
     id: Date.now(),
     titulo: _semente.titulo,
@@ -694,6 +721,8 @@ function enviarDestino(dest) {
     });
     alert('⛓ "' + _semente.titulo + '" enviado à Masmorra (750 dias)!\nAbra o triplo para ver.');
   }
+  // Salvar nas duas chaves para garantir compatibilidade
+  localStorage.setItem('sigmal_hq_estado', JSON.stringify(estado));
   localStorage.setItem('sigmal_estado', JSON.stringify(estado));
 }
 
