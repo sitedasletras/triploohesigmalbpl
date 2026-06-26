@@ -690,6 +690,19 @@ body::before {
 }
 .fa-btn:hover { color: var(--ouro); border-color: var(--ouro); }
 
+/* Botões tipo/destino — formulário simplificado */
+.btn-tipo, .btn-destino {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.62rem; letter-spacing: 0.12em;
+  padding: 0.7rem 1.4rem; border: 1px solid rgba(201,168,76,0.25);
+  background: transparent; color: var(--prata);
+  cursor: pointer; text-transform: uppercase; transition: all 0.25s;
+}
+.btn-tipo:hover, .btn-destino:hover { color: var(--ouro); border-color: rgba(201,168,76,0.5); }
+.btn-tipo.ativo { background: rgba(201,168,76,0.12); border-color: var(--ouro); color: var(--ouro); }
+.btn-destino.ativo-calabouco { background: rgba(230,81,0,0.12); border-color: var(--laranja); color: var(--laranja); }
+.btn-destino.ativo-masmorra  { background: rgba(211,47,47,0.12); border-color: var(--vermelho); color: #ff6b6b; }
+
 /* Barra de progresso */
 .barra-prog {
   height: 2px;
@@ -1335,166 +1348,42 @@ body::before {
         </div>
       </div>
 
-                  <!-- Painel Máquina -->
+                  <!-- Painel Máquina — NOVO FLUXO SIMPLIFICADO -->
 <div class="painel-entrada" id="painel-maquina">
-  <div class="painel-titulo">// MÁQUINA DE DADOS — GERAÇÃO AUTOMÁTICA</div>
+  <div class="painel-titulo">// FERNANDO PEÇANHA · GERAÇÃO LIVRE</div>
 
-  <!-- FORMATO / TEMPLATE -->
-  <div class="fg">
-    <label class="fl">Formato do texto</label>
-    <select class="fs" id="maq-formato" onchange="aplicarTemplateMaquina()">
-      <option value="">Selecionar formato...</option>
-      <optgroup label="— POESIA —">
-        <option value="cordel">Cordel</option>
-        <option value="soneto">Soneto</option>
-        <option value="haicai">Haicai</option>
-        <option value="ghazal">Ghazal</option>
-        <option value="pantum">Pantum</option>
-        <option value="ode">Ode</option>
-        <option value="trova">Trova</option>
-        <option value="poetrix">Poetrix</option>
-        <option value="poesia-livre">Poesia Livre</option>
-        <option value="poema-narrativo">Poema Narrativo</option>
-      </optgroup>
-      <optgroup label="— PROSA —">
-        <option value="romance">Romance</option>
-        <option value="conto">Conto</option>
-        <option value="cronica">Crônica</option>
-        <option value="prosa-poetica">Prosa Poética</option>
-        <option value="flash-fiction">Flash Fiction</option>
-      </optgroup>
-      <optgroup label="— HÍBRIDO —">
-        <option value="hibrido">Híbrido (Fernando Peçanha decide)</option>
-      </optgroup>
-    </select>
-  </div>
-
-  <!-- TEMPLATE PREVIEW -->
-  <div id="maq-template-box" style="display:none;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.15);padding:0.8rem 1rem;margin-bottom:1rem;font-family:'Share Tech Mono',monospace;font-size:0.48rem;letter-spacing:0.05em;color:rgba(201,168,76,0.7);line-height:1.8;white-space:pre-wrap;"></div>
-
-  <!-- VERSOS POR ESTROFE — só aparece quando formato = cordel -->
-  <div class="fg" id="maq-versos-box" style="display:none;">
-    <label class="fl">Versos por estrofe</label>
-    <select class="fs" id="maq-versos">
-      <option value="6">6 versos — Sextilha (padrão) · rima em 2, 4, 6</option>
-      <option value="7">7 versos — Sétima · rima em 2, 4, 5, 7</option>
-      <option value="8">8 versos — Oitava · rima em 2, 4, 6, 8</option>
-      <option value="10">10 versos — Décima · rima em 2, 4, 6, 8, 10</option>
-    </select>
-  </div>
-
-  <div class="fg-grid">
-    <div class="fg">
-      <label class="fl">Categoria</label>
-      <select class="fs" id="maq-categoria">
-        <option value="">Fernando Peçanha decide</option>
-        <option>Prosa</option>
-        <option>Poesia</option>
-        <option>Híbrido</option>
-        <option>Cordel</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fl">Destino</label>
-      <select class="fs" id="maq-destino">
-        <option value="">Selecionar...</option>
-        <option value="calabouco">Calabouço (obra final)</option>
-        <option value="masmorra">Masmorra (quarentena 750 dias)</option>
-      </select>
+  <!-- TIPO -->
+  <div class="fg" style="margin-bottom:1.2rem;">
+    <label class="fl" style="margin-bottom:0.6rem;">O que você quer?</label>
+    <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+      <button class="btn-tipo" id="tipo-prosa"   onclick="selecionarTipo('prosa')"  >📖 PROSA</button>
+      <button class="btn-tipo" id="tipo-poesia"  onclick="selecionarTipo('poesia')" >🎭 POESIA</button>
+      <button class="btn-tipo" id="tipo-cordel"  onclick="selecionarTipo('cordel')" >📜 CORDEL</button>
     </div>
   </div>
 
-  <div class="fg">
-    <label class="fl">Tema / Território central</label>
-    <input type="text" class="fi" id="maq-tema" placeholder="ex: amor impossível no sertão, guerra medieval, vampiro aristocrático...">
-  </div>
-
-  <!-- DADOS DETALHADOS -->
-  <div class="fg-grid">
-    <div class="fg">
-      <label class="fl">Cenário (lugar, época, clima)</label>
-      <input type="text" class="fi" id="maq-cenario" placeholder="ex: São Paulo anos 80, sertão nordestino, Transilvânia 1642...">
+  <!-- DESTINO -->
+  <div class="fg" style="margin-bottom:1.5rem;">
+    <label class="fl" style="margin-bottom:0.6rem;">Destino</label>
+    <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+      <button class="btn-destino" id="dest-calabouco" onclick="selecionarDestino('calabouco')">⚡ CALABOUÇO</button>
+      <button class="btn-destino" id="dest-masmorra"  onclick="selecionarDestino('masmorra')" >⛓ MASMORRA</button>
     </div>
-    <div class="fg">
-      <label class="fl">Personagem principal</label>
-      <input type="text" class="fi" id="maq-personagem" placeholder="ex: pescador caiçara de 60 anos, mãos calejadas...">
+    <div style="font-family:'Crimson Pro',serif;font-style:italic;font-size:0.78rem;color:var(--prata);opacity:0.5;margin-top:0.5rem;" id="destino-desc">
+      Calabouço = desafio ou geração livre · Masmorra = edital, quarentena 750 dias
     </div>
   </div>
 
-  <div class="fg-grid">
-    <div class="fg">
-      <label class="fl">Conflito central</label>
-      <input type="text" class="fi" id="maq-conflito" placeholder="ex: perda da terra, amor proibido, traição, sobrevivência...">
-    </div>
-    <div class="fg">
-      <label class="fl">Tom / Atmosfera</label>
-      <select class="fs" id="maq-tom">
-        <option value="">Fernando Peçanha decide</option>
-        <option>Sombrio e melancólico</option>
-        <option>Épico e grandioso</option>
-        <option>Lírico e contemplativo</option>
-        <option>Humorístico e irônico</option>
-        <option>Dramático e tenso</option>
-        <option>Místico e sobrenatural</option>
-        <option>Crítico e político</option>
-        <option>Romântico e apaixonado</option>
-        <option>Nordestino e popular</option>
-        <option>Urbano e contemporâneo</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="fg-grid">
-    <div class="fg">
-      <label class="fl">Detalhe sensorial (ancora a cena)</label>
-      <input type="text" class="fi" id="maq-sensorial" placeholder="ex: cheiro de chuva na terra seca, luz de neon refletida na poça...">
-    </div>
-    <div class="fg">
-      <label class="fl">Referência literária ou cultural</label>
-      <input type="text" class="fi" id="maq-referencia" placeholder="ex: estilo Guimarães Rosa, clima de O Corvo, ritmo de cordel...">
-    </div>
-  </div>
-
-  <div class="fg">
-    <label class="fl">Heterônimo sugerido (ou deixar Fernando Peçanha decidir)</label>
-    <select class="fs" id="maq-heteronimo">
-      <option value="">Fernando Peçanha decide</option>
-      <option>A.J. dos Santos</option><option>Amanda Fernanda Fisher Leão</option>
-      <option>Amélie Maia Hanna</option><option>Anísio Teixeira</option>
-      <option>Articus da Persida</option><option>Aurora Wings</option>
-      <option>Padre Benedicttus Konstantinos</option><option>Birihani Selami Ina Tesifa</option>
-      <option>Calíope Papazissis</option><option>Chesco Irlanda</option>
-      <option>Clara Mendes Rios</option><option>Claudiney Aristides Diaz</option>
-      <option>Creone Porfirio</option><option>Cristovão Duarte</option>
-      <option>Daniel Fernandes</option><option>Dárius Ninus Vamus</option>
-      <option>Demetrius Varas</option><option>Din Kin Lin</option>
-      <option>Diógenes Bueno de Alencar</option><option>Dona Catarina Trovante</option>
-      <option>Hama Amarin</option><option>Helena Duarte Valença</option>
-      <option>Henrich Jones</option><option>Hernesto Bevilácqua</option>
-      <option>Horando Almeida Prado</option><option>Icabode Kahpote</option>
-      <option>Imediato Thompson</option><option>Irmão Ezequias Luz</option>
-      <option>J.L.Gomes</option><option>Jorge Cavalcanti</option>
-      <option>Julia Abdalla</option><option>Juka Pituskaq</option>
-      <option>Marina das Vozes</option><option>Marina Torres Azevedo</option>
-      <option>Mário Célio Sabino</option><option>Michelangelo Miguel</option>
-      <option>Mórigan Voss</option><option>Noraya Sakamoto</option>
-      <option>Pyetra Luyza</option><option>Raimundo José da Silva Nonato</option>
-      <option>Renat Kolotov</option><option>Rovonilson Reigns Bautista</option>
-      <option>Santiago Poetrix</option><option>Sebastião Ferreira dos Anjos</option>
-      <option>Site das Letras Ed. Literárias</option><option>Valter Marques</option>
-      <option>Victor A. Pereira</option><option>Vladislava Karnstein</option>
-      <option>Wagner Planas</option><option>Wilson Silva</option><option>Yago Mattos</option>
-    </select>
-  </div>
-
-  <div class="fg">
-    <label class="fl">Instruções adicionais</label>
-    <textarea class="fta" id="maq-instrucoes" placeholder="Parâmetros extras, restrições, elementos obrigatórios..."></textarea>
+  <!-- RESULTADO -->
+  <div id="maq-resultado" style="display:none;background:rgba(201,168,76,0.03);border:1px solid rgba(201,168,76,0.12);padding:1rem;margin-bottom:1rem;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.2em;color:var(--ouro);opacity:0.5;text-transform:uppercase;margin-bottom:0.6rem;">// FERNANDO PEÇANHA · SEMENTE GERADA</div>
+    <div id="maq-resultado-het" style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:var(--ouro);margin-bottom:0.3rem;"></div>
+    <div id="maq-resultado-txt" style="font-family:'Crimson Pro',serif;font-size:0.88rem;color:var(--creme);line-height:1.7;max-height:300px;overflow-y:auto;white-space:pre-wrap;"></div>
   </div>
 
   <div class="form-acoes">
-    <button class="btn-p" onclick="gerarDadosMaquina()">✦ GERAR DADOS COM IA</button>
-    <button class="btn-p" onclick="enviarParaFila('maquina')">ENVIAR PARA FERNANDO PEÇANHA</button>
+    <button class="btn-p" id="btn-gerar-maquina" onclick="gerarSementeLivre()" style="opacity:0.4;pointer-events:none;">✦ GERAR</button>
+    <button class="btn-p" id="btn-enviar-maquina" onclick="enviarSementeParaFila()" style="display:none;">→ ENVIAR PARA FILA</button>
     <button class="btn-s" onclick="fecharPainel()">CANCELAR</button>
   </div>
 </div>
@@ -2272,6 +2161,169 @@ async function gerarDadosMaquina() {
     notif('ERRO', 'Falha ao gerar dados: ' + e.message, 'erro');
   }
 }
+// ===================== MÁQUINA LIVRE — FERNANDO PEÇANHA =====================
+let maqTipoSelecionado = '';
+let maqDestinoSelecionado = '';
+let maqSementeGerada = null;
+
+function selecionarTipo(tipo) {
+  maqTipoSelecionado = tipo;
+  document.querySelectorAll('.btn-tipo').forEach(b => b.classList.remove('ativo'));
+  document.getElementById('tipo-' + tipo).classList.add('ativo');
+  verificarProntoParaGerar();
+}
+
+function selecionarDestino(dest) {
+  maqDestinoSelecionado = dest;
+  document.querySelectorAll('.btn-destino').forEach(b => b.classList.remove('ativo-calabouco','ativo-masmorra'));
+  document.getElementById('dest-' + dest).classList.add('ativo-' + dest);
+  const desc = document.getElementById('destino-desc');
+  if (dest === 'calabouco') desc.textContent = 'Calabouço — desafio ou geração livre. Obra pronta para uso imediato.';
+  else desc.textContent = 'Masmorra — edital ou obra para maturar. Quarentena de 750 dias. Você recebe uma cópia para leitura.';
+  verificarProntoParaGerar();
+}
+
+function verificarProntoParaGerar() {
+  const btn = document.getElementById('btn-gerar-maquina');
+  if (maqTipoSelecionado && maqDestinoSelecionado) {
+    btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
+  } else {
+    btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none';
+  }
+}
+
+async function gerarSementeLivre() {
+  if (!maqTipoSelecionado || !maqDestinoSelecionado) return;
+  const btn = document.getElementById('btn-gerar-maquina');
+  btn.textContent = '⟳ GERANDO...'; btn.style.opacity = '0.6'; btn.style.pointerEvents = 'none';
+
+  const tipoLabel = { prosa: 'Prosa (romance, conto ou crônica)', poesia: 'Poesia (forma livre ou clássica)', cordel: 'Cordel (literatura de cordel nordestina)' };
+
+  const prompt = `Você é Fernando Peçanha, curador da OHE com 51 heterônimos.
+
+O produtor quer uma SEMENTE LITERÁRIA do tipo: ${tipoLabel[maqTipoSelecionado]}.
+Destino: ${maqDestinoSelecionado === 'calabouco' ? 'Calabouço (obra de desafio/geração livre)' : 'Masmorra (edital ou quarentena 750 dias)'}.
+
+HETERÔNIMOS DISPONÍVEIS:
+${HETERONIMOS.map(h => `- ${h.nome} | ${h.eixo} | ${h.territorio} | formato: ${h.formato}`).join('
+')}
+
+SUA MISSÃO:
+1. Escolha o heterônimo mais adequado para este tipo
+2. Defina internamente: tema, cenário, personagem, conflito, tom — TUDO por conta própria
+3. Escreva a SEMENTE LITERÁRIA completa (500 a 1.500 palavras para prosa/cordel; 20 a 60 versos para poesia)
+4. A semente deve ter começo, meio e fim — uma obra curta mas completa
+5. Tom: literário elevado, humanizado, sem rastro de IA
+
+REGRAS DE FORMATAÇÃO:
+- Prosa: parágrafos com linha em branco, travessão (—) só em diálogos, sem comentários editoriais
+- Poesia: cada verso começa com maiúscula e termina com pontuação
+- Cordel: sextilha (6 versos), rima em 2,4,6, métrica de 7 sílabas
+
+FORMATO DE RESPOSTA:
+---HETERÔNIMO---
+[nome]
+
+---OBRA---
+[título]
+
+[texto completo]
+
+---DADOS DO AUTOR---
+EIXO: [eixo]
+TERRITÓRIO: [território]
+TOM: [tom]
+BIOGRAFIA: [80 a 120 palavras em terceira pessoa, tom elevado]`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': window.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4096, messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!response.ok) throw new Error('Erro ' + response.status);
+    const data = await response.json();
+    const texto = data.content[0].text;
+
+    const matchHet  = texto.match(/---HETERÔNIMO---\s*([\s\S]*?)---/);
+    const matchObra = texto.match(/---OBRA---\s*([\s\S]*?)(?:---DADOS DO AUTOR---|$)/);
+    const matchDados = texto.match(/---DADOS DO AUTOR---\s*([\s\S]*?)$/) ;
+
+    const heteronimo = matchHet ? matchHet[1].trim() : 'Fernando Peçanha';
+    const obraTexto  = matchObra ? matchObra[1].trim() : texto;
+    const tituloMatch = obraTexto.match(/^(.+)
+/);
+    const titulo = tituloMatch ? tituloMatch[1].trim() : 'Semente sem título';
+
+    // Extrair dados do autor
+    let eixo='', territorio='', tom='', biografia='';
+    if (matchDados) {
+      const d = matchDados[1];
+      const mE = d.match(/EIXO:\s*(.+)/); if(mE) eixo = mE[1].trim();
+      const mT = d.match(/TERRITÓRIO:\s*(.+)/); if(mT) territorio = mT[1].trim();
+      const mTo = d.match(/TOM:\s*(.+)/); if(mTo) tom = mTo[1].trim();
+      const mB = d.match(/BIOGRAFIA:\s*([\s\S]+)/); if(mB) biografia = mB[1].replace(/---[\s\S]*$/,'').trim();
+    }
+
+    maqSementeGerada = { titulo, autor: heteronimo, tipo: maqTipoSelecionado, destino: maqDestinoSelecionado, conteudo: obraTexto, eixo, territorio, tom, biografia, data: new Date().toLocaleDateString('pt-BR') };
+
+    // Mostrar resultado
+    document.getElementById('maq-resultado').style.display = 'block';
+    document.getElementById('maq-resultado-het').textContent = '✦ ' + heteronimo + ' · ' + titulo;
+    document.getElementById('maq-resultado-txt').textContent = obraTexto;
+    document.getElementById('btn-enviar-maquina').style.display = 'inline-block';
+
+    // Se masmorra: entregar cópia no localStorage para leitura
+    if (maqDestinoSelecionado === 'masmorra') {
+      localStorage.setItem('copia_leitura_masmorra', JSON.stringify({ titulo, autor: heteronimo, conteudo: obraTexto, data: new Date().toISOString() }));
+      notif('📋 CÓPIA SALVA', 'Uma cópia da obra foi salva para sua leitura.', 'sucesso');
+    }
+
+    btn.textContent = '✓ GERADO · GERAR OUTRA'; btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
+    notif('FERNANDO PEÇANHA', '"' + titulo + '" gerado por ' + heteronimo + '!', 'sucesso');
+  } catch(e) {
+    btn.textContent = '✦ GERAR'; btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
+    notif('ERRO', e.message, 'erro');
+  }
+}
+
+function enviarSementeParaFila() {
+  if (!maqSementeGerada) return;
+  const item = {
+    id: Date.now(),
+    titulo: maqSementeGerada.titulo,
+    tipo: maqSementeGerada.tipo,
+    meta: maqSementeGerada.tipo + ' · gerado por Fernando Peçanha',
+    destino: maqSementeGerada.destino,
+    status: 'processado',
+    progresso: 100,
+    autor: maqSementeGerada.autor,
+    conteudo: maqSementeGerada.conteudo,
+    eixo: maqSementeGerada.eixo,
+    territorio: maqSementeGerada.territorio,
+    tom: maqSementeGerada.tom,
+    biografia: maqSementeGerada.biografia,
+    dataProcessamento: maqSementeGerada.data
+  };
+  // Destino: calabouço ou masmorra direto
+  if (maqSementeGerada.destino === 'calabouco') {
+    estado.calabouco.push({ ...item, tipo: 'livro' });
+    renderizarCalabouco();
+    notif('CALABOUÇO', '"' + item.titulo + '" adicionado ao Calabouço!', 'sucesso');
+  } else {
+    estado.masmorra.push({ ...item, tipo: 'livro', dataEntrada: new Date().toISOString(), dataLiberacao: new Date(Date.now() + 750*24*60*60*1000).toISOString(), diasTotal: 750 });
+    renderizarMasmorra();
+    notif('MASMORRA', '"' + item.titulo + '" enviado à Masmorra (750 dias).', 'sucesso');
+  }
+  salvar();
+  // Resetar
+  maqSementeGerada = null; maqTipoSelecionado = ''; maqDestinoSelecionado = '';
+  document.querySelectorAll('.btn-tipo,.btn-destino').forEach(b => b.classList.remove('ativo','ativo-calabouco','ativo-masmorra'));
+  document.getElementById('maq-resultado').style.display = 'none';
+  document.getElementById('btn-enviar-maquina').style.display = 'none';
+  fecharPainel();
+}
+
 // ===================== ENTRADAS =====================
 let entradaSelecionada = null;
 
