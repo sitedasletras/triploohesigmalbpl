@@ -5,37 +5,55 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Injetar no Calabouço · OHE</title>
 <style>
-  body { background:#04080f; color:#f0e8d0; font-family:monospace; padding:2rem; text-align:center; }
-  h1 { color:#c9a84c; font-size:0.8rem; letter-spacing:0.3em; text-transform:uppercase; margin-bottom:2rem; }
-  .card { background:rgba(201,168,76,0.04); border:1px solid rgba(201,168,76,0.15); border-radius:8px; padding:1rem 1.5rem; margin-bottom:1rem; text-align:left; }
-  .autor { font-size:0.55rem; letter-spacing:0.2em; color:#c9a84c; opacity:0.6; text-transform:uppercase; }
-  .titulo { font-size:1rem; color:#f0e8d0; margin-top:0.3rem; }
-  .status { font-size:0.6rem; margin-top:0.4rem; color:#6a7d90; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#04080f; color:#f0e8d0; font-family:monospace; padding:2rem; text-align:center; min-height:100vh; }
+  h1 { color:#c9a84c; font-size:0.7rem; letter-spacing:0.3em; text-transform:uppercase; margin-bottom:0.4rem; }
+  .sub { font-size:0.52rem; color:#6a7d90; letter-spacing:0.15em; margin-bottom:2rem; }
+  .card { background:rgba(201,168,76,0.04); border:1px solid rgba(201,168,76,0.15); border-radius:8px; padding:1rem 1.5rem; margin-bottom:0.8rem; text-align:left; }
+  .autor { font-size:0.5rem; letter-spacing:0.2em; color:#c9a84c; opacity:0.6; text-transform:uppercase; }
+  .titulo { font-size:0.95rem; color:#f0e8d0; margin-top:0.3rem; font-family:Georgia,serif; }
+  .eixo { font-size:0.6rem; color:#6a7d90; margin-top:0.2rem; font-style:italic; }
+  .status { font-size:0.58rem; margin-top:0.5rem; color:#6a7d90; }
   .status.ok { color:#4caf50; }
-  .btn { width:100%; padding:1rem; background:linear-gradient(135deg,#7a5f1a,#c9a84c); color:#04080f; font-family:monospace; font-size:0.7rem; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; border:none; border-radius:4px; cursor:pointer; margin-top:1.5rem; }
+  .status.erro { color:#ff6b6b; }
+  .btn { width:100%; padding:1rem; background:linear-gradient(135deg,#7a5f1a,#c9a84c); color:#04080f; font-family:monospace; font-size:0.7rem; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; border:none; border-radius:4px; cursor:pointer; margin-top:1.5rem; transition:all 0.3s; }
+  .btn.ok { background:#4caf50; color:white; }
 </style>
 </head>
 <body>
-<h1>// Injetar obras no Calabouço · OHE</h1>
+
+<h1>// Injetar obras no Calabouço</h1>
+<div class="sub">OHE · Patrimônio Literário · 3 obras</div>
 
 <div class="card">
   <div class="autor">Baltasar de Morais Seixas</div>
   <div class="titulo">A Cruz Sem Margem</div>
+  <div class="eixo">Épica e espiritualidade ibérica — onde a fé se torna espada e o mar, testamento</div>
   <div class="status" id="s1">Aguardando...</div>
 </div>
 
 <div class="card">
   <div class="autor">Mirela Voss Drummond</div>
   <div class="titulo">O Que Resta Depois do Fogo</div>
+  <div class="eixo">Prosa literária — o que resta nos vivos depois da perda</div>
   <div class="status" id="s2">Aguardando...</div>
 </div>
 
-<button class="btn" onclick="injetar()">⚡ ENVIAR PARA O CALABOUÇO</button>
+<div class="card">
+  <div class="autor">Miroslav Kadek</div>
+  <div class="titulo">O Que Ficou na Areia</div>
+  <div class="eixo">Prosa lírica de tensão histórica e memória fragmentada</div>
+  <div class="status" id="s3">Aguardando...</div>
+</div>
+
+<button class="btn" id="btn" onclick="injetar()">⚡ ENVIAR OS TRÊS PARA O CALABOUÇO</button>
 
 <script>
 function injetar() {
   try {
-    const estado = JSON.parse(localStorage.getItem('sigmal_estado') || '{"calabouco":[],"masmorra":[],"paiol":{"literario":[]}}');
+    // Tentar as duas chaves possíveis do triplo
+    const CHAVE = localStorage.getItem('sigmal_hq_estado') ? 'sigmal_hq_estado' : 'sigmal_estado';
+    const estado = JSON.parse(localStorage.getItem(CHAVE) || '{"calabouco":[],"masmorra":[],"paiol":{"literario":[]}}');
     if (!estado.calabouco) estado.calabouco = [];
 
     const obras = [
@@ -64,24 +82,43 @@ function injetar() {
         conteudo: "A casa ainda cheirava a ele quando Beatriz voltou, tr\u00eas semanas ap\u00f3s o enterro. N\u00e3o o cheiro de homem vivo \u2014 suor, tabaco, o sabonete de alfazema que ela comprava em farm\u00e1cia \u2014 mas algo mais antigo, que precede o corpo e parece sobreviver a ele: o cheiro de presen\u00e7a, de algu\u00e9m que por anos ocupou o mesmo espa\u00e7o e deixou nele uma impress\u00e3o t\u00e3o profunda quanto um m\u00f3vel sobre madeira de lei.\n\nEla n\u00e3o abriu as janelas.\n\nOs filhos tinham ido embora na tarde anterior, depois de dois dias tentando convenc\u00ea-la a vender o im\u00f3vel, a mudar-se, a come\u00e7ar, segundo a express\u00e3o de Carmem, a sua nova vida. Beatriz tinha assentido com a cabe\u00e7a sem dizer nada, o que aprendera ao longo dos anos ser a melhor maneira de encerrar conversas que n\u00e3o lhe pertenciam.\n\nAgora eram quatro da manh\u00e3 e ela estava sentada na cadeira dele \u2014 a cadeira de couro que ficava junto \u00e0 janela da sala, voltada para o jardim \u2014, com uma x\u00edcara de ch\u00e1 que j\u00e1 esfriara entre as m\u00e3os. N\u00e3o conseguia dormir no quarto. N\u00e3o porque o quarto a assombrasse, mas porque n\u00e3o a assombrava o suficiente. A cama era grande demais e silenciosa demais, e o sil\u00eancio l\u00e1 dentro tinha a qualidade errada: era o sil\u00eancio de um lugar vazio, n\u00e3o de um lugar em repouso.\n\nNa cadeira, ao menos, ela conseguia imaginar.\n\nN\u00e3o era loucura, isso ela sabia distinguir. Era apenas uma forma de economia: guardar o que podia ser guardado antes que o tempo, que \u00e9 sempre mais voraz do que a morte, levasse tudo. Ela fechava os olhos e reconstitu\u00eda a voz dele com a precis\u00e3o de uma restauradora que conhece cada camada de verniz. A cad\u00eancia particular com que ele dizia o seu nome \u2014 duas s\u00edlabas que na boca de qualquer outro soavam banais e na boca dele carregavam toda uma hist\u00f3ria conjugal, um repert\u00f3rio de brigas e reconcilia\u00e7\u00f5es, de viagens e doen\u00e7as, de sil\u00eancios bons e sil\u00eancios que custavam caro.\n\nBeatriz tinha sessenta e tr\u00eas anos e nunca havia morado sozinha.\n\nEssa era a verdade que ela n\u00e3o dissera a nenhum dos filhos, ao padre, \u00e0 amiga Vera que viera de Recife para o enterro e ficara uma semana fazendo comida que Beatriz mal tocava. Ela n\u00e3o estava de luto apenas por Ant\u00f4nio. Estava de luto por uma compet\u00eancia que nunca precisara desenvolver: a de existir sem testemunha.\n\nPor quarenta e um anos houvera algu\u00e9m que sabia onde ela estava.\n\nN\u00e3o que Ant\u00f4nio fosse um homem vigilante ou ciumento \u2014 pelo contr\u00e1rio, era desatento da maneira distra\u00edda e afetuosa dos homens que confiam plenamente. Mas havia entre eles aquela ci\u00eancia m\u00fatua e silenciosa: o saber onde o outro se encontra, o calcular mentalmente a que horas ele chegar\u00e1, o sentir, em algum lugar abaixo do pensamento consciente, a gravidade do outro puxando a sua pr\u00f3pria \u00f3rbita. Agora essa gravidade havia cessado. E Beatriz se descobria flutuando de um c\u00f4modo a outro sem trajet\u00f3ria, sem o peso que antes organizava o seu movimento.\n\nEla olhou para o jardim.\n\nHavia uma roseira que Ant\u00f4nio plantara no inverno de 2011, quando ele se aposentou e passou a precisar de alguma coisa para fazer com as m\u00e3os. Ele n\u00e3o tinha jeito para jardim \u2014 matara tr\u00eas bougainvilles antes de admiti-lo \u2014 mas a roseira havia prosperado com uma teimosia que Beatriz na \u00e9poca atribu\u00edra \u00e0 planta e agora come\u00e7ava a suspeitar que fosse dele, dessa persist\u00eancia calada que ele tinha para as coisas que queria de verdade.\n\nA roseira estava florida.\n\nIsso era demais. Ela havia esperado que a planta ao menos tivesse a dec\u00eancia de estar murcha.\n\nBeatriz levantou-se da cadeira com o cuidado de algu\u00e9m que carrega algo fr\u00e1gil dentro do corpo e foi at\u00e9 a cozinha colocar mais \u00e1gua para ferver. Havia um ato de resist\u00eancia no simples gesto de preparar outro ch\u00e1 \u00e0s quatro da manh\u00e3. N\u00e3o sabia bem contra o qu\u00ea resistia. Contra a ideia de que devia estar dormindo, talvez. Contra a ideia de que havia um modo correto de fazer isto.\n\nEnquanto aguardava, encostou-se \u00e0 pia e olhou para o im\u00e3 de geladeira que ela e Ant\u00f4nio tinham comprado em Lisboa, em 1998, numa viagem que comemorara n\u00e3o sabia mais o qu\u00ea \u2014 talvez nada espec\u00edfico, talvez apenas o fato de ainda estarem juntos e terem dinheiro suficiente para cruzar o oceano. O im\u00e3 era feio: um galo de cer\u00e2mica pintado de amarelo com as cores da bandeira portuguesa. Tinham rido dele na loja. Tinham comprado por isso mesmo.\n\nPor um momento ela pensou em jog\u00e1-lo fora.\n\nPor um momento pensou em n\u00e3o jogar nada fora jamais.\n\nDepois a chaleira apitou e ela encheu a x\u00edcara e voltou para a sala, para a cadeira de couro, para o jardim invis\u00edvel por tr\u00e1s do vidro escuro. A roseira estava l\u00e1, ela sabia, mesmo sem ver. Isso tamb\u00e9m era uma forma de conhecimento: saber que algo existe no escuro porque voc\u00ea o conhece suficientemente bem para dispensar a vis\u00e3o.\n\nTalvez fosse assim que ela aprenderia a carregar Ant\u00f4nio.\n\nN\u00e3o como uma presen\u00e7a que ela convoca, mas como uma certeza que ela n\u00e3o precisa verificar. Como a roseira. Como o seu pr\u00f3prio nome dito por uma voz que o mundo havia decidido calar.\n\nBeatriz bebeu o ch\u00e1.\n\nDo jardim, n\u00e3o veio nenhum sinal \u2014 e esta era, ela come\u00e7ava a entender, a \u00fanica resposta poss\u00edvel e, estranhamente, a \u00fanica que ela conseguia suportar.",
         dataProcessamento: new Date().toLocaleDateString('pt-BR'),
         origem: 'Máquina Desafio · presente · luto e memória'
+      },
+      {
+        id: Date.now() + 2,
+        titulo: "O Que Ficou na Areia",
+        autor: "Miroslav Kadek",
+        eixo: "Prosa l\u00edrica de tens\u00e3o hist\u00f3rica e mem\u00f3ria fragmentada",
+        tipo: 'livro',
+        destino: 'calabouco',
+        status: 'processado',
+        progresso: 100,
+        conteudo: "Meu pai voltou da Normandia sem o dedo indicador da m\u00e3o direita e com um sil\u00eancio que durou quarenta anos.\n\nN\u00e3o era o tipo de sil\u00eancio que se percebe logo. Era o tipo que se instala devagar, como mofo atr\u00e1s de um arm\u00e1rio \u2014 voc\u00ea s\u00f3 descobre quando j\u00e1 penetrou tudo. Ele ria. Comia. Erguia a ta\u00e7a nos casamentos. Mas havia uma fresta nele, algum lugar por onde o ar escapava continuamente, e nenhum de n\u00f3s, nem minha m\u00e3e, nem eu, nem minha irm\u00e3 V\u011bra, soubemos nunca tampar.\n\nEle se chamava Anton\u00edn Kadek. Tinha servido como int\u00e9rprete junto \u00e0s for\u00e7as aliadas \u2014 falava alem\u00e3o, franc\u00eas e um ingl\u00eas sofr\u00edvel que ele mesmo descrevia como *ingl\u00eas de mercado*. No dia 6 de junho de 1944, estava numa barca\u00e7a de desembarque quando uma rajada varreu a embarca\u00e7\u00e3o e levou o dedo junto com outros tr\u00eas homens. Ele sobreviveu porque trope\u00e7ou no corpo de algu\u00e9m \u2014 nunca soube de quem \u2014 e caiu no fundo da lancha exatamente quando a metralha passou por cima.\n\nEsse trope\u00e7o foi o centro secreto de toda a sua vida.\n\nHavia uma l\u00f3gica torta naquilo: se ele tivesse sido mais \u00e1gil, estaria morto. A desgra\u00e7a alheia foi a sua salva\u00e7\u00e3o. Ele carregava esse peso com a dignidade discreta dos homens de sua gera\u00e7\u00e3o, que confundiam sil\u00eancio com nobreza. Mas eu era crian\u00e7a, e crian\u00e7as farejam culpa como cachorros farejam carne.\n\nDepois da guerra veio Praga. Depois de Praga veio 1948. Depois de 1948 veio tudo aquilo que minha gera\u00e7\u00e3o aprendeu a chamar de *a situa\u00e7\u00e3o* \u2014 essa eufemismo cinza-chumbo que us\u00e1vamos para n\u00e3o dizer totalitarismo em voz alta, como se a palavra pudesse nos denunciar por si s\u00f3. Meu pai, que havia ajudado os Aliados a libertar a Europa Ocidental, assistiu im\u00f3vel \u00e0 sua pr\u00f3pria cidade ser devorada por uma outra l\u00f3gica de ferro.\n\nEle n\u00e3o se queixava. Esse tamb\u00e9m era o tipo de homem que ele era.\n\nO que ele fazia era sentar na varanda de tr\u00e1s, nos fins de tarde de ver\u00e3o, com um copo de slivovitz que nunca terminava \u2014 ou talvez sempre terminasse e eu nunca prestasse aten\u00e7\u00e3o nas reposi\u00e7\u00f5es \u2014 e olhar para o jardim com aquela express\u00e3o que aprendi, s\u00f3 d\u00e9cadas mais tarde, a reconhecer como luto. N\u00e3o pelo dedo. N\u00e3o pelos tr\u00eas homens mortos na barca\u00e7a. Mas pelo mundo que ele havia acreditado estar ajudando a construir e que, terminada a guerra, havia se partido em dois como um osso mal soldado.\n\nA Guerra Fria era, para ele, uma piada de mau gosto que ningu\u00e9m tinha coragem de admitir que era uma piada.\n\n\u2014 *Lutamos contra uma cortina de ferro*, ele me disse uma \u00fanica vez, quando eu tinha uns doze anos e fiz alguma pergunta sobre a guerra que ele respondeu com uma esp\u00e9cie de cansa\u00e7o furioso. \u2014 *E constru\u00edmos outra. Em volta de n\u00f3s mesmos. Com nossas pr\u00f3prias m\u00e3os.*\n\nEu n\u00e3o entendi naquele momento. Fui entender aos vinte e dois, em 1968, quando os tanques sovi\u00e9ticos entraram em Praga e eu fiquei na janela do apartamento da rua M\u00e1nesova assistindo \u00e0quela prociss\u00e3o absurda de a\u00e7o e diesel, e senti pela primeira vez na vida o que meu pai devia ter sentido na barca\u00e7a: a estranheza f\u00edsica de estar vivo quando tudo ao redor est\u00e1 morrendo.\n\nMeu pai morreu em 1974. C\u00e2ncer de pulm\u00e3o \u2014 fumou a vida inteira, como todos os homens que sobreviveram \u00e0quela guerra, como se a sobreviv\u00eancia exigisse uma penit\u00eancia gradual. Nos \u00faltimos dias, quando j\u00e1 havia morfina e o sil\u00eancio tinha mudado de qualidade \u2014 tornado-se mais poroso, mais disposto a deixar coisas vazarem \u2014, ele me chamou ao quarto e ficou um longo tempo apenas olhando para mim.\n\nDepois disse:\n\n\u2014 *Havia um menino alem\u00e3o na praia. Dezoito anos, n\u00e3o mais. Estava ferido, n\u00e3o conseguia se levantar. Me olhou enquanto eu passava.*\n\nFiz sil\u00eancio. Eu sabia que havia mais.\n\n\u2014 *Eu passei.*\n\nFoi tudo. Ele fechou os olhos e dormiu, e quando acordou estava de volta ao seu sil\u00eancio habitual, compacto e imperme\u00e1vel, e nunca mais tocou no assunto.\n\nFiquei pensando naquele menino alem\u00e3o por anos. Fiquei pensando no que significa passar. Em todas as guerras, em todas as cortinas, em todos os muros que os homens erguem e depois atravessam ou n\u00e3o atravessam, h\u00e1 sempre algu\u00e9m que passa. H\u00e1 sempre algu\u00e9m que fica.\n\nA areia da Normandia guardou os dois: os que morreram e os que sobreviveram para morrer de outra maneira, mais lentamente, carregando o peso espec\u00edfico daquele instante em que se escolhe \u2014 ou em que o acaso escolhe por voc\u00ea, que \u00e9 ainda mais dif\u00edcil de suportar.\n\nMeu pai nunca soube o nome do menino alem\u00e3o. Eu nunca soube o nome do homem em quem ele trope\u00e7ou. Existimos assim, nessa cadeia de desconhecidos que se salvam e se perdem mutuamente, e a hist\u00f3ria que contamos sobre tudo isso \u2014 sobre a guerra, sobre a liberdade, sobre o bem que lutamos para defender \u2014 \u00e9 sempre uma hist\u00f3ria com buracos no lugar dos dedos, espa\u00e7os onde alguma coisa deveria estar e n\u00e3o est\u00e1.\n\nO slivovitz do meu pai tinha gosto de ameixa e de remorso.\n\nEu sei porque uma vez, depois que ele morreu, peguei a garrafa que havia sobrado no arm\u00e1rio da cozinha e bebi um copo na varanda de tr\u00e1s, olhando para o mesmo jardim que ele havia olhado por trinta anos.\n\nO jardim n\u00e3o me disse nada.\n\nMas fiquei l\u00e1 at\u00e9 escurecer, de qualquer forma.",
+        dataProcessamento: new Date().toLocaleDateString('pt-BR'),
+        origem: 'Máquina Desafio · passado · guerra fria'
       }
     ];
 
     obras.forEach(o => estado.calabouco.push(o));
+
+    // Salvar nas duas chaves para garantir
+    localStorage.setItem('sigmal_hq_estado', JSON.stringify(estado));
     localStorage.setItem('sigmal_estado', JSON.stringify(estado));
 
     document.getElementById('s1').textContent = '✓ Injetado no Calabouço';
     document.getElementById('s1').className = 'status ok';
     document.getElementById('s2').textContent = '✓ Injetado no Calabouço';
     document.getElementById('s2').className = 'status ok';
+    document.getElementById('s3').textContent = '✓ Injetado no Calabouço';
+    document.getElementById('s3').className = 'status ok';
 
-    document.querySelector('.btn').textContent = '✓ PRONTO · Abra o triplo';
-    document.querySelector('.btn').style.background = '#4caf50';
-    document.querySelector('.btn').style.color = 'white';
-    document.querySelector('.btn').onclick = () => window.location.href = '/';
+    const btn = document.getElementById('btn');
+    btn.textContent = '✓ PRONTO · Abra o triplo para ver';
+    btn.className = 'btn ok';
+    btn.onclick = () => window.location.href = '/';
 
   } catch(e) {
-    alert('Erro: ' + e.message);
+    document.getElementById('s1').textContent = 'ERRO: ' + e.message;
+    document.getElementById('s1').className = 'status erro';
   }
 }
 </script>
