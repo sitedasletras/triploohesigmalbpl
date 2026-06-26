@@ -4085,19 +4085,15 @@ function salvarNovoSaldo() {
 // Interceptar todas as chamadas fetch à API Anthropic para registrar tokens
 const _fetchOriginal = window.fetch;
 window.fetch = async function(...args) {
-  const resp = await _fetchOriginal.apply(this, args);
+  let resp;
+  try { resp = await _fetchOriginal.apply(this, args); } catch(e) { throw e; }
   try {
-    const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
-    if (url.includes('anthropic.com/v1/messages')) {
+    const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
+    if (url && url.includes('anthropic.com/v1/messages')) {
       const clone = resp.clone();
       clone.json().then(data => {
         if (data?.usage) {
-          const origem = url.includes('celeiro') ? 'celeiro' : 'triplo';
-          registrarChamadaAPI(
-            data.usage.input_tokens  || 0,
-            data.usage.output_tokens || 0,
-            origem
-          );
+          registrarChamadaAPI(data.usage.input_tokens||0, data.usage.output_tokens||0, 'triplo');
         }
       }).catch(()=>{});
     }
@@ -4118,10 +4114,12 @@ function agendarSyncDiario() {
   }, ms);
 }
 
-// Inicializar widget ao carregar
+// Inicializar widget ao carregar (só se já logado)
 document.addEventListener('DOMContentLoaded', () => {
-  atualizarWidgetSaldo();
-  agendarSyncDiario();
+  if (document.getElementById('saldo-valor')) {
+    atualizarWidgetSaldo();
+    agendarSyncDiario();
+  }
 });
 
 if (localStorage.getItem('sigmal_hq_auth') === '1') {
