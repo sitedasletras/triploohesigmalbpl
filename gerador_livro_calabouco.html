@@ -64,6 +64,9 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 .btn-roxo:hover { border-color: var(--roxo-claro); background: rgba(106,27,154,0.1); }
 .btn-verde { background: transparent; color: var(--verde); font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; padding: 0.8rem 1.5rem; border: 1px solid rgba(0,200,83,0.3); cursor: pointer; text-transform: uppercase; transition: all 0.3s; }
 .btn-verde:hover { border-color: var(--verde); background: rgba(0,200,83,0.05); }
+.btn-saga-vol{background:rgba(245,127,23,.08);border:1px solid rgba(245,127,23,.25);color:#f57f17;font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.08em;padding:.5rem 1rem;cursor:pointer;border-radius:6px;transition:.15s;text-transform:uppercase;}
+.btn-saga-vol:hover,.btn-saga-vol.ativo{background:rgba(245,127,23,.2);border-color:rgba(245,127,23,.6);}
+.btn-saga-vol.ativo{color:#fff;font-weight:700;}
 .acoes { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.2rem; }
 .banner-info { padding: 0.8rem 1.2rem; margin-bottom: 1rem; font-family: 'Share Tech Mono', monospace; font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase; display: none; }
 .banner-info.visivel { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
@@ -147,28 +150,106 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
       <label class="fl">Sinopse / Briefing / Referências</label>
       <textarea class="fta" id="sinopse" placeholder="Descreva o tema, personagens, tom, referências literárias ou cinematográficas..."></textarea>
     </div>
-    <div class="fg-grid3">
-      <div class="fg">
-        <label class="fl">Volume Total (páginas A4)</label>
-        <input type="number" class="fi" id="volume" min="40" max="480" value="120" placeholder="40 a 480">
+
+    <!-- MODO DE GERAÇÃO -->
+    <div class="fg">
+      <label class="fl">// Modo de Geração</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.4rem;">
+        <div class="jornada-card" id="modo-semente" onclick="selecionarModo('semente')" style="border-color:rgba(106,27,154,.4);background:rgba(106,27,154,.08);">
+          <div class="jornada-icone">🌱</div>
+          <div class="jornada-nome">Conto Semente</div>
+          <div class="jornada-desc">3.700–4.500 palavras · Início, meio e fim completos · Base para expansão futura</div>
+        </div>
+        <div class="jornada-card" id="modo-expansao" onclick="selecionarModo('expansao')">
+          <div class="jornada-icone">📖</div>
+          <div class="jornada-nome">Expansão para Livro</div>
+          <div class="jornada-desc">Usa o conto semente como DNA · Define volume e divisão em volumes</div>
+        </div>
       </div>
+    </div>
+
+    <!-- PAINEL CONTO SEMENTE -->
+    <div id="painel-semente" style="display:none;">
+      <div style="background:rgba(106,27,154,.06);border:1px solid rgba(106,27,154,.15);border-radius:10px;padding:14px;font-family:'Share Tech Mono',monospace;font-size:.65rem;color:rgba(200,170,255,.6);line-height:1.8;">
+        ✦ O Conto Semente será gerado com <strong style="color:rgba(200,170,255,.9);">3.700 a 4.500 palavras</strong><br>
+        ✦ Estrutura completa: início, desenvolvimento e desfecho<br>
+        ✦ Arco narrativo fechado — funciona como obra independente<br>
+        ✦ Serve de DNA para expansões futuras em qualquer volume
+      </div>
+    </div>
+
+    <!-- PAINEL EXPANSÃO -->
+    <div id="painel-expansao" style="display:none;">
+      <div class="fg-grid3">
+        <div class="fg">
+          <label class="fl">Volume Total (páginas A4)</label>
+          <input type="number" class="fi" id="volume" min="40" max="800" value="120"
+            placeholder="40 a 800" oninput="avaliarSaga()">
+        </div>
+        <div class="fg">
+          <label class="fl">Gênero / Formato</label>
+          <select class="fs" id="genero">
+            <option value="">Fernando Peçanha decide</option>
+            <option value="romance">Romance</option>
+            <option value="conto">Coletânea de Contos</option>
+            <option value="poesia">Livro de Poesia</option>
+            <option value="cordel">Cordel</option>
+            <option value="cronica">Crônicas</option>
+            <option value="hibrido">Híbrido</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Destino Final</label>
+          <select class="fs" id="destino-final">
+            <option value="calabouco">Calabouço → Celeiro</option>
+            <option value="masmorra">Masmorra (acumular)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- BANNER DE SAGA (aparece dinamicamente) -->
+      <div id="banner-saga" style="display:none;background:rgba(245,127,23,.08);border:1px solid rgba(245,127,23,.25);border-radius:10px;padding:14px;margin:.8rem 0;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#f57f17;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;" id="saga-titulo-banner">⚡ DEFINIÇÃO DE SAGA</div>
+        <div style="font-family:'Crimson Pro',serif;font-size:.85rem;color:rgba(245,200,100,.7);margin-bottom:12px;" id="saga-desc-banner">Esta obra excede o volume de um livro único.</div>
+        <label class="fl" style="color:rgba(245,127,23,.7);">Quantos volumes?</label>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.4rem;">
+          <button class="btn-saga-vol" onclick="selecionarVolumes(1)" id="bvol-1">Livro Único</button>
+          <button class="btn-saga-vol" onclick="selecionarVolumes(2)" id="bvol-2">Duologia</button>
+          <button class="btn-saga-vol" onclick="selecionarVolumes(3)" id="bvol-3">Trilogia</button>
+          <button class="btn-saga-vol" onclick="selecionarVolumes(4)" id="bvol-4">Tetralogia</button>
+          <button class="btn-saga-vol" onclick="selecionarVolumes(5)" id="bvol-5">Pentalogy</button>
+        </div>
+        <div id="saga-preview" style="margin-top:12px;font-family:'Share Tech Mono',monospace;font-size:.6rem;color:rgba(245,127,23,.5);line-height:1.8;display:none;"></div>
+      </div>
+
+      <!-- CONTO SEMENTE COMO BASE -->
+      <div class="fg">
+        <label class="fl">Conto Semente / Texto Base (opcional mas recomendado)</label>
+        <textarea class="fta" id="conto-base" placeholder="Cole aqui o conto semente já gerado para usar como DNA da expansão. Se vazio, o sistema gera do zero." style="min-height:100px;"></textarea>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.58rem;color:rgba(200,170,255,.4);margin-top:.3rem;">
+          ✦ Com o conto base: expansão coerente e fiel ao arco original<br>
+          ✦ Sem o conto base: geração livre a partir do briefing
+        </div>
+      </div>
+    </div>
+
+    <!-- GÊNERO PARA MODO SEMENTE -->
+    <div id="painel-genero-semente" style="display:none;">
       <div class="fg">
         <label class="fl">Gênero / Formato</label>
-        <select class="fs" id="genero">
+        <select class="fs" id="genero-semente">
           <option value="">Fernando Peçanha decide</option>
           <option value="romance">Romance</option>
-          <option value="conto">Coletânea de Contos</option>
-          <option value="poesia">Livro de Poesia</option>
-          <option value="cordel">Cordel</option>
-          <option value="cronica">Crônicas</option>
+          <option value="conto">Conto</option>
           <option value="hibrido">Híbrido</option>
+          <option value="poesia">Poesia</option>
         </select>
       </div>
       <div class="fg">
         <label class="fl">Destino Final</label>
-        <select class="fs" id="destino-final">
+        <select class="fs" id="destino-semente">
           <option value="calabouco">Calabouço → Celeiro</option>
-          <option value="masmorra">Masmorra (acumular)</option>
+          <option value="masmorra">Masmorra (amadurecer)</option>
         </select>
       </div>
     </div>
@@ -479,17 +560,132 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // ===================== INICIAR GERAÇÃO =====================
+// ── MODO DE GERAÇÃO ──────────────────────────────────────
+let modoAtual = 'semente'; // 'semente' ou 'expansao'
+let volumesSaga = 1;
+
+function selecionarModo(modo) {
+  modoAtual = modo;
+  document.getElementById('modo-semente').style.borderColor =
+    modo === 'semente' ? 'rgba(106,27,154,.8)' : 'rgba(106,27,154,.2)';
+  document.getElementById('modo-semente').style.background =
+    modo === 'semente' ? 'rgba(106,27,154,.15)' : '';
+  document.getElementById('modo-expansao').style.borderColor =
+    modo === 'expansao' ? 'rgba(106,27,154,.8)' : 'rgba(106,27,154,.2)';
+  document.getElementById('modo-expansao').style.background =
+    modo === 'expansao' ? 'rgba(106,27,154,.15)' : '';
+  document.getElementById('painel-semente').style.display =
+    modo === 'semente' ? 'block' : 'none';
+  document.getElementById('painel-expansao').style.display =
+    modo === 'expansao' ? 'block' : 'none';
+  document.getElementById('painel-genero-semente').style.display =
+    modo === 'semente' ? 'block' : 'none';
+}
+
+// ── AVALIAÇÃO DE SAGA ─────────────────────────────────────
+function avaliarSaga() {
+  const vol = parseInt(document.getElementById('volume').value) || 120;
+  const banner = document.getElementById('banner-saga');
+  const tit = document.getElementById('saga-titulo-banner');
+  const desc = document.getElementById('saga-desc-banner');
+
+  if (vol <= 120) {
+    // Novela/livro curto — sem pergunta
+    banner.style.display = 'none';
+    volumesSaga = 1;
+  } else if (vol <= 200) {
+    // Romance — pode ser 1 ou 2 volumes
+    banner.style.display = 'block';
+    tit.textContent = '📖 ROMANCE — ' + vol + ' páginas';
+    desc.textContent = 'Esta obra pode ser publicada como livro único ou dividida em dois volumes.';
+    document.getElementById('bvol-1').style.display = 'inline-block';
+    document.getElementById('bvol-2').style.display = 'inline-block';
+    document.getElementById('bvol-3').style.display = 'none';
+    document.getElementById('bvol-4').style.display = 'none';
+    document.getElementById('bvol-5').style.display = 'none';
+  } else if (vol <= 300) {
+    // Livro grande — 1 a 3 volumes
+    banner.style.display = 'block';
+    tit.textContent = '⚡ OBRA EXTENSA — ' + vol + ' páginas';
+    desc.textContent = 'Defina se será livro único ou saga. Recomendamos dividir para melhor qualidade narrativa.';
+    document.getElementById('bvol-1').style.display = 'inline-block';
+    document.getElementById('bvol-2').style.display = 'inline-block';
+    document.getElementById('bvol-3').style.display = 'inline-block';
+    document.getElementById('bvol-4').style.display = 'none';
+    document.getElementById('bvol-5').style.display = 'none';
+  } else {
+    // Saga obrigatória
+    banner.style.display = 'block';
+    tit.textContent = '⚡ SAGA — ' + vol + ' páginas · Divisão obrigatória';
+    desc.textContent = 'Obras acima de 300 páginas são geradas como saga. Escolha o número de volumes.';
+    document.getElementById('bvol-1').style.display = 'none';
+    document.getElementById('bvol-2').style.display = 'inline-block';
+    document.getElementById('bvol-3').style.display = 'inline-block';
+    document.getElementById('bvol-4').style.display = 'inline-block';
+    document.getElementById('bvol-5').style.display = 'inline-block';
+    if (volumesSaga < 2) selecionarVolumes(2); // mínimo 2 volumes
+  }
+}
+
+function selecionarVolumes(n) {
+  volumesSaga = n;
+  // Atualizar visual dos botões
+  [1,2,3,4,5].forEach(i => {
+    const btn = document.getElementById('bvol-' + i);
+    if (btn) btn.classList.toggle('ativo', i === n);
+  });
+  // Mostrar preview da divisão
+  const vol = parseInt(document.getElementById('volume').value) || 120;
+  const pagsPorVol = Math.round(vol / n);
+  const nomes = ['', 'Livro Único', 'Duologia', 'Trilogia', 'Tetralogia', 'Pentalogy'];
+  const preview = document.getElementById('saga-preview');
+  if (n === 1) {
+    preview.style.display = 'none';
+    return;
+  }
+  const linhas = Array.from({length: n}, (_, i) =>
+    `Volume ${i+1}: ~${pagsPorVol} páginas`
+  ).join('<br>');
+  preview.innerHTML = `✦ ${nomes[n]} · ${vol} páginas divididas em ${n} volumes<br>${linhas}`;
+  preview.style.display = 'block';
+}
+
 async function iniciarGeracao() {
   const titulo = document.getElementById('titulo').value.trim();
   const sinopse = document.getElementById('sinopse').value.trim();
+  if (!titulo) { alert('Informe o título ou tema.'); return; }
+  if (!jornadaSelecionada) { alert('Selecione uma estrutura narrativa.'); return; }
+
+  // ── MODO CONTO SEMENTE ───────────────────────────────────
+  if (modoAtual === 'semente') {
+    await gerarContoSemente(titulo, sinopse);
+    return;
+  }
+
+  // ── MODO EXPANSÃO ────────────────────────────────────────
   const volume = parseInt(document.getElementById('volume').value) || 120;
   const genero = document.getElementById('genero').value;
   const heteronimo = document.getElementById('heteronimo').value.trim();
   const destinoFinal = document.getElementById('destino-final').value;
+  const contoBase = document.getElementById('conto-base').value.trim();
 
-  if (!titulo) { alert('Informe o título ou tema do livro.'); return; }
-  if (!jornadaSelecionada) { alert('Selecione uma estrutura narrativa.'); return; }
+  // Validar saga
+  if (volume > 300 && volumesSaga < 2) {
+    alert('Obras acima de 300 páginas precisam ser divididas em pelo menos 2 volumes. Selecione o número de volumes.');
+    return;
+  }
 
+  // Se é saga com múltiplos volumes, gerar volume por volume
+  if (volumesSaga > 1) {
+    await gerarSaga(titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase, volumesSaga);
+    return;
+  }
+
+  // Livro único — fluxo original
+  await gerarLivroUnico(titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase);
+}
+
+  // gerarLivroUnico recebe os parâmetros direto — sem revalidar
   const jornada = JORNADAS[jornadaSelecionada];
   const planejamento = calcularFragmentos(volume);
   const totalFragmentos = planejamento.reduce((s, a) => s + a.numFrags, 0);
@@ -566,6 +762,7 @@ ${HETERONIMOS_LISTA.join(', ')}
 PROJETO:
 Título: ${titulo}
 Sinopse: ${sinopse || 'Não fornecida'}
+${contoBase ? `CONTO SEMENTE (DNA DA OBRA):\n${contoBase.substring(0,1500)}\n` : ''}
 Gênero: ${genero || 'A definir'}
 Heterônimo sugerido: ${heteronimo || 'Você decide'}
 Jornada: ${jornada.nome}
@@ -806,7 +1003,259 @@ function rejeitarArco() {
 }
 
 // ===================== SALVAR NO GITHUB =====================
-async function salvarLivroNoGitHub(titulo, autor, conteudo, destino) {
+// ═══════════════════════════════════════════════════════════
+// CONTO SEMENTE — 3.700 a 4.500 palavras · arco completo
+// ═══════════════════════════════════════════════════════════
+async function gerarContoSemente(titulo, sinopse) {
+  const genero = document.getElementById('genero-semente').value;
+  const heteronimo = document.getElementById('heteronimo').value.trim();
+  const destino = document.getElementById('destino-semente').value;
+  const jornada = JORNADAS[jornadaSelecionada];
+
+  document.getElementById('painel-config').style.display = 'none';
+  const progPainel = document.getElementById('progresso-painel');
+  progPainel.classList.add('visivel');
+  document.getElementById('prog-titulo').textContent = '🌱 Gerando Conto Semente: ' + titulo;
+
+  document.getElementById('arcos-progresso').innerHTML = `
+    <div class="arco-progresso">
+      <div class="arco-prog-header">
+        <span class="arco-prog-nome">Fase 0 · Fernando Peçanha — Escolha do heterônimo</span>
+        <span class="arco-prog-status ativo" id="status-fase-0">analisando...</span>
+      </div>
+      <div class="barra-prog"><div class="barra-fill" id="barra-fase-0" style="width:20%"></div></div>
+    </div>
+    <div class="arco-progresso">
+      <div class="arco-prog-header">
+        <span class="arco-prog-nome">🌱 Conto Semente · 3.700–4.500 palavras · Arco completo</span>
+        <span class="arco-prog-status" id="status-semente">aguardando</span>
+      </div>
+      <div class="barra-prog"><div class="barra-fill" id="barra-semente" style="width:0%"></div></div>
+    </div>`;
+
+  try {
+    // Fase 0 — Fernando Peçanha
+    log('Fernando Peçanha iniciando análise...');
+    const promptCuradoria = `Você é Fernando Peçanha, curador da OHE com os seguintes 51 heterônimos:
+${HETERONIMOS_LISTA.join(', ')}
+
+PROJETO — CONTO SEMENTE:
+Título: ${titulo}
+Sinopse: ${sinopse || 'Não fornecida'}
+Gênero: ${genero || 'A definir'}
+Heterônimo sugerido: ${heteronimo || 'Você decide'}
+Jornada: ${jornada.nome}
+
+Analise e responda EXATAMENTE:
+---HETERÔNIMO---
+[nome do heterônimo escolhido]
+---NOVO (s/n)---
+[s ou n]
+---TÍTULO DEFINITIVO---
+[título]
+---TOM---
+[uma frase definindo o tom e a voz do conto]`;
+
+    const resCuradoria = await chamarAPI(promptCuradoria, 600);
+    const mH = resCuradoria.match(/---HETERÔNIMO---\s*([\s\S]*?)---/);
+    const mT = resCuradoria.match(/---TÍTULO DEFINITIVO---\s*([\s\S]*?)---/);
+    const mTom = resCuradoria.match(/---TOM---\s*([\s\S]*?)$/);
+    heteronimoEscolhido = mH ? mH[1].trim() : (heteronimo || 'A definir');
+    tituloFinal = mT ? mT[1].trim() : titulo;
+    tomVozGlobal = mTom ? mTom[1].trim() : '';
+    log('Heterônimo: ' + heteronimoEscolhido);
+    log('Título: ' + tituloFinal);
+    document.getElementById('barra-fase-0').style.width = '100%';
+    document.getElementById('status-fase-0').textContent = 'concluído ✓';
+    document.getElementById('status-fase-0').className = 'arco-prog-status concluido';
+
+    // Gerar o conto semente
+    document.getElementById('status-semente').textContent = 'gerando...';
+    document.getElementById('status-semente').className = 'arco-prog-status ativo';
+    document.getElementById('barra-semente').style.width = '30%';
+
+    const promptSemente = `Você é ${heteronimoEscolhido}, escritor da OHE.
+Tom de voz: ${tomVozGlobal}
+Título: ${tituloFinal}
+Gênero: ${genero || 'conto literário'}
+Sinopse/tema: ${sinopse || 'Não fornecida'}
+Estrutura narrativa: ${jornada.nome}
+
+MISSÃO — CONTO SEMENTE:
+Escreva um conto literário COMPLETO com INÍCIO, DESENVOLVIMENTO e DESFECHO.
+O conto deve ter entre 3.700 e 4.500 palavras.
+Ele deve funcionar como obra independente E como "DNA" para futuras expansões em livro.
+
+ESTRUTURA OBRIGATÓRIA:
+1. Abertura forte — apresente o mundo, o personagem e o conflito central
+2. Desenvolvimento — escalada do conflito com cenas concretas e diálogos
+3. Clímax — o ponto de maior tensão ou transformação
+4. Desfecho — resolução que fecha o arco mas deixa o universo expandível
+
+REGRAS:
+- Diálogos com travessão (—) e verbo dicendi
+- Parágrafos bem espaçados
+- Tom humanizado, sem rastro de IA
+- Linguagem literária elevada mas acessível
+- NÃO truncar — o conto DEVE ter um fim real
+
+Escreva o conto completo agora. Comece diretamente com a narrativa.`;
+
+    log('Mórigan Voss — escrevendo conto semente (~4.000 palavras)...');
+    document.getElementById('barra-semente').style.width = '60%';
+    const conto = await chamarAPI(promptSemente, 6000);
+    document.getElementById('barra-semente').style.width = '100%';
+    document.getElementById('status-semente').textContent = 'concluído ✓';
+    document.getElementById('status-semente').className = 'arco-prog-status concluido';
+
+    const palavras = conto.split(/\s+/).length;
+    log(`✓ Conto semente concluído · ${palavras.toLocaleString('pt-BR')} palavras`);
+
+    livroCompleto = `🌱 CONTO SEMENTE\n${tituloFinal.toUpperCase()}\n${heteronimoEscolhido}\n${jornada.nome}\n${'═'.repeat(60)}\n\n${conto}`;
+
+    // Salvar no localStorage para uso como base de expansão
+    localStorage.setItem('conto_semente_titulo', tituloFinal);
+    localStorage.setItem('conto_semente_autor', heteronimoEscolhido);
+    localStorage.setItem('conto_semente_texto', conto);
+    localStorage.setItem('conto_semente_palavras', String(palavras));
+
+    limparCheckpoints();
+    mostrarResultadoSemente(destino, palavras);
+
+  } catch(e) {
+    log('✗ ERRO: ' + e.message);
+    log('⚡ Reabra para retomar.');
+  }
+}
+
+function mostrarResultadoSemente(destino, palavras) {
+  document.getElementById('progresso-painel').classList.remove('visivel');
+  const res = document.getElementById('resultado-painel');
+  res.classList.add('visivel');
+  document.getElementById('res-heteronimo').textContent = heteronimoEscolhido;
+  document.getElementById('res-titulo').textContent = '🌱 ' + tituloFinal + ' (Conto Semente)';
+  document.getElementById('res-meta').textContent =
+    `${palavras.toLocaleString('pt-BR')} palavras · Arco completo · Pronto para expansão · ${destino}`;
+  document.getElementById('livro-conteudo').textContent = livroCompleto;
+
+  // Aviso de expansão
+  const av = document.getElementById('novo-het-aviso');
+  av.classList.add('visivel');
+  av.style.borderColor = 'rgba(106,27,154,.4)';
+  av.style.color = 'rgba(200,170,255,.8)';
+  av.textContent = `✦ CONTO SEMENTE SALVO — Use o texto acima como "Conto Semente / Texto Base" ao gerar o livro completo. O DNA narrativo está definido.`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// GERAÇÃO DE SAGA — múltiplos volumes
+// ═══════════════════════════════════════════════════════════
+async function gerarSaga(titulo, sinopse, volumeTotal, genero, heteronimo, destino, contoBase, nVolumes) {
+  const pagsPorVol = Math.round(volumeTotal / nVolumes);
+  const jornada = JORNADAS[jornadaSelecionada];
+  const nomesSaga = ['', 'Livro Único', 'Duologia', 'Trilogia', 'Tetralogia', 'Pentalogy'];
+
+  log(`⚡ SAGA — ${nomesSaga[nVolumes]} · ${volumeTotal} páginas · ${nVolumes} volumes de ~${pagsPorVol}p`);
+
+  document.getElementById('painel-config').style.display = 'none';
+  const progPainel = document.getElementById('progresso-painel');
+  progPainel.classList.add('visivel');
+  document.getElementById('prog-titulo').textContent =
+    `⚡ SAGA: ${titulo} · ${nVolumes} volumes · ${volumeTotal} páginas`;
+
+  // Montar barras para cada volume
+  document.getElementById('arcos-progresso').innerHTML =
+    Array.from({length: nVolumes}, (_, i) => `
+    <div class="arco-progresso">
+      <div class="arco-prog-header">
+        <span class="arco-prog-nome">Volume ${i+1} · ~${pagsPorVol} páginas</span>
+        <span class="arco-prog-status" id="status-vol-${i}">${i===0?'aguardando':'pendente'}</span>
+      </div>
+      <div class="barra-prog"><div class="barra-fill" id="barra-vol-${i}" style="width:0%"></div></div>
+    </div>`).join('');
+
+  livroCompleto = '';
+  let sagaCompleta = '';
+  let resumoSaga = '';
+
+  try {
+    for (let vi = 0; vi < nVolumes; vi++) {
+      document.getElementById('status-vol-' + vi).textContent = 'gerando...';
+      document.getElementById('status-vol-' + vi).className = 'arco-prog-status ativo';
+      document.getElementById('barra-vol-' + vi).style.width = '20%';
+
+      log(`▶ Gerando Volume ${vi+1} de ${nVolumes}...`);
+
+      const isFirst = vi === 0;
+      const isLast  = vi === nVolumes - 1;
+      const arcosVol = JORNADAS[jornadaSelecionada].arcos;
+      const arcoVol  = arcosVol[Math.min(vi, arcosVol.length-1)];
+
+      const promptVol = `Você é ${heteronimoEscolhido||heteronimo||'o autor escolhido'}, escritor da OHE.
+Tom: ${tomVozGlobal||'literário elevado'}
+Saga: ${titulo}
+Volume: ${vi+1} de ${nVolumes}
+Páginas deste volume: ~${pagsPorVol}
+Gênero: ${genero||'romance'}
+Jornada: ${jornada.nome} — ${arcoVol?.nome||'desenvolvimento'}
+
+${contoBase ? `CONTO SEMENTE (DNA DA SAGA):\n${contoBase.substring(0,2000)}\n\n` : ''}
+${resumoSaga ? `RESUMO DOS VOLUMES ANTERIORES:\n${resumoSaga}\n\n` : ''}
+${isFirst ? 'Este é o VOLUME DE ABERTURA. Apresente o mundo, personagens e conflito central.' : ''}
+${isLast ? 'Este é o VOLUME FINAL. Resolva todos os arcos e entregue um desfecho satisfatório e definitivo.' : ''}
+${!isFirst && !isLast ? `Este é o volume de DESENVOLVIMENTO. Continue a saga com tensão crescente. Termine com cliffhanger que motive o próximo volume.` : ''}
+
+REGRAS:
+- Diálogos com travessão (—)
+- Parágrafos espaçados
+- Tom humanizado
+- Use capítulos numerados
+- Volume com início, meio e fim próprios mas conectado à saga
+- ${isLast ? 'DESFECHO DEFINITIVO — sem cortes abruptos' : 'Termine em ponto de virada para o próximo volume'}
+
+Escreva ~${Math.round(pagsPorVol * 250)} palavras. Comece diretamente.`;
+
+      const textoVol = await chamarAPI(promptVol, 8000);
+      const palavrasVol = textoVol.split(/\s+/).length;
+
+      sagaCompleta += `\n\n${'═'.repeat(60)}\nVOLUME ${vi+1}${isLast?' — FINAL':''}\n${'═'.repeat(60)}\n\n${textoVol}`;
+
+      // Checkpoint por volume
+      localStorage.setItem('saga_vol_' + vi, textoVol);
+      localStorage.setItem('saga_progresso', String(vi+1));
+
+      // Resumo para próximo volume
+      if (!isLast) {
+        const r = await chamarAPI(
+          `Resuma em 5 linhas os eventos principais deste volume para contexto narrativo:\n\n${textoVol.substring(0,3000)}`,
+          400
+        );
+        resumoSaga += `\nVolume ${vi+1}: ${r}`;
+      }
+
+      document.getElementById('barra-vol-' + vi).style.width = '100%';
+      document.getElementById('status-vol-' + vi).textContent = `concluído · ${palavrasVol.toLocaleString('pt-BR')} palavras ✓`;
+      document.getElementById('status-vol-' + vi).className = 'arco-prog-status concluido';
+      log(`✓ Volume ${vi+1} concluído · ${palavrasVol.toLocaleString('pt-BR')} palavras`);
+    }
+
+    livroCompleto = `⚡ SAGA: ${titulo.toUpperCase()}\n${nomesSaga[nVolumes].toUpperCase()} · ${nVolumes} VOLUMES · ${volumeTotal} PÁGINAS\n${heteronimoEscolhido||heteronimo}\n${'═'.repeat(60)}${sagaCompleta}`;
+
+    // Limpar checkpoints de saga
+    Array.from({length:nVolumes},(_,i)=>localStorage.removeItem('saga_vol_'+i));
+    localStorage.removeItem('saga_progresso');
+    limparCheckpoints();
+
+    mostrarResultado(destino, false);
+    log(`✦ SAGA COMPLETA — ${nVolumes} volumes gerados!`);
+
+  } catch(e) {
+    log('✗ ERRO: ' + e.message);
+    const vol = parseInt(localStorage.getItem('saga_progresso')||'0');
+    log(`⚡ Checkpoint salvo em Volume ${vol}. Reabra para retomar.`);
+  }
+}
+
+async function gerarLivroUnico(titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase) {
   try {
     if (!window.GITHUB_TOKEN) { log('⚠ GitHub token não configurado'); return; }
     const autorSlug = autor.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -911,7 +1360,32 @@ function verificarRetomada() {
   return null;
 }
 
-// ===================== RESULTADO =====================
+// Inicializar modo padrão ao carregar
+window.addEventListener('load', () => {
+  selecionarModo('semente');
+  // Verificar retomada
+  const ret = verificarRetomada();
+  if (ret) {
+    const banner = document.getElementById('banner-recuperacao') ||
+      document.getElementById('banner-item-carregado');
+    if (banner) {
+      banner.classList.add('visivel');
+    }
+  }
+  // Carregar conto semente salvo se existir
+  const contoSalvo = localStorage.getItem('conto_semente_texto');
+  const titSalvo   = localStorage.getItem('conto_semente_titulo');
+  const autSalvo   = localStorage.getItem('conto_semente_autor');
+  if (contoSalvo) {
+    const campoBase = document.getElementById('conto-base');
+    if (campoBase && !campoBase.value) campoBase.value = contoSalvo;
+    const campoTitulo = document.getElementById('titulo');
+    if (campoTitulo && !campoTitulo.value && titSalvo) campoTitulo.value = titSalvo;
+    const campoHet = document.getElementById('heteronimo');
+    if (campoHet && !campoHet.value && autSalvo) campoHet.value = autSalvo;
+    log(`✦ Conto semente disponível: "${titSalvo||'Sem título'}" — ${autSalvo||'autor'}`);
+  }
+});
 function mostrarResultado(destino, novoHet) {
   document.getElementById('progresso-painel').classList.remove('visivel');
   const res = document.getElementById('resultado-painel');
