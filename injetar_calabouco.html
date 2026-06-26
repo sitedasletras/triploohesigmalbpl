@@ -52,7 +52,7 @@
 function injetar() {
   try {
     // Tentar as duas chaves possíveis do triplo
-    const CHAVE = localStorage.getItem('sigmal_hq_estado') ? 'sigmal_hq_estado' : 'sigmal_estado';
+    const CHAVE = 'sigmal_hq';
     const estado = JSON.parse(localStorage.getItem(CHAVE) || '{"calabouco":[],"masmorra":[],"paiol":{"literario":[]}}');
     if (!estado.calabouco) estado.calabouco = [];
 
@@ -101,8 +101,7 @@ function injetar() {
     obras.forEach(o => estado.calabouco.push(o));
 
     // Salvar nas duas chaves para garantir
-    localStorage.setItem('sigmal_hq_estado', JSON.stringify(estado));
-    localStorage.setItem('sigmal_estado', JSON.stringify(estado));
+    localStorage.setItem('sigmal_hq', JSON.stringify(estado));
 
     document.getElementById('s1').textContent = '✓ Injetado no Calabouço';
     document.getElementById('s1').className = 'status ok';
