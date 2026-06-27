@@ -113,7 +113,8 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 <body>
 <div class="container">
 
-  <div class="header">
+  <div class="header" style="position:relative;">
+    <a href="/" style="position:absolute;top:0;right:0;font-family:'Share Tech Mono',monospace;font-size:0.52rem;letter-spacing:0.15em;color:rgba(201,168,76,0.5);text-decoration:none;border:1px solid rgba(201,168,76,0.2);padding:4px 12px;border-radius:4px;text-transform:uppercase;">← SIGMAL HQ</a>
     <div class="header-label">// TRIPLOOHESIGMALBPL · CALABOUÇO</div>
     <h1 class="header-titulo">Gerador de <em>Livro</em></h1>
     <p class="header-sub">Geração por arcos narrativos · Fernando Peçanha como curador · Formato A4</p>
@@ -332,9 +333,11 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
         <button class="btn-p" onclick="copiarLivro()">📋 COPIAR LIVRO</button>
         <button class="btn-roxo" onclick="exportarTexto()">⬇ EXPORTAR .TXT</button>
         <button class="btn-s" onclick="novaGeracao()">↺ NOVA GERAÇÃO</button>
+        <button id="btn-fissuras" onclick="document.getElementById('relatorio-fissuras').scrollIntoView({behavior:'smooth'})" style="display:none;font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;padding:0.6rem 1rem;border:1px solid #9c27b0;background:transparent;color:#9c27b0;cursor:pointer;text-transform:uppercase;border-radius:4px;">🔍 FISSURAS</button>
       </div>
     </div>
     <div class="novo-het-aviso" id="novo-het-aviso"></div>
+    <div id="relatorio-fissuras"></div>
     <div class="livro-conteudo" id="livro-conteudo"></div>
   </div>
 
@@ -353,7 +356,7 @@ let sessaoAtual = null;
 let tomVozGlobal = '';
 
 // Tokens por chamada e palavras por página A4
-const MAX_TOKENS_POR_CHAMADA = 8000;
+const MAX_TOKENS_POR_CHAMADA = 8000; // Sonnet 4.6 suporta até 8192
 const PALAVRAS_POR_PAGINA_A4 = 400;
 const PALAVRAS_POR_CHAMADA = 5000; // ~12-13 páginas A4 por fragmento
 
@@ -901,15 +904,9 @@ justificativa: [motivo]
       // Se é retomada no meio de um arco, não adiciona cabeçalho duplicado
       if (ai > arcoInicio || fragInicio === 0) {
         // Cabeçalho do arco — respeita configMarcadores
-        const usarMarcador = configMarcadores.usar && (configMarcadores.arcos[ai] !== false);
-        if (usarMarcador && configMarcadores.posicao === 'inicio_arco') {
-          livroCompleto += '\n\n' + '─'.repeat(60) + '\n# ARCO ' + (ai+1) + ' — ' + arco.nome.toUpperCase() + '\n' + '─'.repeat(60) + '\n\n';
-        } else if (!configMarcadores.usar) {
-          // Sem marcador — separador invisível apenas
-          livroCompleto += '\n\n';
-        } else {
-          livroCompleto += '\n\n';
-        }
+        // Marcadores de arco — nunca aparecem no texto do livro
+        // (existem internamente para organização, mas não poluem o texto)
+        livroCompleto += '\n\n';
       }
 
       let textoArco = '';
@@ -918,6 +915,13 @@ justificativa: [motivo]
       for (let fi = fiInicio; fi < numFrags; fi++) {
         const progBarra = Math.round(((fi + 1) / numFrags) * 100);
         document.getElementById('barra-arco-' + ai).style.width = (progBarra * 0.9) + '%';
+        // Progresso global — atualiza em tempo real a cada fragmento
+        const fragGlobalAtual = planejamento.slice(0, ai).reduce((s, p) => s + p.numFrags, 0) + fi + 1;
+        const fragGlobalTotal = planejamento.reduce((s, p) => s + p.numFrags, 0);
+        const pctGlobal = Math.round((fragGlobalAtual / Math.max(1, fragGlobalTotal)) * 100);
+        // Atualizar título do painel com progresso real
+        const elProg = document.getElementById('prog-etapa-msg');
+        if (elProg) elProg.textContent = 'Gerando… ' + pctGlobal + '% · Arco ' + (ai+1) + ' · Fragmento ' + (fi+1) + '/' + numFrags;
 
         log('Arco ' + (ai+1) + ' · Fragmento ' + (fi+1) + '/' + numFrags + ' (~' + palavrasPorFrag + ' palavras)...');
 
@@ -957,7 +961,7 @@ Use TODOS os tokens disponíveis para:
 2. Dar a cada personagem principal um desfecho coerente com sua jornada
 3. Entregar a última cena com força emocional máxima
 4. Encerrar com uma frase final que ressoe como conclusão inevitável
-NUNCA corte no meio de frase ou cena. O ponto final desta obra deve ser merecido.`;
+NUNCA corte no meio de frase ou cena. Toda frase DEVE terminar com pontuação antes de parar. Se estiver no limite de tokens, termine o parágrafo atual e pare com ponto final.`;
   } else if (isLast && numFrags > 1) {
     return `ATENÇÃO — Último fragmento deste arco. Conclua o arco com clareza e completude. NUNCA termine no meio de uma frase.`;
   } else if (pct >= 0.82) {
@@ -1456,7 +1460,7 @@ Máximo 3 itens por categoria. Retorne APENAS o JSON válido, sem markdown.`;
     // Exibir o relatório na tela
     exibirRelatorioFissuras(fissuras);
 
-    if (elBtn) { elBtn.textContent = '🔍 Ver Relatório de Fissuras'; elBtn.disabled = false; }
+    if (elBtn) { elBtn.textContent = '🔍 Ver Relatório de Fissuras'; elBtn.disabled = false; elBtn.style.display = 'inline-block'; }
 
   } catch(e) {
     console.warn('Relatório de fissuras não gerado:', e.message);
