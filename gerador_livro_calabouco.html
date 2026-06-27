@@ -342,6 +342,8 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 <script>
 // ===================== ESTADO =====================
 let jornadaSelecionada = null;
+let configMarcadores = { usar: false, arcos: [], posicao: 'inicio_arco' };
+let _pendingGeracaoArgs = null;
 let livroCompleto = '';
 let heteronimoEscolhido = '';
 let tituloFinal = '';
@@ -662,7 +664,7 @@ async function iniciarGeracao() {
     return;
   }
 
-  // ── MODO EXPANSÃO ────────────────────────────────────────
+  // ── MODO EXPANSÃO — mostrar modal de marcadores primeiro ──
   const volume = parseInt(document.getElementById('volume').value) || 120;
   const genero = document.getElementById('genero').value;
   const heteronimo = document.getElementById('heteronimo').value.trim();
@@ -675,13 +677,56 @@ async function iniciarGeracao() {
     return;
   }
 
-  // Se é saga com múltiplos volumes, gerar volume por volume
+  // Guardar args e mostrar modal de marcadores
+  _pendingGeracaoArgs = { titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase };
+  mostrarModalMarcadores();
+}
+
+function mostrarModalMarcadores() {
+  const jornada = JORNADAS[jornadaSelecionada];
+  const lista = document.getElementById('lista-arcos-marcadores');
+  lista.innerHTML = jornada.arcos.map((arco, i) => `
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0.4rem;">
+      <input type="checkbox" id="chk-arco-${i}" checked style="width:14px;height:14px;accent-color:#9c27b0;">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#b0a080;">ARCO ${i+1} · ${arco.nome}</span>
+    </label>`).join('');
+  document.getElementById('modal-marcadores').style.display = 'flex';
+}
+
+function toggleMarcadores() {
+  const usar = document.getElementById('chk-usar-marcadores').checked;
+  document.getElementById('wrap-marcadores').style.display = usar ? 'block' : 'none';
+}
+
+function coletarConfigMarcadores() {
+  const usar = document.getElementById('chk-usar-marcadores').checked;
+  const jornada = JORNADAS[jornadaSelecionada];
+  const arcosMarcados = jornada.arcos.map((_, i) => {
+    const chk = document.getElementById('chk-arco-' + i);
+    return chk ? chk.checked : false;
+  });
+  const pos = document.querySelector('input[name="pos-marcador"]:checked')?.value || 'inicio_arco';
+  configMarcadores = { usar, arcos: arcosMarcados, posicao: pos };
+}
+
+async function confirmarEGerar() {
+  coletarConfigMarcadores();
+  document.getElementById('modal-marcadores').style.display = 'none';
+  await executarGeracao();
+}
+
+async function gerarSemMarcadores() {
+  configMarcadores = { usar: false, arcos: [], posicao: 'inicio_arco' };
+  document.getElementById('modal-marcadores').style.display = 'none';
+  await executarGeracao();
+}
+
+async function executarGeracao() {
+  const { titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase } = _pendingGeracaoArgs;
   if (volumesSaga > 1) {
     await gerarSaga(titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase, volumesSaga);
     return;
   }
-
-  // Livro único — fluxo original
   await gerarLivroUnico(titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase);
 }
 
@@ -855,7 +900,16 @@ justificativa: [motivo]
 
       // Se é retomada no meio de um arco, não adiciona cabeçalho duplicado
       if (ai > arcoInicio || fragInicio === 0) {
-        livroCompleto += '\n\n' + '─'.repeat(60) + '\nARCO ' + (ai+1) + ' · ' + arco.nome.toUpperCase() + '\n' + '─'.repeat(60) + '\n\n';
+        // Cabeçalho do arco — respeita configMarcadores
+        const usarMarcador = configMarcadores.usar && (configMarcadores.arcos[ai] !== false);
+        if (usarMarcador && configMarcadores.posicao === 'inicio_arco') {
+          livroCompleto += '\n\n' + '─'.repeat(60) + '\n# ARCO ' + (ai+1) + ' — ' + arco.nome.toUpperCase() + '\n' + '─'.repeat(60) + '\n\n';
+        } else if (!configMarcadores.usar) {
+          // Sem marcador — separador invisível apenas
+          livroCompleto += '\n\n';
+        } else {
+          livroCompleto += '\n\n';
+        }
       }
 
       let textoArco = '';
@@ -884,7 +938,49 @@ Diretrizes: ${arco.desc}
 ${resumoAnterior ? 'RESUMO DO QUE JÁ FOI ESCRITO:\n' + resumoAnterior + '\n' : ''}
 ${!isFirst ? `Continue a narrativa a partir do parágrafo seguinte ao ponto onde o fragmento anterior terminou. NÃO repita nenhum conteúdo já escrito. NÃO resuma o que veio antes. Prossiga diretamente com a cena seguinte.` : ai > 0 ? `Inicie o Arco ${ai+1} no parágrafo seguinte ao final do Arco ${ai}. Mantenha coerência total com os arcos anteriores. NÃO repita conteúdo anterior.` : 'Inicie o livro. Apresente o mundo e os personagens principais.'}
 
-${isLastArco && isLast ? `ATENÇÃO — ÚLTIMO FRAGMENTO DO LIVRO: Este é o encerramento definitivo da obra. Use os tokens disponíveis para conduzir a narrativa até um final completo, coerente e satisfatório, de acordo com o tom "${tomVozGlobal || genero || 'escolhido'}". O desfecho deve ser orgânico e definitivo — sem cortes abruptos, sem "continua", sem promessas de sequência não combinada. A última frase do texto DEVE encerrar a história com plenitude.` : isLast && numFrags > 1 ? `Este é o ÚLTIMO fragmento deste arco. Conclua o arco de forma satisfatória, encerrando todas as tensões narrativas deste bloco. A última frase deve fechar o arco com clareza.` : ''}
+${(() => {
+  const totalFragsLivro = jornada.arcos.reduce((acc, a, idx) => {
+    const pags = Math.round(totalPaginas * (a.percentual || (1/jornada.arcos.length)));
+    return acc + Math.max(1, Math.ceil((pags * PALAVRAS_POR_PAGINA_A4) / PALAVRAS_POR_CHAMADA));
+  }, 0);
+  const fragAtualGlobal = jornada.arcos.slice(0, ai).reduce((acc, a, idx) => {
+    const pags = Math.round(totalPaginas * (a.percentual || (1/jornada.arcos.length)));
+    return acc + Math.max(1, Math.ceil((pags * PALAVRAS_POR_PAGINA_A4) / PALAVRAS_POR_CHAMADA));
+  }, 0) + fi + 1;
+  const pct = fragAtualGlobal / Math.max(1, totalFragsLivro);
+
+  if (isLastArco && isLast) {
+    return `ENCERRAMENTO REAL — TERCEIRO E DEFINITIVO MOMENTO:
+Este é o desfecho absoluto da obra. O leitor já passou por dois momentos onde acreditou que a história terminava — agora chegou o fim verdadeiro.
+Use TODOS os tokens disponíveis para:
+1. Resolver definitivamente todos os conflitos ainda abertos
+2. Dar a cada personagem principal um desfecho coerente com sua jornada
+3. Entregar a última cena com força emocional máxima
+4. Encerrar com uma frase final que ressoe como conclusão inevitável
+NUNCA corte no meio de frase ou cena. O ponto final desta obra deve ser merecido.`;
+  } else if (isLast && numFrags > 1) {
+    return `ATENÇÃO — Último fragmento deste arco. Conclua o arco com clareza e completude. NUNCA termine no meio de uma frase.`;
+  } else if (pct >= 0.82) {
+    return `FALSO FIM 2 — SEGUNDO MOVIMENTO:
+O personagem acredita ter chegado ao fim — mas o destino reserva um último e inesperado movimento. Neste fragmento:
+- Crie a ilusão de que tudo se resolveu
+- Então introduza uma última reviravolta, revelação ou consequência que muda o que o leitor pensava saber
+- Deixe os personagens (e o leitor) percebendo que ainda há um último passo a dar
+Este é o penúltimo grande momento antes do encerramento real.`;
+  } else if (pct >= 0.67) {
+    return `FALSO FIM 1 — PRIMEIRO MOVIMENTO:
+A tensão principal parece se resolver neste fragmento — mas algo permanece suspenso. Neste fragmento:
+- Resolva o conflito aparente de forma satisfatória
+- Mas deixe uma sombra, uma dúvida, uma porta entreaberta
+- Um personagem secundário com algo não dito, um lugar não visitado, uma pergunta sem resposta
+- O leitor deve respirar aliviado — e então perceber que ainda não acabou
+Não force o suspense: deixe-o surgir naturalmente das fissuras da narrativa.`;
+  } else if (pct >= 0.50) {
+    return `Fase de convergência (${Math.round(pct*100)}% da obra): Comece a aproximar as linhas narrativas do desfecho. Reduza a abertura de novos conflitos. Cada cena deve trazer a história um passo mais perto da conclusão.`;
+  } else {
+    return '';
+  }
+})()}
 
 REGRAS OBRIGATÓRIAS DE FORMATAÇÃO:
 - Diálogos SEMPRE com travessão (—) e verbo dicendi identificado
@@ -1286,6 +1382,123 @@ const CK_ARCO     = 'gerador_arco_atual';
 const CK_FRAG     = 'gerador_frag_atual';
 const CK_RESUMO   = 'gerador_resumo_anterior';
 
+// ══════════════════════════════════════════════════════════════
+// RELATÓRIO DE FISSURAS — Sementes para novas histórias
+// ══════════════════════════════════════════════════════════════
+async function gerarRelatorioFissuras(livroTexto, titulo, autor, genero) {
+  try {
+    const apiKey = window.ANTHROPIC_API_KEY || localStorage.getItem('hub_apikey') || '';
+    if (!apiKey) return;
+
+    // Mostrar indicador
+    const elBtn = document.getElementById('btn-fissuras');
+    if (elBtn) { elBtn.textContent = '⟳ Gerando Relatório de Fissuras...'; elBtn.disabled = true; }
+
+    const amostra = livroTexto.substring(0, 6000) + (livroTexto.length > 6000 ? '
+
+[...]
+
+' + livroTexto.slice(-3000) : '');
+
+    const prompt = `Você é um editor literário especializado em desenvolvimento de universos ficcionais.
+
+Leia este livro e identifique as FISSURAS — elementos narrativos que abrem oportunidades para novas histórias sem quebrar a obra atual.
+
+TÍTULO: ${titulo}
+AUTOR: ${autor}
+GÊNERO: ${genero}
+
+TEXTO (amostra):
+${amostra}
+
+Identifique e liste em formato JSON:
+{
+  "personagens_com_historia_nao_contada": [
+    {"nome": "", "fissura": "", "titulo_sugerido": "", "semente": ""}
+  ],
+  "lugares_nao_explorados": [
+    {"lugar": "", "fissura": "", "titulo_sugerido": "", "semente": ""}
+  ],
+  "conflitos_em_aberto": [
+    {"conflito": "", "fissura": "", "titulo_sugerido": "", "semente": ""}
+  ],
+  "perguntas_sem_resposta": [
+    {"pergunta": "", "fissura": "", "titulo_sugerido": "", "semente": ""}
+  ],
+  "epocas_nao_visitadas": [
+    {"epoca": "", "fissura": "", "titulo_sugerido": "", "semente": ""}
+  ]
+}
+
+Para cada item: "semente" é um parágrafo de 2-3 linhas descrevendo como essa fissura poderia virar uma nova obra independente.
+Máximo 3 itens por categoria. Retorne APENAS o JSON válido, sem markdown.`;
+
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] })
+    });
+
+    if (!r.ok) return;
+    const d = await r.json();
+    const txt = (d.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+    const fissuras = JSON.parse(txt);
+    fissuras.obra = titulo;
+    fissuras.autor = autor;
+    fissuras.data = new Date().toISOString();
+
+    // Salvar no localStorage
+    const lista = JSON.parse(localStorage.getItem('relatorios_fissuras') || '[]');
+    lista.unshift(fissuras);
+    if (lista.length > 50) lista.splice(50);
+    localStorage.setItem('relatorios_fissuras', JSON.stringify(lista));
+
+    // Exibir o relatório na tela
+    exibirRelatorioFissuras(fissuras);
+
+    if (elBtn) { elBtn.textContent = '🔍 Ver Relatório de Fissuras'; elBtn.disabled = false; }
+
+  } catch(e) {
+    console.warn('Relatório de fissuras não gerado:', e.message);
+  }
+}
+
+function exibirRelatorioFissuras(f) {
+  const categorias = [
+    { key: 'personagens_com_historia_nao_contada', label: '👤 Personagens com história não contada', cor: '#4caf50' },
+    { key: 'lugares_nao_explorados', label: '🗺️ Lugares não explorados', cor: '#2196f3' },
+    { key: 'conflitos_em_aberto', label: '⚔️ Conflitos em aberto', cor: '#e65100' },
+    { key: 'perguntas_sem_resposta', label: '❓ Perguntas sem resposta', cor: '#9c27b0' },
+    { key: 'epocas_nao_visitadas', label: '⏳ Épocas não visitadas', cor: '#607d8b' },
+  ];
+
+  let html = `<div style="margin-top:1.5rem;background:rgba(106,27,154,0.04);border:1px solid rgba(106,27,154,0.15);border-radius:8px;padding:1.2rem;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.25em;color:#9c27b0;text-transform:uppercase;margin-bottom:1rem;">// RELATÓRIO DE FISSURAS · ${f.obra}</div>`;
+
+  categorias.forEach(cat => {
+    const itens = f[cat.key] || [];
+    if (!itens.length) return;
+    html += `<div style="margin-bottom:1rem;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.48rem;letter-spacing:0.15em;color:${cat.cor};text-transform:uppercase;margin-bottom:0.5rem;">${cat.label}</div>`;
+    itens.forEach(item => {
+      const nome = item.nome || item.lugar || item.conflito || item.pergunta || item.epoca || '';
+      html += `<div style="background:rgba(255,255,255,0.02);border-left:2px solid ${cat.cor};padding:0.6rem 0.8rem;margin-bottom:0.5rem;border-radius:0 4px 4px 0;">
+        <div style="font-family:'Cinzel','Georgia',serif;font-size:0.82rem;color:#f0e8d0;margin-bottom:0.2rem;">${nome}</div>
+        <div style="font-size:0.72rem;color:#b0a080;font-style:italic;margin-bottom:0.3rem;">${item.fissura || ''}</div>
+        ${item.titulo_sugerido ? `<div style="font-family:'Share Tech Mono',monospace;font-size:0.48rem;color:${cat.cor};margin-bottom:0.2rem;">→ ${item.titulo_sugerido}</div>` : ''}
+        <div style="font-size:0.7rem;color:#6a7d90;">${item.semente || ''}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  html += `</div>`;
+
+  // Inserir após o livro
+  const el = document.getElementById('relatorio-fissuras');
+  if (el) el.innerHTML = html;
+}
+
 async function chamarAPI(prompt, maxTokens, tentativas = 4, delayBase = 3000) {
   for (let t = 1; t <= tentativas; t++) {
     try {
@@ -1466,8 +1679,19 @@ ${livroCompleto}
 
 BIOGRAFIA
 
-${heteronimoEscolhido} é escritor da OHE — Organização Heterônima Editorial.
-[Biografia completa disponível no Registro Civil Heteronímico]
+${(() => {
+  // Buscar biografia real no localStorage (salva pela Máquina Desafio ou extrator)
+  try {
+    const vitrine = JSON.parse(localStorage.getItem('vitrine_personagens') || '[]');
+    const bioKey = 'bio_' + heteronimoEscolhido.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-');
+    const bioSalva = localStorage.getItem(bioKey);
+    if (bioSalva) return bioSalva;
+    // Tentar nas biografias salvas pelo GitHub (ficha_tecnica_autor)
+    const fichas = JSON.parse(localStorage.getItem('fichas_biografias') || '{}');
+    if (fichas[heteronimoEscolhido]) return fichas[heteronimoEscolhido];
+  } catch(_) {}
+  return heteronimoEscolhido + ' é escritor da OHE — Organização Heterônima Editorial.';
+})()}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -1475,6 +1699,9 @@ SITE DAS LETRAS EDIÇÕES LITERÁRIAS`;
 
   livroCompleto = livroEditorial;
   document.getElementById('livro-conteudo').textContent = livroCompleto;
+
+  // Gerar Relatório de Fissuras automaticamente
+  gerarRelatorioFissuras(livroCompleto, tituloFinal, heteronimoEscolhido, genero);
 
   // Salvar no GitHub
   salvarLivroNoGitHub(tituloFinal, heteronimoEscolhido, livroCompleto, destino);
@@ -1515,4 +1742,34 @@ function limpar() {
 document.getElementById('volume').addEventListener('change', atualizarPreviewArcos);
 </script>
 </body>
-</html>
+</html>  <!-- MODAL MARCADORES DE ARCO -->
+  <div id="modal-marcadores" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;">
+    <div style="background:#0d0520;border:1px solid rgba(106,27,154,0.3);padding:1.5rem;width:340px;max-width:95vw;border-radius:8px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;letter-spacing:0.25em;color:#9c27b0;text-transform:uppercase;margin-bottom:1rem;">// MARCADORES DE ARCO</div>
+
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:1rem;">
+        <input type="checkbox" id="chk-usar-marcadores" onchange="toggleMarcadores()" style="width:16px;height:16px;accent-color:#9c27b0;">
+        <span style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:#f0e8d0;">Incluir marcadores de arco no texto</span>
+      </label>
+
+      <div id="wrap-marcadores" style="display:none;margin-left:1.5rem;margin-bottom:1rem;">
+        <div id="lista-arcos-marcadores" style="margin-bottom:0.8rem;"></div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.48rem;letter-spacing:0.12em;color:#9c27b0;opacity:0.6;text-transform:uppercase;margin-bottom:0.4rem;">Posição</div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0.3rem;">
+          <input type="radio" name="pos-marcador" value="inicio_arco" checked style="accent-color:#9c27b0;">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:#b0a080;">Início do arco</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <input type="radio" name="pos-marcador" value="inicio_capitulo" style="accent-color:#9c27b0;">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:#b0a080;">Início de cada capítulo</span>
+        </label>
+      </div>
+
+      <div style="display:flex;gap:0.6rem;">
+        <button onclick="confirmarEGerar()" style="flex:1;background:linear-gradient(135deg,#6a1b9a,#9c27b0);color:white;font-family:'Share Tech Mono',monospace;font-size:0.6rem;font-weight:700;letter-spacing:0.12em;padding:0.7rem;border:none;border-radius:4px;cursor:pointer;text-transform:uppercase;">⚡ GERAR AGORA</button>
+        <button onclick="gerarSemMarcadores()" style="flex:1;background:transparent;border:1px solid rgba(106,27,154,0.3);color:#9c27b0;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;padding:0.7rem;border-radius:4px;cursor:pointer;text-transform:uppercase;">SEM MARCADORES</button>
+      </div>
+    </div>
+  </div>
+
+  
