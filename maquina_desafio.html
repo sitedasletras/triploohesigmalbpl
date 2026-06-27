@@ -243,9 +243,16 @@
 </head>
 <body>
 
+<div style="margin-bottom:1rem;">
+  <a href="/" style="font-family:monospace;font-size:0.55rem;letter-spacing:0.15em;color:#6a7d90;text-decoration:none;text-transform:uppercase;display:inline-flex;align-items:center;gap:0.4rem;transition:color 0.2s;" onmouseover="this.style.color='#c9a84c'" onmouseout="this.style.color='#6a7d90'">
+    ← SIGMAL HQ
+  </a>
+</div>
+
 <div class="topo">
   <div class="topo-titulo">✦ MÁQUINA DESAFIO</div>
   <div class="topo-sub">Fernando Peçanha · OHE · Geração Surpresa</div>
+  <a href="/" style="font-family:monospace;font-size:0.5rem;letter-spacing:0.15em;color:#6a7d90;text-decoration:none;text-transform:uppercase;margin-top:0.5rem;display:inline-block;border:1px solid rgba(201,168,76,0.2);padding:4px 12px;border-radius:4px;">← Voltar ao SIGMAL HQ</a>
 </div>
 
 <!-- API KEY -->
@@ -406,61 +413,87 @@ async function lancar() {
 
 const obs = document.getElementById('chk-obs').checked ? document.getElementById('obs-texto').value.trim() : '';
 
+  const HETERONIMOS_OHE = [
+    { nome: 'A.J. dos Santos', territorio: 'Contos e poesias sobre chupa-cabras, lobisomens e vampiros. Nascido em Itapecerica-MG. Primo de Padre Benedicttus Konstantinos.', formato: 'conto/poesia' },
+    { nome: 'Amanda Fernanda Fisher Leão', territorio: 'Pirataria, sereias, Fomea e monstros marinhos — prosa e poesia. Heptaneta do navegador Johnny Fisher. Nascida em Caraguatatuba.', formato: 'conto/poesia' },
+    { nome: 'Amélie Maia Hanna', territorio: 'Escreve EXCLUSIVAMENTE sonetos — memórias, emoções, cotidiano. Professora caiçara, 53 anos. Nascida em Praia Grande.', formato: 'soneto' },
+    { nome: 'Anísio Teixeira', territorio: 'Escreve EXCLUSIVAMENTE sobre zumbis — prosa e poesia. Horror, pós-apocalipse, existencialismo. Nunca escreve fora do território zumbi.', formato: 'conto/poesia' },
+    { nome: 'Articus da Persida', territorio: 'Cavaleiro Templário medieval — amor impossível, fé, espada, Ordem do Templo. Viveu de 1274 a 1307. Romance histórico.', formato: 'romance' },
+    { nome: 'Aurora Wings', territorio: 'Heroína cibernética — IA, super-heróis, ficção científica, ação. Nascida em 2022 numa fábrica de robótica no Caribe.', formato: 'romance/poesia' },
+    { nome: 'Padre Benedicttus Konstantinos', territorio: 'Religião católica, gárgulas, apocalipse, versículos bíblicos, amor proibido celibatário. Mora em Itapecerica-MG. Primo de A.J. dos Santos.', formato: 'conto/poesia' },
+    { nome: 'Birihani Selami Ina Tesifa', territorio: 'Escreve EXCLUSIVAMENTE ghazal — amor, devoção, saudade, musicalidade oriental. Nascido na Malásia.', formato: 'ghazal' },
+    { nome: 'Calíope Papazissis', territorio: 'Mitopoética — mitologia grega, nórdica, celta e italiana. Poesia e prosa. Nascida na Grécia, criada em Hortolândia.', formato: 'poesia/prosa' },
+    { nome: 'Chesco Irlanda', territorio: 'Escreve EXCLUSIVAMENTE histórias infantis e fábulas. Nascido em Duartina-SP.', formato: 'conto infantil' },
+    { nome: 'Claudiney Aristides Diaz', territorio: 'Território em aberto — escrita experimental, sem eixo fixo. Nascido em Nova Russas-CE.', formato: 'variado' },
+    { nome: 'Creone Porfirio', territorio: 'Guerras, patriotismo, militarismo, história militar brasileira. Ex-militar BGP. Nascido em Ceilândia-DF.', formato: 'romance' },
+    { nome: 'Cristovão Duarte', territorio: 'Aracnídeos, horror subterrâneo, monstros do subsolo. Bisneto de mamelucos. Fobia por aranhas que virou literatura.', formato: 'conto' },
+    { nome: 'Daniel Fernandes', territorio: 'Poesia hot/erótica, teatro, cotidiano urbano. Ex-radialista do programa Love Night. Nascido em São Paulo-SP.', formato: 'poesia' },
+    { nome: 'Dárius Ninus Vamus', territorio: 'Futebol de várzea, humor, limerick, elegias, crônicas esportivas. Nascido em São Paulo-SP.', formato: 'poesia/cronica' },
+    { nome: 'Demetrius Varas', territorio: 'Prosa quente/hot/erótica APENAS. Contador de histórias sem escrúpulos. Nascido em São Roque.', formato: 'conto' },
+    { nome: 'Din Kin Lin', territorio: 'Dragões, seres místicos do oriente, lendas orientais, haicai. Nascido em Shangai, mora no Bairro da Liberdade-SP. Esposo de Noraya Sakamoto.', formato: 'conto/haicai' },
+    { nome: 'Diógenes Bueno de Alencar', territorio: 'Arquipélagos, penínsulas, memória, cotidiano, conflitos interiores — prosa e poesia. Nascido em Sobradinho-DF.', formato: 'prosa/poesia' },
+    { nome: 'Hama Amarin', territorio: 'Escreve EXCLUSIVAMENTE pantum — perdão, ciclos emocionais, memória circular. Nascido em Guararema-SP.', formato: 'pantum' },
+    { nome: 'Helena Duarte Valença', territorio: 'Reconstrução feminina, memória doméstica, silenciamento da mulher.', formato: 'conto' },
+    { nome: 'Henrich Jones', territorio: 'Arqueologia, paleontologia, civilizações antigas, aventura histórica.', formato: 'romance' },
+    { nome: 'Hernesto Bevilácqua', territorio: 'Escreve EXCLUSIVAMENTE odes — contemplação, exaltação, lirismo clássico. Nascido em Serra Negra-SP.', formato: 'ode' },
+    { nome: 'Horando Almeida Prado', territorio: 'Mar, pesca, litoral sul paulista — poesia e contos. Pescador nascido em Itanhaém-SP.', formato: 'conto/poesia' },
+    { nome: 'Icabode Kahpote', territorio: 'Sextinas e contos póstumos — morte, passagem para além da vida, o que existe do outro lado. Nascido em Campos do Jordão, falecido em 1997 em Pindamonhangaba. Escreve poesia e prosa póstumas.', formato: 'sextina/conto' },
+    { nome: 'Imediato Thompson', territorio: 'Constelação Ophiuchus, planeta Atlantis, cosmologia, abdução alienígena. Nascido na Nova Escócia-Canadá, viveu no Alasca.', formato: 'romance' },
+    { nome: 'J.L.Gomes', territorio: 'Espiritismo, pensamentos motivacionais, crônicas espíritas, poesias motivacionais. Ditadas pelo Espírito Irmão Pullius. Nascido em Bauru-SP.', formato: 'cronica/poesia' },
+    { nome: 'Jorge Cavalcanti', territorio: 'Cordel — cultura popular nordestina, oralidade, memória, cotidiano. Nascido em Campos do Jordão-SP.', formato: 'cordel' },
+    { nome: 'Julia Abdalla', territorio: 'Culinária, bem-estar, receitas literárias, qualidade de vida. Nascida em São Paulo em 1981.', formato: 'cronica' },
+    { nome: 'Juka Pituskaq', territorio: 'Novo Movimento Estrofista — odes, poesias estrofistas. Nascido em Mairinque em 1890. Criador do movimento estrofista.', formato: 'poesia estrofista' },
+    { nome: 'Marina Torres Azevedo', territorio: 'Poesia de reconstrução feminina, cura emocional, memória afetiva.', formato: 'poesia' },
+    { nome: 'Mário Célio Sabino', territorio: 'Terror, fantasmas, ocultismo, fenômenos paranormais, teorias da conspiração. Professor de Letras em Mairinque-SP.', formato: 'conto/poesia' },
+    { nome: 'Michelangelo Miguel', territorio: 'Poemas narrativos — lirismo, história, emoção combinados. Nascido em Mogi das Cruzes-SP.', formato: 'poesia narrativa' },
+    { nome: 'Noraya Sakamoto', territorio: 'Poesia oriental japonesa EXCLUSIVAMENTE — Haicai, Tanka, Senryū, Renga, Mondo, Katauta. Natureza, impermanência, sensibilidade zen. Nisei nascida em 08/08/1978. Esposa de Din Kin Lin.', formato: 'haicai/tanka/senryu/renga' },
+    { nome: 'Pyetra Luyza', territorio: 'Ecoficção, defesa da natureza e animais, repórteres ambientais — prosa e poesia. Nascida em Santo André em 1996.', formato: 'conto/poesia' },
+    { nome: 'Raimundo José da Silva Nonato', territorio: 'Seca nordestina, desastres naturais, memória oral, resistência do povo — prosa e poesia. Nascido em Peruíbe-SP.', formato: 'cordel/prosa' },
+    { nome: 'Renat Kolotov', territorio: 'Revolução Russa de 1917, resistência histórica, família aristocrática russa. Bisneto de família da Revolução. Nascido em Campina das Missões-RS.', formato: 'romance' },
+    { nome: 'Rovonilson Reigns Bautista', territorio: 'Rap, rua, marquises, vida urbana periférica, desilusão amorosa. Natural de Santo André-SP.', formato: 'poesia/rap' },
+    { nome: 'Sebastião Ferreira dos Anjos', territorio: 'Poemas dissertativos — lirismo e argumentação, reflexão social, existencialismo. Nascido em Santo Antônio do Monte-MG.', formato: 'poesia' },
+    { nome: 'Site das Letras Ed. Literárias', territorio: 'Miscelânea institucional — antologias, textos coletivos. Não tem território próprio.', formato: 'variado' },
+    { nome: 'Valter Marques', territorio: 'Erros do passado, dor, culpa, humanidade — prosa e verso em vários estilos. Nascido em Recife, mora em São Roque-SP.', formato: 'variado' },
+    { nome: 'Victor A. Pereira', territorio: 'Mistério, investigação, romance policial. Ex-policial rodoviário de Bragança Paulista-SP.', formato: 'romance policial' },
+    { nome: 'Wagner Planas', territorio: 'Múltiplos — criador do ecossistema. Usa apenas em miscelânea ou quando nenhum outro heterônimo serve.', formato: 'variado' },
+    { nome: 'Wilson Silva', territorio: 'Amor, cotidiano, lirismo — poesias e prosas sentimentais. Nascido no Cambuci-SP.', formato: 'poesia/prosa' },
+    { nome: 'Yago Mattos', territorio: 'Bruxas, lendas, deuses do mar, crenças caiçaras — prosa e poesia. Pescador caiçara de Praia Grande-SP.', formato: 'conto/poesia' },
+    { nome: 'Mórigan Voss', territorio: 'Amor impossível, luto, fronteiras entre mundos, o que persiste depois da perda. Tom literário elevado, emocionalmente preciso. Prosa literária e romance.', formato: 'romance' },
+    { nome: 'Dona Catarina Trovante', territorio: 'Trovas e quadras métricas — temas nacionais, amor, resistência.', formato: 'trova' },
+    { nome: 'Vladislava Karnstein', territorio: 'Vampirismo aristocrático, sedução sombria, memórias de uma condessa imortal. Romance gótico.', formato: 'romance' },
+    { nome: 'Santiago Poetrix', territorio: 'Poetrix — forma híbrida entre poesia e prosa poética. Vinculado a Santos-SP.', formato: 'poetrix' },
+    { nome: 'Irmão Ezequias Luz', territorio: 'Literatura cristã evangélica, terror espiritual, batalha entre bem e mal.', formato: 'conto' },
+    { nome: 'Marina das Vozes', territorio: 'Crônica urbana pura — São Paulo, vida metropolitana, ironia fina.', formato: 'cronica' },
+    { nome: 'Mirela Voss Drummond', territorio: 'O que resta nos vivos depois da perda — memória afetiva, presença invisível de quem partiu, luto silencioso no cotidiano. Irmã de Mórigan Voss, nascida em Utrecht, Países Baixos.', formato: 'conto/romance' },
+    { nome: 'Baltasar de Morais Seixas', territorio: 'Épica e espiritualidade ibérica — fé, mar, Descobrimentos portugueses, Ordem dos Cavaleiros de Cristo. Neto de marinheiro de Vasco da Gama.', formato: 'romance' },
+    { nome: 'Miroslav Kadek', territorio: 'Prosa lírica de tensão histórica e memória fragmentada — Guerra Fria, Europa Central, silêncio geracional, trauma herdado.', formato: 'romance/conto' },
+  ];
+
+  const listaHet = HETERONIMOS_OHE.map(h => `- ${h.nome} | Território: ${h.territorio} | Formato preferido: ${h.formato}`).join('\n');
+
   const prompt = `Você é Fernando Peçanha, curador da OHE — Organização Heteronímica Editorial.
 
 O produtor lançou um DESAFIO com os seguintes parâmetros:
 - ÉPOCA: ${epocaDesc[_epoca]}
 - UNIVERSO/CENÁRIO: ${universo}${obs ? '\n- OBSERVAÇÕES DO PRODUTOR: ' + obs : ''}
 
+HETERÔNIMOS DISPONÍVEIS — leia os territórios com atenção antes de escolher:
+${listaHet}
+
+REGRA DE ESCOLHA:
+1. Leia o desafio e identifique qual território tem maior afinidade
+2. Se o tema cruza com o território de um heterônimo específico, use-o
+3. Se dois ou mais têm afinidade, escolha o mais preciso
+4. Só crie heterônimo novo se NENHUM dos 51 servir ao desafio
+
 SUA MISSÃO COMPLETA:
-1. Escolha o heterônimo mais adequado do seu repertório para este desafio
+1. Escolha o heterônimo mais adequado baseado nos territórios acima
 2. Decida TUDO: gênero (prosa, poesia ou cordel), tema, personagens, conflito, tom, destino (calabouço ou masmorra)
 3. Apresente brevemente o heterônimo escolhido (2-3 frases sobre quem é e por que foi escolhido para este desafio)
 4. Escreva a OBRA SEMENTE completa — literária, humanizada, sem rastro de IA:
    - Prosa: 500 a 1.500 palavras
    - Poesia: 20 a 60 versos
-   - Cordel: mínimo 10 estrofes (sextilha, rima em 2,4,6, métrica 7 sílabas)
-
-REGRAS DE ESCRITA — OBRIGATÓRIAS:
-
-PERSONAGENS:
-- Todo personagem sem exceção deve ter NOME e SOBRENOME próprios
-- NUNCA usar "o filho de", "a mulher de", "o amigo do" — todo mundo tem nome
-- Personagens secundários são pessoas reais na história, não funções
-
-DIÁLOGOS:
-- Travessão (—) para abrir fala, seguido do texto da fala
-- Verbo de elocução natural: disse, respondeu, murmurou, perguntou, pensou
-- Nunca frases soltas sem contexto — sempre há ação ou reação junto
-
-NARRATIVA:
-- Sem repetições desnecessárias — se o personagem foi, foi. Não explicar como não foi
-- Sem lista de negações: "não foi de bicicleta, não foi de carro, não foi de avião"
-- Cada frase carrega peso — cortar tudo que não acrescenta
-- Mostrar não explicar — o leitor é inteligente
-- Sem marcadores de IA: "é importante notar", "vale ressaltar", "em suma"
-
-TIPOGRAFIA:
-- Título em negrito tamanho 14
-- Texto corpo tamanho 12
-- Parágrafos separados por linha em branco
-- Poesia: maiúscula e pontuação em cada verso
-- Cordel: mínimo 10 estrofes, sextilha, rima em 2,4,6, métrica 7 sílabas
-
-FORMATO DE RESPOSTA (siga exatamente, sem alterar os marcadores):
----HETERÔNIMO---
-[nome completo]
-
----EIXO---
-[eixo literário em uma linha]
-
----APRESENTAÇÃO---
-[2 a 3 frases sobre o heterônimo e por que foi escolhido para este desafio]
-
----OBRA---
-[título completo]
-
-[texto completo da obra semente]`;
+   - Cordel: mínimo 10 estrofes (sextilha, rima em 2,4,6, métrica 7 sílabas)`;
 
   try {
     log('Aguardando Fernando Peçanha...');
