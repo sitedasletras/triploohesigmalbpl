@@ -345,6 +345,7 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
       <div class="acoes">
         <button class="btn-p" onclick="copiarLivro()">📋 COPIAR LIVRO</button>
         <button class="btn-roxo" onclick="exportarTexto()">⬇ EXPORTAR .TXT</button>
+        <button id="btn-costurar" onclick="costurarTexto()" style="display:none;font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;padding:0.6rem 1rem;border:1px solid #f57f17;background:rgba(245,127,23,0.08);color:#f57f17;cursor:pointer;text-transform:uppercase;border-radius:4px;">🧵 COSTURAR TEXTO</button>
         <button class="btn-s" onclick="novaGeracao()">↺ NOVA GERAÇÃO</button>
         <button id="btn-fissuras" onclick="document.getElementById('relatorio-fissuras').scrollIntoView({behavior:'smooth'})" style="display:none;font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;padding:0.6rem 1rem;border:1px solid #9c27b0;background:transparent;color:#9c27b0;cursor:pointer;text-transform:uppercase;border-radius:4px;">🔍 FISSURAS</button>
       </div>
@@ -1162,6 +1163,9 @@ Escreva uma revisão editorial (máximo 3 parágrafos):
     limparCheckpoints();
     liberarWakeLock();
     mostrarResultado(destinoFinal, novoHeteronimoCriado);
+    // Mostrar botão costurar automaticamente após geração
+    const btnC = document.getElementById('btn-costurar');
+    if (btnC) btnC.style.display = 'inline-block';
 
   } catch (err) {
     log('✗ ERRO: ' + err.message);
@@ -1287,7 +1291,99 @@ function pausarArco() {
   if (resolveAprovacao) { resolveAprovacao(false); resolveAprovacao = null; }
 }
 
-// ===================== SALVAR NO GITHUB =====================
+// ===================== COSTURADOR DE TEXTO =====================
+async function costurarTexto() {
+  const btn = document.getElementById('btn-costurar');
+  if (!livroCompleto || livroCompleto.length < 100) {
+    alert('Nenhum texto gerado para costurar.');
+    return;
+  }
+
+  btn.textContent = '🧵 Costurando...';
+  btn.disabled = true;
+
+  try {
+    // Detectar se o texto está cortado no meio de frase
+    const textoAtual = livroCompleto;
+    const ultimoChar = textoAtual.trim().slice(-1);
+    const cortado = !'.!?…"»'.includes(ultimoChar);
+
+    // Pegar os últimos 3000 caracteres como contexto do corte
+    const fimDoTexto = textoAtual.slice(-3000);
+
+    // Detectar separador de arco para entender onde está o corte
+    // Buscar o último capítulo mencionado
+    const capituloMatch = textoAtual.match(/Capítulo\s+([IVXLCDM\d]+)[^\n]*/gi);
+    const ultimoCapitulo = capituloMatch ? capituloMatch[capituloMatch.length - 1] : '';
+
+    const promptCostura = `Você é ${heteronimoEscolhido || 'um escritor da OHE'}, escritor literário.
+
+Você gerou um livro chamado "${tituloFinal}" que foi interrompido antes de terminar.
+
+TRECHO FINAL DO QUE FOI ESCRITO (últimas 3000 caracteres):
+${fimDoTexto}
+
+${cortado ? `O texto foi CORTADO NO MEIO de uma cena/frase — termine a frase atual e continue a narrativa até o desfecho completo da história.` : `O texto terminou mas a história ainda não chegou ao seu desfecho final — continue a narrativa até o fechamento completo.`}
+
+MISSÃO:
+1. Se o texto cortou no meio de uma frase ou palavra: complete essa frase primeiro
+2. Continue a narrativa de onde parou com coerência total com o que foi escrito
+3. Desenvolva as cenas que faltam para o desfecho
+4. Escreva o DESFECHO FINAL COMPLETO — resolva todos os conflitos abertos, dê desfecho a todos os personagens principais
+5. Termine com uma frase final que soe como conclusão inevitável
+
+REGRAS ABSOLUTAS:
+- Nunca repita conteúdo já escrito — comece exatamente de onde o texto parou
+- Se cortou no meio de frase, a PRIMEIRA palavra que escrever deve ser a continuação direta
+- Voz narrativa idêntica ao que foi escrito — mesmo tom, mesmo ritmo, mesmo heterônimo
+- PROIBIDO: tags HTML, markdown, ## , <div>, asteriscos, separadores ---
+- PROIBIDO: mencionar "Arco I/II/III" ou qualquer marcador estrutural
+- O texto deve ser limpo — apenas narrativa
+
+Escreva a continuação e o desfecho final agora. Comece imediatamente sem introdução ou comentário.`;
+
+    log('🧵 Costurando texto — gerando continuação e desfecho...');
+
+    const continuacao = await chamarAPI(promptCostura, 16000);
+
+    // Limpar a continuação
+    const continuacaoLimpa = continuacao
+      .replace(/<div[^>]*>/gi, '').replace(/<\/div>/gi, '')
+      .replace(/<p[^>]*>/gi, '').replace(/<\/p>/gi, '')
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/^#{1,6}\s+/gm, '')
+      .replace(/^---+\s*$/gm, '')
+      .replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\*([^*]+)\*/g, '$1')
+      .trim();
+
+    // Costurar — se cortou no meio de frase, emenda direto; senão, parágrafo novo
+    const separador = cortado ? '' : '\n\n';
+    livroCompleto = textoAtual.trimEnd() + separador + continuacaoLimpa;
+
+    // Atualizar exibição
+    document.getElementById('livro-conteudo').textContent = livroCompleto;
+
+    log('✅ Costura concluída — ' + continuacaoLimpa.split(/\s+/).length + ' palavras adicionadas.');
+
+    btn.textContent = '🧵 COSTURAR NOVAMENTE';
+    btn.disabled = false;
+
+    // Salvar versão costurada no localStorage
+    const livros = JSON.parse(localStorage.getItem('calabouco_livros') || '[]');
+    const idx = livros.findIndex(l => l.titulo === tituloFinal);
+    if (idx >= 0) {
+      livros[idx].conteudo = livroCompleto;
+      livros[idx].costurado = true;
+      localStorage.setItem('calabouco_livros', JSON.stringify(livros));
+      log('💾 Versão costurada salva no Calabouço.');
+    }
+
+  } catch (e) {
+    log('✗ Erro na costura: ' + e.message);
+    btn.textContent = '🧵 COSTURAR TEXTO';
+    btn.disabled = false;
+  }
+}
 // ═══════════════════════════════════════════════════════════
 // CONTO SEMENTE — 3.700 a 4.500 palavras · arco completo
 // ═══════════════════════════════════════════════════════════
