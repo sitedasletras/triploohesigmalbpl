@@ -370,8 +370,16 @@ let tomVozGlobal = '';
 
 // Tokens por chamada e palavras por página A4
 const MAX_TOKENS_POR_CHAMADA = 8000; // Sonnet 4.6 suporta até 8192
-const PALAVRAS_POR_PAGINA_A4 = 400;
-const PALAVRAS_POR_CHAMADA = 5000; // ~12-13 páginas A4 por fragmento
+const PALAVRAS_POR_PAGINA_A4 = 280;  // padrão editorial A4 corpo 12, entrelinha 1.5
+const PALAVRAS_POR_CHAMADA   = 4000; // média real de palavras por chamada de 8k tokens
+
+// RÉGUA DE REFERÊNCIA (automática via regra de três):
+// 120 pág →  33.600 palavras →  9 fragmentos
+// 200 pág →  56.000 palavras → 14 fragmentos
+// 300 pág →  84.000 palavras → 21 fragmentos
+// 400 pág → 112.000 palavras → 28 fragmentos
+// 500 pág → 140.000 palavras → 35 fragmentos
+// 800 pág → 224.000 palavras → 56 fragmentos
 
 const JORNADAS = {
   heroi: { nome: 'Jornada do Herói', arcos: [
@@ -1075,7 +1083,9 @@ NUNCA corte no meio de uma palavra, frase ou oração. Prefira o gancho ao corte
 Use capítulos numerados quando apropriado.
 NÃO inclua meta-comentários. Comece diretamente com a narrativa.`;
 
-        const fragmento = await chamarAPI(promptFragmento, MAX_TOKENS_POR_CHAMADA);
+        // Último fragmento do último arco recebe mais tokens para garantir desfecho completo
+        const tokensParaEsteFragmento = (isLastArco && isLast) ? 16000 : MAX_TOKENS_POR_CHAMADA;
+        const fragmento = await chamarAPI(promptFragmento, tokensParaEsteFragmento);
         textoArco += fragmento + '\n\n';
 
         // ── CHECKPOINT após cada fragmento ──
@@ -1963,21 +1973,18 @@ ${(() => {
 SITE DAS LETRAS EDIÇÕES LITERÁRIAS`;
 
   // Limpar tags HTML e markdown que possam ter vazado da geração
-  const livroLimpo = livroEditorial
-    .replace(/<div[^>]*>/gi, '').replace(/<\/div>/gi, '')
-    .replace(/<p[^>]*>/gi, '').replace(/<\/p>/gi, '')
-    .replace(/<center>/gi, '').replace(/<\/center>/gi, '')
-    .replace(/<br\s*\/?>/gi, '
-')
-    .replace(/align="[^"]*"/gi, '')
-    .replace(/##\s+/g, '').replace(/#+\s+/g, '')
-    .replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\*([^*]+)\*/g, '$1')
-    .replace(/
-{4,}/g, '
-
-
-');
-
+  let livroLimpo = livroEditorial;
+  livroLimpo = livroLimpo.replace(/<div[^>]*>/gi, '').replace(/<\/div>/gi, '');
+  livroLimpo = livroLimpo.replace(/<p[^>]*>/gi, '').replace(/<\/p>/gi, '');
+  livroLimpo = livroLimpo.replace(/<center>/gi, '').replace(/<\/center>/gi, '');
+  livroLimpo = livroLimpo.replace(/<br\s*\/?>/ .source ? '' : '', '\n');
+  livroLimpo = livroLimpo.replace(/align="[^"]*"/gi, '');
+  // Remover ## e # de títulos no início de linha
+  livroLimpo = livroLimpo.split('\n').map(l => l.replace(/^#{1,6}\s+/, '')).join('\n');
+  // Remover separadores ---
+  livroLimpo = livroLimpo.split('\n').map(l => /^---+\s*$/.test(l.trim()) ? '' : l).join('\n');
+  livroLimpo = livroLimpo.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\*([^*]+)\*/g, '$1');
+  livroLimpo = livroLimpo.replace(/\n{4,}/g, '\n\n\n').trim();
   livroCompleto = livroLimpo;
   document.getElementById('livro-conteudo').textContent = livroCompleto;
 
