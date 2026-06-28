@@ -1030,7 +1030,26 @@ REGRAS OBRIGATÓRIAS DE FORMATAÇÃO:
 - Jornada do Herói e/ou Vilão com arcos narrativos bem definidos
 - PROIBIDO tags HTML, markdown, asteriscos ou qualquer formatação técnica no texto
 
-REGRA DE LIMITE DE TOKENS: Escreva aproximadamente ${palavrasPorFrag} palavras. Se perceber que está se aproximando do limite antes de completar a cena, termine a frase atual de forma natural e encerre o fragmento. NUNCA corte no meio de uma palavra, frase ou oração. Prefira encerrar um parágrafo completo a deixar o texto truncado. Use capítulos numerados quando apropriado.
+REGRA DE LIMITE DE TOKENS: Escreva aproximadamente ${palavrasPorFrag} palavras. 
+
+QUANDO PERCEBER QUE ESTÁ SE APROXIMANDO DO LIMITE (últimos 10% do texto):
+NÃO corte no meio de uma frase ou cena. Em vez disso, plante um GANCHO DE TRANSIÇÃO — uma frase ou parágrafo curto que:
+- Encerra naturalmente o momento atual
+- Abre uma tensão, revelação ou movimento que o próximo fragmento vai resolver
+- O gancho deve ser voz de NARRADOR — sem travessão, sem aspas, sem diálogo
+- Deve surgir da lógica interna da cena, nunca de fórmula genérica
+- Exemplos do ESTILO correto (não copiar, apenas orientar o tom):
+  "O que encontrou do outro lado não era o que esperava."
+  "Nenhum dos dois havia percebido que não estavam sós."
+  "Aquela seria, sem que soubesse, a última vez que o veria."
+  "A resposta chegou antes que terminasse de formular a pergunta, e era pior do que qualquer coisa que havia imaginado."
+  "Havia algo errado com o silêncio daquela sala."
+  "Três horas depois, tudo o que havia sido decidido deixou de valer."
+- PROIBIDO: travessão em narrador, frases com "e mudou tudo", "e então percebeu que", "de repente", "inesperadamente" — são marcas de IA
+- Termine com ponto final. O próximo fragmento retoma exatamente dali.
+
+NUNCA corte no meio de uma palavra, frase ou oração. Prefira o gancho ao corte abrupto.
+Use capítulos numerados quando apropriado.
 NÃO inclua meta-comentários. Comece diretamente com a narrativa.`;
 
         const fragmento = await chamarAPI(promptFragmento, MAX_TOKENS_POR_CHAMADA);
