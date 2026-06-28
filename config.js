@@ -5,7 +5,7 @@
 // ============================================================
 
 const CONFIG = {
-  ANTHROPIC_API_KEY: "COLE_AQUI_A_NOVA_CHAVE_ANTHROPIC",
+  ANTHROPIC_API_KEY: "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",
   MODEL: "claude-sonnet-4-6",
   MAX_TOKENS: 1024,
   GITHUB_TOKEN: "COLE_AQUI_O_NOVO_TOKEN_GITHUB",
