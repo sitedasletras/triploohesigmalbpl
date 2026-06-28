@@ -699,6 +699,13 @@ async function iniciarGeracao() {
   const destinoFinal = document.getElementById('destino-final').value;
   const contoBase = document.getElementById('conto-base').value.trim();
 
+  // ── CONTO SEMENTE OBRIGATÓRIO ──
+  if (!contoBase) {
+    alert('⚠ CONTO SEMENTE OBRIGATÓRIO\n\nCole o conto semente no campo "Conto Base" antes de gerar.\n\nO gerador usa o conto semente como DNA da obra. Sem ele, a história perde coerência com o original.');
+    document.getElementById('conto-base').focus();
+    return;
+  }
+
   // Validar saga
   if (volume > 300 && volumesSaga < 2) {
     alert('Obras acima de 300 páginas precisam ser divididas em pelo menos 2 volumes. Selecione o número de volumes.');
@@ -1163,9 +1170,19 @@ Escreva uma revisão editorial (máximo 3 parágrafos):
     limparCheckpoints();
     liberarWakeLock();
     mostrarResultado(destinoFinal, novoHeteronimoCriado);
-    // Mostrar botão costurar automaticamente após geração
-    const btnC = document.getElementById('btn-costurar');
-    if (btnC) btnC.style.display = 'inline-block';
+
+    // ── COSTURADOR AUTOMÁTICO ──
+    // Detecta se o texto foi cortado e costura automaticamente sem intervenção
+    const ultimoChar = livroCompleto.trim().slice(-1);
+    const textoCortado = !'.!?…"»)'.includes(ultimoChar);
+    if (textoCortado) {
+      log('🧵 Texto cortado detectado — iniciando costura automática...');
+      setTimeout(() => costurarTexto(true), 1500); // pequeno delay para UI atualizar
+    } else {
+      // Mostrar botão costurar manual caso queira refinar
+      const btnC = document.getElementById('btn-costurar');
+      if (btnC) btnC.style.display = 'inline-block';
+    }
 
   } catch (err) {
     log('✗ ERRO: ' + err.message);
@@ -1292,15 +1309,15 @@ function pausarArco() {
 }
 
 // ===================== COSTURADOR DE TEXTO =====================
-async function costurarTexto() {
+async function costurarTexto(automatico = false) {
   const btn = document.getElementById('btn-costurar');
   if (!livroCompleto || livroCompleto.length < 100) {
-    alert('Nenhum texto gerado para costurar.');
+    if (!automatico) alert('Nenhum texto gerado para costurar.');
     return;
   }
 
-  btn.textContent = '🧵 Costurando...';
-  btn.disabled = true;
+  if (btn) { btn.textContent = '🧵 Costurando...'; btn.disabled = true; }
+  if (automatico) log('🧵 Costura automática iniciada...');
 
   try {
     // Detectar se o texto está cortado no meio de frase
@@ -1365,8 +1382,7 @@ Escreva a continuação e o desfecho final agora. Comece imediatamente sem intro
 
     log('✅ Costura concluída — ' + continuacaoLimpa.split(/\s+/).length + ' palavras adicionadas.');
 
-    btn.textContent = '🧵 COSTURAR NOVAMENTE';
-    btn.disabled = false;
+    if (btn) { btn.textContent = '🧵 COSTURAR NOVAMENTE'; btn.disabled = false; btn.style.display = 'inline-block'; }
 
     // Salvar versão costurada no localStorage
     const livros = JSON.parse(localStorage.getItem('calabouco_livros') || '[]');
@@ -1380,8 +1396,7 @@ Escreva a continuação e o desfecho final agora. Comece imediatamente sem intro
 
   } catch (e) {
     log('✗ Erro na costura: ' + e.message);
-    btn.textContent = '🧵 COSTURAR TEXTO';
-    btn.disabled = false;
+    if (btn) { btn.textContent = '🧵 COSTURAR TEXTO'; btn.disabled = false; btn.style.display = 'inline-block'; }
   }
 }
 // ═══════════════════════════════════════════════════════════
