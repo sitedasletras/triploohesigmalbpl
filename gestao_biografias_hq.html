@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gestão de Biografias · Fernando Peçanha · OHE</title>
+<script src="config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -542,11 +543,14 @@ function salvarConfig() {
 }
 
 function carregarConfig() {
-  const token = localStorage.getItem('gh_token');
-  const repo = localStorage.getItem('gh_repo');
-  const branch = localStorage.getItem('gh_branch');
+  // Prioridade: config.js (window.GITHUB_TOKEN) > localStorage
+  const token = window.GITHUB_TOKEN || localStorage.getItem('gh_token') || '';
+  const repo  = window.GITHUB_OWNER
+    ? window.GITHUB_OWNER + '/CeleiroLiterario'
+    : localStorage.getItem('gh_repo') || '';
+  const branch = localStorage.getItem('gh_branch') || 'main';
   if (token) document.getElementById('gh-token').value = token;
-  if (repo) document.getElementById('gh-repo').value = repo;
+  if (repo)  document.getElementById('gh-repo').value  = repo;
   if (branch) document.getElementById('gh-branch').value = branch;
 }
 
@@ -679,7 +683,7 @@ function setPubStatus(tipo, txt) {
 
 async function publicarBiografia() {
   if (!autorAtivo) return;
-  const token = localStorage.getItem('gh_token') || document.getElementById('gh-token').value;
+  const token = window.GITHUB_TOKEN || localStorage.getItem('gh_token') || document.getElementById('gh-token').value;
   const repo = localStorage.getItem('gh_repo') || document.getElementById('gh-repo').value;
   const branch = localStorage.getItem('gh_branch') || 'main';
 
