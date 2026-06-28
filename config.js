@@ -11,7 +11,7 @@ const CONFIG = {
   GITHUB_TOKEN: "COLE_AQUI_O_NOVO_TOKEN_GITHUB",
   GITHUB_OWNER: "sitedasletras",
   GITHUB_REPO: "triploohesigmalbpl",
-  STABILITY_API_KEY: "COLE_AQUI_A_NOVA_CHAVE_STABILITY"
+  STABILITY_API_KEY: "sk-pyLW73TPKqi8GhK6nU0hiEF1rCnhY8OmFhgFD6WJbJ2uPnEH"
 };
 
 // Torna a config disponível globalmente
