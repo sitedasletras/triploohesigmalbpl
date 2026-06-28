@@ -685,8 +685,25 @@ async function disparar() {
       secao, formato,
       prioridade: prioridadeAtual,
       dataLimite, colecao, instrucoes,
+      modo: livro.modo || 'prosa',
+      forma: livro.forma || null,
       disparadoEm: new Date().toISOString()
     });
+
+    // Preparar ficha técnica para o obra_ativa receber
+    const ficha = {
+      titulo: livro.titulo,
+      heteronimo: livro.autor,
+      eixo: livro.eixo || '',
+      territorio: livro.territorio || '',
+      biografia: livro.biografia || '',
+      tom: livro.tom || '',
+      modo: livro.modo || 'prosa',
+      forma_poetica: livro.forma || null,
+      sinopse: livro.sinopse || '',
+      origem: 'Catapulta · Calabouço'
+    };
+    localStorage.setItem('catapulta_ficha_tecnica', JSON.stringify(ficha));
 
     // Marca como catapultado no localStorage
     CHAVES_CALABOUCO.forEach(k => {
