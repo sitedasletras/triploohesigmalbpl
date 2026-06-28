@@ -316,16 +316,17 @@
 </head>
 <body>
 
-<div style="margin-bottom:1rem;">
-  <a href="/" style="font-family:monospace;font-size:0.55rem;letter-spacing:0.15em;color:#6a7d90;text-decoration:none;text-transform:uppercase;display:inline-flex;align-items:center;gap:0.4rem;transition:color 0.2s;" onmouseover="this.style.color='#c9a84c'" onmouseout="this.style.color='#6a7d90'">
+<div style="position:sticky;top:0;z-index:100;background:#04080f;padding:0.6rem 1.2rem;border-bottom:1px solid rgba(201,168,76,0.15);display:flex;align-items:center;justify-content:space-between;margin:-1.2rem -1.2rem 1.2rem -1.2rem;">
+  <a href="/" style="display:inline-flex;align-items:center;gap:0.5rem;font-family:monospace;font-size:0.6rem;letter-spacing:0.15em;color:#c9a84c;text-decoration:none;text-transform:uppercase;border:1px solid rgba(201,168,76,0.3);padding:6px 14px;border-radius:4px;background:rgba(201,168,76,0.06);transition:all 0.2s;" onmouseover="this.style.background='rgba(201,168,76,0.12)'" onmouseout="this.style.background='rgba(201,168,76,0.06)'">
     ← SIGMAL HQ
   </a>
+  <div style="font-family:monospace;font-size:0.45rem;letter-spacing:0.2em;color:#6a7d90;text-transform:uppercase;">MÁQUINA DESAFIO · OHE</div>
 </div>
 
 <div class="topo">
   <div class="topo-titulo">✦ MÁQUINA DESAFIO</div>
   <div class="topo-sub">Fernando Peçanha · OHE · Geração Surpresa</div>
-  <a href="/" style="font-family:monospace;font-size:0.5rem;letter-spacing:0.15em;color:#6a7d90;text-decoration:none;text-transform:uppercase;margin-top:0.5rem;display:inline-block;border:1px solid rgba(201,168,76,0.2);padding:4px 12px;border-radius:4px;">← Voltar ao SIGMAL HQ</a>
+  <a href="/" style="font-family:monospace;font-size:0.5rem;letter-spacing:0.15em;color:#6a7d90;text-decoration:none;text-transform:uppercase;margin-top:0.5rem;display:none;">← Voltar ao SIGMAL HQ</a>
 </div>
 
 <!-- API KEY -->
@@ -495,6 +496,7 @@
     <button class="btn-acao dl" onclick="baixar()">⬇ BAIXAR</button>
     <button class="btn-acao" onclick="enviarDestino('calabouco')" style="background:rgba(230,81,0,0.15);border:1px solid #e65100;color:#e65100;">⚡ CALABOUÇO</button>
     <button class="btn-acao" onclick="enviarDestino('masmorra')" style="background:rgba(211,47,47,0.15);border:1px solid #d32f2f;color:#ff6b6b;">⛓ MASMORRA</button>
+    <button class="btn-acao" onclick="window.location.href='/'" style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.4);color:#c9a84c;">⌂ SIGMAL HQ</button>
     <button class="btn-acao novo" onclick="resetar()">✦ NOVO DESAFIO</button>
   </div>
 
@@ -519,7 +521,7 @@ const FORMAS_DESC = {
   ode:                 'Ode clássica — exaltação lírica, contemplação, divisão em estrofes simétricas',
   elegia:              'Elegia — lamento, perda, saudade, reflexão sobre a morte ou o fim',
   balada:              'Balada — narrativa em versos com refrão, medievalismo, história cantada',
-  sextina:             'Sextina — 6 estrofes de 6 versos com palavras-fim rotativas, envoi final',
+  sextina:             'Sextina — estrutura OBRIGATÓRIA: exatamente 6 estrofes de 6 versos + 1 envoi de 3 versos (total 39 versos). 6 palavras-fim rodam em esquema fixo: Est.1=ABCDEF · Est.2=FAEBDC · Est.3=CFDABE · Est.4=ECBFAD · Est.5=DEACFB · Est.6=BDFECA · Envoi=(BE)/(DC)/(FA). Nunca fugir deste esquema.',
   pantum:              'Pantum malásio — estrofes cruzadas, versos 2 e 4 viram 1 e 3 da seguinte',
   villanelle:          'Villanelle — 19 versos, dois refrões alternados, 5 tercetos + quadra final',
   trova:               'Trova / Quadra — 4 versos, rima ABCB ou ABAB, musicalidade popular',
@@ -714,8 +716,23 @@ SUA MISSÃO:
       ? 'Fernando Peçanha escolhe a forma poética mais adequada ao tema e ao heterônimo'
       : `FORMA SOLICITADA: ${_formaPoesia.toUpperCase()} — ${FORMAS_DESC[_formaPoesia] || ''}`;
 
+    // Instrução rígida para sextina
+    const instrucaoSextina = _formaPoesia === 'sextina' ? `
+REGRA ABSOLUTA DA SEXTINA — NÃO PODE SER IGNORADA:
+- Estrutura obrigatória: 6 estrofes de 6 versos + 1 envoi de 3 versos = 39 versos no total
+- Escolha 6 palavras-fim (A B C D E F) e rode no esquema fixo:
+  Estrofe 1: A B C D E F
+  Estrofe 2: F A E B D C
+  Estrofe 3: C F D A B E
+  Estrofe 4: E C B F A D
+  Estrofe 5: D E A C F B
+  Estrofe 6: B D F E C A
+  Envoi (3 versos): cada verso contém 2 palavras-fim — (B+E) / (D+C) / (F+A)
+- Nunca alterar este esquema. Nunca encurtar para menos de 39 versos.
+- Nunca usar markdown, asteriscos ou negrito nas palavras-fim.` : '';
+
     promptModo = `MODO: POESIA
-${formaEscolhida}
+${formaEscolhida}${instrucaoSextina}
 
 HETERÔNIMOS PRIORITÁRIOS PARA POESIA (considere-os primeiro):
 - Noraya Sakamoto → Haicai, Tanka, Senryū, Renga, Mondo, Katauta (oriental japonesa)
@@ -990,8 +1007,14 @@ function baixar() {
 // ── ENVIAR PARA DESTINO ───────────────────────────────────────────────────────
 function enviarDestino(dest) {
   if (!_semente) return;
-  const CHAVE = 'sigmal_hq_estado';
-  const estado = JSON.parse(localStorage.getItem(CHAVE) || localStorage.getItem('sigmal_estado') || '{"calabouco":[],"masmorra":[],"paiol":{"literario":[]}}');
+
+  // Ler estado atual da chave que o index_15 usa
+  const raw = localStorage.getItem('sigmal_hq');
+  let estado = raw ? JSON.parse(raw) : { masmorra: [], calabouco: [], paiol: { literario: [], musical: [] } };
+  if (!estado.masmorra) estado.masmorra = [];
+  if (!estado.calabouco) estado.calabouco = [];
+  if (!estado.paiol) estado.paiol = { literario: [], musical: [] };
+
   const item = {
     id: Date.now(),
     titulo: _semente.titulo,
@@ -1004,12 +1027,11 @@ function enviarDestino(dest) {
     dataProcessamento: new Date().toLocaleDateString('pt-BR'),
     origem: 'Máquina Desafio · ' + _semente.epoca + ' · ' + _semente.universo
   };
+
   if (dest === 'calabouco') {
-    if (!estado.calabouco) estado.calabouco = [];
     estado.calabouco.push(item);
     alert('⚡ "' + _semente.titulo + '" enviado ao Calabouço!\nAbra o triplo para ver.');
   } else {
-    if (!estado.masmorra) estado.masmorra = [];
     estado.masmorra.push({
       ...item,
       dataEntrada: new Date().toISOString(),
@@ -1018,8 +1040,9 @@ function enviarDestino(dest) {
     });
     alert('⛓ "' + _semente.titulo + '" enviado à Masmorra (750 dias)!\nAbra o triplo para ver.');
   }
-  localStorage.setItem('sigmal_hq_estado', JSON.stringify(estado));
-  localStorage.setItem('sigmal_estado', JSON.stringify(estado));
+
+  // Salvar na chave correta que o index_15 lê
+  localStorage.setItem('sigmal_hq', JSON.stringify(estado));
 }
 
 // ── RESETAR ───────────────────────────────────────────────────────────────────
