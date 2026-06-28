@@ -1014,6 +1014,15 @@ OBRIGAÇÕES ABSOLUTAS DESTE FRAGMENTO:
 REGRA DE FERRO: Este fragmento DEVE terminar com ponto final depois de uma frase de conclusão. Corte no meio de qualquer frase ou cena é PROIBIDO. Se necessário, pule cenas intermediárias para garantir que o desfecho seja escrito.
 
 NÃO use gancho de transição neste fragmento — este é o fim.`;
+  } else if (isLastArco && fi === numFrags - 2) {
+    return `PRÉ-DESFECHO — PENÚLTIMO FRAGMENTO DO ÚLTIMO ARCO:
+O próximo fragmento será o último da obra. Este é o momento de PREPARAR o terreno para o desfecho.
+OBRIGAÇÕES:
+1. Resolva as subtramas secundárias — não deixe nada para o último fragmento resolver além do desfecho principal
+2. Aproxime os personagens da cena final — posicione-os no lugar e estado emocional correto
+3. NÃO abra novas cenas ou conflitos — apenas feche o que está aberto
+4. Termine com um gancho suave que conduz naturalmente ao desfecho
+O próximo fragmento encerrará a história — prepare o caminho.`;
   } else if (isLast && !isLastArco) {
     return `QUASE-FECHAMENTO DO ARCO ${ai+1}:
 Conclua este arco com clareza — a tensão principal parece se resolver.
@@ -1054,12 +1063,14 @@ REGRAS OBRIGATÓRIAS DE FORMATAÇÃO:
 - NUNCA usar travessão no meio de frases narrativas — use vírgula
 - Cada parágrafo tem seu próprio espaço com linha em branco entre eles
 - Títulos de capítulos: escrever apenas o número e o nome, sem qualquer formatação especial
-- Numeração de capítulos CONSISTENTE em todo o livro — use sempre o mesmo padrão (ex: Capítulo I, Capítulo II... ou I. II. III...) — NUNCA misturar padrões entre arcos
+- Numeração de capítulos CONSISTENTE em todo o livro — use sempre o mesmo padrão (ex: Capítulo I, Capítulo II...) — NUNCA misturar padrões entre arcos
 - PROIBIDO ABSOLUTO: <div>, <p>, <center>, <br>, align=, qualquer tag HTML
 - PROIBIDO ABSOLUTO: ## , # , **, *, __ ou qualquer markdown
+- PROIBIDO ABSOLUTO: escrever "Arco I", "Arco II", "Arco III", "Jornada do Herói", "Mundo Comum", "Provações", "Clímax" ou qualquer termo estrutural de construção narrativa dentro do texto
+- PROIBIDO ABSOLUTO: separadores como ---, ===, ___ dentro do texto narrativo
+- O texto do livro deve ser LIMPO — o leitor vê apenas a história, nunca a estrutura que a sustenta
 - PROIBIDO: comentários editoriais, ganchos explicativos ou análises fora da narrativa
 - O texto deve ser humanizado, sem rastro de IA
-- Jornada do Herói e/ou Vilão com arcos narrativos bem definidos
 
 REGRA DE LIMITE DE TOKENS: Escreva aproximadamente ${palavrasPorFrag} palavras. 
 
@@ -1083,8 +1094,9 @@ NUNCA corte no meio de uma palavra, frase ou oração. Prefira o gancho ao corte
 Use capítulos numerados quando apropriado.
 NÃO inclua meta-comentários. Comece diretamente com a narrativa.`;
 
-        // Último fragmento do último arco recebe mais tokens para garantir desfecho completo
-        const tokensParaEsteFragmento = (isLastArco && isLast) ? 16000 : MAX_TOKENS_POR_CHAMADA;
+        // Último e penúltimo fragmento do último arco recebem mais tokens
+        const isPenultimo = isLastArco && (fi === numFrags - 2);
+        const tokensParaEsteFragmento = (isLastArco && isLast) ? 16000 : isPenultimo ? 12000 : MAX_TOKENS_POR_CHAMADA;
         const fragmento = await chamarAPI(promptFragmento, tokensParaEsteFragmento);
         textoArco += fragmento + '\n\n';
 
@@ -1977,12 +1989,15 @@ SITE DAS LETRAS EDIÇÕES LITERÁRIAS`;
   livroLimpo = livroLimpo.replace(/<div[^>]*>/gi, '').replace(/<\/div>/gi, '');
   livroLimpo = livroLimpo.replace(/<p[^>]*>/gi, '').replace(/<\/p>/gi, '');
   livroLimpo = livroLimpo.replace(/<center>/gi, '').replace(/<\/center>/gi, '');
-  livroLimpo = livroLimpo.replace(/<br\s*\/?>/ .source ? '' : '', '\n');
+  livroLimpo = livroLimpo.replace(/<br\s*\/?>/gi, '\n');
   livroLimpo = livroLimpo.replace(/align="[^"]*"/gi, '');
   // Remover ## e # de títulos no início de linha
   livroLimpo = livroLimpo.split('\n').map(l => l.replace(/^#{1,6}\s+/, '')).join('\n');
-  // Remover separadores ---
-  livroLimpo = livroLimpo.split('\n').map(l => /^---+\s*$/.test(l.trim()) ? '' : l).join('\n');
+  // Remover separadores --- === ___ no início de linha
+  livroLimpo = livroLimpo.split('\n').map(l => /^[-=_]{3,}\s*$/.test(l.trim()) ? '' : l).join('\n');
+  // Remover marcadores estruturais de arco que possam ter vazado
+  livroLimpo = livroLimpo.replace(/Arco\s+[IVX]+\s*[—–-]\s*[^\n]*/gi, '');
+  livroLimpo = livroLimpo.replace(/^(Mundo Comum|Chamado|Provações|Transformação|Clímax|Retorno|Catástrofe|Catarse|Grandeza|Falha|Descida|Reconhecimento)\s*$/gim, '');
   livroLimpo = livroLimpo.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\*([^*]+)\*/g, '$1');
   livroLimpo = livroLimpo.replace(/\n{4,}/g, '\n\n\n').trim();
   livroCompleto = livroLimpo;
