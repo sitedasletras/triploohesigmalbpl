@@ -842,7 +842,7 @@ ${HETERONIMOS_LISTA.join(', ')}
 PROJETO:
 Título: ${titulo}
 Sinopse: ${sinopse || 'Não fornecida'}
-${contoBase ? `CONTO SEMENTE (DNA DA OBRA):\n${contoBase.substring(0,1500)}\n` : ''}
+${contoBase ? `CONTO SEMENTE — DNA OBRIGATÓRIO DA OBRA:\n${contoBase}\n\nATENÇÃO: Este conto é o DNA da expansão. Preserve TODOS os personagens, cenas, tom, voz narrativa e universo do conto acima. O livro é a expansão deste conto, não uma nova história.\n` : ''}
 Gênero: ${genero || 'A definir'}
 Heterônimo sugerido: ${heteronimo || 'Você decide'}
 Jornada: ${jornada.nome}
@@ -961,18 +961,21 @@ justificativa: [motivo]
         const isLast = fi === numFrags - 1;
         const isLastArco = ai === planejamento.length - 1;
 
+        const dnaSemente = contoBase ? `\nDNA DA OBRA (conto semente — preserve personagens, tom, universo):\n${contoBase.substring(0, 3000)}\n` : '';
         const promptFragmento = `Você é ${heteronimoEscolhido}, escritor da OHE.
 Tom de voz: ${tomVozGlobal}
 Livro: ${tituloFinal}
 Gênero: ${genero || 'A definir'}
 Sinopse: ${sinopse || 'Não fornecida'}
-Jornada: ${jornada.nome}
+Jornada: ${jornada.nome}${dnaSemente}
 
 ARCO ${ai+1} DE ${planejamento.length}: ${arco.nome}
 Diretrizes: ${arco.desc}
 
 ${resumoAnterior ? 'RESUMO DO QUE JÁ FOI ESCRITO:\n' + resumoAnterior + '\n' : ''}
-${!isFirst ? `Continue a narrativa a partir do parágrafo seguinte ao ponto onde o fragmento anterior terminou. NÃO repita nenhum conteúdo já escrito. NÃO resuma o que veio antes. Prossiga diretamente com a cena seguinte.` : ai > 0 ? `Inicie o Arco ${ai+1} no parágrafo seguinte ao final do Arco ${ai}. Mantenha coerência total com os arcos anteriores. NÃO repita conteúdo anterior.` : 'Inicie o livro. Apresente o mundo e os personagens principais.'}
+${!isFirst ? `Continue a narrativa a partir do parágrafo seguinte ao ponto onde o fragmento anterior terminou. NÃO repita nenhum conteúdo já escrito. NÃO resuma o que veio antes. Prossiga diretamente com a cena seguinte.` : ai > 0 ? `Inicie o Arco ${ai+1} no parágrafo seguinte ao final do Arco ${ai}. Mantenha coerência total com os arcos anteriores. NÃO repita conteúdo anterior.` : 'Inicie o livro expandindo a partir do CONTO SEMENTE acima.
+O primeiro capítulo DEVE partir dos mesmos personagens, do mesmo universo e do mesmo ponto narrativo do conto semente.
+NÃO reescreva o conto semente — EXPANDA-O, aprofunde os personagens, desenvolva os eventos anteriores e posteriores.'}
 
 REGRAS NARRATIVAS PERMANENTES — NUNCA VIOLAR:
 
@@ -1172,14 +1175,24 @@ Escreva uma revisão editorial (máximo 3 parágrafos):
     mostrarResultado(destinoFinal, novoHeteronimoCriado);
 
     // ── COSTURADOR AUTOMÁTICO ──
-    // Detecta se o texto foi cortado e costura automaticamente sem intervenção
+    // Detecta se o texto foi cortado ou não tem desfecho
     const ultimoChar = livroCompleto.trim().slice(-1);
+    const ultimoTrecho = livroCompleto.trim().slice(-500).toLowerCase();
     const textoCortado = !'.!?…"»)'.includes(ultimoChar);
-    if (textoCortado) {
-      log('🧵 Texto cortado detectado — iniciando costura automática...');
-      setTimeout(() => costurarTexto(true), 1500); // pequeno delay para UI atualizar
+    // Detecta também se termina sem desfecho real (história em aberto)
+    const semDesfecho = !textoCortado && (
+      ultimoTrecho.includes('caminharam') ||
+      ultimoTrecho.includes('continuaram') ||
+      ultimoTrecho.includes('seguiram') ||
+      ultimoTrecho.includes('partindo') ||
+      ultimoTrecho.includes('foi quando') ||
+      ultimoTrecho.includes('estava prestes') ||
+      ultimoTrecho.includes('havia ainda')
+    );
+    if (textoCortado || semDesfecho) {
+      log('🧵 ' + (textoCortado ? 'Texto cortado' : 'História sem desfecho') + ' — iniciando costura automática...');
+      setTimeout(() => costurarTexto(true), 1500);
     } else {
-      // Mostrar botão costurar manual caso queira refinar
       const btnC = document.getElementById('btn-costurar');
       if (btnC) btnC.style.display = 'inline-block';
     }
