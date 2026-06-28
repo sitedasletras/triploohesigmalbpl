@@ -1235,8 +1235,19 @@ function mostrarAprovacaoArco(numArco, nomeArco, textoArco) {
       if (elNum)  elNum.textContent  = 'Arco ' + numArco + ' concluído';
       if (elNome) elNome.textContent = nomeArco;
       if (elPal)  elPal.textContent  = palavras + ' palavras geradas';
-      if (elTxt)  elTxt.textContent  = textoArco.substring(0, 1500) +
-        (textoArco.length > 1500 ? '\n\n[... continua ...]' : '');
+
+      // Limpar tags antes de mostrar na prévia
+      const textoLimpo = textoArco
+        .replace(/<div[^>]*>/gi,'').replace(/<\/div>/gi,'')
+        .replace(/<p[^>]*>/gi,'').replace(/<\/p>/gi,'')
+        .replace(/<center[^>]*>/gi,'').replace(/<\/center>/gi,'')
+        .replace(/^#{1,6}\s+/gm,'')
+        .replace(/^---+\s*$/gm,'')
+        .replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1')
+        .replace(/\n{3,}/g,'\n\n').trim();
+
+      if (elTxt)  elTxt.textContent  = textoLimpo.substring(0, 1500) +
+        (textoLimpo.length > 1500 ? '\n\n[... continua ...]' : '');
 
       if (btnC) {
         btnC.textContent = isUltimo
@@ -1316,6 +1327,25 @@ function pausarArco() {
   // Agora sim libera o Wake Lock
   liberarWakeLock();
   if (resolveAprovacao) { resolveAprovacao(false); resolveAprovacao = null; }
+}
+
+async function costurarEContinuar() {
+  // Fecha o modal e costura o arco atual antes de continuar
+  const modal = document.getElementById('modal-aprovacao');
+  if (modal) modal.style.display = 'none';
+
+  log('🧵 Costurando arco atual antes de continuar...');
+  const textoAntes = livroCompleto.length;
+  await costurarTexto(true);
+
+  if (livroCompleto.length > textoAntes) {
+    log('✅ Costura concluída. Continuando para o próximo arco...');
+  } else {
+    log('⚠ Costura sem alteração. Continuando mesmo assim...');
+  }
+
+  // Aprovar e seguir para o próximo arco
+  if (resolveAprovacao) { resolveAprovacao(true); resolveAprovacao = null; }
 }
 
 // ===================== COSTURADOR INTELIGENTE =====================
@@ -2276,6 +2306,10 @@ document.getElementById('volume').addEventListener('change', atualizarPreviewArc
       <button id="aprv-btn-continuar" onclick="aprovarArco()"
         style="width:100%;padding:1rem;color:#fff;font-family:'Share Tech Mono',monospace;font-size:0.68rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;border:none;border-radius:6px;cursor:pointer;">
         ⚡ CONTINUAR
+      </button>
+      <button onclick="costurarEContinuar()"
+        style="width:100%;padding:0.8rem;background:rgba(245,127,23,0.1);border:1px solid rgba(245,127,23,0.4);color:#f57f17;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;border-radius:6px;cursor:pointer;">
+        🧵 COSTURAR ESTE ARCO E CONTINUAR
       </button>
       <button onclick="pausarArco()"
         style="width:100%;padding:0.8rem;background:transparent;border:1px solid rgba(201,168,76,0.25);color:#c9a84c;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;border-radius:6px;cursor:pointer;">
