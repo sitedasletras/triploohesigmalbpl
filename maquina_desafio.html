@@ -262,8 +262,6 @@
     color: #1a1a1a;
     background: #ffffff;
     padding: 2rem 2.5rem;
-    max-height: 60vh;
-    overflow-y: auto;
     font-family: 'Georgia', serif;
     border-radius: 4px;
   }
@@ -809,7 +807,10 @@ Responda EXATAMENTE neste formato:
     const apres = mApres ? mApres[1].trim()  : '';
     const obra  = mObra  ? mObra[1].trim()   : txt;
     const linhas = obra.split('\n');
-    const titulo = linhas[0].trim() || 'Sem título';
+
+    // Limpar markdown do título (**texto** ou *texto*)
+    const titulo = (linhas[0].trim() || 'Sem título')
+      .replace(/\*\*/g, '').replace(/\*/g, '').trim();
     const corpo  = linhas.slice(1).join('\n').trim();
 
     _semente = { het, eixo, apres, titulo, corpo, epoca: _epoca, universo, modo: _modoAtual, forma: _formaPoesia };
@@ -825,16 +826,24 @@ Responda EXATAMENTE neste formato:
     const obraTxt = document.getElementById('res-obra-txt');
     if (_modoAtual === 'poesia') {
       obraTxt.className = 'obra-txt modo-poesia';
-      // Estrofes separadas por linha em branco
       const estrofes = corpo.split(/\n\n+/);
       obraTxt.innerHTML = estrofes.map(est => {
         const versos = est.split('\n').filter(v => v.trim());
-        return versos.map((v, i) => `<p>${v}</p>`).join('') + '<p class="estrofe-break"> </p>';
+        return versos.map(v => {
+          // Limpar markdown e garantir maiúscula no início de cada verso
+          const vLimpo = v.replace(/\*\*/g,'').replace(/\*/g,'').trim();
+          const vMaiusculo = vLimpo.charAt(0).toUpperCase() + vLimpo.slice(1);
+          return `<p>${vMaiusculo}</p>`;
+        }).join('') + '<p class="estrofe-break"> </p>';
       }).join('');
     } else {
       obraTxt.className = 'obra-txt';
       const paragrafos = corpo.split(/\n\n+/).filter(p => p.trim());
-      obraTxt.innerHTML = paragrafos.map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+      obraTxt.innerHTML = paragrafos.map(p => {
+        // Limpar markdown na prosa também
+        const pLimpo = p.replace(/\*\*/g,'').replace(/\*/g,'').trim();
+        return `<p>${pLimpo.replace(/\n/g,'<br>')}</p>`;
+      }).join('');
     }
 
     document.getElementById('resultado').style.display = 'block';
