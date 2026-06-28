@@ -942,6 +942,28 @@ Diretrizes: ${arco.desc}
 ${resumoAnterior ? 'RESUMO DO QUE JÁ FOI ESCRITO:\n' + resumoAnterior + '\n' : ''}
 ${!isFirst ? `Continue a narrativa a partir do parágrafo seguinte ao ponto onde o fragmento anterior terminou. NÃO repita nenhum conteúdo já escrito. NÃO resuma o que veio antes. Prossiga diretamente com a cena seguinte.` : ai > 0 ? `Inicie o Arco ${ai+1} no parágrafo seguinte ao final do Arco ${ai}. Mantenha coerência total com os arcos anteriores. NÃO repita conteúdo anterior.` : 'Inicie o livro. Apresente o mundo e os personagens principais.'}
 
+REGRAS NARRATIVAS PERMANENTES — NUNCA VIOLAR:
+
+1. REGRA DA FENDA (ou qualquer portal, anomalia, passagem sobrenatural):
+   - Uma fenda/portal/anomalia é um EVENTO ÚNICO — só pode ser descrita integralmente na primeira vez.
+   - Se o personagem RETORNAR pela mesma fenda: a cena deve ser DIFERENTE da abertura — sensação invertida, perspectiva alterada, nunca cópia.
+   - Se o personagem encontrar uma NOVA passagem em arco diferente: NÃO pode ser fenda. Deve ser um elemento distinto — luz diferente, nome diferente, natureza diferente.
+   - PROIBIDO copiar ou parafrasear cenas já escritas de travessia. Cada passagem é única.
+
+2. REGRA DO QUASE-FECHAMENTO POR ARCO:
+   - Cada arco deve terminar com tensão APARENTEMENTE resolvida — o leitor respira.
+   - Mas UMA coisa permanece suspensa: uma pergunta sem resposta, um personagem com algo não dito, uma consequência ainda não chegou.
+   - Essa sombra restante é o fio que puxa o arco seguinte.
+
+3. REGRA DA REVIRAVOLTA NA TRANSIÇÃO:
+   - Ao iniciar um novo arco, o que parecia resolvido no arco anterior revela uma nova dimensão.
+   - NÃO é recomeço do zero. É o mesmo problema visto de um ângulo que muda tudo.
+   - A reviravolta deve surgir naturalmente do que foi plantado — nunca de um elemento novo sem raiz.
+
+4. REGRA ANTI-REPETIÇÃO:
+   - Nenhuma cena, descrição ou diálogo pode ser repetido ou parafraseado de fragmento anterior.
+   - Se uma cena precisa ser relembrada, use apenas uma referência interna breve — nunca a cena inteira.
+
 ${(() => {
   const totalFragsLivro = jornada.arcos.reduce((acc, a, idx) => {
     const pags = Math.round(totalPaginas * (a.percentual || (1/jornada.arcos.length)));
@@ -962,8 +984,19 @@ Use TODOS os tokens disponíveis para:
 3. Entregar a última cena com força emocional máxima
 4. Encerrar com uma frase final que ressoe como conclusão inevitável
 NUNCA corte no meio de frase ou cena. Toda frase DEVE terminar com pontuação antes de parar. Se estiver no limite de tokens, termine o parágrafo atual e pare com ponto final.`;
+  } else if (isLast && !isLastArco) {
+    return `QUASE-FECHAMENTO DO ARCO ${ai+1}:
+Conclua este arco com clareza — a tensão principal parece se resolver.
+MAS deixe UMA sombra suspensa: uma pergunta sem resposta, um personagem com algo não dito, uma consequência que ainda não chegou.
+O leitor deve respirar aliviado — e então perceber que ainda há algo pendente.
+NUNCA termine no meio de uma frase.`;
+  } else if (isFirst && ai > 0) {
+    return `REVIRAVOLTA DE ABERTURA DO ARCO ${ai+1}:
+O que parecia resolvido no arco anterior revela agora uma nova dimensão.
+NÃO recomece do zero. Use o fio suspenso deixado pelo arco anterior como alavanca.
+A reviravolta deve surgir do que foi plantado — nunca de elemento novo sem raiz.`;
   } else if (isLast && numFrags > 1) {
-    return `ATENÇÃO — Último fragmento deste arco. Conclua o arco com clareza e completude. NUNCA termine no meio de uma frase.`;
+    return `ATENÇÃO — Último fragmento deste arco. Aplique o QUASE-FECHAMENTO: resolva o aparente mas deixe uma sombra. NUNCA termine no meio de uma frase.`;
   } else if (pct >= 0.82) {
     return `FALSO FIM 2 — SEGUNDO MOVIMENTO:
 O personagem acredita ter chegado ao fim — mas o destino reserva um último e inesperado movimento. Neste fragmento:
@@ -995,6 +1028,7 @@ REGRAS OBRIGATÓRIAS DE FORMATAÇÃO:
 - PROIBIDO comentários editoriais, ganchos explicativos ou análises fora da narrativa
 - O texto deve ser humanizado, sem rastro de IA
 - Jornada do Herói e/ou Vilão com arcos narrativos bem definidos
+- PROIBIDO tags HTML, markdown, asteriscos ou qualquer formatação técnica no texto
 
 REGRA DE LIMITE DE TOKENS: Escreva aproximadamente ${palavrasPorFrag} palavras. Se perceber que está se aproximando do limite antes de completar a cena, termine a frase atual de forma natural e encerre o fragmento. NUNCA corte no meio de uma palavra, frase ou oração. Prefira encerrar um parágrafo completo a deixar o texto truncado. Use capítulos numerados quando apropriado.
 NÃO inclua meta-comentários. Comece diretamente com a narrativa.`;
