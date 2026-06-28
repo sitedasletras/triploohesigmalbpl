@@ -1872,9 +1872,10 @@ body::before {
           <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.15em;color:var(--ouro);text-transform:uppercase;margin-bottom:0.5rem;">// APROVAÇÃO DE ARCO</div>
           <div id="gen-arco-num" style="font-family:'Cinzel',serif;font-size:1.2rem;color:var(--creme);margin-bottom:1rem;"></div>
           <pre id="gen-arco-preview" style="font-family:'Crimson Pro',serif;font-size:0.75rem;color:var(--creme);white-space:pre-wrap;line-height:1.6;background:rgba(201,168,76,0.03);border:1px solid rgba(201,168,76,0.1);padding:1rem;border-radius:4px;max-height:40vh;overflow-y:auto;margin-bottom:1.5rem;"></pre>
-          <div style="display:flex;gap:1rem;">
-            <button onclick="aprovarArcoGerador(true)" style="flex:1;background:var(--ouro);color:#000;border:none;padding:0.8rem;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;">✓ APROVAR — CONTINUAR</button>
-            <button onclick="aprovarArcoGerador(false)" style="flex:1;background:transparent;color:var(--vermelho);border:1px solid var(--vermelho);padding:0.8rem;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;">✗ REJEITAR — REFAZER</button>
+          <div style="display:flex;flex-direction:column;gap:0.7rem;">
+            <button onclick="aprovarArcoGerador(true)" style="width:100%;background:var(--ouro);color:#000;border:none;padding:0.9rem;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;font-weight:700;">✓ APROVAR — CONTINUAR</button>
+            <button onclick="costurarArcoEContinuar()" style="width:100%;background:rgba(245,127,23,0.1);color:#f57f17;border:1px solid rgba(245,127,23,0.4);padding:0.8rem;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;">🧵 COSTURAR ESTE ARCO E CONTINUAR</button>
+            <button onclick="aprovarArcoGerador(false)" style="width:100%;background:transparent;color:var(--vermelho);border:1px solid var(--vermelho);padding:0.7rem;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;">✗ REJEITAR — REFAZER</button>
           </div>
         </div>
       </div>
@@ -1883,9 +1884,12 @@ body::before {
       <div id="gen-resultado" style="display:none;max-width:600px;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.15em;color:var(--verde);margin-bottom:1rem;">✓ LIVRO GERADO COM SUCESSO</div>
         <pre id="gen-livro-texto" style="font-family:'Crimson Pro',serif;font-size:0.8rem;color:var(--creme);white-space:pre-wrap;line-height:1.8;background:rgba(0,0,0,0.3);border:1px solid rgba(201,168,76,0.1);padding:1.5rem;border-radius:4px;max-height:60vh;overflow-y:auto;margin-bottom:1rem;"></pre>
-        <div style="display:flex;gap:1rem;flex-wrap:wrap;">
-          <button onclick="copiarLivro()" class="btn-p">📋 COPIAR LIVRO</button>
-          <button onclick="novoLivro()" class="btn-s">+ NOVO LIVRO</button>
+        <div style="display:flex;gap:0.7rem;flex-wrap:wrap;flex-direction:column;">
+          <div style="display:flex;gap:0.7rem;flex-wrap:wrap;">
+            <button onclick="copiarLivro()" class="btn-p">📋 COPIAR LIVRO</button>
+            <button onclick="novoLivro()" class="btn-s">+ NOVO LIVRO</button>
+          </div>
+          <button onclick="costurarTextoFinal()" style="width:100%;padding:0.85rem;background:rgba(245,127,23,0.1);color:#f57f17;border:1px solid rgba(245,127,23,0.4);font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;font-weight:700;">🧵 COSTURAR TEXTO — COMPLETAR DESFECHO</button>
         </div>
       </div>
     </div>
@@ -3512,7 +3516,16 @@ async function mostrarAprovacaoArcoGerador(num, nome, texto) {
   return new Promise(resolve => {
     genResolveAprovacao = resolve;
     document.getElementById('gen-arco-num').textContent = `Arco ${num} · ${nome}`;
-    document.getElementById('gen-arco-preview').textContent = texto.substring(0, 2000) + (texto.length > 2000 ? '\n\n[... continua ...]' : '');
+    // Limpar tags antes de mostrar na prévia
+    const textoLimpo = texto
+      .replace(/<div[^>]*>/gi,'').replace(/<\/div>/gi,'')
+      .replace(/<p[^>]*>/gi,'').replace(/<\/p>/gi,'')
+      .replace(/<center[^>]*>/gi,'').replace(/<\/center>/gi,'')
+      .replace(/^#{1,6}\s+/gm,'')
+      .replace(/^---+\s*$/gm,'')
+      .replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1')
+      .replace(/\n{3,}/g,'\n\n').trim();
+    document.getElementById('gen-arco-preview').textContent = textoLimpo.substring(0, 2000) + (textoLimpo.length > 2000 ? '\n\n[... continua ...]' : '');
     document.getElementById('gen-modal-arco').style.display = 'flex';
   });
 }
@@ -3751,6 +3764,115 @@ async function retomarGeracaoLivro() {
   document.getElementById('gen-progresso').style.display = 'none';
   document.getElementById('gen-resultado').style.display = 'block';
   notif('LIVRO CONCLUÍDO', `"${tituloFinal}" finalizado!`, 'sucesso');
+}
+
+async function costurarArcoEContinuar() {
+  // Costura o arco atual antes de continuar para o próximo
+  document.getElementById('gen-modal-arco').style.display = 'none';
+  genLog('🧵 Costurando arco antes de continuar...');
+  const textoBefore = genLivroCompleto.length;
+  await costurarTextoGerador(genLivroCompleto, true, function(resultado) {
+    if (resultado && resultado.length > textoBefore) {
+      genLivroCompleto = resultado;
+      genLog('✅ Costura concluída. Continuando...');
+    }
+  });
+  if (genResolveAprovacao) { genResolveAprovacao(true); genResolveAprovacao = null; }
+}
+
+async function costurarTextoFinal() {
+  const btn = document.querySelector('[onclick="costurarTextoFinal()"]');
+  if (btn) { btn.textContent = '🧵 Costurando...'; btn.disabled = true; }
+  genLog('🧵 Costurando desfecho final...');
+
+  const texto = genLivroCompleto;
+  const ultimoChar = texto.trim().slice(-1);
+  const cortado = !'.!?…"»)—'.includes(ultimoChar);
+
+  // Pegar capítulos para contexto
+  const regexCap = /(?:^|\n)((?:Capítulo\s+[IVXLCDM\d]+[^\n]*|[IVXLCDM]+\.\s*[^\n]*)\n)/gm;
+  const caps = [];
+  let m;
+  while ((m = regexCap.exec(texto)) !== null) caps.push({ pos: m.index });
+
+  let contextoAnterior = '';
+  let contextoFinal = '';
+  if (caps.length >= 2) {
+    contextoAnterior = texto.slice(caps[caps.length-2].pos, caps[caps.length-1].pos).slice(-2000);
+    contextoFinal = texto.slice(caps[caps.length-1].pos);
+  } else {
+    contextoFinal = texto.slice(-4000);
+  }
+
+  const prompt = `Você é escritor literário da OHE gerando o livro "${document.getElementById('gen-titulo').value}".
+
+${contextoAnterior ? 'CAPÍTULO ANTERIOR (contexto):\n' + contextoAnterior + '\n\n' : ''}ÚLTIMO CAPÍTULO (incompleto${cortado ? ' — cortado no meio' : ''}):
+${contextoFinal}
+
+MISSÃO — DESFECHO FINAL:
+1. ${cortado ? 'Complete exatamente de onde o texto parou (primeira palavra é continuação direta)' : 'Continue a cena atual'}
+2. Desenvolva as cenas finais necessárias
+3. Dê desfecho a todos os personagens principais
+4. Termine com frase final que ressoe como conclusão inevitável
+REGRA: Reescreva apenas os últimos 2-3 parágrafos e adicione o desfecho. NÃO reescreva o capítulo inteiro.
+PROIBIDO: tags HTML, markdown, ## , Arco I/II/III, separadores ---
+
+Escreva agora sem introdução ou comentário.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 16000, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await response.json();
+    const continuacao = data.content[0].text
+      .replace(/<[^>]+>/g,'').replace(/^#{1,6}\s+/gm,'')
+      .replace(/^---+\s*$/gm,'').replace(/\*\*([^*]+)\*\*/g,'$1')
+      .replace(/\*([^*]+)\*/g,'$1').trim();
+
+    const sep = cortado ? '' : '\n\n';
+    genLivroCompleto = texto.trimEnd() + sep + continuacao;
+    document.getElementById('gen-livro-texto').textContent = genLivroCompleto;
+    genLog('✅ Desfecho concluído — ' + continuacao.split(/\s+/).filter(Boolean).length + ' palavras adicionadas.');
+
+    if (btn) { btn.textContent = '🧵 COSTURAR NOVAMENTE'; btn.disabled = false; }
+  } catch(e) {
+    genLog('✗ Erro na costura: ' + e.message);
+    if (btn) { btn.textContent = '🧵 COSTURAR TEXTO — COMPLETAR DESFECHO'; btn.disabled = false; }
+  }
+}
+
+async function costurarTextoGerador(texto, automatico, callback) {
+  // Versão simplificada para uso interno
+  if (!texto || texto.length < 100) return;
+  const ultimoChar = texto.trim().slice(-1);
+  const cortado = !'.!?…"»)—'.includes(ultimoChar);
+  const ultimoTrecho = texto.slice(-3000);
+  const prompt = `Você é escritor literário. Este texto foi cortado. Continue de onde parou e adicione o quase-fechamento do arco.
+
+TEXTO (últimos 3000 chars):
+${ultimoTrecho}
+
+${cortado ? 'Comece EXATAMENTE de onde cortou.' : 'Adicione o quase-fechamento do arco com sombra suspensa.'}
+PROIBIDO: tags HTML, markdown, ## , Arco I/II/III
+
+Escreva agora.`;
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 8000, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await response.json();
+    const continuacao = data.content[0].text.replace(/<[^>]+>/g,'').replace(/^#{1,6}\s+/gm,'').trim();
+    const sep = cortado ? '' : '\n\n';
+    const resultado = texto.trimEnd() + sep + continuacao;
+    genLivroCompleto = resultado;
+    if (callback) callback(resultado);
+  } catch(e) {
+    genLog('✗ Erro costura arco: ' + e.message);
+  }
 }
 
 function novoLivro() {
