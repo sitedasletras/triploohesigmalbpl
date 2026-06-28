@@ -345,7 +345,7 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
       <div class="acoes">
         <button class="btn-p" onclick="copiarLivro()">📋 COPIAR LIVRO</button>
         <button class="btn-roxo" onclick="exportarTexto()">⬇ EXPORTAR .TXT</button>
-        <button id="btn-costurar" onclick="costurarTexto()" style="display:none;font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;padding:0.6rem 1rem;border:1px solid #f57f17;background:rgba(245,127,23,0.08);color:#f57f17;cursor:pointer;text-transform:uppercase;border-radius:4px;">🧵 COSTURAR TEXTO</button>
+        <button id="btn-costurar" onclick="costurarTexto()" style="display:none;font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;padding:0.6rem 1rem;border:1px solid #f57f17;background:rgba(245,127,23,0.12);color:#f57f17;cursor:pointer;text-transform:uppercase;border-radius:4px;font-weight:700;">🧵 COSTURAR TEXTO</button>
         <button class="btn-s" onclick="novaGeracao()">↺ NOVA GERAÇÃO</button>
         <button id="btn-fissuras" onclick="document.getElementById('relatorio-fissuras').scrollIntoView({behavior:'smooth'})" style="display:none;font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;padding:0.6rem 1rem;border:1px solid #9c27b0;background:transparent;color:#9c27b0;cursor:pointer;text-transform:uppercase;border-radius:4px;">🔍 FISSURAS</button>
       </div>
@@ -1178,14 +1178,18 @@ Escreva uma revisão editorial (máximo 3 parágrafos):
     const ultimoChar = livroCompleto.trim().slice(-1);
     const ultimoTrecho = livroCompleto.trim().slice(-600).toLowerCase();
     // Cortado: último char não é pontuação de fim de texto
-    const textoCortado = !'.!?…"»)—'.includes(ultimoChar);
+    const textoCortado = !'.!?…"»)\u2014'.includes(ultimoChar);
     // Sem desfecho: termina com ação em aberto
     const padraoAberto = /\b(caminharam|continuaram|seguiram|partindo|foi quando|estava prestes|havia ainda|ainda havia|começou a|estava a|olhou para|disse apenas|ficou em)\b/;
     const semDesfecho = !textoCortado && padraoAberto.test(ultimoTrecho);
+
+    log('📊 Último char: "' + ultimoChar + '" | Cortado: ' + textoCortado + ' | Sem desfecho: ' + semDesfecho);
+
     if (textoCortado || semDesfecho) {
-      log('🧵 ' + (textoCortado ? 'Corte detectado' : 'Desfecho ausente') + ' — costura inteligente em 2s...');
+      log('🧵 ' + (textoCortado ? 'Corte detectado ("' + ultimoChar + '")' : 'Desfecho ausente') + ' — costura inteligente em 2s...');
       setTimeout(() => costurarTexto(true), 2000);
     } else {
+      log('✅ Texto aparentemente completo. Use 🧵 COSTURAR se quiser finalizar.');
       const btnC = document.getElementById('btn-costurar');
       if (btnC) btnC.style.display = 'inline-block';
     }
@@ -2060,6 +2064,14 @@ function mostrarResultado(destino, novoHet) {
   document.getElementById('res-titulo').textContent = tituloFinal;
   document.getElementById('res-meta').textContent = JORNADAS[jornadaSelecionada].nome + ' · ' + document.getElementById('volume').value + ' pág A4 · ' + destino;
   document.getElementById('livro-conteudo').textContent = livroCompleto;
+
+  // ── Botão COSTURAR sempre visível após geração ──
+  const btnCos = document.getElementById('btn-costurar');
+  if (btnCos) {
+    btnCos.style.display = 'inline-block';
+    btnCos.textContent = '🧵 COSTURAR TEXTO';
+    btnCos.disabled = false;
+  }
   if (novoHet && novoHetDados) {
     const av = document.getElementById('novo-het-aviso');
     av.classList.add('visivel');
