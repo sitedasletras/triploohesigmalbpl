@@ -8,7 +8,7 @@ const CONFIG = {
   ANTHROPIC_API_KEY: "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",
   MODEL: "claude-sonnet-4-6",
   MAX_TOKENS: 1024,
-  GITHUB_TOKEN: "COLE_AQUI_O_NOVO_TOKEN_GITHUB",
+  GITHUB_TOKEN: "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",
   GITHUB_OWNER: "sitedasletras",
   GITHUB_REPO: "triploohesigmalbpl",
   STABILITY_API_KEY: "sk-pyLW73TPKqi8GhK6nU0hiEF1rCnhY8OmFhgFD6WJbJ2uPnEH"
