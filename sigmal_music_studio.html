@@ -623,7 +623,7 @@ FORMATO DE RESPOSTA:
   try {
     const resp1 = await fetchComRetry('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': window.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4096, messages: [{ role: 'user', content: promptLetra }] })
     }, 3, 2000);
     if (!resp1.ok) throw new Error(`Erro ${resp1.status}`);
@@ -706,7 +706,7 @@ Compasso: [4/4, 3/4, etc.]
   try {
     const resp2 = await fetchComRetry('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': window.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4096, messages: [{ role: 'user', content: promptArranjo }] })
     }, 3, 2000);
     if (!resp2.ok) throw new Error(`Erro ${resp2.status}`);
@@ -788,7 +788,7 @@ FORMATO:
     try {
       const resp = await fetchComRetry('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': window.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+        headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
         body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4096, messages: [{ role: 'user', content: promptArranjo }] })
       }, 3, 2000);
       if (!resp.ok) throw new Error(`Erro ${resp.status}`);
