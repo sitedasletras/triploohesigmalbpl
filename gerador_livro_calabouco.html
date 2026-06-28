@@ -125,6 +125,19 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
     <span id="banner-item-txt">✓ Item carregado do Calabouço</span>
   </div>
 
+  <!-- BANNER RETOMADA — aparece grande quando há geração interrompida -->
+  <div id="banner-retomada" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(4,8,15,0.97);align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:2rem;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.25em;color:#f57f17;text-transform:uppercase;margin-bottom:1rem;">⚠ GERAÇÃO INTERROMPIDA</div>
+    <div id="retomada-titulo" style="font-family:'Cinzel',serif;font-size:1.2rem;color:#f0e8d0;margin-bottom:0.5rem;">—</div>
+    <div id="retomada-info" style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#6a7d90;margin-bottom:2rem;">—</div>
+    <button onclick="retormarGeracaoSalva()" style="width:100%;max-width:320px;padding:1.2rem;background:linear-gradient(135deg,#7a3f00,#f57f17);color:#fff;font-family:'Share Tech Mono',monospace;font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;border:none;border-radius:6px;cursor:pointer;margin-bottom:0.8rem;">
+      ⚡ RETOMAR GERAÇÃO
+    </button>
+    <button onclick="descartarRetomada()" style="width:100%;max-width:320px;padding:0.7rem;background:transparent;border:1px solid rgba(201,168,76,0.2);color:#6a7d90;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;border-radius:4px;">
+      ✕ DESCARTAR E COMEÇAR DO ZERO
+    </button>
+  </div>
+
   <!-- BANNER RECUPERAÇÃO -->
   <div class="banner-info banner-laranja" id="recuperacao-banner">
     <span>⚠ Sessão anterior encontrada — material parcial disponível</span>
@@ -661,6 +674,9 @@ async function iniciarGeracao() {
   if (!titulo) { alert('Informe o título ou tema.'); return; }
   if (!jornadaSelecionada) { alert('Selecione uma estrutura narrativa.'); return; }
 
+  // ── Ativar Wake Lock — impede tela de apagar durante geração ──
+  await ativarWakeLock();
+
   // ── MODO CONTO SEMENTE ───────────────────────────────────
   if (modoAtual === 'semente') {
     await gerarContoSemente(titulo, sinopse);
@@ -976,14 +992,20 @@ ${(() => {
   const pct = fragAtualGlobal / Math.max(1, totalFragsLivro);
 
   if (isLastArco && isLast) {
-    return `ENCERRAMENTO REAL — TERCEIRO E DEFINITIVO MOMENTO:
-Este é o desfecho absoluto da obra. O leitor já passou por dois momentos onde acreditou que a história terminava — agora chegou o fim verdadeiro.
-Use TODOS os tokens disponíveis para:
-1. Resolver definitivamente todos os conflitos ainda abertos
-2. Dar a cada personagem principal um desfecho coerente com sua jornada
-3. Entregar a última cena com força emocional máxima
-4. Encerrar com uma frase final que ressoe como conclusão inevitável
-NUNCA corte no meio de frase ou cena. Toda frase DEVE terminar com pontuação antes de parar. Se estiver no limite de tokens, termine o parágrafo atual e pare com ponto final.`;
+    return `ENCERRAMENTO REAL — ARCO III — DESFECHO ABSOLUTO E OBRIGATÓRIO:
+Este é o último fragmento da obra. NÃO HÁ MAIS FRAGMENTOS DEPOIS DESTE.
+O leitor já passou por dois falsos fechamentos — agora chega o fim verdadeiro e definitivo.
+
+OBRIGAÇÕES ABSOLUTAS DESTE FRAGMENTO:
+1. TERMINAR A HISTÓRIA COMPLETAMENTE — nenhum conflito pode ficar aberto
+2. Cada personagem principal DEVE ter seu desfecho explícito — não implícito, não sugerido
+3. A última cena deve ser construída com força emocional máxima
+4. A frase final DEVE ser a frase final — não uma abertura, não uma sugestão de continuação
+5. Se perceber que está chegando ao limite de tokens ANTES de concluir: reduza o ritmo, condense as cenas intermediárias, mas NUNCA sacrifique o desfecho — o desfecho é obrigatório
+
+REGRA DE FERRO: Este fragmento DEVE terminar com ponto final depois de uma frase de conclusão. Corte no meio de qualquer frase ou cena é PROIBIDO. Se necessário, pule cenas intermediárias para garantir que o desfecho seja escrito.
+
+NÃO use gancho de transição neste fragmento — este é o fim.`;
   } else if (isLast && !isLastArco) {
     return `QUASE-FECHAMENTO DO ARCO ${ai+1}:
 Conclua este arco com clareza — a tensão principal parece se resolver.
@@ -1023,12 +1045,13 @@ REGRAS OBRIGATÓRIAS DE FORMATAÇÃO:
 - Diálogos SEMPRE com travessão (—) e verbo dicendi identificado
 - NUNCA usar travessão no meio de frases narrativas — use vírgula
 - Cada parágrafo tem seu próprio espaço com linha em branco entre eles
-- Títulos de capítulos CENTRALIZADOS e com dizeres curtos
-- Texto JUSTIFICADO
-- PROIBIDO comentários editoriais, ganchos explicativos ou análises fora da narrativa
+- Títulos de capítulos: escrever apenas o número e o nome, sem qualquer formatação especial
+- Numeração de capítulos CONSISTENTE em todo o livro — use sempre o mesmo padrão (ex: Capítulo I, Capítulo II... ou I. II. III...) — NUNCA misturar padrões entre arcos
+- PROIBIDO ABSOLUTO: <div>, <p>, <center>, <br>, align=, qualquer tag HTML
+- PROIBIDO ABSOLUTO: ## , # , **, *, __ ou qualquer markdown
+- PROIBIDO: comentários editoriais, ganchos explicativos ou análises fora da narrativa
 - O texto deve ser humanizado, sem rastro de IA
 - Jornada do Herói e/ou Vilão com arcos narrativos bem definidos
-- PROIBIDO tags HTML, markdown, asteriscos ou qualquer formatação técnica no texto
 
 REGRA DE LIMITE DE TOKENS: Escreva aproximadamente ${palavrasPorFrag} palavras. 
 
@@ -1115,10 +1138,12 @@ Escreva uma revisão editorial (máximo 3 parágrafos):
     log('Livro concluído! ✓ Total: ' + livroCompleto.split(' ').length + ' palavras aproximadas');
     // ── Limpar checkpoints — geração concluída com sucesso ──
     limparCheckpoints();
+    liberarWakeLock();
     mostrarResultado(destinoFinal, novoHeteronimoCriado);
 
   } catch (err) {
     log('✗ ERRO: ' + err.message);
+    liberarWakeLock();
     log('⚡ Checkpoint salvo — REABRA esta página para retomar de onde parou.');
     const alerta = document.getElementById('banner-retomada') || document.createElement('div');
     alerta.id = 'banner-retomada';
@@ -1131,28 +1156,59 @@ Escreva uma revisão editorial (máximo 3 parágrafos):
   }
 }
 
-// ===================== API =====================
-// ===================== APROVAÇÃO POR ARCO =====================
+// ===================== POPUP DE APROVAÇÃO POR ARCO =====================
 let resolveAprovacao = null;
 
 function mostrarAprovacaoArco(numArco, nomeArco, textoArco) {
   return new Promise((resolve) => {
     resolveAprovacao = resolve;
-    const modal = document.getElementById('modal-aprovacao');
-    document.getElementById('aprv-arco-num').textContent = 'Arco ' + numArco + ' · ' + nomeArco;
-    document.getElementById('aprv-texto').textContent = textoArco.substring(0, 2000) + (textoArco.length > 2000 ? '\n\n[... texto continua ...]' : '');
-    modal.style.display = 'flex';
+
+    const jornada = JORNADAS[jornadaSelecionada];
+    const totalArcos = jornada ? jornada.arcos.length : 3;
+    const isUltimo = numArco >= totalArcos;
+
+    document.getElementById('aprv-arco-num').textContent = 'Arco ' + numArco + ' concluído';
+    document.getElementById('aprv-arco-nome').textContent = nomeArco;
+    document.getElementById('aprv-palavras').textContent =
+      textoArco.split(/\s+/).filter(Boolean).length.toLocaleString('pt-BR') + ' palavras geradas';
+
+    document.getElementById('aprv-texto').textContent =
+      textoArco.substring(0, 1500) + (textoArco.length > 1500 ? '\n\n[... continua ...]' : '');
+
+    const btnContinuar = document.getElementById('aprv-btn-continuar');
+    if (isUltimo) {
+      btnContinuar.textContent = '✦ GERAR DESFECHO FINAL';
+      btnContinuar.style.background = 'linear-gradient(135deg,#1a5f1a,#4caf50)';
+    } else {
+      btnContinuar.textContent = '⚡ CONTINUAR PARA O ARCO ' + (numArco + 1);
+      btnContinuar.style.background = 'linear-gradient(135deg,#7a3f00,#f57f17)';
+    }
+
+    document.getElementById('modal-aprovacao').style.display = 'flex';
   });
 }
 
 function aprovarArco() {
   document.getElementById('modal-aprovacao').style.display = 'none';
-  if (resolveAprovacao) resolveAprovacao(true);
+  if (resolveAprovacao) { resolveAprovacao(true); resolveAprovacao = null; }
 }
 
 function rejeitarArco() {
   document.getElementById('modal-aprovacao').style.display = 'none';
-  if (resolveAprovacao) resolveAprovacao(false);
+  if (resolveAprovacao) { resolveAprovacao(false); resolveAprovacao = null; }
+}
+
+function pausarArco() {
+  document.getElementById('modal-aprovacao').style.display = 'none';
+  log('⏸ Geração pausada. Checkpoint salvo. Reabra para continuar.');
+  liberarWakeLock();
+  const s = sessaoAtual || {};
+  const el = document.getElementById('retomada-titulo');
+  const el2 = document.getElementById('retomada-info');
+  if (el) el.textContent = '"' + (tituloFinal || 'Obra em andamento') + '"';
+  if (el2) el2.textContent = (heteronimoEscolhido || '') + ' · Arco concluído · Pronto para continuar';
+  const banner = document.getElementById('banner-retomada');
+  if (banner) banner.style.display = 'flex';
 }
 
 // ===================== SALVAR NO GITHUB =====================
@@ -1553,6 +1609,13 @@ Máximo 3 itens por categoria. Retorne APENAS o JSON válido, sem markdown.`;
 
   } catch(e) {
     console.warn('Relatório de fissuras não gerado:', e.message);
+    // Mostrar botão mesmo com falha para que usuário saiba que existe
+    if (elBtn) {
+      elBtn.textContent = '🔍 FISSURAS (tentar novamente)';
+      elBtn.disabled = false;
+      elBtn.style.display = 'inline-block';
+      elBtn.onclick = () => gerarRelatorioFissuras(livroCompleto, tituloFinal, heteronimoEscolhido, genero);
+    }
   }
 }
 
@@ -1667,15 +1730,19 @@ function verificarRetomada() {
 // Inicializar modo padrão ao carregar
 window.addEventListener('load', () => {
   selecionarModo('semente');
-  // Verificar retomada
+
+  // ── Verificar retomada ao abrir ──
   const ret = verificarRetomada();
   if (ret) {
-    const banner = document.getElementById('banner-recuperacao') ||
-      document.getElementById('banner-item-carregado');
-    if (banner) {
-      banner.classList.add('visivel');
-    }
+    const s = ret.sessao;
+    document.getElementById('retomada-titulo').textContent =
+      '"' + (s.titulo || 'Obra sem título') + '"';
+    document.getElementById('retomada-info').textContent =
+      (s.heteronimo || '') + ' · Arco ' + (ret.arco + 1) + ' · ' +
+      (s.fragmentosSalvos ? s.fragmentosSalvos.length + ' fragmento(s) salvo(s)' : '');
+    document.getElementById('banner-retomada').style.display = 'flex';
   }
+
   // Carregar conto semente salvo se existir
   const contoSalvo = localStorage.getItem('conto_semente_texto');
   const titSalvo   = localStorage.getItem('conto_semente_titulo');
@@ -1690,6 +1757,59 @@ window.addEventListener('load', () => {
     log(`✦ Conto semente disponível: "${titSalvo||'Sem título'}" — ${autSalvo||'autor'}`);
   }
 });
+
+// ── WAKE LOCK — impede a tela de apagar durante a geração ──
+let _wakeLock = null;
+async function ativarWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      _wakeLock = await navigator.wakeLock.request('screen');
+      log('🔒 Tela protegida — geração em andamento.');
+      _wakeLock.addEventListener('release', () => {
+        log('⚠ Proteção de tela liberada. Se a geração parou, use RETOMAR ao reabrir.');
+      });
+    }
+  } catch(e) {
+    log('⚠ Wake Lock não disponível neste dispositivo.');
+  }
+}
+
+async function liberarWakeLock() {
+  if (_wakeLock) {
+    try { await _wakeLock.release(); } catch(_) {}
+    _wakeLock = null;
+  }
+}
+
+// Reativar Wake Lock se a aba voltar ao foco (Android às vezes libera ao mudar de app)
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'visible' && _wakeLock === null) {
+    const ret = verificarRetomada();
+    if (ret) {
+      // Há geração em andamento — mostrar banner de retomada
+      const s = ret.sessao;
+      document.getElementById('retomada-titulo').textContent =
+        '"' + (s.titulo || 'Obra sem título') + '"';
+      document.getElementById('retomada-info').textContent =
+        (s.heteronimo || '') + ' · Arco ' + (ret.arco + 1) + ' · ' +
+        (s.fragmentosSalvos ? s.fragmentosSalvos.length + ' fragmento(s) salvo(s)' : '');
+      document.getElementById('banner-retomada').style.display = 'flex';
+    }
+  }
+});
+
+// ── RETOMAR GERAÇÃO SALVA ──
+function retormarGeracaoSalva() {
+  document.getElementById('banner-retomada').style.display = 'none';
+  // Acionar a recuperação existente
+  recuperarSessao();
+}
+
+function descartarRetomada() {
+  if (!confirm('Descartar o progresso salvo e começar do zero?')) return;
+  limparCheckpoints();
+  document.getElementById('banner-retomada').style.display = 'none';
+}
 function mostrarResultado(destino, novoHet) {
   document.getElementById('progresso-painel').classList.remove('visivel');
   const res = document.getElementById('resultado-painel');
@@ -1788,7 +1908,23 @@ ${(() => {
 
 SITE DAS LETRAS EDIÇÕES LITERÁRIAS`;
 
-  livroCompleto = livroEditorial;
+  // Limpar tags HTML e markdown que possam ter vazado da geração
+  const livroLimpo = livroEditorial
+    .replace(/<div[^>]*>/gi, '').replace(/<\/div>/gi, '')
+    .replace(/<p[^>]*>/gi, '').replace(/<\/p>/gi, '')
+    .replace(/<center>/gi, '').replace(/<\/center>/gi, '')
+    .replace(/<br\s*\/?>/gi, '
+')
+    .replace(/align="[^"]*"/gi, '')
+    .replace(/##\s+/g, '').replace(/#+\s+/g, '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\*([^*]+)\*/g, '$1')
+    .replace(/
+{4,}/g, '
+
+
+');
+
+  livroCompleto = livroLimpo;
   document.getElementById('livro-conteudo').textContent = livroCompleto;
 
   // Gerar Relatório de Fissuras automaticamente
@@ -1862,6 +1998,43 @@ document.getElementById('volume').addEventListener('change', atualizarPreviewArc
       </div>
     </div>
   </div>
+
+<!-- ===== MODAL APROVAÇÃO POR ARCO ===== -->
+<div id="modal-aprovacao" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(4,8,15,0.97);align-items:center;justify-content:center;padding:1.2rem;">
+  <div style="background:#080f1a;border:1px solid rgba(245,127,23,0.35);border-radius:12px;width:100%;max-width:480px;overflow:hidden;">
+
+    <!-- Cabeçalho -->
+    <div style="background:rgba(245,127,23,0.08);padding:1.4rem 1.5rem;border-bottom:1px solid rgba(245,127,23,0.15);">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.25em;color:#f57f17;text-transform:uppercase;margin-bottom:0.4rem;">// PONTO DE CONTROLE</div>
+      <div id="aprv-arco-num" style="font-family:'Cinzel',serif;font-size:1.3rem;color:#f0e8d0;margin-bottom:0.2rem;">Arco 1 concluído</div>
+      <div id="aprv-arco-nome" style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#f57f17;letter-spacing:0.1em;text-transform:uppercase;"></div>
+      <div id="aprv-palavras" style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:#6a7d90;margin-top:0.4rem;"></div>
+    </div>
+
+    <!-- Preview do texto -->
+    <div style="padding:1rem 1.5rem;border-bottom:1px solid rgba(245,127,23,0.1);">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.15em;color:#6a7d90;text-transform:uppercase;margin-bottom:0.5rem;">Prévia do arco</div>
+      <div id="aprv-texto" style="font-family:'Crimson Pro',Georgia,serif;font-size:0.82rem;color:#b0a080;line-height:1.7;max-height:180px;overflow-y:auto;white-space:pre-wrap;"></div>
+    </div>
+
+    <!-- Botões -->
+    <div style="padding:1.2rem 1.5rem;display:flex;flex-direction:column;gap:0.7rem;">
+      <button id="aprv-btn-continuar" onclick="aprovarArco()"
+        style="width:100%;padding:1rem;color:#fff;font-family:'Share Tech Mono',monospace;font-size:0.68rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;border:none;border-radius:6px;cursor:pointer;">
+        ⚡ CONTINUAR
+      </button>
+      <button onclick="pausarArco()"
+        style="width:100%;padding:0.8rem;background:transparent;border:1px solid rgba(201,168,76,0.25);color:#c9a84c;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;border-radius:6px;cursor:pointer;">
+        ⏸ PAUSAR POR AGORA
+      </button>
+      <button onclick="rejeitarArco()"
+        style="width:100%;padding:0.65rem;background:transparent;border:1px solid rgba(211,47,47,0.2);color:#ff6b6b;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;border-radius:6px;cursor:pointer;">
+        ↺ REFAZER ESTE ARCO
+      </button>
+    </div>
+
+  </div>
+</div>
 
 </body>
 </html>
