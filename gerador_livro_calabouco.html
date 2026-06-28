@@ -1220,6 +1220,41 @@ Escreva o conto completo agora. Comece diretamente com a narrativa.`;
     localStorage.setItem('conto_semente_palavras', String(palavras));
 
     limparCheckpoints();
+
+    // ── Salvar Conto Semente no calabouco_livros e sigmal_hq ──
+    try {
+      const livros = JSON.parse(localStorage.getItem('calabouco_livros') || '[]');
+      livros.push({
+        id: Date.now(),
+        titulo: tituloFinal,
+        heteronimo: heteronimoEscolhido,
+        jornada: jornadaSelecionada,
+        volume: 0,
+        destino: destino,
+        data: new Date().toLocaleDateString('pt-BR'),
+        tipo: 'conto_semente',
+        conteudo: livroCompleto
+      });
+      localStorage.setItem('calabouco_livros', JSON.stringify(livros));
+
+      // Salvar também na chave sigmal_hq para o Calabouço ler
+      const sigmalRaw = localStorage.getItem('sigmal_hq');
+      const sigmal = sigmalRaw ? JSON.parse(sigmalRaw) : { calabouco: [] };
+      if (!sigmal.calabouco) sigmal.calabouco = [];
+      sigmal.calabouco.push({
+        id: Date.now(),
+        titulo: tituloFinal,
+        autor: heteronimoEscolhido,
+        tipo: 'conto_semente',
+        data: new Date().toLocaleDateString('pt-BR'),
+        conteudo: livroCompleto
+      });
+      localStorage.setItem('sigmal_hq', JSON.stringify(sigmal));
+      log('✓ Conto Semente salvo no Calabouço.');
+    } catch(eSave) {
+      log('⚠ Erro ao salvar: ' + eSave.message);
+    }
+
     mostrarResultadoSemente(destino, palavras);
 
   } catch(e) {
@@ -1358,7 +1393,8 @@ Escreva ~${Math.round(pagsPorVol * 250)} palavras. Comece diretamente.`;
 async function gerarLivroUnico(titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase) {
   try {
     if (!window.GITHUB_TOKEN) { log('⚠ GitHub token não configurado'); return; }
-    const autorSlug = autor.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const autorNome = heteronimoEscolhido || heteronimo || 'ohe';
+    const autorSlug = autorNome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const tituloSlug = titulo.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 60);
     const data = new Date().toISOString().split('T')[0];
     const pasta = destino === 'calabouco' ? `calabouco/heteronimos/${autorSlug}` : `masmorra/heteronimos/${autorSlug}`;
@@ -1439,7 +1475,7 @@ Máximo 3 itens por categoria. Retorne APENAS o JSON válido, sem markdown.`;
 
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] })
     });
 
@@ -1514,8 +1550,6 @@ async function chamarAPI(prompt, maxTokens, tentativas = 4, delayBase = 3000) {
         signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': window.ANTHROPIC_API_KEY,
-          'anthropic-version': '2023-06-01',
           'anthropic-dangerous-direct-browser-access': 'true'
         },
         body: JSON.stringify({
@@ -1745,8 +1779,8 @@ function limpar() {
 }
 document.getElementById('volume').addEventListener('change', atualizarPreviewArcos);
 </script>
-</body>
-</html>  <!-- MODAL MARCADORES DE ARCO -->
+
+<!-- MODAL MARCADORES DE ARCO -->
   <div id="modal-marcadores" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;">
     <div style="background:#0d0520;border:1px solid rgba(106,27,154,0.3);padding:1.5rem;width:340px;max-width:95vw;border-radius:8px;">
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;letter-spacing:0.25em;color:#9c27b0;text-transform:uppercase;margin-bottom:1rem;">// MARCADORES DE ARCO</div>
@@ -1776,4 +1810,5 @@ document.getElementById('volume').addEventListener('change', atualizarPreviewArc
     </div>
   </div>
 
-  
+</body>
+</html>
