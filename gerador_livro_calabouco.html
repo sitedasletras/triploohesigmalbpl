@@ -1174,24 +1174,17 @@ Escreva uma revisão editorial (máximo 3 parágrafos):
     liberarWakeLock();
     mostrarResultado(destinoFinal, novoHeteronimoCriado);
 
-    // ── COSTURADOR AUTOMÁTICO ──
-    // Detecta se o texto foi cortado ou não tem desfecho
+    // ── COSTURADOR AUTOMÁTICO INTELIGENTE ──
     const ultimoChar = livroCompleto.trim().slice(-1);
-    const ultimoTrecho = livroCompleto.trim().slice(-500).toLowerCase();
-    const textoCortado = !'.!?…"»)'.includes(ultimoChar);
-    // Detecta também se termina sem desfecho real (história em aberto)
-    const semDesfecho = !textoCortado && (
-      ultimoTrecho.includes('caminharam') ||
-      ultimoTrecho.includes('continuaram') ||
-      ultimoTrecho.includes('seguiram') ||
-      ultimoTrecho.includes('partindo') ||
-      ultimoTrecho.includes('foi quando') ||
-      ultimoTrecho.includes('estava prestes') ||
-      ultimoTrecho.includes('havia ainda')
-    );
+    const ultimoTrecho = livroCompleto.trim().slice(-600).toLowerCase();
+    // Cortado: último char não é pontuação de fim de texto
+    const textoCortado = !'.!?…"»)—'.includes(ultimoChar);
+    // Sem desfecho: termina com ação em aberto
+    const padraoAberto = /\b(caminharam|continuaram|seguiram|partindo|foi quando|estava prestes|havia ainda|ainda havia|começou a|estava a|olhou para|disse apenas|ficou em)\b/;
+    const semDesfecho = !textoCortado && padraoAberto.test(ultimoTrecho);
     if (textoCortado || semDesfecho) {
-      log('🧵 ' + (textoCortado ? 'Texto cortado' : 'História sem desfecho') + ' — iniciando costura automática...');
-      setTimeout(() => costurarTexto(true), 1500);
+      log('🧵 ' + (textoCortado ? 'Corte detectado' : 'Desfecho ausente') + ' — costura inteligente em 2s...');
+      setTimeout(() => costurarTexto(true), 2000);
     } else {
       const btnC = document.getElementById('btn-costurar');
       if (btnC) btnC.style.display = 'inline-block';
@@ -1321,7 +1314,7 @@ function pausarArco() {
   if (resolveAprovacao) { resolveAprovacao(false); resolveAprovacao = null; }
 }
 
-// ===================== COSTURADOR DE TEXTO =====================
+// ===================== COSTURADOR INTELIGENTE =====================
 async function costurarTexto(automatico = false) {
   const btn = document.getElementById('btn-costurar');
   if (!livroCompleto || livroCompleto.length < 100) {
@@ -1330,74 +1323,119 @@ async function costurarTexto(automatico = false) {
   }
 
   if (btn) { btn.textContent = '🧵 Costurando...'; btn.disabled = true; }
-  if (automatico) log('🧵 Costura automática iniciada...');
+  if (automatico) log('🧵 Costura inteligente iniciada...');
 
   try {
-    // Detectar se o texto está cortado no meio de frase
-    const textoAtual = livroCompleto;
-    const ultimoChar = textoAtual.trim().slice(-1);
-    const cortado = !'.!?…"»'.includes(ultimoChar);
+    const texto = livroCompleto;
+    const ultimoChar = texto.trim().slice(-1);
+    const cortado = !'.!?…"»)'.includes(ultimoChar);
 
-    // Pegar os últimos 3000 caracteres como contexto do corte
-    const fimDoTexto = textoAtual.slice(-3000);
+    // ── Extrair o penúltimo capítulo completo + últimos parágrafos do capítulo cortado ──
+    // Procura marcadores de capítulo no texto (Capítulo I, II, III... ou número romano)
+    const regexCapitulo = /(?:^|\n)((?:Capítulo\s+[IVXLCDM\d]+[^\n]*|[IVXLCDM]+\.\s*[^\n]*)\n)/gm;
+    const matches = [];
+    let m;
+    while ((m = regexCapitulo.exec(texto)) !== null) {
+      matches.push({ titulo: m[1].trim(), pos: m.index });
+    }
 
-    // Detectar separador de arco para entender onde está o corte
-    // Buscar o último capítulo mencionado
-    const capituloMatch = textoAtual.match(/Capítulo\s+([IVXLCDM\d]+)[^\n]*/gi);
-    const ultimoCapitulo = capituloMatch ? capituloMatch[capituloMatch.length - 1] : '';
+    let contextoPenultimo = '';
+    let contextoUltimo = '';
+
+    if (matches.length >= 2) {
+      // Pegar penúltimo capítulo completo (até 2000 chars)
+      const penultimo = matches[matches.length - 2];
+      const ultimo = matches[matches.length - 1];
+      const textoPenultimo = texto.slice(penultimo.pos, ultimo.pos);
+      contextoPenultimo = textoPenultimo.slice(-2000);
+
+      // Pegar último capítulo completo (o que foi cortado)
+      const textoUltimo = texto.slice(ultimo.pos);
+      contextoUltimo = textoUltimo; // inteiro, pois é o que foi cortado
+
+    } else if (matches.length === 1) {
+      // Só um capítulo — pegar últimos 4000 chars
+      contextoUltimo = texto.slice(-4000);
+    } else {
+      // Sem capítulos detectados — pegar últimos 4000 chars
+      contextoUltimo = texto.slice(-4000);
+    }
+
+    // Determinar se é corte de arco intermediário ou final do livro
+    // Conta quantos separadores de arco há no texto
+    const numArcos = (texto.match(/Arco\s+[IVX]+/gi) || []).length;
+    const totalArcosEsperados = planejamento ? planejamento.length : 3;
+    const eDesfechoFinal = numArcos >= totalArcosEsperados || texto.length > 20000;
 
     const promptCostura = `Você é ${heteronimoEscolhido || 'um escritor da OHE'}, escritor literário.
 
-Você gerou um livro chamado "${tituloFinal}" que foi interrompido antes de terminar.
+Você gerou um livro chamado "${tituloFinal}" e o último capítulo foi interrompido antes de terminar.
 
-TRECHO FINAL DO QUE FOI ESCRITO (últimas 3000 caracteres):
-${fimDoTexto}
+${contextoPenultimo ? `CAPÍTULO ANTERIOR (contexto de continuidade):
+${contextoPenultimo}
 
-${cortado ? `O texto foi CORTADO NO MEIO de uma cena/frase — termine a frase atual e continue a narrativa até o desfecho completo da história.` : `O texto terminou mas a história ainda não chegou ao seu desfecho final — continue a narrativa até o fechamento completo.`}
+` : ''}ÚLTIMO CAPÍTULO GERADO (está incompleto${cortado ? ' — cortado no meio da palavra/frase' : ''}):
+${contextoUltimo}
 
-MISSÃO:
-1. Se o texto cortou no meio de uma frase ou palavra: complete essa frase primeiro
-2. Continue a narrativa de onde parou com coerência total com o que foi escrito
-3. Desenvolva as cenas que faltam para o desfecho
-4. Escreva o DESFECHO FINAL COMPLETO — resolva todos os conflitos abertos, dê desfecho a todos os personagens principais
-5. Termine com uma frase final que soe como conclusão inevitável
+${eDesfechoFinal ? `MISSÃO — DESFECHO FINAL DO LIVRO:
+Este é o último capítulo da obra. A história precisa de um fechamento definitivo.
+
+1. Se o texto cortou no meio de palavra ou frase: complete-a primeiro, continuando exatamente de onde parou
+2. Continue a cena atual até seu encerramento natural
+3. Escreva as cenas finais necessárias para resolver os conflitos abertos
+4. Dê desfecho explícito aos personagens principais
+5. Termine com uma frase final que ressoe como conclusão inevitável
+
+REGRA DE FERRO: Reescreva apenas os ÚLTIMOS 2-3 parágrafos do capítulo acima (de onde foram interrompidos) e adicione o desfecho. NÃO reescreva o capítulo inteiro.` :
+`MISSÃO — COSTURA DE TRANSIÇÃO:
+Este capítulo foi interrompido antes do quase-fechamento do arco.
+
+1. Se o texto cortou no meio de palavra ou frase: complete-a primeiro
+2. Continue a cena atual até seu encerramento natural
+3. Crie um quase-fechamento: a tensão principal parece resolver-se, mas uma sombra permanece suspensa
+4. Termine com frase que crie expectativa para o próximo arco — sem clichês
+
+REGRA DE FERRO: Reescreva apenas os ÚLTIMOS 2-3 parágrafos e adicione a transição. NÃO reescreva o capítulo inteiro.`}
 
 REGRAS ABSOLUTAS:
-- Nunca repita conteúdo já escrito — comece exatamente de onde o texto parou
-- Se cortou no meio de frase, a PRIMEIRA palavra que escrever deve ser a continuação direta
+- Comece EXATAMENTE de onde o texto foi cortado — se cortou em "Ald", comece com "ric" ou o que vier depois
 - Voz narrativa idêntica ao que foi escrito — mesmo tom, mesmo ritmo, mesmo heterônimo
 - PROIBIDO: tags HTML, markdown, ## , <div>, asteriscos, separadores ---
-- PROIBIDO: mencionar "Arco I/II/III" ou qualquer marcador estrutural
+- PROIBIDO: mencionar "Arco I/II/III", "Mundo Comum", "Clímax" ou qualquer marcador estrutural
 - O texto deve ser limpo — apenas narrativa
 
-Escreva a continuação e o desfecho final agora. Comece imediatamente sem introdução ou comentário.`;
+Escreva agora. Comece imediatamente sem introdução ou comentário.`;
 
-    log('🧵 Costurando texto — gerando continuação e desfecho...');
-
+    log('🧵 Gerando costura inteligente...');
     const continuacao = await chamarAPI(promptCostura, 16000);
 
-    // Limpar a continuação
+    // Limpar continuação
     const continuacaoLimpa = continuacao
       .replace(/<div[^>]*>/gi, '').replace(/<\/div>/gi, '')
       .replace(/<p[^>]*>/gi, '').replace(/<\/p>/gi, '')
+      .replace(/<center[^>]*>/gi, '').replace(/<\/center>/gi, '')
       .replace(/<br\s*\/?>/gi, '\n')
       .replace(/^#{1,6}\s+/gm, '')
       .replace(/^---+\s*$/gm, '')
       .replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\*([^*]+)\*/g, '$1')
       .trim();
 
-    // Costurar — se cortou no meio de frase, emenda direto; senão, parágrafo novo
+    // Emenda direta se cortou no meio de palavra/frase
     const separador = cortado ? '' : '\n\n';
-    livroCompleto = textoAtual.trimEnd() + separador + continuacaoLimpa;
+    livroCompleto = texto.trimEnd() + separador + continuacaoLimpa;
 
     // Atualizar exibição
     document.getElementById('livro-conteudo').textContent = livroCompleto;
 
-    log('✅ Costura concluída — ' + continuacaoLimpa.split(/\s+/).length + ' palavras adicionadas.');
+    log('✅ Costura concluída — ' + continuacaoLimpa.split(/\s+/).filter(Boolean).length + ' palavras adicionadas.');
 
-    if (btn) { btn.textContent = '🧵 COSTURAR NOVAMENTE'; btn.disabled = false; btn.style.display = 'inline-block'; }
+    if (btn) {
+      btn.textContent = '🧵 COSTURAR NOVAMENTE';
+      btn.disabled = false;
+      btn.style.display = 'inline-block';
+    }
 
-    // Salvar versão costurada no localStorage
+    // Salvar versão costurada
     const livros = JSON.parse(localStorage.getItem('calabouco_livros') || '[]');
     const idx = livros.findIndex(l => l.titulo === tituloFinal);
     if (idx >= 0) {
@@ -1409,7 +1447,11 @@ Escreva a continuação e o desfecho final agora. Comece imediatamente sem intro
 
   } catch (e) {
     log('✗ Erro na costura: ' + e.message);
-    if (btn) { btn.textContent = '🧵 COSTURAR TEXTO'; btn.disabled = false; btn.style.display = 'inline-block'; }
+    if (btn) {
+      btn.textContent = '🧵 COSTURAR TEXTO';
+      btn.disabled = false;
+      btn.style.display = 'inline-block';
+    }
   }
 }
 // ═══════════════════════════════════════════════════════════
