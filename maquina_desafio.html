@@ -56,6 +56,71 @@
     display: block;
   }
 
+  /* ── SELETOR PROSA / POESIA ── */
+  .modo-seletor {
+    display: flex;
+    gap: 0;
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .modo-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    font-family: monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    color: #6a7d90;
+  }
+  .modo-btn.ativo {
+    background: rgba(201,168,76,0.15);
+    color: #c9a84c;
+    font-weight: 700;
+  }
+  .modo-btn:first-child { border-right: 1px solid rgba(201,168,76,0.2); }
+
+  /* ── FORMAS POÉTICAS ── */
+  .formas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+  }
+  .forma-btn {
+    font-family: monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid rgba(106,27,154,0.25);
+    background: rgba(106,27,154,0.04);
+    color: #9c7dc0;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    border-radius: 4px;
+    text-align: center;
+  }
+  .forma-btn:hover { border-color: rgba(156,125,192,0.5); color: #ce93d8; }
+  .forma-btn.ativo {
+    background: rgba(106,27,154,0.2);
+    color: #ce93d8;
+    border-color: #9c27b0;
+  }
+  .formas-grupo-label {
+    font-family: monospace;
+    font-size: 0.45rem;
+    letter-spacing: 0.2em;
+    color: #6a4a8a;
+    text-transform: uppercase;
+    margin: 0.8rem 0 0.3rem 0;
+  }
+
   /* Botões de época */
   .epoca-grupo { display: flex; gap: 0.6rem; flex-wrap: wrap; }
   .btn-epoca {
@@ -80,7 +145,6 @@
     border-color: #c9a84c;
   }
 
-  /* Campo universo */
   .universo-input {
     width: 100%;
     background: rgba(201,168,76,0.04);
@@ -115,7 +179,6 @@
   }
   .exemplos span:hover { background: rgba(201,168,76,0.12); color: #c9a84c; }
 
-  /* Botão lançar */
   .btn-lancar {
     width: 100%;
     padding: 1rem;
@@ -134,7 +197,6 @@
   }
   .btn-lancar:disabled { opacity: 0.3; cursor: not-allowed; }
 
-  /* Log */
   .log {
     font-family: monospace;
     font-size: 0.6rem;
@@ -148,7 +210,6 @@
   }
   .log.erro { color: #ff6b6b; }
 
-  /* Resultado */
   .resultado { display: none; margin-top: 1.2rem; }
 
   .het-card {
@@ -195,14 +256,6 @@
     border-radius: 8px;
     padding: 1.2rem;
   }
-  .obra-titulo {
-    font-family: 'Cinzel', 'Georgia', serif;
-    font-size: 1rem;
-    color: #f0e8d0;
-    margin-bottom: 1rem;
-    padding-bottom: 0.6rem;
-    border-bottom: 1px solid rgba(201,168,76,0.1);
-  }
   .obra-txt {
     font-size: 1rem;
     line-height: 1.9;
@@ -214,11 +267,18 @@
     font-family: 'Georgia', serif;
     border-radius: 4px;
   }
-  .obra-txt p {
-    margin-bottom: 1.1em;
-    text-indent: 1.5em;
-  }
+  .obra-txt p { margin-bottom: 1.1em; text-indent: 1.5em; }
   .obra-txt p:first-child { text-indent: 0; }
+
+  /* Poesia: sem indent, centralizada */
+  .obra-txt.modo-poesia p {
+    text-indent: 0;
+    text-align: center;
+    margin-bottom: 0.4em;
+  }
+  .obra-txt.modo-poesia p.estrofe-break {
+    margin-bottom: 1.4em;
+  }
 
   .acoes {
     display: flex;
@@ -239,6 +299,21 @@
   }
   .btn-acao.novo { background: linear-gradient(135deg,#7a5f1a,#c9a84c); color: #04080f; border: none; }
   .btn-acao.dl { background: transparent; border: 1px solid #4caf50; color: #4caf50; }
+
+  /* Badge modo ativo */
+  .badge-modo {
+    display: inline-block;
+    font-family: monospace;
+    font-size: 0.45rem;
+    letter-spacing: 0.15em;
+    padding: 2px 8px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  .badge-prosa { background: rgba(201,168,76,0.15); color: #c9a84c; border: 1px solid rgba(201,168,76,0.3); }
+  .badge-poesia { background: rgba(106,27,154,0.2); color: #ce93d8; border: 1px solid rgba(156,125,192,0.4); }
 </style>
 </head>
 <body>
@@ -264,6 +339,74 @@
   <div style="font-family:monospace;font-size:0.48rem;color:#6a7d90;margin-top:0.4rem;">Salva automaticamente</div>
 </div>
 
+<!-- SELETOR PROSA / POESIA -->
+<div class="bloco">
+  <span class="label">Modo de Criação</span>
+  <div class="modo-seletor">
+    <button class="modo-btn ativo" id="btn-modo-prosa" onclick="selecionarModo('prosa')">✦ PROSA</button>
+    <button class="modo-btn" id="btn-modo-poesia" onclick="selecionarModo('poesia')">◈ POESIA</button>
+  </div>
+
+  <!-- PAINEL POESIA (oculto por padrão) -->
+  <div id="painel-poesia" style="display:none;">
+    <div style="font-family:monospace;font-size:0.5rem;color:#6a4a8a;margin-bottom:0.5rem;letter-spacing:0.1em;">Fernando Peçanha escolhe a forma ideal — ou você pode indicar:</div>
+
+    <div class="formas-grupo-label">// Orientais</div>
+    <div class="formas-grid" id="formas-orientais">
+      <button class="forma-btn" onclick="selForma('haicai')">Haicai</button>
+      <button class="forma-btn" onclick="selForma('tanka')">Tanka</button>
+      <button class="forma-btn" onclick="selForma('senryu')">Senryū</button>
+      <button class="forma-btn" onclick="selForma('renga')">Renga</button>
+      <button class="forma-btn" onclick="selForma('mondo')">Mondo</button>
+      <button class="forma-btn" onclick="selForma('katauta')">Katauta</button>
+      <button class="forma-btn" onclick="selForma('ghazal')">Ghazal</button>
+    </div>
+
+    <div class="formas-grupo-label">// Ocidentais Clássicas</div>
+    <div class="formas-grid">
+      <button class="forma-btn" onclick="selForma('soneto')">Soneto</button>
+      <button class="forma-btn" onclick="selForma('ode')">Ode</button>
+      <button class="forma-btn" onclick="selForma('elegia')">Elegia</button>
+      <button class="forma-btn" onclick="selForma('balada')">Balada</button>
+      <button class="forma-btn" onclick="selForma('sextina')">Sextina</button>
+      <button class="forma-btn" onclick="selForma('pantum')">Pantum</button>
+      <button class="forma-btn" onclick="selForma('villanelle')">Villanelle</button>
+      <button class="forma-btn" onclick="selForma('trova')">Trova / Quadra</button>
+    </div>
+
+    <div class="formas-grupo-label">// Brasileiras e Populares</div>
+    <div class="formas-grid">
+      <button class="forma-btn" onclick="selForma('cordel')">Cordel</button>
+      <button class="forma-btn" onclick="selForma('decima')">Décima</button>
+      <button class="forma-btn" onclick="selForma('sextilha')">Sextilha</button>
+      <button class="forma-btn" onclick="selForma('rap')">Rap / Slam</button>
+    </div>
+
+    <div class="formas-grupo-label">// Modernas e Híbridas</div>
+    <div class="formas-grid">
+      <button class="forma-btn" onclick="selForma('verso_livre')">Verso Livre</button>
+      <button class="forma-btn" onclick="selForma('poema_prosa')">Poema em Prosa</button>
+      <button class="forma-btn" onclick="selForma('poesia_concreta')">Poesia Concreta</button>
+      <button class="forma-btn" onclick="selForma('poetrix')">Poetrix</button>
+      <button class="forma-btn" onclick="selForma('poesia_narrativa')">Poesia Narrativa</button>
+    </div>
+
+    <div class="formas-grupo-label">// Novo Movimento Estrofista · SIGMAL</div>
+    <div class="formas-grid">
+      <button class="forma-btn" onclick="selForma('estrofista_livre')">Estrofista Livre</button>
+      <button class="forma-btn" onclick="selForma('estrofista_classico')">Estrofista Clássico</button>
+      <button class="forma-btn" onclick="selForma('estrofista_ode')">Estrofista em Ode</button>
+      <button class="forma-btn" onclick="selForma('estrofista_narrativo')">Estrofista Narrativo</button>
+    </div>
+
+    <div style="margin-top:0.8rem;display:flex;align-items:center;gap:0.5rem;">
+      <button class="forma-btn ativo" id="btn-pecanha-decide" onclick="selForma('pecanha_decide')" style="flex:1;border-color:rgba(201,168,76,0.3);color:#c9a84c;background:rgba(201,168,76,0.06);">
+        ✦ Fernando Peçanha decide
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ÉPOCA -->
 <div class="bloco">
   <span class="label">Época</span>
@@ -276,11 +419,11 @@
 
 <!-- UNIVERSO -->
 <div class="bloco">
-  <span class="label">Universo / Cenário</span>
+  <span class="label">Universo / Cenário / Tema</span>
   <input class="universo-input" id="universo" type="text"
     placeholder="ex: medieval, cyberpunk, sertão nordestino..."
     oninput="checar()" onkeydown="if(event.key==='Enter') lancar()">
-  <div class="exemplos">
+  <div class="exemplos" id="exemplos-prosa">
     Sugestões:
     <span onclick="setUni('medieval')">medieval</span>
     <span onclick="setUni('cyberpunk')">cyberpunk</span>
@@ -292,6 +435,19 @@
     <span onclick="setUni('renascimento italiano')">renascimento italiano</span>
     <span onclick="setUni('Amazônia')">Amazônia</span>
     <span onclick="setUni('guerra fria')">guerra fria</span>
+  </div>
+  <div class="exemplos" id="exemplos-poesia" style="display:none;">
+    Temas poéticos:
+    <span onclick="setUni('impermanência')">impermanência</span>
+    <span onclick="setUni('saudade')">saudade</span>
+    <span onclick="setUni('mar e ausência')">mar e ausência</span>
+    <span onclick="setUni('memória afetiva')">memória afetiva</span>
+    <span onclick="setUni('amor impossível')">amor impossível</span>
+    <span onclick="setUni('resistência popular')">resistência popular</span>
+    <span onclick="setUni('natureza e silêncio')">natureza e silêncio</span>
+    <span onclick="setUni('cidade e solidão')">cidade e solidão</span>
+    <span onclick="setUni('luto e renascimento')">luto e renascimento</span>
+    <span onclick="setUni('fé e dúvida')">fé e dúvida</span>
   </div>
 </div>
 
@@ -347,8 +503,101 @@
 <script>
 let _epoca = '';
 let _semente = null;
+let _modoAtual = 'prosa'; // 'prosa' ou 'poesia'
+let _formaPoesia = 'pecanha_decide';
 
-// Carregar API key do config (triplo) ou localStorage
+// ── DESCRIÇÕES DAS FORMAS POÉTICAS ──────────────────────────────────────────
+const FORMAS_DESC = {
+  haicai:              'Haicai japonês — 3 versos (5-7-5 sílabas), natureza, instante, impermanência',
+  tanka:               'Tanka japonês — 5 versos (5-7-5-7-7 sílabas), emoção, melancolia, amor',
+  senryu:              'Senryū japonês — 3 versos (5-7-5), comportamento humano, ironia leve',
+  renga:               'Renga japonês — poema encadeado, versos alternados, continuidade',
+  mondo:               'Mondo japonês — diálogo poético em perguntas e respostas zen',
+  katauta:             'Katauta japonês — poema incompleto (5-7-7 ou 5-7-5), saudade, fragmento',
+  ghazal:              'Ghazal árabe-persa — estrofes de dois versos, refrão, amor e devoção',
+  soneto:              'Soneto clássico — 14 versos em 2 quartetos e 2 tercetos, rima esquema fixo',
+  ode:                 'Ode clássica — exaltação lírica, contemplação, divisão em estrofes simétricas',
+  elegia:              'Elegia — lamento, perda, saudade, reflexão sobre a morte ou o fim',
+  balada:              'Balada — narrativa em versos com refrão, medievalismo, história cantada',
+  sextina:             'Sextina — 6 estrofes de 6 versos com palavras-fim rotativas, envoi final',
+  pantum:              'Pantum malásio — estrofes cruzadas, versos 2 e 4 viram 1 e 3 da seguinte',
+  villanelle:          'Villanelle — 19 versos, dois refrões alternados, 5 tercetos + quadra final',
+  trova:               'Trova / Quadra — 4 versos, rima ABCB ou ABAB, musicalidade popular',
+  cordel:              'Cordel nordestino — sextilhas, rima em 2-4-6, métrica de 7 sílabas, oralidade',
+  decima:              'Décima espinela — 10 versos octossilábicos, esquema ABBAACCDDC',
+  sextilha:            'Sextilha popular — 6 versos, rima alternada, herança oral nordestina',
+  rap:                 'Rap / Slam — poesia urbana de rua, ritmo sincopado, denúncia e identidade',
+  verso_livre:         'Verso livre — sem métrica ou rima fixas, ritmo interno, liberdade formal',
+  poema_prosa:         'Poema em prosa — linguagem lírica sem quebra de verso, fluxo contínuo',
+  poesia_concreta:     'Poesia concreta — palavra como objeto visual, forma e sentido integrados',
+  poetrix:             'Poetrix — híbrido entre poesia e prosa poética, forma própria do SIGMAL',
+  poesia_narrativa:    'Poesia narrativa — conta uma história em versos, lirismo e enredo juntos',
+  estrofista_livre:    'Novo Movimento Estrofista — estrofes livres, ritmo interno, sem metro fixo',
+  estrofista_classico: 'Novo Movimento Estrofista — estrofes simétricas, disciplina formal própria',
+  estrofista_ode:      'Novo Movimento Estrofista em Ode — exaltação estrofada, voz Juka Pituskaq',
+  estrofista_narrativo:'Novo Movimento Estrofista Narrativo — história contada em estrofes livres',
+  pecanha_decide:      'Fernando Peçanha escolhe a forma ideal para o tema e o heterônimo'
+};
+
+// ── HETERÔNIMOS ──────────────────────────────────────────────────────────────
+const HETERONIMOS_OHE = [
+  { nome: 'A.J. dos Santos', territorio: 'Contos e poesias sobre chupa-cabras, lobisomens e vampiros. Nascido em Itapecerica-MG. Primo de Padre Benedicttus Konstantinos.', formato: 'conto/poesia' },
+  { nome: 'Amanda Fernanda Fisher Leão', territorio: 'Pirataria, sereias, Fomea e monstros marinhos — prosa e poesia. Heptaneta do navegador Johnny Fisher. Nascida em Caraguatatuba.', formato: 'conto/poesia' },
+  { nome: 'Amélie Maia Hanna', territorio: 'Escreve EXCLUSIVAMENTE sonetos — memórias, emoções, cotidiano. Professora caiçara, 53 anos. Nascida em Praia Grande.', formato: 'soneto' },
+  { nome: 'Anísio Teixeira', territorio: 'Escreve EXCLUSIVAMENTE sobre zumbis — prosa e poesia. Horror, pós-apocalipse, existencialismo. Nunca escreve fora do território zumbi.', formato: 'conto/poesia' },
+  { nome: 'Articus da Persida', territorio: 'Cavaleiro Templário medieval — amor impossível, fé, espada, Ordem do Templo. Viveu de 1274 a 1307. Romance histórico.', formato: 'romance' },
+  { nome: 'Aurora Wings', territorio: 'Heroína cibernética — IA, super-heróis, ficção científica, ação. Nascida em 2022 numa fábrica de robótica no Caribe.', formato: 'romance/poesia' },
+  { nome: 'Padre Benedicttus Konstantinos', territorio: 'Religião católica, gárgulas, apocalipse, versículos bíblicos, amor proibido celibatário. Mora em Itapecerica-MG. Primo de A.J. dos Santos.', formato: 'conto/poesia' },
+  { nome: 'Birihani Selami Ina Tesifa', territorio: 'Escreve EXCLUSIVAMENTE ghazal — amor, devoção, saudade, musicalidade oriental. Nascido na Malásia.', formato: 'ghazal' },
+  { nome: 'Calíope Papazissis', territorio: 'Mitopoética — mitologia grega, nórdica, celta e italiana. Poesia e prosa. Nascida na Grécia, criada em Hortolândia.', formato: 'poesia/prosa' },
+  { nome: 'Chesco Irlanda', territorio: 'Escreve EXCLUSIVAMENTE histórias infantis e fábulas. Nascido em Duartina-SP.', formato: 'conto infantil' },
+  { nome: 'Claudiney Aristides Diaz', territorio: 'Território em aberto — escrita experimental, sem eixo fixo. Nascido em Nova Russas-CE.', formato: 'variado' },
+  { nome: 'Creone Porfirio', territorio: 'Guerras, patriotismo, militarismo, história militar brasileira. Ex-militar BGP. Nascido em Ceilândia-DF.', formato: 'romance' },
+  { nome: 'Cristovão Duarte', territorio: 'Aracnídeos, horror subterrâneo, monstros do subsolo. Bisneto de mamelucos. Fobia por aranhas que virou literatura.', formato: 'conto' },
+  { nome: 'Daniel Fernandes', territorio: 'Poesia hot/erótica, teatro, cotidiano urbano. Ex-radialista do programa Love Night. Nascido em São Paulo-SP.', formato: 'poesia' },
+  { nome: 'Dárius Ninus Vamus', territorio: 'Futebol de várzea, humor, limerick, elegias, crônicas esportivas. Nascido em São Paulo-SP.', formato: 'poesia/cronica' },
+  { nome: 'Demetrius Varas', territorio: 'Prosa quente/hot/erótica APENAS. Contador de histórias sem escrúpulos. Nascido em São Roque.', formato: 'conto' },
+  { nome: 'Din Kin Lin', territorio: 'Dragões, seres místicos do oriente, lendas orientais, haicai. Nascido em Shangai, mora no Bairro da Liberdade-SP. Esposo de Noraya Sakamoto.', formato: 'conto/haicai' },
+  { nome: 'Diógenes Bueno de Alencar', territorio: 'Arquipélagos, penínsulas, memória, cotidiano, conflitos interiores — prosa e poesia. Nascido em Sobradinho-DF.', formato: 'prosa/poesia' },
+  { nome: 'Hama Amarin', territorio: 'Escreve EXCLUSIVAMENTE pantum — perdão, ciclos emocionais, memória circular. Nascido em Guararema-SP.', formato: 'pantum' },
+  { nome: 'Helena Duarte Valença', territorio: 'Reconstrução feminina, memória doméstica, silenciamento da mulher.', formato: 'conto' },
+  { nome: 'Henrich Jones', territorio: 'Arqueologia, paleontologia, civilizações antigas, aventura histórica.', formato: 'romance' },
+  { nome: 'Hernesto Bevilácqua', territorio: 'Escreve EXCLUSIVAMENTE odes — contemplação, exaltação, lirismo clássico. Nascido em Serra Negra-SP.', formato: 'ode' },
+  { nome: 'Horando Almeida Prado', territorio: 'Mar, pesca, litoral sul paulista — poesia e contos. Pescador nascido em Itanhaém-SP.', formato: 'conto/poesia' },
+  { nome: 'Icabode Kahpote', territorio: 'Sextinas e contos póstumos — morte, passagem para além da vida, o que existe do outro lado. Nascido em Campos do Jordão, falecido em 1997 em Pindamonhangaba.', formato: 'sextina/conto' },
+  { nome: 'Imediato Thompson', territorio: 'Constelação Ophiuchus, planeta Atlantis, cosmologia, abdução alienígena. Nascido na Nova Escócia-Canadá, viveu no Alasca.', formato: 'romance' },
+  { nome: 'J.L.Gomes', territorio: 'Espiritismo, pensamentos motivacionais, crônicas espíritas, poesias motivacionais. Ditadas pelo Espírito Irmão Pullius. Nascido em Bauru-SP.', formato: 'cronica/poesia' },
+  { nome: 'Jorge Cavalcanti', territorio: 'Cordel — cultura popular nordestina, oralidade, memória, cotidiano. Nascido em Campos do Jordão-SP.', formato: 'cordel' },
+  { nome: 'Julia Abdalla', territorio: 'Culinária, bem-estar, receitas literárias, qualidade de vida. Nascida em São Paulo em 1981.', formato: 'cronica' },
+  { nome: 'Juka Pituskaq', territorio: 'Novo Movimento Estrofista — odes, poesias estrofistas. Nascido em Mairinque em 1890. Criador do movimento estrofista.', formato: 'poesia estrofista' },
+  { nome: 'Marina Torres Azevedo', territorio: 'Poesia de reconstrução feminina, cura emocional, memória afetiva.', formato: 'poesia' },
+  { nome: 'Mário Célio Sabino', territorio: 'Terror, fantasmas, ocultismo, fenômenos paranormais, teorias da conspiração. Professor de Letras em Mairinque-SP.', formato: 'conto/poesia' },
+  { nome: 'Michelangelo Miguel', territorio: 'Poemas narrativos — lirismo, história, emoção combinados. Nascido em Mogi das Cruzes-SP.', formato: 'poesia narrativa' },
+  { nome: 'Noraya Sakamoto', territorio: 'Poesia oriental japonesa EXCLUSIVAMENTE — Haicai, Tanka, Senryū, Renga, Mondo, Katauta. Natureza, impermanência, sensibilidade zen. Nisei nascida em 08/08/1978. Esposa de Din Kin Lin.', formato: 'haicai/tanka/senryu/renga' },
+  { nome: 'Pyetra Luyza', territorio: 'Ecoficção, defesa da natureza e animais, repórteres ambientais — prosa e poesia. Nascida em Santo André em 1996.', formato: 'conto/poesia' },
+  { nome: 'Raimundo José da Silva Nonato', territorio: 'Seca nordestina, desastres naturais, memória oral, resistência do povo — prosa e poesia. Nascido em Peruíbe-SP.', formato: 'cordel/prosa' },
+  { nome: 'Renat Kolotov', territorio: 'Revolução Russa de 1917, resistência histórica, família aristocrática russa. Nascido em Campina das Missões-RS.', formato: 'romance' },
+  { nome: 'Rovonilson Reigns Bautista', territorio: 'Rap, rua, marquises, vida urbana periférica, desilusão amorosa. Natural de Santo André-SP.', formato: 'poesia/rap' },
+  { nome: 'Sebastião Ferreira dos Anjos', territorio: 'Poemas dissertativos — lirismo e argumentação, reflexão social, existencialismo. Nascido em Santo Antônio do Monte-MG.', formato: 'poesia' },
+  { nome: 'Site das Letras Ed. Literárias', territorio: 'Miscelânea institucional — antologias, textos coletivos. Não tem território próprio.', formato: 'variado' },
+  { nome: 'Valter Marques', territorio: 'Erros do passado, dor, culpa, humanidade — prosa e verso em vários estilos. Nascido em Recife, mora em São Roque-SP.', formato: 'variado' },
+  { nome: 'Victor A. Pereira', territorio: 'Mistério, investigação, romance policial. Ex-policial rodoviário de Bragança Paulista-SP.', formato: 'romance policial' },
+  { nome: 'Wagner Planas', territorio: 'Múltiplos — criador do ecossistema. Usa apenas em miscelânea ou quando nenhum outro heterônimo serve.', formato: 'variado' },
+  { nome: 'Wilson Silva', territorio: 'Amor, cotidiano, lirismo — poesias e prosas sentimentais. Nascido no Cambuci-SP.', formato: 'poesia/prosa' },
+  { nome: 'Yago Mattos', territorio: 'Bruxas, lendas, deuses do mar, crenças caiçaras — prosa e poesia. Pescador caiçara de Praia Grande-SP.', formato: 'conto/poesia' },
+  { nome: 'Mórigan Voss', territorio: 'Amor impossível, luto, fronteiras entre mundos, o que persiste depois da perda. Tom literário elevado, emocionalmente preciso. Prosa literária e romance.', formato: 'romance' },
+  { nome: 'Dona Catarina Trovante', territorio: 'Trovas e quadras métricas — temas nacionais, amor, resistência.', formato: 'trova' },
+  { nome: 'Vladislava Karnstein', territorio: 'Vampirismo aristocrático, sedução sombria, memórias de uma condessa imortal. Romance gótico.', formato: 'romance' },
+  { nome: 'Santiago Poetrix', territorio: 'Poetrix — forma híbrida entre poesia e prosa poética. Vinculado a Santos-SP.', formato: 'poetrix' },
+  { nome: 'Irmão Ezequias Luz', territorio: 'Literatura cristã evangélica, terror espiritual, batalha entre bem e mal.', formato: 'conto' },
+  { nome: 'Marina das Vozes', territorio: 'Crônica urbana pura — São Paulo, vida metropolitana, ironia fina.', formato: 'cronica' },
+  { nome: 'Mirela Voss Drummond', territorio: 'O que resta nos vivos depois da perda — memória afetiva, presença invisível de quem partiu, luto silencioso no cotidiano. Irmã de Mórigan Voss, nascida em Utrecht, Países Baixos.', formato: 'conto/romance' },
+  { nome: 'Baltasar de Morais Seixas', territorio: 'Épica e espiritualidade ibérica — fé, mar, Descobrimentos portugueses, Ordem dos Cavaleiros de Cristo. Neto de marinheiro de Vasco da Gama.', formato: 'romance' },
+  { nome: 'Miroslav Kadek', territorio: 'Prosa lírica de tensão histórica e memória fragmentada — Guerra Fria, Europa Central, silêncio geracional, trauma herdado.', formato: 'romance/conto' },
+  { nome: 'Tlacuilo Bernardino Xochitl', territorio: 'Prosa mítica mesoamericana — cosmogonia asteca e maia, deuses, sacrifício, ciclos do tempo. Escreve como um escriba sagrado.', formato: 'prosa mitica' }
+];
+
+// ── API KEY ───────────────────────────────────────────────────────────────────
 function getApiKey() {
   if (window.ANTHROPIC_API_KEY) return window.ANTHROPIC_API_KEY;
   const campo = document.getElementById('api-key');
@@ -357,12 +606,41 @@ function getApiKey() {
 }
 
 function verificarKey() {
-  // Ocultar campo se key válida
   const k = getApiKey();
   const bloco = document.getElementById('bloco-apikey');
   if (bloco) bloco.style.opacity = k.startsWith('sk-') ? '0.4' : '1';
 }
 
+// ── SELETOR MODO ─────────────────────────────────────────────────────────────
+function selecionarModo(modo) {
+  _modoAtual = modo;
+  document.getElementById('btn-modo-prosa').classList.toggle('ativo', modo === 'prosa');
+  document.getElementById('btn-modo-poesia').classList.toggle('ativo', modo === 'poesia');
+  document.getElementById('painel-poesia').style.display = modo === 'poesia' ? 'block' : 'none';
+  document.getElementById('exemplos-prosa').style.display = modo === 'prosa' ? 'block' : 'none';
+  document.getElementById('exemplos-poesia').style.display = modo === 'poesia' ? 'block' : 'none';
+
+  // Placeholder do universo muda conforme modo
+  const uni = document.getElementById('universo');
+  uni.placeholder = modo === 'prosa'
+    ? 'ex: medieval, cyberpunk, sertão nordestino...'
+    : 'ex: impermanência, saudade, amor impossível, resistência...';
+
+  // Se modo poesia, resetar forma para "Peçanha decide"
+  if (modo === 'poesia') selForma('pecanha_decide');
+}
+
+function selForma(forma) {
+  _formaPoesia = forma;
+  document.querySelectorAll('.forma-btn').forEach(b => b.classList.remove('ativo'));
+  // Ativar o botão clicado
+  event && event.target && event.target.classList.add('ativo');
+  if (forma === 'pecanha_decide') {
+    document.getElementById('btn-pecanha-decide').classList.add('ativo');
+  }
+}
+
+// ── CONTROLES ─────────────────────────────────────────────────────────────────
 function toggleObs() {
   const wrap = document.getElementById('obs-wrap');
   wrap.style.display = document.getElementById('chk-obs').checked ? 'block' : 'none';
@@ -392,6 +670,7 @@ function log(msg, erro) {
   el.textContent = msg;
 }
 
+// ── LANÇAR ────────────────────────────────────────────────────────────────────
 async function lancar() {
   const apiKey = getApiKey();
   if (!apiKey) { log('⚠ API Key não encontrada. Verifique o config.js.', true); return; }
@@ -411,71 +690,63 @@ async function lancar() {
     futuro: 'FUTURO — especulativo, distópico ou utópico'
   };
 
-const obs = document.getElementById('chk-obs').checked ? document.getElementById('obs-texto').value.trim() : '';
-
-  const HETERONIMOS_OHE = [
-    { nome: 'A.J. dos Santos', territorio: 'Contos e poesias sobre chupa-cabras, lobisomens e vampiros. Nascido em Itapecerica-MG. Primo de Padre Benedicttus Konstantinos.', formato: 'conto/poesia' },
-    { nome: 'Amanda Fernanda Fisher Leão', territorio: 'Pirataria, sereias, Fomea e monstros marinhos — prosa e poesia. Heptaneta do navegador Johnny Fisher. Nascida em Caraguatatuba.', formato: 'conto/poesia' },
-    { nome: 'Amélie Maia Hanna', territorio: 'Escreve EXCLUSIVAMENTE sonetos — memórias, emoções, cotidiano. Professora caiçara, 53 anos. Nascida em Praia Grande.', formato: 'soneto' },
-    { nome: 'Anísio Teixeira', territorio: 'Escreve EXCLUSIVAMENTE sobre zumbis — prosa e poesia. Horror, pós-apocalipse, existencialismo. Nunca escreve fora do território zumbi.', formato: 'conto/poesia' },
-    { nome: 'Articus da Persida', territorio: 'Cavaleiro Templário medieval — amor impossível, fé, espada, Ordem do Templo. Viveu de 1274 a 1307. Romance histórico.', formato: 'romance' },
-    { nome: 'Aurora Wings', territorio: 'Heroína cibernética — IA, super-heróis, ficção científica, ação. Nascida em 2022 numa fábrica de robótica no Caribe.', formato: 'romance/poesia' },
-    { nome: 'Padre Benedicttus Konstantinos', territorio: 'Religião católica, gárgulas, apocalipse, versículos bíblicos, amor proibido celibatário. Mora em Itapecerica-MG. Primo de A.J. dos Santos.', formato: 'conto/poesia' },
-    { nome: 'Birihani Selami Ina Tesifa', territorio: 'Escreve EXCLUSIVAMENTE ghazal — amor, devoção, saudade, musicalidade oriental. Nascido na Malásia.', formato: 'ghazal' },
-    { nome: 'Calíope Papazissis', territorio: 'Mitopoética — mitologia grega, nórdica, celta e italiana. Poesia e prosa. Nascida na Grécia, criada em Hortolândia.', formato: 'poesia/prosa' },
-    { nome: 'Chesco Irlanda', territorio: 'Escreve EXCLUSIVAMENTE histórias infantis e fábulas. Nascido em Duartina-SP.', formato: 'conto infantil' },
-    { nome: 'Claudiney Aristides Diaz', territorio: 'Território em aberto — escrita experimental, sem eixo fixo. Nascido em Nova Russas-CE.', formato: 'variado' },
-    { nome: 'Creone Porfirio', territorio: 'Guerras, patriotismo, militarismo, história militar brasileira. Ex-militar BGP. Nascido em Ceilândia-DF.', formato: 'romance' },
-    { nome: 'Cristovão Duarte', territorio: 'Aracnídeos, horror subterrâneo, monstros do subsolo. Bisneto de mamelucos. Fobia por aranhas que virou literatura.', formato: 'conto' },
-    { nome: 'Daniel Fernandes', territorio: 'Poesia hot/erótica, teatro, cotidiano urbano. Ex-radialista do programa Love Night. Nascido em São Paulo-SP.', formato: 'poesia' },
-    { nome: 'Dárius Ninus Vamus', territorio: 'Futebol de várzea, humor, limerick, elegias, crônicas esportivas. Nascido em São Paulo-SP.', formato: 'poesia/cronica' },
-    { nome: 'Demetrius Varas', territorio: 'Prosa quente/hot/erótica APENAS. Contador de histórias sem escrúpulos. Nascido em São Roque.', formato: 'conto' },
-    { nome: 'Din Kin Lin', territorio: 'Dragões, seres místicos do oriente, lendas orientais, haicai. Nascido em Shangai, mora no Bairro da Liberdade-SP. Esposo de Noraya Sakamoto.', formato: 'conto/haicai' },
-    { nome: 'Diógenes Bueno de Alencar', territorio: 'Arquipélagos, penínsulas, memória, cotidiano, conflitos interiores — prosa e poesia. Nascido em Sobradinho-DF.', formato: 'prosa/poesia' },
-    { nome: 'Hama Amarin', territorio: 'Escreve EXCLUSIVAMENTE pantum — perdão, ciclos emocionais, memória circular. Nascido em Guararema-SP.', formato: 'pantum' },
-    { nome: 'Helena Duarte Valença', territorio: 'Reconstrução feminina, memória doméstica, silenciamento da mulher.', formato: 'conto' },
-    { nome: 'Henrich Jones', territorio: 'Arqueologia, paleontologia, civilizações antigas, aventura histórica.', formato: 'romance' },
-    { nome: 'Hernesto Bevilácqua', territorio: 'Escreve EXCLUSIVAMENTE odes — contemplação, exaltação, lirismo clássico. Nascido em Serra Negra-SP.', formato: 'ode' },
-    { nome: 'Horando Almeida Prado', territorio: 'Mar, pesca, litoral sul paulista — poesia e contos. Pescador nascido em Itanhaém-SP.', formato: 'conto/poesia' },
-    { nome: 'Icabode Kahpote', territorio: 'Sextinas e contos póstumos — morte, passagem para além da vida, o que existe do outro lado. Nascido em Campos do Jordão, falecido em 1997 em Pindamonhangaba. Escreve poesia e prosa póstumas.', formato: 'sextina/conto' },
-    { nome: 'Imediato Thompson', territorio: 'Constelação Ophiuchus, planeta Atlantis, cosmologia, abdução alienígena. Nascido na Nova Escócia-Canadá, viveu no Alasca.', formato: 'romance' },
-    { nome: 'J.L.Gomes', territorio: 'Espiritismo, pensamentos motivacionais, crônicas espíritas, poesias motivacionais. Ditadas pelo Espírito Irmão Pullius. Nascido em Bauru-SP.', formato: 'cronica/poesia' },
-    { nome: 'Jorge Cavalcanti', territorio: 'Cordel — cultura popular nordestina, oralidade, memória, cotidiano. Nascido em Campos do Jordão-SP.', formato: 'cordel' },
-    { nome: 'Julia Abdalla', territorio: 'Culinária, bem-estar, receitas literárias, qualidade de vida. Nascida em São Paulo em 1981.', formato: 'cronica' },
-    { nome: 'Juka Pituskaq', territorio: 'Novo Movimento Estrofista — odes, poesias estrofistas. Nascido em Mairinque em 1890. Criador do movimento estrofista.', formato: 'poesia estrofista' },
-    { nome: 'Marina Torres Azevedo', territorio: 'Poesia de reconstrução feminina, cura emocional, memória afetiva.', formato: 'poesia' },
-    { nome: 'Mário Célio Sabino', territorio: 'Terror, fantasmas, ocultismo, fenômenos paranormais, teorias da conspiração. Professor de Letras em Mairinque-SP.', formato: 'conto/poesia' },
-    { nome: 'Michelangelo Miguel', territorio: 'Poemas narrativos — lirismo, história, emoção combinados. Nascido em Mogi das Cruzes-SP.', formato: 'poesia narrativa' },
-    { nome: 'Noraya Sakamoto', territorio: 'Poesia oriental japonesa EXCLUSIVAMENTE — Haicai, Tanka, Senryū, Renga, Mondo, Katauta. Natureza, impermanência, sensibilidade zen. Nisei nascida em 08/08/1978. Esposa de Din Kin Lin.', formato: 'haicai/tanka/senryu/renga' },
-    { nome: 'Pyetra Luyza', territorio: 'Ecoficção, defesa da natureza e animais, repórteres ambientais — prosa e poesia. Nascida em Santo André em 1996.', formato: 'conto/poesia' },
-    { nome: 'Raimundo José da Silva Nonato', territorio: 'Seca nordestina, desastres naturais, memória oral, resistência do povo — prosa e poesia. Nascido em Peruíbe-SP.', formato: 'cordel/prosa' },
-    { nome: 'Renat Kolotov', territorio: 'Revolução Russa de 1917, resistência histórica, família aristocrática russa. Bisneto de família da Revolução. Nascido em Campina das Missões-RS.', formato: 'romance' },
-    { nome: 'Rovonilson Reigns Bautista', territorio: 'Rap, rua, marquises, vida urbana periférica, desilusão amorosa. Natural de Santo André-SP.', formato: 'poesia/rap' },
-    { nome: 'Sebastião Ferreira dos Anjos', territorio: 'Poemas dissertativos — lirismo e argumentação, reflexão social, existencialismo. Nascido em Santo Antônio do Monte-MG.', formato: 'poesia' },
-    { nome: 'Site das Letras Ed. Literárias', territorio: 'Miscelânea institucional — antologias, textos coletivos. Não tem território próprio.', formato: 'variado' },
-    { nome: 'Valter Marques', territorio: 'Erros do passado, dor, culpa, humanidade — prosa e verso em vários estilos. Nascido em Recife, mora em São Roque-SP.', formato: 'variado' },
-    { nome: 'Victor A. Pereira', territorio: 'Mistério, investigação, romance policial. Ex-policial rodoviário de Bragança Paulista-SP.', formato: 'romance policial' },
-    { nome: 'Wagner Planas', territorio: 'Múltiplos — criador do ecossistema. Usa apenas em miscelânea ou quando nenhum outro heterônimo serve.', formato: 'variado' },
-    { nome: 'Wilson Silva', territorio: 'Amor, cotidiano, lirismo — poesias e prosas sentimentais. Nascido no Cambuci-SP.', formato: 'poesia/prosa' },
-    { nome: 'Yago Mattos', territorio: 'Bruxas, lendas, deuses do mar, crenças caiçaras — prosa e poesia. Pescador caiçara de Praia Grande-SP.', formato: 'conto/poesia' },
-    { nome: 'Mórigan Voss', territorio: 'Amor impossível, luto, fronteiras entre mundos, o que persiste depois da perda. Tom literário elevado, emocionalmente preciso. Prosa literária e romance.', formato: 'romance' },
-    { nome: 'Dona Catarina Trovante', territorio: 'Trovas e quadras métricas — temas nacionais, amor, resistência.', formato: 'trova' },
-    { nome: 'Vladislava Karnstein', territorio: 'Vampirismo aristocrático, sedução sombria, memórias de uma condessa imortal. Romance gótico.', formato: 'romance' },
-    { nome: 'Santiago Poetrix', territorio: 'Poetrix — forma híbrida entre poesia e prosa poética. Vinculado a Santos-SP.', formato: 'poetrix' },
-    { nome: 'Irmão Ezequias Luz', territorio: 'Literatura cristã evangélica, terror espiritual, batalha entre bem e mal.', formato: 'conto' },
-    { nome: 'Marina das Vozes', territorio: 'Crônica urbana pura — São Paulo, vida metropolitana, ironia fina.', formato: 'cronica' },
-    { nome: 'Mirela Voss Drummond', territorio: 'O que resta nos vivos depois da perda — memória afetiva, presença invisível de quem partiu, luto silencioso no cotidiano. Irmã de Mórigan Voss, nascida em Utrecht, Países Baixos.', formato: 'conto/romance' },
-    { nome: 'Baltasar de Morais Seixas', territorio: 'Épica e espiritualidade ibérica — fé, mar, Descobrimentos portugueses, Ordem dos Cavaleiros de Cristo. Neto de marinheiro de Vasco da Gama.', formato: 'romance' },
-    { nome: 'Miroslav Kadek', territorio: 'Prosa lírica de tensão histórica e memória fragmentada — Guerra Fria, Europa Central, silêncio geracional, trauma herdado.', formato: 'romance/conto' },
-  ];
-
+  const obs = document.getElementById('chk-obs').checked ? document.getElementById('obs-texto').value.trim() : '';
   const listaHet = HETERONIMOS_OHE.map(h => `- ${h.nome} | Território: ${h.territorio} | Formato preferido: ${h.formato}`).join('\n');
+
+  // ── Prompt bifurcado por modo ──
+  let promptModo = '';
+  if (_modoAtual === 'prosa') {
+    promptModo = `MODO: PROSA
+SUA MISSÃO:
+1. Escolha o heterônimo mais adequado baseado nos territórios acima
+2. Decida gênero (conto, romance, crônica, fábula, cordel), tema, personagens, conflito, tom e destino
+3. Apresente brevemente o heterônimo escolhido (2-3 frases)
+4. Escreva a OBRA SEMENTE completa — literária, humanizada, sem rastro de IA:
+   - Conto/crônica: 500 a 1.500 palavras
+   - Cordel: mínimo 10 estrofes (sextilha, rima em 2,4,6, métrica 7 sílabas)
+   - Personagens SEMPRE com nome e sobrenome
+   - Diálogos com travessão (—) e verbo de elocução
+   - Sem repetições ou negações desnecessárias`;
+  } else {
+    const formaEscolhida = _formaPoesia === 'pecanha_decide'
+      ? 'Fernando Peçanha escolhe a forma poética mais adequada ao tema e ao heterônimo'
+      : `FORMA SOLICITADA: ${_formaPoesia.toUpperCase()} — ${FORMAS_DESC[_formaPoesia] || ''}`;
+
+    promptModo = `MODO: POESIA
+${formaEscolhida}
+
+HETERÔNIMOS PRIORITÁRIOS PARA POESIA (considere-os primeiro):
+- Noraya Sakamoto → Haicai, Tanka, Senryū, Renga, Mondo, Katauta (oriental japonesa)
+- Birihani Selami Ina Tesifa → Ghazal exclusivamente
+- Hama Amarin → Pantum exclusivamente
+- Amélie Maia Hanna → Soneto exclusivamente
+- Hernesto Bevilácqua → Ode exclusivamente
+- Icabode Kahpote → Sextina e contos póstumos
+- Juka Pituskaq → Novo Movimento Estrofista (criador do movimento)
+- Dona Catarina Trovante → Trova / Quadra
+- Jorge Cavalcanti → Cordel nordestino
+- Raimundo José da Silva Nonato → Cordel e prosa popular
+- Rovonilson Reigns Bautista → Rap / Slam
+- Santiago Poetrix → Poetrix (forma híbrida)
+- Michelangelo Miguel → Poesia narrativa
+- Juka Pituskaq → Estrofista em qualquer variação
+
+SUA MISSÃO:
+1. Escolha o heterônimo mais adequado à forma e ao tema
+2. Apresente brevemente o heterônimo escolhido (2-3 frases)
+3. Escreva o POEMA COMPLETO com rigor formal da forma escolhida:
+   - Respeite a estrutura, métrica e esquema de rima da forma
+   - Linguagem literária elevada, voz autêntica do heterônimo
+   - Sem rastro de IA — poesia humanizada e precisa
+   - Mínimo 20 versos (exceto formas breves como haicai/tanka)
+   - Formas breves: escreva 3 a 5 composições seguidas`;
+  }
 
   const prompt = `Você é Fernando Peçanha, curador da OHE — Organização Heteronímica Editorial.
 
 O produtor lançou um DESAFIO com os seguintes parâmetros:
 - ÉPOCA: ${epocaDesc[_epoca]}
-- UNIVERSO/CENÁRIO: ${universo}${obs ? '\n- OBSERVAÇÕES DO PRODUTOR: ' + obs : ''}
+- UNIVERSO/CENÁRIO/TEMA: ${universo}${obs ? '\n- OBSERVAÇÕES DO PRODUTOR: ' + obs : ''}
 
 HETERÔNIMOS DISPONÍVEIS — leia os territórios com atenção antes de escolher:
 ${listaHet}
@@ -484,16 +755,20 @@ REGRA DE ESCOLHA:
 1. Leia o desafio e identifique qual território tem maior afinidade
 2. Se o tema cruza com o território de um heterônimo específico, use-o
 3. Se dois ou mais têm afinidade, escolha o mais preciso
-4. Só crie heterônimo novo se NENHUM dos 51 servir ao desafio
+4. Só crie heterônimo novo se NENHUM dos 55 servir ao desafio
 
-SUA MISSÃO COMPLETA:
-1. Escolha o heterônimo mais adequado baseado nos territórios acima
-2. Decida TUDO: gênero (prosa, poesia ou cordel), tema, personagens, conflito, tom, destino (calabouço ou masmorra)
-3. Apresente brevemente o heterônimo escolhido (2-3 frases sobre quem é e por que foi escolhido para este desafio)
-4. Escreva a OBRA SEMENTE completa — literária, humanizada, sem rastro de IA:
-   - Prosa: 500 a 1.500 palavras
-   - Poesia: 20 a 60 versos
-   - Cordel: mínimo 10 estrofes (sextilha, rima em 2,4,6, métrica 7 sílabas)`;
+${promptModo}
+
+Responda EXATAMENTE neste formato:
+---HETERÔNIMO---
+[nome completo]
+---EIXO---
+[eixo literário + forma escolhida]
+---APRESENTAÇÃO---
+[2-3 frases sobre o heterônimo e por que foi escolhido]
+---OBRA---
+[título na primeira linha]
+[obra completa a partir da segunda linha]`;
 
   try {
     log('Aguardando Fernando Peçanha...');
@@ -502,8 +777,6 @@ SUA MISSÃO COMPLETA:
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
@@ -539,7 +812,7 @@ SUA MISSÃO COMPLETA:
     const titulo = linhas[0].trim() || 'Sem título';
     const corpo  = linhas.slice(1).join('\n').trim();
 
-    _semente = { het, eixo, apres, titulo, corpo, epoca: _epoca, universo };
+    _semente = { het, eixo, apres, titulo, corpo, epoca: _epoca, universo, modo: _modoAtual, forma: _formaPoesia };
 
     // Preencher resultado
     document.getElementById('res-het-nome').textContent = het;
@@ -547,21 +820,30 @@ SUA MISSÃO COMPLETA:
     document.getElementById('res-het-apres').textContent = apres ? '"' + apres + '"' : '';
     document.getElementById('res-obra-titulo').textContent = titulo;
     document.getElementById('res-obra-autor').textContent = 'Autor: ' + het;
-    // Renderizar como Word — parágrafos reais
-    const paragrafos = corpo.split(/\n\n+/).filter(p => p.trim());
-    document.getElementById('res-obra-txt').innerHTML = paragrafos
-      .map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`)
-      .join('');
-    document.getElementById('resultado').style.display = 'block';
 
+    // Renderizar — prosa = parágrafos com indent / poesia = versos centrados
+    const obraTxt = document.getElementById('res-obra-txt');
+    if (_modoAtual === 'poesia') {
+      obraTxt.className = 'obra-txt modo-poesia';
+      // Estrofes separadas por linha em branco
+      const estrofes = corpo.split(/\n\n+/);
+      obraTxt.innerHTML = estrofes.map(est => {
+        const versos = est.split('\n').filter(v => v.trim());
+        return versos.map((v, i) => `<p>${v}</p>`).join('') + '<p class="estrofe-break"> </p>';
+      }).join('');
+    } else {
+      obraTxt.className = 'obra-txt';
+      const paragrafos = corpo.split(/\n\n+/).filter(p => p.trim());
+      obraTxt.innerHTML = paragrafos.map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+    }
+
+    document.getElementById('resultado').style.display = 'block';
     btn.textContent = '✦ LANÇAR DESAFIO';
     btn.disabled = false;
 
-    // Salvar biografia automaticamente
+    // Salvar biografia e personagens automaticamente
     await salvarBiografiaGitHub(_semente);
-
-    // Extrair e salvar personagens automaticamente
-    await extrairESalvarPersonagens(_semente);
+    if (_modoAtual === 'prosa') await extrairESalvarPersonagens(_semente);
 
   } catch(e) {
     log('ERRO: ' + e.message, true);
@@ -570,7 +852,7 @@ SUA MISSÃO COMPLETA:
   }
 }
 
-// Salvar biografia no GitHub (CeleiroLiterario/biografias/)
+// ── SALVAR BIOGRAFIA NO GITHUB ────────────────────────────────────────────────
 async function salvarBiografiaGitHub(s) {
   try {
     const token = window.GITHUB_TOKEN || localStorage.getItem('gh_token');
@@ -580,17 +862,13 @@ async function salvarBiografiaGitHub(s) {
     const slug = s.het.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
     const nomeArq = 'biografias/' + slug + '.json';
     const bio = {
-      nome: s.het,
-      eixo: s.eixo,
-      apresentacao: s.apres,
-      obraEstreia: s.titulo,
-      epocaDesafio: s.epoca,
-      universoDesafio: s.universo,
-      dataCriacao: new Date().toISOString(),
-      origem: 'Máquina Desafio · OHE'
+      nome: s.het, eixo: s.eixo, apresentacao: s.apres,
+      obraEstreia: s.titulo, epocaDesafio: s.epoca,
+      universoDesafio: s.universo, modoDesafio: s.modo,
+      formaPoesia: s.forma !== 'pecanha_decide' ? s.forma : null,
+      dataCriacao: new Date().toISOString(), origem: 'Máquina Desafio · OHE'
     };
 
-    // Verificar se já existe
     let sha = null;
     try {
       const chk = await fetch(`https://api.github.com/repos/${owner}/CeleiroLiterario/contents/${nomeArq}`,
@@ -601,15 +879,15 @@ async function salvarBiografiaGitHub(s) {
     const body = { message: '[BIO] ' + s.het + ' — Máquina Desafio', content: btoa(unescape(encodeURIComponent(JSON.stringify(bio, null, 2)))), branch: 'main' };
     if (sha) body.sha = sha;
 
-    const r = await fetch(`https://api.github.com/repos/${owner}/CeleiroLiterario/contents/${nomeArq}`,
+    const res = await fetch(`https://api.github.com/repos/${owner}/CeleiroLiterario/contents/${nomeArq}`,
       { method: 'PUT', headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 
-    if (r.ok) log('✓ Biografia de ' + s.het + ' salva no Celeiro.');
+    if (res.ok) log('✓ Biografia de ' + s.het + ' salva no Celeiro.');
     else log('⚠ Biografia gerada mas não salva remotamente.');
   } catch(e) { log('⚠ Erro ao salvar biografia: ' + e.message); }
 }
 
-// Extrair personagens da obra e salvar
+// ── EXTRAIR PERSONAGENS (apenas modo prosa) ───────────────────────────────────
 async function extrairESalvarPersonagens(s) {
   try {
     const apiKey = getApiKey();
@@ -618,7 +896,10 @@ async function extrairESalvarPersonagens(s) {
     log('Extraindo personagens da obra...');
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6', max_tokens: 800,
         messages: [{ role: 'user', content:
@@ -642,13 +923,11 @@ ${s.corpo.substring(0, 3000)}`
     personagens.autor = s.het;
     personagens.data = new Date().toISOString();
 
-    // Salvar no localStorage (Vitrine)
     const vitrine = JSON.parse(localStorage.getItem('vitrine_personagens') || '[]');
     vitrine.unshift(personagens);
     if (vitrine.length > 200) vitrine.splice(200);
     localStorage.setItem('vitrine_personagens', JSON.stringify(vitrine));
 
-    // Salvar no GitHub também
     const token = window.GITHUB_TOKEN || localStorage.getItem('gh_token');
     const owner = window.GITHUB_OWNER || 'sitedasletras';
     if (token) {
@@ -664,7 +943,6 @@ ${s.corpo.substring(0, 3000)}`
   } catch(e) { log('⚠ Personagens não extraídos: ' + e.message); }
 }
 
-// Mostrar card de personagens abaixo do resultado
 function mostrarPersonagens(p) {
   let html = '<div style="margin-top:1rem;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:8px;padding:1rem;">';
   html += '<div style="font-family:monospace;font-size:.5rem;letter-spacing:.2em;color:#c9a84c;opacity:.5;text-transform:uppercase;margin-bottom:.8rem;">// PERSONAGENS · VITRINE</div>';
@@ -685,6 +963,7 @@ function mostrarPersonagens(p) {
   res.appendChild(div);
 }
 
+// ── BAIXAR ────────────────────────────────────────────────────────────────────
 function baixar() {
   if (!_semente) return;
   const conteudo = `${_semente.titulo}\n\nAutor: ${_semente.het}\n\n${_semente.corpo}`;
@@ -695,48 +974,20 @@ function baixar() {
   a.click();
 }
 
-function enviarParaProducao() {
-  if (!_semente) return;
-  // Salvar no localStorage para obra_ativa.html do Celeiro
-  const pacoteObra = {
-    titulo: _semente.titulo,
-    autor: _semente.het,
-    conteudo: _semente.corpo,
-    origem: 'Máquina Desafio · ' + _semente.epoca + ' · ' + _semente.universo,
-    data: new Date().toLocaleDateString('pt-BR')
-  };
-  const fichaAutor = {
-    heteronimo: _semente.het,
-    titulo: _semente.titulo,
-    eixo: _semente.eixo,
-    biografia: _semente.apres,
-    origem: 'Máquina Desafio'
-  };
-  localStorage.setItem('obra_ativa_texto', pacoteObra.conteudo);
-  localStorage.setItem('obra_ativa_texto_nome', pacoteObra.titulo);
-  localStorage.setItem('obra_autor', pacoteObra.autor);
-  localStorage.setItem('obra_titulo', pacoteObra.titulo);
-  localStorage.setItem('ficha_tecnica_autor', JSON.stringify(fichaAutor));
-  localStorage.setItem('catapulta_ficha_tecnica', JSON.stringify(fichaAutor));
-  alert('✓ Obra enviada para a Linha de Produção!\nAbra a Central da Obra no Celeiro Literário.');
-}
-
+// ── ENVIAR PARA DESTINO ───────────────────────────────────────────────────────
 function enviarDestino(dest) {
   if (!_semente) return;
-  // Usar a mesma chave do triplo
   const CHAVE = 'sigmal_hq_estado';
   const estado = JSON.parse(localStorage.getItem(CHAVE) || localStorage.getItem('sigmal_estado') || '{"calabouco":[],"masmorra":[],"paiol":{"literario":[]}}');
   const item = {
     id: Date.now(),
     titulo: _semente.titulo,
-    tipo: 'livro',
-    destino: dest,
-    status: 'processado',
-    progresso: 100,
-    autor: _semente.het,
-    conteudo: _semente.corpo,
-    eixo: _semente.eixo,
-    biografia: _semente.apres,
+    tipo: _modoAtual === 'poesia' ? 'poesia' : 'livro',
+    destino: dest, status: 'processado', progresso: 100,
+    autor: _semente.het, conteudo: _semente.corpo,
+    eixo: _semente.eixo, biografia: _semente.apres,
+    modo: _semente.modo,
+    forma: _semente.forma !== 'pecanha_decide' ? _semente.forma : null,
     dataProcessamento: new Date().toLocaleDateString('pt-BR'),
     origem: 'Máquina Desafio · ' + _semente.epoca + ' · ' + _semente.universo
   };
@@ -754,11 +1005,11 @@ function enviarDestino(dest) {
     });
     alert('⛓ "' + _semente.titulo + '" enviado à Masmorra (750 dias)!\nAbra o triplo para ver.');
   }
-  // Salvar nas duas chaves para garantir compatibilidade
   localStorage.setItem('sigmal_hq_estado', JSON.stringify(estado));
   localStorage.setItem('sigmal_estado', JSON.stringify(estado));
 }
 
+// ── RESETAR ───────────────────────────────────────────────────────────────────
 function resetar() {
   _semente = null;
   _epoca = '';
@@ -768,13 +1019,18 @@ function resetar() {
   document.getElementById('log').style.display = 'none';
   document.getElementById('btn-lancar').disabled = true;
   document.getElementById('btn-lancar').textContent = '✦ LANÇAR DESAFIO';
+  // Manter o modo atual, apenas limpar a seleção de forma
+  if (_modoAtual === 'poesia') selForma('pecanha_decide');
 }
 
-// Carregar key salva
+// ── INIT ─────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   const k = localStorage.getItem('hub_apikey');
   const campo = document.getElementById('api-key');
   if (k && campo) { campo.value = k; verificarKey(); }
+  // Garantir estado inicial correto
+  selecionarModo('prosa');
+  selForma('pecanha_decide');
 });
 </script>
 </body>
