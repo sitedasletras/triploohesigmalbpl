@@ -1166,49 +1166,103 @@ function mostrarAprovacaoArco(numArco, nomeArco, textoArco) {
     const jornada = JORNADAS[jornadaSelecionada];
     const totalArcos = jornada ? jornada.arcos.length : 3;
     const isUltimo = numArco >= totalArcos;
+    const palavras = textoArco.split(/\s+/).filter(Boolean).length.toLocaleString('pt-BR');
 
-    document.getElementById('aprv-arco-num').textContent = 'Arco ' + numArco + ' concluído';
-    document.getElementById('aprv-arco-nome').textContent = nomeArco;
-    document.getElementById('aprv-palavras').textContent =
-      textoArco.split(/\s+/).filter(Boolean).length.toLocaleString('pt-BR') + ' palavras geradas';
+    // ── Tentar popup visual primeiro ──
+    const modal = document.getElementById('modal-aprovacao');
 
-    document.getElementById('aprv-texto').textContent =
-      textoArco.substring(0, 1500) + (textoArco.length > 1500 ? '\n\n[... continua ...]' : '');
+    if (modal) {
+      // Preencher dados
+      const elNum  = document.getElementById('aprv-arco-num');
+      const elNome = document.getElementById('aprv-arco-nome');
+      const elPal  = document.getElementById('aprv-palavras');
+      const elTxt  = document.getElementById('aprv-texto');
+      const btnC   = document.getElementById('aprv-btn-continuar');
 
-    const btnContinuar = document.getElementById('aprv-btn-continuar');
-    if (isUltimo) {
-      btnContinuar.textContent = '✦ GERAR DESFECHO FINAL';
-      btnContinuar.style.background = 'linear-gradient(135deg,#1a5f1a,#4caf50)';
+      if (elNum)  elNum.textContent  = 'Arco ' + numArco + ' concluído';
+      if (elNome) elNome.textContent = nomeArco;
+      if (elPal)  elPal.textContent  = palavras + ' palavras geradas';
+      if (elTxt)  elTxt.textContent  = textoArco.substring(0, 1500) +
+        (textoArco.length > 1500 ? '\n\n[... continua ...]' : '');
+
+      if (btnC) {
+        btnC.textContent = isUltimo
+          ? '✦ GERAR DESFECHO FINAL'
+          : '⚡ CONTINUAR PARA O ARCO ' + (numArco + 1);
+        btnC.style.background = isUltimo
+          ? 'linear-gradient(135deg,#1a5f1a,#4caf50)'
+          : 'linear-gradient(135deg,#7a3f00,#f57f17)';
+      }
+
+      // Forçar visibilidade com todas as propriedades necessárias
+      modal.style.cssText = [
+        'display:flex',
+        'position:fixed',
+        'top:0','left:0','right:0','bottom:0',
+        'z-index:99999',
+        'background:rgba(4,8,15,0.97)',
+        'align-items:center',
+        'justify-content:center',
+        'padding:1.2rem',
+        'flex-direction:column'
+      ].join(';');
+
+      // Verificar se ficou visível após 300ms — fallback para confirm nativo
+      setTimeout(() => {
+        const rect = modal.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) {
+          // Modal não apareceu — usar confirm nativo
+          modal.style.display = 'none';
+          _usarConfirmNativo(numArco, nomeArco, palavras, isUltimo, resolve);
+        }
+      }, 300);
+
     } else {
-      btnContinuar.textContent = '⚡ CONTINUAR PARA O ARCO ' + (numArco + 1);
-      btnContinuar.style.background = 'linear-gradient(135deg,#7a3f00,#f57f17)';
+      // Modal não existe no DOM — usar confirm nativo diretamente
+      _usarConfirmNativo(numArco, nomeArco, palavras, isUltimo, resolve);
     }
-
-    document.getElementById('modal-aprovacao').style.display = 'flex';
   });
 }
 
+function _usarConfirmNativo(numArco, nomeArco, palavras, isUltimo, resolve) {
+  const msg = isUltimo
+    ? '✦ ARCO ' + numArco + ' CONCLUÍDO\n' + nomeArco + '\n' + palavras + ' palavras\n\nGerar o DESFECHO FINAL agora?'
+    : '✦ ARCO ' + numArco + ' CONCLUÍDO\n' + nomeArco + '\n' + palavras + ' palavras\n\nContinuar para o Arco ' + (numArco + 1) + '?';
+
+  // Pequeno delay para garantir que o browser não bloqueie o confirm
+  setTimeout(() => {
+    const ok = window.confirm(msg);
+    resolveAprovacao = null;
+    resolve(ok); // true = continuar, false = pausar/refazer
+  }, 100);
+}
+
 function aprovarArco() {
-  document.getElementById('modal-aprovacao').style.display = 'none';
+  const modal = document.getElementById('modal-aprovacao');
+  if (modal) modal.style.display = 'none';
   if (resolveAprovacao) { resolveAprovacao(true); resolveAprovacao = null; }
 }
 
 function rejeitarArco() {
-  document.getElementById('modal-aprovacao').style.display = 'none';
+  const modal = document.getElementById('modal-aprovacao');
+  if (modal) modal.style.display = 'none';
   if (resolveAprovacao) { resolveAprovacao(false); resolveAprovacao = null; }
 }
 
 function pausarArco() {
-  document.getElementById('modal-aprovacao').style.display = 'none';
+  const modal = document.getElementById('modal-aprovacao');
+  if (modal) modal.style.display = 'none';
   log('⏸ Geração pausada. Checkpoint salvo. Reabra para continuar.');
-  liberarWakeLock();
-  const s = sessaoAtual || {};
-  const el = document.getElementById('retomada-titulo');
+  // NÃO libera Wake Lock aqui — só libera ao retomar ou encerrar
+  const el  = document.getElementById('retomada-titulo');
   const el2 = document.getElementById('retomada-info');
-  if (el) el.textContent = '"' + (tituloFinal || 'Obra em andamento') + '"';
+  if (el)  el.textContent  = '"' + (tituloFinal || 'Obra em andamento') + '"';
   if (el2) el2.textContent = (heteronimoEscolhido || '') + ' · Arco concluído · Pronto para continuar';
   const banner = document.getElementById('banner-retomada');
   if (banner) banner.style.display = 'flex';
+  // Agora sim libera o Wake Lock
+  liberarWakeLock();
+  if (resolveAprovacao) { resolveAprovacao(false); resolveAprovacao = null; }
 }
 
 // ===================== SALVAR NO GITHUB =====================
