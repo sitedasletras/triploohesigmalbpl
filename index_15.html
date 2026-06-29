@@ -1866,21 +1866,20 @@ body::before {
         </div>
       </div>
 
-      <!-- Modal aprovação de arco -->
-      <div id="gen-modal-arco" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:1rem;">
-        <div style="background:#0d1825;border:1px solid rgba(201,168,76,0.3);border-radius:8px;max-width:600px;width:100%;max-height:80vh;overflow-y:auto;padding:1.5rem;">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.15em;color:var(--ouro);text-transform:uppercase;margin-bottom:0.5rem;">// APROVAÇÃO DE ARCO</div>
+      <!-- Leitor de Arco — fluxo sequencial manual -->
+      <div id="gen-modal-arco" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:9999;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto;">
+        <div style="background:#0d1825;border:1px solid rgba(201,168,76,0.3);border-radius:8px;max-width:600px;width:100%;padding:1.5rem;margin:auto;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.15em;color:var(--ouro);text-transform:uppercase;margin-bottom:0.4rem;">// LEITURA DE ARCO</div>
           <div id="gen-arco-num" style="font-family:'Cinzel',serif;font-size:1.2rem;color:var(--creme);margin-bottom:1rem;"></div>
-          <pre id="gen-arco-preview" style="font-family:'Crimson Pro',serif;font-size:0.75rem;color:var(--creme);white-space:pre-wrap;line-height:1.6;background:rgba(201,168,76,0.03);border:1px solid rgba(201,168,76,0.1);padding:1rem;border-radius:4px;max-height:40vh;overflow-y:auto;margin-bottom:1rem;"></pre>
+          <pre id="gen-arco-preview" style="font-family:'Crimson Pro',serif;font-size:0.8rem;color:var(--creme);white-space:pre-wrap;line-height:1.8;background:rgba(0,0,0,0.3);border:1px solid rgba(201,168,76,0.1);padding:1.2rem;border-radius:4px;margin-bottom:1rem;max-height:55vh;overflow-y:auto;"></pre>
           <div id="gen-arco-costura-container" style="display:none;margin-bottom:1rem;">
-            <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.12em;color:#f57f17;text-transform:uppercase;margin-bottom:0.4rem;">🧵 COSTURA GERADA — PRÉVIA</div>
-            <pre id="gen-arco-costura" style="font-family:'Crimson Pro',serif;font-size:0.75rem;color:var(--creme);white-space:pre-wrap;line-height:1.6;background:rgba(245,127,23,0.04);border:1px solid rgba(245,127,23,0.25);padding:1rem;border-radius:4px;max-height:25vh;overflow-y:auto;opacity:0.92;"></pre>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.12em;color:#f57f17;text-transform:uppercase;margin-bottom:0.4rem;">🧵 COSTURA APLICADA</div>
+            <pre id="gen-arco-costura" style="font-family:'Crimson Pro',serif;font-size:0.78rem;color:var(--creme);white-space:pre-wrap;line-height:1.8;background:rgba(245,127,23,0.04);border:1px solid rgba(245,127,23,0.25);padding:1rem;border-radius:4px;max-height:30vh;overflow-y:auto;opacity:0.92;"></pre>
           </div>
-          <div style="display:flex;flex-direction:column;gap:0.7rem;">
-<button onclick="aprovarArcoGerador(true)" style="width:100%;background:var(--ouro);color:#000;border:none;padding:0.9rem;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;font-weight:700;">✓ APROVAR — CONTINUAR</button>
-<button onclick="costurarArcoEContinuar()" style="width:100%;background:rgba(245,127,23,0.1);color:#f57f17;border:1px solid rgba(245,127,23,0.4);padding:0.8rem;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;">🧵 COSTURAR ESTE ARCO E CONTINUAR</button>
-<button onclick="aprovarArcoGerador(false)" style="width:100%;background:transparent;color:var(--vermelho);border:1px solid var(--vermelho);padding:0.7rem;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;">✗ REJEITAR — REFAZER</button>
-</div>
+          <div style="display:flex;flex-direction:column;gap:0.6rem;">
+            <button id="gen-btn-proximo" onclick="avancarProximoArco()" style="width:100%;background:var(--ouro);color:#000;border:none;padding:0.9rem;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;font-weight:700;">▶ PRÓXIMO ARCO</button>
+            <button id="gen-btn-costurar" onclick="costurarArcoAtual()" style="width:100%;background:rgba(245,127,23,0.1);color:#f57f17;border:1px solid rgba(245,127,23,0.4);padding:0.8rem;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;">🧵 COSTURAR ESTE ARCO</button>
+            <button onclick="aprovarArcoGerador(false)" style="width:100%;background:transparent;color:var(--vermelho);border:1px solid var(--vermelho);padding:0.7rem;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;">✗ REJEITAR — REFAZER</button>
           </div>
         </div>
       </div>
@@ -3512,26 +3511,61 @@ function genBarra(pct) {
   if (el) el.style.width = pct + '%';
 }
 
+// Variáveis de controle do fluxo de arcos
+let genArcoAtualNum = 0;
+let genTotalArcos = 3;
+let genArcoTextoAtual = '';
+
+function limparTextoArco(texto) {
+  return texto
+    .replace(/<div[^>]*align[^>]*>/gi,'').replace(/<\/div>/gi,'')
+    .replace(/<div[^>]*>/gi,'').replace(/<p[^>]*>/gi,'').replace(/<\/p>/gi,'')
+    .replace(/<center[^>]*>/gi,'').replace(/<\/center>/gi,'')
+    .replace(/^#{1,6}\s*/gm,'')
+    .replace(/^---+\s*$/gm,'')
+    .replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1')
+    .replace(/\n{3,}/g,'\n\n').trim();
+}
+
 function aprovarArcoGerador(aprovado) {
   document.getElementById('gen-modal-arco').style.display = 'none';
+  document.getElementById('gen-arco-costura-container').style.display = 'none';
+  document.getElementById('gen-arco-costura').textContent = '';
+  const btnC = document.getElementById('gen-btn-costurar');
+  if (btnC) { btnC.textContent = '🧵 COSTURAR ESTE ARCO'; btnC.disabled = false; }
   if (genResolveAprovacao) genResolveAprovacao(aprovado);
+}
+
+function avancarProximoArco() {
+  aprovarArcoGerador(true);
 }
 
 async function mostrarAprovacaoArcoGerador(num, nome, texto) {
   return new Promise(resolve => {
     genResolveAprovacao = resolve;
+    genArcoAtualNum = num;
+    genArcoTextoAtual = texto;
+
     document.getElementById('gen-arco-num').textContent = `Arco ${num} · ${nome}`;
-    // Limpar tags antes de mostrar na prévia
-    const textoLimpo = texto
-      .replace(/<div[^>]*>/gi,'').replace(/<\/div>/gi,'')
-      .replace(/<p[^>]*>/gi,'').replace(/<\/p>/gi,'')
-      .replace(/<center[^>]*>/gi,'').replace(/<\/center>/gi,'')
-      .replace(/^#{1,6}\s+/gm,'')
-      .replace(/^---+\s*$/gm,'')
-      .replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1')
-      .replace(/\n{3,}/g,'\n\n').trim();
-    document.getElementById('gen-arco-preview').textContent = textoLimpo.substring(0, 2000) + (textoLimpo.length > 2000 ? '\n\n[... continua ...]' : '');
+
+    const textoLimpo = limparTextoArco(texto);
+    document.getElementById('gen-arco-preview').textContent = textoLimpo;
+
+    const btnP = document.getElementById('gen-btn-proximo');
+    if (btnP) {
+      btnP.textContent = num >= genTotalArcos
+        ? '✓ FINALIZAR LIVRO'
+        : `▶ PRÓXIMO ARCO (${num + 1} de ${genTotalArcos})`;
+    }
+
+    document.getElementById('gen-arco-costura-container').style.display = 'none';
+    document.getElementById('gen-arco-costura').textContent = '';
+    const btnC = document.getElementById('gen-btn-costurar');
+    if (btnC) { btnC.textContent = '🧵 COSTURAR ESTE ARCO'; btnC.disabled = false; }
+
     document.getElementById('gen-modal-arco').style.display = 'flex';
+    const pre = document.getElementById('gen-arco-preview');
+    if (pre) pre.scrollTop = 0;
   });
 }
 
@@ -3771,45 +3805,32 @@ async function retomarGeracaoLivro() {
   notif('LIVRO CONCLUÍDO', `"${tituloFinal}" finalizado!`, 'sucesso');
 }
 
-async function costurarArcoEContinuar() {
-  // Costura o arco atual e exibe resultado no modal antes de aprovar
-  genLog('🧵 Costurando arco antes de continuar...');
-
-  // Feedback visual no botão
-  const btn = document.querySelector('[onclick="costurarArcoEContinuar()"]');
+async function costurarArcoAtual() {
+  const btn = document.getElementById('gen-btn-costurar');
   if (btn) { btn.textContent = '🧵 Costurando...'; btn.disabled = true; }
+  genLog('🧵 Costurando Arco ' + genArcoAtualNum + '...');
 
-  const textoBefore = genLivroCompleto.length;
-  await costurarTextoGerador(genLivroCompleto, true, function(resultado) {
+  const textoBase = genLivroCompleto || genArcoTextoAtual;
+  const textoBefore = textoBase.length;
+
+  await costurarTextoGerador(textoBase, true, function(resultado) {
     if (resultado && resultado.length > textoBefore) {
       genLivroCompleto = resultado;
-      genLog('✅ Costura concluída. Continuando...');
-
-      // Exibir costura gerada no modal para o usuário ver antes de aprovar
+      const parteNova = resultado.slice(textoBefore).trim();
       const container = document.getElementById('gen-arco-costura-container');
       const area = document.getElementById('gen-arco-costura');
       if (container && area) {
-        // Pegar apenas a parte nova costurada (últimos ~1500 chars)
-        const costurado = resultado.slice(-1500).trim();
-        area.textContent = costurado;
+        area.textContent = parteNova || resultado.slice(-1500).trim();
         container.style.display = 'block';
+        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
-
-      // Restaurar botão com nova label
-      if (btn) { btn.textContent = '✓ CONFIRMAR COSTURA E CONTINUAR'; btn.disabled = false; }
+      genLog('✅ Costura do Arco ' + genArcoAtualNum + ' concluída.');
+      if (btn) { btn.textContent = '🧵 COSTURAR NOVAMENTE'; btn.disabled = false; }
     } else {
       genLog('⚠️ Costura não alterou o texto.');
-      if (btn) { btn.textContent = '🧵 COSTURAR ESTE ARCO E CONTINUAR'; btn.disabled = false; }
+      if (btn) { btn.textContent = '🧵 COSTURAR ESTE ARCO'; btn.disabled = false; }
     }
   });
-
-  // Só avança se o usuário clicar novamente (botão virou "CONFIRMAR")
-  // A aprovação agora é disparada pelo clique do botão já renomeado
-  btn.onclick = function() {
-    document.getElementById('gen-arco-costura-container').style.display = 'none';
-    if (btn) { btn.textContent = '🧵 COSTURAR ESTE ARCO E CONTINUAR'; btn.disabled = false; btn.onclick = costurarArcoEContinuar; }
-    if (genResolveAprovacao) { genResolveAprovacao(true); genResolveAprovacao = null; }
-  };
 }
 
 async function costurarTextoFinal() {
