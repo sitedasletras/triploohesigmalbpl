@@ -3574,6 +3574,7 @@ async function iniciarGeracaoLivro() {
   genLivroCompleto = '';
   let resumoAnterior = '';
   const arcosTexto = [];
+  let capituloAtual = 1; // contador global de capítulos entre arcos
 
   for (let ai = 0; ai < jornada.arcos.length; ai++) {
     const arco = jornada.arcos[ai];
@@ -3600,7 +3601,7 @@ REGRAS OBRIGATÓRIAS:
 - Títulos de capítulos CENTRALIZADOS
 - PROIBIDO comentários editoriais ou análises fora da narrativa
 - Texto humanizado, sem rastro de IA
-- Use capítulos numerados
+- NUMERAÇÃO DE CAPÍTULOS: o primeiro capítulo DESTE arco é o Capítulo ${capituloAtual}. Continue numerando sequencialmente a partir daí. NUNCA recomece do Capítulo I ou Capítulo 1.
 
 Escreva aproximadamente ${palavrasPorArco} palavras. Comece diretamente com a narrativa.`;
 
@@ -3629,6 +3630,9 @@ Escreva aproximadamente ${palavrasPorArco} palavras. Comece diretamente com a na
 
       genLog(`✓ Arco ${ai+1} aprovado!`);
       genLivroCompleto += textoArco + '\n\n' + '─'.repeat(60) + '\n\n';
+      // Contar capítulos gerados neste arco para continuar numeração no próximo
+      const matchesCap = textoArco.match(/Cap[ií]tulo\s+[IVXLC\d]+/gi) || [];
+      if (matchesCap.length > 0) capituloAtual += matchesCap.length;
 
       // Gerar resumo para contexto
       if (ai < 2) {
