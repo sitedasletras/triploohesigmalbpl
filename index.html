@@ -3655,6 +3655,19 @@ Escreva aproximadamente ${palavrasPorArco} palavras. Comece diretamente com a na
   genBarra(100);
   genLog('✓ Todos os arcos concluídos! Compilando livro...');
 
+  // Limpar tags do texto antes de montar livro editorial
+  genLivroCompleto = genLivroCompleto
+    .replace(/<div[^>]*align[^>]*>/gi,'').replace(/<\/div>/gi,'')
+    .replace(/<div[^>]*>/gi,'').replace(/<p[^>]*>/gi,'').replace(/<\/p>/gi,'')
+    .replace(/<center[^>]*>/gi,'').replace(/<\/center>/gi,'')
+    .replace(/^#{1,6}\s*/gm,'')
+    .replace(/^---+\s*$/gm,'')
+    .replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1')
+    .replace(/\n{4,}/g,'\n\n').trim();
+
+  // Remover separadores entre arcos
+  genLivroCompleto = genLivroCompleto.replace(/\n*─{10,}\n*/g, '\n\n');
+
   // Montar livro completo com estrutura editorial
   const anoAtual = new Date().getFullYear();
   const autorFinal = heteronimo || 'A definir';
@@ -3773,7 +3786,16 @@ async function retomarGeracaoLivro() {
       const aprovado = await mostrarAprovacaoArcoGerador(ai+1, arco.nome, textoArco);
       if (!aprovado) { genLog(`✗ Arco ${ai+1} rejeitado.`); ai--; continue; }
       genLog(`✓ Arco ${ai+1} aprovado!`);
-      livroCompleto += textoArco + '\n\n' + '─'.repeat(60) + '\n\n';
+      // Limpar tags do arco antes de acumular
+      const textoArcoLimpo = textoArco
+        .replace(/<div[^>]*align[^>]*>/gi,'').replace(/<\/div>/gi,'')
+        .replace(/<div[^>]*>/gi,'').replace(/<p[^>]*>/gi,'').replace(/<\/p>/gi,'')
+        .replace(/<center[^>]*>/gi,'').replace(/<\/center>/gi,'')
+        .replace(/^#{1,6}\s*/gm,'')
+        .replace(/^---+\s*$/gm,'')
+        .replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1')
+        .replace(/\n{4,}/g,'\n\n').trim();
+      livroCompleto += textoArcoLimpo + '\n\n';
       salvarEstadoGeracao({ titulo: tituloFinal, heteronimo: heteronimoEscolhido, jornada: estado.jornada, volume, destino, arcoAtual: ai + 1, livroAcumulado: livroCompleto, resumoAnterior });
     } catch(e) {
       genLog(`✗ Erro: ${e.message}`);
