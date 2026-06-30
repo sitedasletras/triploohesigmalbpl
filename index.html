@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <script src="config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/index.umd.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIGMAL HQ · Painel Central</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -1833,7 +1834,9 @@ body::before {
         </div>
         <div class="fg" style="margin-bottom:1rem;">
           <label class="fl">Heterônimo (opcional — Fernando Peçanha decide se vazio)</label>
-          <input type="text" class="fi" id="gen-heteronimo" placeholder="Ex: Yago Mattos">
+          <input type="text" class="fi" id="gen-heteronimo" placeholder="Ex: Yago Mattos" list="gen-heteronimos-lista" oninput="aplicarPerfilHeteronimo()" onchange="aplicarPerfilHeteronimo()">
+          <datalist id="gen-heteronimos-lista"></datalist>
+          <div id="gen-heteronimo-perfil" style="display:none;margin-top:0.4rem;font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.06em;color:var(--ouro);opacity:0.75;"></div>
         </div>
         <div class="fg" style="margin-bottom:1rem;">
           <label class="fl">Sinopse / Conto base</label>
@@ -1951,8 +1954,13 @@ body::before {
       <!-- Progresso -->
       <div id="gen-progresso" style="display:none;max-width:600px;">
         <div id="gen-log" style="background:rgba(0,0,0,0.3);border:1px solid rgba(201,168,76,0.1);padding:1rem;font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.05em;color:var(--prata);line-height:2;max-height:200px;overflow-y:auto;margin-bottom:1rem;"></div>
-        <div style="background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.2);border-radius:4px;overflow:hidden;margin-bottom:1rem;">
+        <div style="background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.2);border-radius:4px;overflow:hidden;margin-bottom:0.6rem;">
           <div id="gen-barra" style="height:6px;background:var(--ouro);width:0%;transition:width 0.5s;"></div>
+        </div>
+        <div id="gen-stats" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.05em;color:var(--prata);opacity:0.75;margin-bottom:1rem;">
+          <span id="gen-stat-palavras">0 palavras geradas</span>
+          <span id="gen-stat-tempo">00:00 decorrido</span>
+          <span id="gen-stat-estimativa">estimando tempo restante...</span>
         </div>
       </div>
 
@@ -1976,17 +1984,20 @@ body::before {
 
       <!-- Resultado -->
       <div id="gen-resultado" style="display:none;max-width:600px;">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.15em;color:var(--verde);margin-bottom:1rem;">✓ LIVRO GERADO COM SUCESSO</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.15em;color:var(--verde);margin-bottom:0.6rem;">✓ LIVRO GERADO COM SUCESSO</div>
+        <div id="gen-checklist-auto" style="display:none;margin-bottom:1rem;padding:0.6rem 0.8rem;border-radius:4px;font-family:'Share Tech Mono',monospace;font-size:0.46rem;letter-spacing:0.05em;cursor:pointer;" onclick="analisarObra(genLivroCompleto, document.getElementById('gen-titulo').value, 'gerador', null)"></div>
         <pre id="gen-livro-texto" style="font-family:'Crimson Pro',serif;font-size:0.8rem;color:var(--creme);white-space:pre-wrap;line-height:1.8;background:rgba(0,0,0,0.3);border:1px solid rgba(201,168,76,0.1);padding:1.5rem;border-radius:4px;max-height:60vh;overflow-y:auto;margin-bottom:1rem;"></pre>
         <div style="display:flex;gap:0.7rem;flex-wrap:wrap;flex-direction:column;">
           <div style="display:flex;gap:1rem;flex-wrap:wrap;">
             <button onclick="copiarLivro()" class="btn-p">📋 COPIAR LIVRO</button>
+            <button onclick="exportarLivroWord(genLivroCompleto, document.getElementById('gen-titulo').value, document.getElementById('gen-heteronimo').value)" class="btn-p" style="background:#2b579a;border-color:#2b579a;">📄 EXPORTAR WORD</button>
             <button onclick="enviarLivroGeradoParaPaiol()" class="btn-s" style="border-color:#f57f17;color:#f57f17;">🏹 ENVIAR AO PAIOL</button>
             <button onclick="novoLivro()" class="btn-s">+ NOVO LIVRO</button>
             <button onclick="sairDoGerador()" class="btn-s">✕ SAIR DO GERADOR</button>
           </div>
           <button onclick="costurarTextoFinal()" style="width:100%;padding:0.85rem;background:rgba(245,127,23,0.1);color:#f57f17;border:1px solid rgba(245,127,23,0.4);font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;font-weight:700;">🧵 COSTURAR TEXTO — COMPLETAR DESFECHO (se o livro terminou cortado)</button>
           <button onclick="analisarObra(genLivroCompleto, document.getElementById('gen-titulo').value, 'gerador', null)" style="width:100%;padding:0.85rem;background:rgba(76,175,80,0.1);color:#4caf50;border:1px solid rgba(76,175,80,0.4);font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;font-weight:700;">🔍 ANALISAR OBRA — VERIFICAR QUALIDADE</button>
+          <button onclick="abrirHistoricoVersoes('gerador', null)" style="width:100%;padding:0.6rem;background:rgba(201,168,76,0.05);color:var(--prata);border:1px dashed rgba(201,168,76,0.25);font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;border-radius:4px;">🕓 HISTÓRICO DE VERSÕES</button>
         </div>
       </div>
     </div>
@@ -2111,6 +2122,20 @@ body::before {
     </div>
     <div class="modal-acoes">
       <button class="btn-s" onclick="fecharModal('modal-analise')">FECHAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL HISTÓRICO DE VERSÕES -->
+<div class="modal-overlay" id="modal-historico">
+  <div class="modal" style="max-width:650px;">
+    <div class="modal-header">
+      <div class="modal-tit">🕓 HISTÓRICO DE VERSÕES</div>
+      <button class="modal-x" onclick="fecharModal('modal-historico')">// FECHAR</button>
+    </div>
+    <div class="modal-corpo" id="historico-corpo" style="max-height:65vh;overflow-y:auto;"></div>
+    <div class="modal-acoes">
+      <button class="btn-s" onclick="fecharModal('modal-historico')">FECHAR</button>
     </div>
   </div>
 </div>
@@ -3342,6 +3367,8 @@ function renderizarCalabouco() {
       <div class="cal-acoes">
         <button class="fa-btn" onclick="abrirGerador(${i})">📖 GERAR LIVRO</button>
         <button class="fa-btn" style="color:#4caf50;border-color:#4caf50;" onclick="analisarObra(estado.calabouco[${i}].conteudo, estado.calabouco[${i}].titulo, 'calabouco', ${i})">🔍 ANALISAR</button>
+        <button class="fa-btn" onclick="abrirHistoricoVersoes('calabouco', ${i})">🕓 VERSÕES</button>
+        <button class="fa-btn" style="color:#2b579a;border-color:#2b579a;" onclick="exportarLivroWord(estado.calabouco[${i}].conteudo, estado.calabouco[${i}].titulo, estado.calabouco[${i}].autor)">📄 WORD</button>
         <button class="fa-btn" onclick="enviarParaSilo('livro', ${i})">→ SILO</button>
         <button class="fa-btn" style="color:#f57f17;border-color:#f57f17;" onclick="moverParaPaiol(${i})">🏹 → PAIOL</button>
         <button class="fa-btn" onclick="removerCalabouco(${i})">✕</button>
@@ -3554,61 +3581,61 @@ function atualizarContadoresSilo() {
 
 // ===================== HETERÔNIMOS =====================
 const HETERONIMOS = [
-  { nome: 'A.J. dos Santos', eixo: 'Prosa', territorio: 'Chupa-cabras, lobisomens, vampiros', formato: 'conto', volumeMinimo: 12, destino: 'masmorra' },
-  { nome: 'Amanda Fernanda Fisher Leão', eixo: 'Prosa', territorio: 'Pirataria, sereias, monstros marinhos', formato: 'conto', volumeMinimo: 12, destino: 'masmorra' },
-  { nome: 'Amélie Maia Hanna', eixo: 'Poesia', territorio: 'Sonetos, memórias, cotidiano', formato: 'soneto', volumeMinimo: 50, destino: 'masmorra' },
-  { nome: 'Anísio Teixeira', eixo: 'Híbrido', territorio: 'Zumbis, pós-apocalipse, horror existencial', formato: 'conto', volumeMinimo: 12, destino: 'masmorra' },
-  { nome: 'Articus da Persida', eixo: 'Prosa', territorio: 'Templários, cavalaria medieval, amor impossível', formato: 'romance', volumeMinimo: 120, destino: 'calabouco' },
-  { nome: 'Aurora Wings', eixo: 'Híbrido', territorio: 'IA, super-heróis, ficção científica', formato: 'romance', volumeMinimo: 120, destino: 'calabouco' },
-  { nome: 'Padre Benedicttus Konstantinos', eixo: 'Híbrido', territorio: 'Religião católica, gárgulas, apocalipse', formato: 'conto', volumeMinimo: 12, destino: 'masmorra' },
-  { nome: 'Birihani Selami Ina Tesifa', eixo: 'Poesia', territorio: 'Ghazal, amor, devoção, saudade', formato: 'ghazal', volumeMinimo: 40, destino: 'masmorra' },
-  { nome: 'Calíope Papazissis', eixo: 'Híbrido', territorio: 'Mitologia grega, nórdica, celta', formato: 'prosa-poetica', volumeMinimo: 40, destino: 'masmorra' },
-  { nome: 'Chesco Irlanda', eixo: 'Prosa', territorio: 'Literatura infantil, fábulas', formato: 'conto', volumeMinimo: 15, destino: 'masmorra' },
-  { nome: 'Clara Mendes Rios', eixo: 'Híbrido', territorio: 'Prosa híbrida, memória, reconstrução feminina', formato: 'prosa-poetica', volumeMinimo: 20, destino: 'masmorra' },
-  { nome: 'Claudiney Aristides Diaz', eixo: 'Aberto', territorio: 'Território a definir — escrita em processo', formato: 'variado', volumeMinimo: 10, destino: 'masmorra' },
-  { nome: 'Creone Porfirio', eixo: 'Prosa', territorio: 'Guerras, patriotismo, militarismo', formato: 'romance', volumeMinimo: 120, destino: 'calabouco' },
-  { nome: 'Cristovão Duarte', eixo: 'Prosa', territorio: 'Aracnídeos, horror subterrâneo', formato: 'conto', volumeMinimo: 12, destino: 'masmorra' },
-  { nome: 'Daniel Fernandes', eixo: 'Híbrido', territorio: 'Poesia erótica/hot, teatro, cotidiano urbano', formato: 'poesia', volumeMinimo: 40, destino: 'masmorra' },
-  { nome: 'Dárius Ninus Vamus', eixo: 'Híbrido', territorio: 'Futebol, humor, limerick, elegia', formato: 'poesia', volumeMinimo: 40, destino: 'masmorra' },
-  { nome: 'Demetrius Varas', eixo: 'Prosa', territorio: 'Prosa erótica/hot', formato: 'conto', volumeMinimo: 12, destino: 'masmorra' },
-  { nome: 'Din Kin Lin', eixo: 'Híbrido', territorio: 'Dragões, seres místicos do oriente, lendas', formato: 'conto', volumeMinimo: 12, destino: 'masmorra' },
-  { nome: 'Diógenes Bueno de Alencar', eixo: 'Híbrido', territorio: 'Arquipélagos, penínsulas, memória, interior', formato: 'cronica', volumeMinimo: 30, destino: 'masmorra' },
-  { nome: 'Hama Amarin', eixo: 'Poesia', territorio: 'Pantum, perdão, ciclos emocionais', formato: 'pantum', volumeMinimo: 40, destino: 'masmorra' },
-  { nome: 'Helena Duarte Valença', eixo: 'Prosa', territorio: 'Reconstrução feminina, memória doméstica, silenciamento', formato: 'conto', volumeMinimo: 12, destino: 'masmorra' },
-  { nome: 'Henrich Jones', eixo: 'Prosa', territorio: 'Arqueologia, paleontologia, civilizações antigas', formato: 'romance', volumeMinimo: 120, destino: 'calabouco' },
-  { nome: 'Hernesto Bevilácqua', eixo: 'Poesia', territorio: 'Ode, contemplação, lirismo clássico', formato: 'ode', volumeMinimo: 40, destino: 'masmorra' },
-  { nome: 'Horando Almeida Prado', eixo: 'Híbrido', territorio: 'Mar, pesca, litoral sul paulista', formato: 'conto', volumeMinimo: 12, destino: 'masmorra' },
-  { nome: 'Icabode Kahpote', eixo: 'Híbrido', territorio: 'Sextinas, contos póstumos, morte, além-vida', formato: 'sextina', volumeMinimo: 30, destino: 'masmorra' },
-  { nome: 'Imediato Thompson', eixo: 'Híbrido', territorio: 'Constelação Ophiuchus, Atlantis, cosmologia', formato: 'romance', volumeMinimo: 120, destino: 'calabouco' },
-  { nome: 'J.L.Gomes', eixo: 'Híbrido', territorio: 'Espiritismo, pensamentos motivacionais, crônicas', formato: 'cronica', volumeMinimo: 30, destino: 'masmorra' },
-  { nome: 'Jorge Cavalcanti', eixo: 'Cordel', territorio: 'Cordel, cultura popular, oralidade', formato: 'cordel', volumeMinimo: 20, destino: 'masmorra' },
-  { nome: 'Julia Abdalla', eixo: 'Prosa', territorio: 'Culinária, bem-estar, receitas literárias', formato: 'cronica', volumeMinimo: 20, destino: 'masmorra' },
-  { nome: 'Juka Pituskaq', eixo: 'Poesia', territorio: 'Novo Movimento Estrofista, odes', formato: 'poesia', volumeMinimo: 40, destino: 'masmorra' },
-  { nome: 'Marina Torres Azevedo', eixo: 'Poesia', territorio: 'Poesia de reconstrução feminina, cura, memória', formato: 'poesia', volumeMinimo: 30, destino: 'masmorra' },
-  { nome: 'Mário Célio Sabino', eixo: 'Híbrido', territorio: 'Terror, fantasmas, ocultismo, paranormal', formato: 'conto', volumeMinimo: 12, destino: 'masmorra' },
-  { nome: 'Michelangelo Miguel', eixo: 'Poesia', territorio: 'Poema narrativo, lirismo, memória', formato: 'poesia', volumeMinimo: 40, destino: 'masmorra' },
-  { nome: 'Noraya Sakamoto', eixo: 'Poesia', territorio: 'Haicais, natureza, sensibilidade oriental', formato: 'haicai', volumeMinimo: 60, destino: 'masmorra' },
-  { nome: 'Pyetra Luyza', eixo: 'Híbrido', territorio: 'Ecoficção, natureza, defesa ambiental', formato: 'conto', volumeMinimo: 12, destino: 'masmorra' },
-  { nome: 'Raimundo José da Silva Nonato', eixo: 'Híbrido', territorio: 'Seca nordestina, memória oral, resistência', formato: 'cordel', volumeMinimo: 20, destino: 'masmorra' },
-  { nome: 'Renat Kolotov', eixo: 'Prosa', territorio: 'Revolução Russa, resistência histórica', formato: 'romance', volumeMinimo: 120, destino: 'calabouco' },
-  { nome: 'Rovonilson Reigns Bautista', eixo: 'Híbrido', territorio: 'Rap, rua, marquises, arquitetura urbana', formato: 'poesia', volumeMinimo: 40, destino: 'masmorra' },
-  { nome: 'Sebastião Ferreira dos Anjos', eixo: 'Poesia', territorio: 'Poemas dissertativos, reflexão social', formato: 'poesia', volumeMinimo: 40, destino: 'masmorra' },
-  { nome: 'Site das Letras Ed. Literárias', eixo: 'Híbrido', territorio: 'Miscelânea, antologias institucionais', formato: 'variado', volumeMinimo: 10, destino: 'calabouco' },
-  { nome: 'Valter Marques', eixo: 'Híbrido', territorio: 'Erros do passado, dor, diversidade de estilos', formato: 'variado', volumeMinimo: 20, destino: 'masmorra' },
-  { nome: 'Victor A. Pereira', eixo: 'Prosa', territorio: 'Mistério, romance policial, investigação', formato: 'romance', volumeMinimo: 120, destino: 'calabouco' },
-  { nome: 'Wagner Planas', eixo: 'Híbrido', territorio: 'Múltiplos — criador do ecossistema', formato: 'variado', volumeMinimo: 10, destino: 'masmorra' },
-  { nome: 'Wilson Silva', eixo: 'Híbrido', territorio: 'Cotidiano, amor, poesias e prosas líricas', formato: 'variado', volumeMinimo: 30, destino: 'masmorra' },
-  { nome: 'Yago Mattos', eixo: 'Híbrido', territorio: 'Bruxas, lendas, deuses do mar', formato: 'conto', volumeMinimo: 12, destino: 'masmorra' },
-  { nome: 'Mórigan Voss', eixo: 'Prosa', territorio: 'Amor impossível, luto, fronteiras entre mundos, o que persiste depois da perda. Tom literário elevado, linguagem densa, emocionalmente preciso. Obra: As Lágrimas que Dobram o Céu', formato: 'romance', volumeMinimo: 120, destino: 'calabouco' },
-  { nome: 'Dona Catarina Trovante', eixo: 'Poesia', territorio: 'Trovas, quadras métricas, temas nacionais, amor, resistência', formato: 'trova', volumeMinimo: 40, destino: 'masmorra' },
-  { nome: 'Vladislava Karnstein', eixo: 'Híbrido', territorio: 'Vampirismo aristocrático, sedução sombria, memórias de uma condessa imortal', formato: 'romance', volumeMinimo: 120, destino: 'calabouco' },
-  { nome: 'Santiago Poetrix', eixo: 'Híbrido', territorio: 'Poetrix — forma híbrida entre poesia e prosa poética, Santos SP', formato: 'poetrix', volumeMinimo: 30, destino: 'masmorra' },
-  { nome: 'Irmão Ezequias Luz', eixo: 'Híbrido', territorio: 'Literatura cristã evangélica, terror espiritual, batalha entre bem e mal', formato: 'conto', volumeMinimo: 12, destino: 'masmorra' },
-  { nome: 'Marina das Vozes', eixo: 'Híbrido', territorio: 'Crônica urbana pura, São Paulo, vida metropolitana, ironia fina', formato: 'cronica', volumeMinimo: 30, destino: 'masmorra' },
-  { nome: 'Mirela Voss Drummond', eixo: 'Prosa', territorio: 'O que resta nos vivos depois da perda — memória afetiva, presença invisível de quem partiu, luto silencioso no cotidiano. Irmã de Mórigan Voss, nascida em Utrecht, Países Baixos. Obra: O Que Resta Depois do Fogo', formato: 'conto', volumeMinimo: 40, destino: 'calabouco' },
-  { nome: 'Baltasar de Morais Seixas', eixo: 'Prosa', territorio: 'Épica e espiritualidade ibérica — fé, mar, Descobrimentos portugueses, Ordem dos Cavaleiros de Cristo. Neto de marinheiro de Vasco da Gama. Obra: A Cruz Sem Margem', formato: 'romance', volumeMinimo: 120, destino: 'calabouco' },
-  { nome: 'Miroslav Kadek', eixo: 'Prosa', territorio: 'Prosa lírica de tensão histórica e memória fragmentada — Guerra Fria, Europa Central, silêncio geracional, trauma herdado. Obra: O Que Ficou na Areia', formato: 'romance', volumeMinimo: 80, destino: 'calabouco' },
-  { nome: 'Tlacuilo Bernardino Xochitl', eixo: 'Prosa', territorio: 'Prosa mítica mesoamericana — cosmogonia asteca e maia, deuses, sacrifício, ciclos do tempo. Escreve como um escriba sagrado. Obra: O Que Bebe na Noite', formato: 'romance', volumeMinimo: 80, destino: 'calabouco' },
+  { nome: 'A.J. dos Santos', eixo: 'Prosa', territorio: 'Chupa-cabras, lobisomens, vampiros', formato: 'conto', volumeMinimo: 12, destino: 'masmorra', universoPadrao: ['Sobrenatural', 'Rural'], tomPadrao: ['Terror', 'Suspense'] },
+  { nome: 'Amanda Fernanda Fisher Leão', eixo: 'Prosa', territorio: 'Pirataria, sereias, monstros marinhos', formato: 'conto', volumeMinimo: 12, destino: 'masmorra', universoPadrao: ['Mar', 'Sobrenatural'], tomPadrao: ['Aventura', 'Mistério'] },
+  { nome: 'Amélie Maia Hanna', eixo: 'Poesia', territorio: 'Sonetos, memórias, cotidiano', formato: 'soneto', volumeMinimo: 50, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Lírico', 'Melancólico'] },
+  { nome: 'Anísio Teixeira', eixo: 'Híbrido', territorio: 'Zumbis, pós-apocalipse, horror existencial', formato: 'conto', volumeMinimo: 12, destino: 'masmorra', universoPadrao: ['Pós-apocalíptico'], tomPadrao: ['Horror', 'Existencial'] },
+  { nome: 'Articus da Persida', eixo: 'Prosa', territorio: 'Templários, cavalaria medieval, amor impossível', formato: 'romance', volumeMinimo: 120, destino: 'calabouco', universoPadrao: ['Medieval', 'Histórico'], tomPadrao: ['Épico', 'Amor'] },
+  { nome: 'Aurora Wings', eixo: 'Híbrido', territorio: 'IA, super-heróis, ficção científica', formato: 'romance', volumeMinimo: 120, destino: 'calabouco', universoPadrao: ['Sci-fi', 'Tecnológico'], tomPadrao: ['Aventura', 'Filosófico'] },
+  { nome: 'Padre Benedicttus Konstantinos', eixo: 'Híbrido', territorio: 'Religião católica, gárgulas, apocalipse', formato: 'conto', volumeMinimo: 12, destino: 'masmorra', universoPadrao: ['Religioso', 'Sobrenatural'], tomPadrao: ['Terror', 'Filosófico'] },
+  { nome: 'Birihani Selami Ina Tesifa', eixo: 'Poesia', territorio: 'Ghazal, amor, devoção, saudade', formato: 'ghazal', volumeMinimo: 40, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Amor', 'Lírico'] },
+  { nome: 'Calíope Papazissis', eixo: 'Híbrido', territorio: 'Mitologia grega, nórdica, celta', formato: 'prosa-poetica', volumeMinimo: 40, destino: 'masmorra', universoPadrao: ['Mitológico', 'Fantasia'], tomPadrao: ['Épico', 'Poético'] },
+  { nome: 'Chesco Irlanda', eixo: 'Prosa', territorio: 'Literatura infantil, fábulas', formato: 'conto', volumeMinimo: 15, destino: 'masmorra', universoPadrao: ['Fantasia'], tomPadrao: ['Aventura', 'Humor'] },
+  { nome: 'Clara Mendes Rios', eixo: 'Híbrido', territorio: 'Prosa híbrida, memória, reconstrução feminina', formato: 'prosa-poetica', volumeMinimo: 20, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Psicológico', 'Melancólico'] },
+  { nome: 'Claudiney Aristides Diaz', eixo: 'Aberto', territorio: 'Território a definir — escrita em processo', formato: 'variado', volumeMinimo: 10, destino: 'masmorra', universoPadrao: [], tomPadrao: [] },
+  { nome: 'Creone Porfirio', eixo: 'Prosa', territorio: 'Guerras, patriotismo, militarismo', formato: 'romance', volumeMinimo: 120, destino: 'calabouco', universoPadrao: ['Guerra', 'Histórico'], tomPadrao: ['Épico', 'Drama'] },
+  { nome: 'Cristovão Duarte', eixo: 'Prosa', territorio: 'Aracnídeos, horror subterrâneo', formato: 'conto', volumeMinimo: 12, destino: 'masmorra', universoPadrao: ['Sobrenatural', 'Submundo urbano'], tomPadrao: ['Horror', 'Visceral'] },
+  { nome: 'Daniel Fernandes', eixo: 'Híbrido', territorio: 'Poesia erótica/hot, teatro, cotidiano urbano', formato: 'poesia', volumeMinimo: 40, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Erótico', 'Lírico'] },
+  { nome: 'Dárius Ninus Vamus', eixo: 'Híbrido', territorio: 'Futebol, humor, limerick, elegia', formato: 'poesia', volumeMinimo: 40, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Humor', 'Sátira'] },
+  { nome: 'Demetrius Varas', eixo: 'Prosa', territorio: 'Prosa erótica/hot', formato: 'conto', volumeMinimo: 12, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Erótico'] },
+  { nome: 'Din Kin Lin', eixo: 'Híbrido', territorio: 'Dragões, seres místicos do oriente, lendas', formato: 'conto', volumeMinimo: 12, destino: 'masmorra', universoPadrao: ['Fantasia', 'Mitológico'], tomPadrao: ['Épico', 'Aventura'] },
+  { nome: 'Diógenes Bueno de Alencar', eixo: 'Híbrido', territorio: 'Arquipélagos, penínsulas, memória, interior', formato: 'cronica', volumeMinimo: 30, destino: 'masmorra', universoPadrao: ['Rural', 'Mar'], tomPadrao: ['Contemplativo', 'Melancólico'] },
+  { nome: 'Hama Amarin', eixo: 'Poesia', territorio: 'Pantum, perdão, ciclos emocionais', formato: 'pantum', volumeMinimo: 40, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Lírico', 'Psicológico'] },
+  { nome: 'Helena Duarte Valença', eixo: 'Prosa', territorio: 'Reconstrução feminina, memória doméstica, silenciamento', formato: 'conto', volumeMinimo: 12, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Drama', 'Psicológico'] },
+  { nome: 'Henrich Jones', eixo: 'Prosa', territorio: 'Arqueologia, paleontologia, civilizações antigas', formato: 'romance', volumeMinimo: 120, destino: 'calabouco', universoPadrao: ['Histórico'], tomPadrao: ['Aventura', 'Mistério'] },
+  { nome: 'Hernesto Bevilácqua', eixo: 'Poesia', territorio: 'Ode, contemplação, lirismo clássico', formato: 'ode', volumeMinimo: 40, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Poético', 'Contemplativo'] },
+  { nome: 'Horando Almeida Prado', eixo: 'Híbrido', territorio: 'Mar, pesca, litoral sul paulista', formato: 'conto', volumeMinimo: 12, destino: 'masmorra', universoPadrao: ['Mar', 'Rural'], tomPadrao: ['Contemplativo', 'Drama'] },
+  { nome: 'Icabode Kahpote', eixo: 'Híbrido', territorio: 'Sextinas, contos póstumos, morte, além-vida', formato: 'sextina', volumeMinimo: 30, destino: 'masmorra', universoPadrao: ['Sobrenatural'], tomPadrao: ['Melancólico', 'Existencial'] },
+  { nome: 'Imediato Thompson', eixo: 'Híbrido', territorio: 'Constelação Ophiuchus, Atlantis, cosmologia', formato: 'romance', volumeMinimo: 120, destino: 'calabouco', universoPadrao: ['Espaço', 'Mitológico'], tomPadrao: ['Épico', 'Filosófico'] },
+  { nome: 'J.L.Gomes', eixo: 'Híbrido', territorio: 'Literatura espírita kardecista — prosa, poesia e mensagens psicografadas. ÚNICO heterônimo autorizado para esse território. Toda obra espírita/kardecista é psicografada/ditada pelo Irmão Pullius (espírito mentor) e assinada por J.L.Gomes como médium. NUNCA usar outro heterônimo para temática espírita kardecista.', formato: 'variado', volumeMinimo: 30, destino: 'masmorra', universoPadrao: ['Religioso', 'Contemporâneo'], tomPadrao: ['Filosófico', 'Contemplativo'], espiritaExclusivo: true, espiritoMentor: 'Irmão Pullius' },
+  { nome: 'Jorge Cavalcanti', eixo: 'Cordel', territorio: 'Cordel, cultura popular, oralidade', formato: 'cordel', volumeMinimo: 20, destino: 'masmorra', universoPadrao: ['Rural', 'Histórico'], tomPadrao: ['Humor', 'Épico'] },
+  { nome: 'Julia Abdalla', eixo: 'Prosa', territorio: 'Culinária, bem-estar, receitas literárias', formato: 'cronica', volumeMinimo: 20, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Contemplativo', 'Humor'] },
+  { nome: 'Juka Pituskaq', eixo: 'Poesia', territorio: 'Novo Movimento Estrofista, odes', formato: 'poesia', volumeMinimo: 40, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Poético', 'Lírico'] },
+  { nome: 'Marina Torres Azevedo', eixo: 'Poesia', territorio: 'Poesia de reconstrução feminina, cura, memória', formato: 'poesia', volumeMinimo: 30, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Psicológico', 'Lírico'] },
+  { nome: 'Mário Célio Sabino', eixo: 'Híbrido', territorio: 'Terror, fantasmas, ocultismo, paranormal', formato: 'conto', volumeMinimo: 12, destino: 'masmorra', universoPadrao: ['Sobrenatural'], tomPadrao: ['Terror', 'Suspense'] },
+  { nome: 'Michelangelo Miguel', eixo: 'Poesia', territorio: 'Poema narrativo, lirismo, memória', formato: 'poesia', volumeMinimo: 40, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Lírico', 'Poético'] },
+  { nome: 'Noraya Sakamoto', eixo: 'Poesia', territorio: 'Haicais, natureza, sensibilidade oriental', formato: 'haicai', volumeMinimo: 60, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Contemplativo', 'Poético'] },
+  { nome: 'Pyetra Luyza', eixo: 'Híbrido', territorio: 'Ecoficção, natureza, defesa ambiental', formato: 'conto', volumeMinimo: 12, destino: 'masmorra', universoPadrao: ['Rural', 'Pós-apocalíptico'], tomPadrao: ['Contemplativo', 'Urgente'] },
+  { nome: 'Raimundo José da Silva Nonato', eixo: 'Híbrido', territorio: 'Seca nordestina, memória oral, resistência', formato: 'cordel', volumeMinimo: 20, destino: 'masmorra', universoPadrao: ['Rural', 'Histórico'], tomPadrao: ['Drama', 'Épico'] },
+  { nome: 'Renat Kolotov', eixo: 'Prosa', territorio: 'Revolução Russa, resistência histórica', formato: 'romance', volumeMinimo: 120, destino: 'calabouco', universoPadrao: ['Histórico', 'Político'], tomPadrao: ['Drama', 'Épico'] },
+  { nome: 'Rovonilson Reigns Bautista', eixo: 'Híbrido', territorio: 'Rap, rua, marquises, arquitetura urbana', formato: 'poesia', volumeMinimo: 40, destino: 'masmorra', universoPadrao: ['Submundo urbano', 'Contemporâneo'], tomPadrao: ['Urgente', 'Visceral'] },
+  { nome: 'Sebastião Ferreira dos Anjos', eixo: 'Poesia', territorio: 'Poemas dissertativos, reflexão social', formato: 'poesia', volumeMinimo: 40, destino: 'masmorra', universoPadrao: ['Político', 'Contemporâneo'], tomPadrao: ['Filosófico', 'Drama'] },
+  { nome: 'Site das Letras Ed. Literárias', eixo: 'Híbrido', territorio: 'Miscelânea, antologias institucionais', formato: 'variado', volumeMinimo: 10, destino: 'calabouco', universoPadrao: [], tomPadrao: [] },
+  { nome: 'Valter Marques', eixo: 'Híbrido', territorio: 'Erros do passado, dor, diversidade de estilos', formato: 'variado', volumeMinimo: 20, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Drama', 'Melancólico'] },
+  { nome: 'Victor A. Pereira', eixo: 'Prosa', territorio: 'Mistério, romance policial, investigação', formato: 'romance', volumeMinimo: 120, destino: 'calabouco', universoPadrao: ['Policial', 'Contemporâneo'], tomPadrao: ['Mistério', 'Suspense'] },
+  { nome: 'Wagner Planas', eixo: 'Híbrido', territorio: 'Múltiplos — criador do ecossistema', formato: 'variado', volumeMinimo: 10, destino: 'masmorra', universoPadrao: [], tomPadrao: [] },
+  { nome: 'Wilson Silva', eixo: 'Híbrido', territorio: 'Cotidiano, amor, poesias e prosas líricas', formato: 'variado', volumeMinimo: 30, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Amor', 'Lírico'] },
+  { nome: 'Yago Mattos', eixo: 'Híbrido', territorio: 'Bruxas, lendas, deuses do mar', formato: 'conto', volumeMinimo: 12, destino: 'masmorra', universoPadrao: ['Mar', 'Mitológico'], tomPadrao: ['Mistério', 'Épico'] },
+  { nome: 'Mórigan Voss', eixo: 'Prosa', territorio: 'Amor impossível, luto, fronteiras entre mundos, o que persiste depois da perda. Tom literário elevado, linguagem densa, emocionalmente preciso. Obra: As Lágrimas que Dobram o Céu', formato: 'romance', volumeMinimo: 120, destino: 'calabouco', universoPadrao: ['Sobrenatural', 'Contemporâneo'], tomPadrao: ['Amor', 'Melancólico'] },
+  { nome: 'Dona Catarina Trovante', eixo: 'Poesia', territorio: 'Trovas, quadras métricas, temas nacionais, amor, resistência', formato: 'trova', volumeMinimo: 40, destino: 'masmorra', universoPadrao: ['Histórico'], tomPadrao: ['Amor', 'Épico'] },
+  { nome: 'Vladislava Karnstein', eixo: 'Híbrido', territorio: 'Vampirismo aristocrático, sedução sombria, memórias de uma condessa imortal', formato: 'romance', volumeMinimo: 120, destino: 'calabouco', universoPadrao: ['Sobrenatural', 'Histórico'], tomPadrao: ['Melancólico', 'Erótico'] },
+  { nome: 'Santiago Poetrix', eixo: 'Híbrido', territorio: 'Poetrix — forma híbrida entre poesia e prosa poética, Santos SP', formato: 'poetrix', volumeMinimo: 30, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Poético', 'Lírico'] },
+  { nome: 'Irmão Ezequias Luz', eixo: 'Híbrido', territorio: 'Literatura cristã evangélica, terror espiritual, batalha entre bem e mal', formato: 'conto', volumeMinimo: 12, destino: 'masmorra', universoPadrao: ['Religioso', 'Sobrenatural'], tomPadrao: ['Terror', 'Filosófico'] },
+  { nome: 'Marina das Vozes', eixo: 'Híbrido', territorio: 'Crônica urbana pura, São Paulo, vida metropolitana, ironia fina', formato: 'cronica', volumeMinimo: 30, destino: 'masmorra', universoPadrao: ['Contemporâneo'], tomPadrao: ['Sátira', 'Contemplativo'] },
+  { nome: 'Mirela Voss Drummond', eixo: 'Prosa', territorio: 'O que resta nos vivos depois da perda — memória afetiva, presença invisível de quem partiu, luto silencioso no cotidiano. Irmã de Mórigan Voss, nascida em Utrecht, Países Baixos. Obra: O Que Resta Depois do Fogo', formato: 'conto', volumeMinimo: 40, destino: 'calabouco', universoPadrao: ['Contemporâneo'], tomPadrao: ['Melancólico', 'Contemplativo'] },
+  { nome: 'Baltasar de Morais Seixas', eixo: 'Prosa', territorio: 'Épica e espiritualidade ibérica — fé, mar, Descobrimentos portugueses, Ordem dos Cavaleiros de Cristo. Neto de marinheiro de Vasco da Gama. Obra: A Cruz Sem Margem', formato: 'romance', volumeMinimo: 120, destino: 'calabouco', universoPadrao: ['Histórico', 'Mar'], tomPadrao: ['Épico', 'Filosófico'] },
+  { nome: 'Miroslav Kadek', eixo: 'Prosa', territorio: 'Prosa lírica de tensão histórica e memória fragmentada — Guerra Fria, Europa Central, silêncio geracional, trauma herdado. Obra: O Que Ficou na Areia', formato: 'romance', volumeMinimo: 80, destino: 'calabouco', universoPadrao: ['Histórico', 'Político'], tomPadrao: ['Psicológico', 'Melancólico'] },
+  { nome: 'Tlacuilo Bernardino Xochitl', eixo: 'Prosa', territorio: 'Prosa mítica mesoamericana — cosmogonia asteca e maia, deuses, sacrifício, ciclos do tempo. Escreve como um escriba sagrado. Obra: O Que Bebe na Noite', formato: 'romance', volumeMinimo: 80, destino: 'calabouco', universoPadrao: ['Mitológico', 'Histórico'], tomPadrao: ['Épico', 'Filosófico'] },
 ];
 
 const coresEixo = { Prosa:'#1565c0', Poesia:'#ad1457', Híbrido:'#e65100', Cordel:'#2e7d32', Aberto:'#4a4a4a' };
@@ -3785,6 +3812,76 @@ function genLog(msg) {
 function genBarra(pct) {
   const el = document.getElementById('gen-barra');
   if (el) el.style.width = pct + '%';
+}
+
+// ===================== ESTATÍSTICAS DE PROGRESSO EM TEMPO REAL =====================
+// Mostra palavras geradas até agora, tempo decorrido, e estimativa de tempo
+// restante baseada no ritmo médio por arco já observado nesta geração —
+// ajuda a diferenciar "está demorando mas normal" de "travou".
+
+let genCronometroInicio = null;
+let genCronometroIntervalo = null;
+let genPalavrasAcumuladas = 0;
+let genArcosDuracoes = []; // duração em ms de cada arco já concluído
+
+function genIniciarCronometro(totalArcosEsperados) {
+  genCronometroInicio = Date.now();
+  genPalavrasAcumuladas = 0;
+  genArcosDuracoes = [];
+  genStatsTotalArcos = totalArcosEsperados || 3;
+
+  if (genCronometroIntervalo) clearInterval(genCronometroIntervalo);
+  genCronometroIntervalo = setInterval(genAtualizarStats, 1000);
+  genAtualizarStats();
+}
+
+function genPararCronometro() {
+  if (genCronometroIntervalo) { clearInterval(genCronometroIntervalo); genCronometroIntervalo = null; }
+}
+
+function genRegistrarPalavras(textoArco) {
+  genPalavrasAcumuladas += (textoArco || '').split(/\s+/).filter(Boolean).length;
+}
+
+function genRegistrarArcoConcluido() {
+  if (genCronometroInicio) {
+    const agora = Date.now();
+    const inicioArco = genArcosDuracoes.length > 0
+      ? genCronometroInicio + genArcosDuracoes.reduce((a,b) => a+b, 0)
+      : genCronometroInicio;
+    genArcosDuracoes.push(agora - inicioArco);
+  }
+}
+
+let genStatsTotalArcos = 3;
+
+function genFormatarTempo(ms) {
+  const totalSeg = Math.floor(ms / 1000);
+  const min = Math.floor(totalSeg / 60);
+  const seg = totalSeg % 60;
+  return `${String(min).padStart(2,'0')}:${String(seg).padStart(2,'0')}`;
+}
+
+function genAtualizarStats() {
+  const elPalavras = document.getElementById('gen-stat-palavras');
+  const elTempo = document.getElementById('gen-stat-tempo');
+  const elEstimativa = document.getElementById('gen-stat-estimativa');
+  if (!elPalavras || !elTempo || !elEstimativa || !genCronometroInicio) return;
+
+  const decorrido = Date.now() - genCronometroInicio;
+  elPalavras.textContent = `${genPalavrasAcumuladas.toLocaleString('pt-BR')} palavras geradas`;
+  elTempo.textContent = `${genFormatarTempo(decorrido)} decorrido`;
+
+  if (genArcosDuracoes.length === 0) {
+    elEstimativa.textContent = 'estimando tempo restante...';
+  } else {
+    const mediaPorArco = genArcosDuracoes.reduce((a,b) => a+b, 0) / genArcosDuracoes.length;
+    const arcosRestantes = Math.max(0, genStatsTotalArcos - genArcosDuracoes.length);
+    const restanteMs = mediaPorArco * arcosRestantes;
+    elEstimativa.textContent = arcosRestantes > 0
+      ? `~${genFormatarTempo(restanteMs)} restante (estimado)`
+      : 'finalizando...';
+  }
 }
 
 // Variáveis de controle do fluxo de arcos
@@ -4010,7 +4107,23 @@ async function iniciarGeracaoLivro() {
   // Resolver heterônimo contra o elenco real da OHE
   let heteronimoFinal = heteronimo;
   let perfilHeteronimo = '';
-  if (heteronimo) {
+
+  // REGRA DE EXCLUSIVIDADE: literatura espírita/kardecista é território exclusivo
+  // de J.L.Gomes (psicografia/ditado do Irmão Pullius). Nenhum outro heterônimo
+  // pode ser usado para esse tema, mesmo que o usuário escolha outro nome ou
+  // deixe o campo vazio com tema espírita no título/sinopse.
+  const PALAVRAS_ESPIRITAS = ['espírita', 'espirita', 'kardecista', 'kardec', 'psicografia', 'psicografado', 'psicografada', 'espiritismo', 'médium', 'medium', 'mediunidade', 'mediúnico'];
+  const textoCompletoBusca = `${titulo} ${sinopse}`.toLowerCase();
+  const temaEspirita = PALAVRAS_ESPIRITAS.some(p => textoCompletoBusca.includes(p));
+  const heteronimoEspirita = HETERONIMOS.find(h => h.espiritaExclusivo);
+
+  if (temaEspirita && heteronimoEspirita) {
+    heteronimoFinal = heteronimoEspirita.nome;
+    perfilHeteronimo = `PERFIL DO HETERÔNIMO — OBRA ESPÍRITA KARDECISTA:\nEste livro é de literatura espírita kardecista. Por regra fixa da OHE, esse território é EXCLUSIVO de J.L.Gomes, médium psicógrafo. A obra inteira deve ser apresentada como PSICOGRAFADA/DITADA pelo espírito mentor ${heteronimoEspirita.espiritoMentor}, com J.L.Gomes na função de médium. Mantenha tom espírita kardecista: linguagem fraterna, doutrina espírita, referências a evolução espiritual, caridade, reencarnação, mundo espiritual — nunca trate como ficção sobrenatural genérica.\nTerritório temático: ${heteronimoEspirita.territorio}`;
+    if (heteronimo && heteronimo.toLowerCase() !== heteronimoEspirita.nome.toLowerCase()) {
+      genLog(`⚠ Tema espírita/kardecista detectado — heterônimo trocado automaticamente para ${heteronimoEspirita.nome} (território exclusivo, ditado pelo ${heteronimoEspirita.espiritoMentor}).`);
+    }
+  } else if (heteronimo) {
     const match = HETERONIMOS.find(h => h.nome.toLowerCase() === heteronimo.toLowerCase())
       || HETERONIMOS.find(h => h.nome.toLowerCase().includes(heteronimo.toLowerCase()) || heteronimo.toLowerCase().includes(h.nome.toLowerCase()));
     if (match) {
@@ -4021,16 +4134,21 @@ async function iniciarGeracaoLivro() {
     // Heterônimo vazio: o sistema escolhe um heterônimo real do elenco por correspondência
     // de palavras-chave entre título/sinopse e o território de cada autor. Isso garante
     // rastreabilidade total (a capa e a biografia sempre terão um nome real da OHE).
-    const textoBusca = `${titulo} ${sinopse}`.toLowerCase();
+    // Heterônimos com território exclusivo (espiritaExclusivo) ficam fora desta busca
+    // genérica — só são escolhidos pela regra de exclusividade acima.
+    const textoBusca = textoCompletoBusca;
     let melhorMatch = null;
     let melhorScore = 0;
     for (const h of HETERONIMOS) {
+      if (h.espiritaExclusivo) continue;
       const palavrasTerritorio = h.territorio.toLowerCase().split(/[,\s]+/).filter(p => p.length > 3);
       const score = palavrasTerritorio.filter(p => textoBusca.includes(p)).length;
       if (score > melhorScore) { melhorScore = score; melhorMatch = h; }
     }
     // Sem correspondência clara: Fernando Peçanha escolhe aleatoriamente dentro do elenco
-    const escolhido = melhorMatch || HETERONIMOS[Math.floor(Math.random() * HETERONIMOS.length)];
+    // (excluindo heterônimos de território exclusivo, que só entram pela regra acima)
+    const elencoGeral = HETERONIMOS.filter(h => !h.espiritaExclusivo);
+    const escolhido = melhorMatch || elencoGeral[Math.floor(Math.random() * elencoGeral.length)];
     heteronimoFinal = escolhido.nome;
     perfilHeteronimo = `PERFIL DO HETERÔNIMO (Fernando Peçanha selecionou este autor da OHE para este livro — respeite seu território e estilo):\nTerritório temático: ${escolhido.territorio}\nEixo: ${escolhido.eixo}\nFormato habitual: ${escolhido.formato}`;
     genLog(`✒ Fernando Peçanha selecionou: ${escolhido.nome} (${escolhido.territorio})`);
@@ -4045,6 +4163,7 @@ async function iniciarGeracaoLivro() {
   arcosTextoGlobal = [];
   let resumoAnterior = '';
   let capituloAtual = 1;
+  genIniciarCronometro(jornada.arcos.length);
 
   for (let ai = 0; ai < jornada.arcos.length; ai++) {
     const arco = jornada.arcos[ai];
@@ -4112,6 +4231,8 @@ Escreva aproximadamente ${palavrasPorArco} palavras. Comece diretamente com a na
 
       genLog(`✓ Arco ${ai+1} aprovado!`);
       genLivroCompleto += textoArcoFinal + '\n\n' + '─'.repeat(60) + '\n\n';
+      genRegistrarPalavras(textoArcoFinal);
+      genRegistrarArcoConcluido();
       const matchesCap = textoArcoFinal.match(/Cap[ií]tulo\s+[IVXLC\d]+/gi) || [];
       if (matchesCap.length > 0) capituloAtual += matchesCap.length;
 
@@ -4141,6 +4262,7 @@ Escreva o resumo em 5-7 parágrafos densos. Não interprete nem analise — apen
       }
     } catch(e) {
       genLog(`✗ Erro no Arco ${ai+1}: ${e.message}`);
+      genPararCronometro();
       notif('ERRO', e.message, 'erro');
       document.getElementById('gerador-form').style.display = 'block';
       document.getElementById('gen-progresso').style.display = 'none';
@@ -4149,6 +4271,7 @@ Escreva o resumo em 5-7 parágrafos densos. Não interprete nem analise — apen
   }
 
   genBarra(100);
+  genPararCronometro();
   genLog('✓ Todos os arcos concluídos! Compilando livro...');
 
   genLivroCompleto = limparTextoArco(genLivroCompleto).replace(/\n{4,}/g,'\n\n');
@@ -4157,18 +4280,29 @@ Escreva o resumo em 5-7 parágrafos densos. Não interprete nem analise — apen
 
   const anoAtual = new Date().getFullYear();
   const autorFinal = heteronimoFinal || 'A definir';
+  const heteronimoUsado = HETERONIMOS.find(h => h.nome === heteronimoFinal);
+  const ehObraEspirita = !!(heteronimoUsado && heteronimoUsado.espiritaExclusivo);
+
+  const linhaAutorCapa = ehObraEspirita
+    ? `Ditado pelo Espírito ${heteronimoUsado.espiritoMentor}\nPsicografia: ${autorFinal}`
+    : `Autor: ${autorFinal}`;
+
+  const biografiaTexto = ehObraEspirita
+    ? `Obra psicografada por ${autorFinal}, médium da OHE — Organização Heterônima Editorial, sob ditado espiritual do Espírito ${heteronimoUsado.espiritoMentor}.`
+    : `${autorFinal} é escritor da OHE — Organização Heterônima Editorial.`;
+
   const livroEditorial = `SITE DAS LETRAS EDIÇÕES LITERÁRIAS
 
 
 ${titulo.toUpperCase()}
 
-Autor: ${autorFinal}
+${linhaAutorCapa}
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ${titulo}
-${autorFinal}
+${linhaAutorCapa}
 Site das Letras Edições Literárias
 ${anoAtual}
 
@@ -4188,7 +4322,7 @@ ${genLivroCompleto}
 
 BIOGRAFIA
 
-${autorFinal} é escritor da OHE — Organização Heterônima Editorial.
+${biografiaTexto}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -4227,6 +4361,7 @@ SITE DAS LETRAS EDIÇÕES LITERÁRIAS`;
   document.getElementById('gen-progresso').style.display = 'none';
   document.getElementById('gen-resultado').style.display = 'block';
   document.getElementById('gen-livro-texto').textContent = genLivroCompleto;
+  mostrarChecklistAutomatica(genLivroCompleto);
 
   notif('LIVRO GERADO', `"${titulo}" salvo no ${destino === 'calabouco' ? 'Calabouço' : 'Masmorra'}!`, 'sucesso');
 }
@@ -4237,6 +4372,119 @@ function copiarLivro() {
   }).catch(() => {
     notif('ERRO', 'Não foi possível copiar automaticamente.', 'erro');
   });
+}
+
+// ===================== EXPORTAÇÃO PARA WORD (.docx) =====================
+// Converte o texto puro do livro (com cabeçalhos "CAPÍTULO N — TÍTULO" e
+// parágrafos separados por linha em branco) num documento .docx formatado:
+// capítulos com estilo de título, parágrafos com indentação de primeira linha,
+// fonte serifada legível. Usa docx.js carregado via CDN, que roda no browser.
+async function exportarLivroWord(conteudo, titulo, autor) {
+  if (typeof docx === 'undefined') {
+    notif('ERRO', 'Biblioteca de exportação ainda não carregou. Tente novamente em alguns segundos.', 'erro');
+    return;
+  }
+  if (!conteudo || conteudo.trim().length < 50) {
+    notif('NADA PARA EXPORTAR', 'Esta obra ainda não tem conteúdo suficiente.', 'erro');
+    return;
+  }
+
+  notif('EXPORTANDO', 'Gerando documento Word...', 'info');
+
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, PageBreak } = docx;
+
+  // Remove o bloco editorial repetido (capa, ISBN, separadores ━) que já existe
+  // no texto montado pelo gerador — mantemos apenas o miolo do livro a partir
+  // do primeiro capítulo real, e adicionamos capa própria no Word.
+  let texto = conteudo;
+  const primeiroCapMatch = texto.match(/^CAP[ÍI]TULO\s+\d+/im);
+  if (primeiroCapMatch) {
+    texto = texto.slice(texto.indexOf(primeiroCapMatch[0]));
+  }
+  // Remove linhas de separador e blocos de biografia/rodapé editorial do final
+  texto = texto.replace(/━{5,}[\s\S]*$/m, '').trim();
+
+  const blocos = texto.split(/\n{2,}/).map(b => b.trim()).filter(Boolean);
+  const children = [];
+
+  // Capa
+  children.push(
+    new Paragraph({ text: '', spacing: { after: 2000 } }),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      children: [new TextRun({ text: (titulo || 'Sem título').toUpperCase(), bold: true, size: 56, font: 'Cambria' })],
+      spacing: { after: 400 }
+    }),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      children: [new TextRun({ text: autor || 'Autor não definido', size: 28, font: 'Cambria', italics: true })],
+      spacing: { after: 200 }
+    }),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      children: [new TextRun({ text: 'Site das Letras Edições Literárias', size: 22, font: 'Cambria' })],
+      spacing: { after: 2000 }
+    }),
+    new Paragraph({ children: [new PageBreak()] })
+  );
+
+  const regexCapitulo = /^CAP[ÍI]TULO\s+\d+\s*—\s*.+$/i;
+
+  for (const bloco of blocos) {
+    if (regexCapitulo.test(bloco)) {
+      children.push(new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        alignment: AlignmentType.CENTER,
+        pageBreakBefore: children.length > 1,
+        children: [new TextRun({ text: bloco, bold: true, size: 30, font: 'Cambria' })],
+        spacing: { before: 400, after: 400 }
+      }));
+    } else {
+      children.push(new Paragraph({
+        alignment: AlignmentType.JUSTIFIED,
+        indent: { firstLine: 567 }, // ~1cm de indentação na primeira linha
+        spacing: { after: 200, line: 360 },
+        children: [new TextRun({ text: bloco, size: 24, font: 'Cambria' })]
+      }));
+    }
+  }
+
+  const doc = new Document({
+    styles: {
+      default: { document: { run: { font: 'Cambria', size: 24 } } },
+      paragraphStyles: [
+        { id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', quickFormat: true,
+          run: { size: 30, bold: true, font: 'Cambria' },
+          paragraph: { spacing: { before: 400, after: 400 }, outlineLevel: 0 } }
+      ]
+    },
+    sections: [{
+      properties: {
+        page: {
+          size: { width: 11906, height: 16838 }, // A4
+          margin: { top: 1417, right: 1417, bottom: 1417, left: 1417 }
+        }
+      },
+      children
+    }]
+  });
+
+  try {
+    const blob = await Packer.toBlob(doc);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const nomeArquivo = (titulo || 'livro').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_');
+    a.href = url;
+    a.download = `${nomeArquivo}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    notif('EXPORTADO', 'Documento Word gerado e baixado com sucesso.', 'sucesso');
+  } catch(e) {
+    console.error('Erro ao exportar Word:', e);
+    notif('ERRO', 'Falha ao gerar o documento Word: ' + e.message, 'erro');
+  }
 }
 
 function enviarLivroGeradoParaPaiol() {
@@ -4428,6 +4676,7 @@ async function costurarTextoFinal() {
   genLog('🧵 Costurando desfecho final...');
 
   const texto = genLivroCompleto;
+  salvarVersaoAnterior('gerador', null, texto, 'Antes de costurar o desfecho final');
   const ultimoChar = texto.trim().slice(-1);
   const cortado = !'.!?…”»)—'.includes(ultimoChar);
 
@@ -4487,6 +4736,7 @@ Escreva agora sem introdução ou comentário.`;
     const sep = cortado ? '' : '\n\n';
     genLivroCompleto = texto.trimEnd() + sep + continuacao;
     document.getElementById('gen-livro-texto').textContent = genLivroCompleto;
+    mostrarChecklistAutomatica(genLivroCompleto);
     genLog('✅ Desfecho concluído — ' + continuacao.split(/\s+/).filter(Boolean).length + ' palavras adicionadas.');
 
     // Sincroniza o conteúdo costurado de volta no item salvo (Calabouço/Masmorra)
@@ -4512,6 +4762,36 @@ Escreva agora sem introdução ou comentário.`;
 // (título quebrado, capítulo duplicado, corte abrupto, numeração reiniciada)
 // e dar uma nota/recomendação literária sem que o usuário precise colar
 // o texto manualmente para revisão externa.
+
+// Roda a checklist técnica (sem custo de API) automaticamente assim que o livro
+// é finalizado, e mostra um aviso compacto e clicável na tela de resultado —
+// sem precisar abrir o modal de análise completa para saber se há problema técnico.
+function mostrarChecklistAutomatica(conteudo) {
+  const el = document.getElementById('gen-checklist-auto');
+  if (!el) return;
+  if (!conteudo || conteudo.trim().length < 200) { el.style.display = 'none'; return; }
+
+  const { achados } = checklistTecnica(conteudo);
+  const erros = achados.filter(a => a.tipo === 'erro').length;
+  const avisos = achados.filter(a => a.tipo === 'aviso').length;
+
+  el.style.display = 'block';
+  if (achados.length === 0) {
+    el.style.background = 'rgba(76,175,80,0.08)';
+    el.style.border = '1px solid rgba(76,175,80,0.3)';
+    el.style.color = '#4caf50';
+    el.textContent = '✓ Nenhum problema técnico detectado. Clique para ver a avaliação literária completa.';
+  } else {
+    const cor = erros > 0 ? '#e53935' : '#f57f17';
+    el.style.background = erros > 0 ? 'rgba(229,57,53,0.08)' : 'rgba(245,127,23,0.08)';
+    el.style.border = `1px solid ${cor}55`;
+    el.style.color = cor;
+    const partes = [];
+    if (erros) partes.push(`${erros} erro(s)`);
+    if (avisos) partes.push(`${avisos} aviso(s)`);
+    el.textContent = `⚠ ${partes.join(' e ')} técnico(s) detectado(s) — clique para ver detalhes e corrigir.`;
+  }
+}
 
 function checklistTecnica(texto) {
   const achados = [];
@@ -4603,6 +4883,103 @@ function removerParagrafosDuplicados(texto) {
   return resultado.join('\n\n');
 }
 
+// ===================== HISTÓRICO DE VERSÕES =====================
+// Antes de qualquer correção automática (costura, correção técnica, sugestão de
+// trecho) ser aplicada, o texto anterior é salvo no localStorage com timestamp.
+// Permite desfazer se a correção não ficar boa — sem isso, o texto antigo
+// era perdido para sempre assim que uma correção era aplicada.
+
+const HISTORICO_MAX_VERSOES = 10;
+
+function chaveHistorico(origem, idx) {
+  return `historico_livro_${origem}_${idx === null || idx === undefined ? 'atual' : idx}`;
+}
+
+function salvarVersaoAnterior(origem, idx, conteudoAnterior, descricao) {
+  try {
+    const chave = chaveHistorico(origem, idx);
+    const historico = JSON.parse(localStorage.getItem(chave) || '[]');
+    historico.unshift({
+      conteudo: conteudoAnterior,
+      descricao: descricao,
+      timestamp: new Date().toISOString(),
+      dataFormatada: new Date().toLocaleString('pt-BR')
+    });
+    // Mantém só as últimas N versões para não estourar o localStorage
+    const limitado = historico.slice(0, HISTORICO_MAX_VERSOES);
+    localStorage.setItem(chave, JSON.stringify(limitado));
+  } catch(e) {
+    console.warn('Não foi possível salvar versão no histórico:', e.message);
+  }
+}
+
+function obterHistorico(origem, idx) {
+  try {
+    const chave = chaveHistorico(origem, idx);
+    return JSON.parse(localStorage.getItem(chave) || '[]');
+  } catch(e) {
+    return [];
+  }
+}
+
+function restaurarVersao(origem, idx, versaoIndice) {
+  const historico = obterHistorico(origem, idx);
+  const versao = historico[versaoIndice];
+  if (!versao) { notif('ERRO', 'Versão não encontrada.', 'erro'); return; }
+
+  // Salva o estado atual como nova versão antes de restaurar (permite redo manual)
+  let conteudoAtual;
+  if (origem === 'gerador') {
+    conteudoAtual = genLivroCompleto;
+  } else {
+    const arr = origem === 'calabouco' ? estado.calabouco : estado.masmorra;
+    conteudoAtual = arr[idx]?.conteudo;
+  }
+  if (conteudoAtual) salvarVersaoAnterior(origem, idx, conteudoAtual, 'Antes de restaurar versão anterior');
+
+  if (origem === 'gerador') {
+    genLivroCompleto = versao.conteudo;
+    const pre = document.getElementById('gen-livro-texto');
+    if (pre) pre.textContent = genLivroCompleto;
+    mostrarChecklistAutomatica(genLivroCompleto);
+  } else {
+    const arr = origem === 'calabouco' ? estado.calabouco : estado.masmorra;
+    if (arr[idx]) {
+      arr[idx].conteudo = versao.conteudo;
+      salvar();
+      renderizarCalabouco();
+      renderizarMasmorra();
+    }
+  }
+
+  notif('VERSÃO RESTAURADA', `Texto de ${versao.dataFormatada} restaurado.`, 'sucesso');
+  fecharModal('modal-historico');
+}
+
+function abrirHistoricoVersoes(origem, idx) {
+  const modal = document.getElementById('modal-historico');
+  const corpo = document.getElementById('historico-corpo');
+  if (!modal || !corpo) return;
+
+  const historico = obterHistorico(origem, idx);
+  if (historico.length === 0) {
+    corpo.innerHTML = `<div style="font-family:'Crimson Pro',serif;font-size:0.85rem;color:var(--prata);opacity:0.6;text-align:center;padding:2rem 0;">Nenhuma versão anterior salva ainda. O histórico é criado automaticamente toda vez que você aplica uma costura ou correção.</div>`;
+  } else {
+    corpo.innerHTML = historico.map((v, i) => `
+      <div style="border:1px solid rgba(201,168,76,0.15);border-radius:6px;padding:0.8rem;margin-bottom:0.6rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.08em;color:var(--ouro);text-transform:uppercase;">${v.dataFormatada}</div>
+          <button onclick="restaurarVersao('${origem}', ${idx === null || idx === undefined ? 'null' : idx}, ${i})" style="background:rgba(76,175,80,0.1);border:1px solid #4caf50;color:#4caf50;font-family:'Share Tech Mono',monospace;font-size:0.4rem;letter-spacing:0.06em;padding:0.25rem 0.6rem;cursor:pointer;text-transform:uppercase;border-radius:3px;">↺ Restaurar</button>
+        </div>
+        <div style="font-family:'Crimson Pro',serif;font-size:0.75rem;color:var(--prata);">${v.descricao}</div>
+        <div style="font-family:'Crimson Pro',serif;font-size:0.7rem;color:var(--prata);opacity:0.5;margin-top:0.3rem;">${v.conteudo.split(/\s+/).filter(Boolean).length.toLocaleString('pt-BR')} palavras</div>
+      </div>
+    `).join('');
+  }
+
+  modal.classList.add('aberto');
+}
+
 async function aplicarCorrecaoTecnica(acao, origem, idx) {
   let item, conteudo;
   if (origem === 'gerador') {
@@ -4618,9 +4995,11 @@ async function aplicarCorrecaoTecnica(acao, origem, idx) {
   let msg = '';
 
   if (acao === 'titulos') {
+    salvarVersaoAnterior(origem, idx, conteudo, 'Antes de normalizar títulos de capítulo');
     novoConteudo = limparTextoArco(conteudo);
     msg = 'Títulos de capítulo normalizados.';
   } else if (acao === 'duplicata') {
+    salvarVersaoAnterior(origem, idx, conteudo, 'Antes de remover parágrafos duplicados');
     novoConteudo = removerParagrafosDuplicados(conteudo);
     msg = 'Parágrafos duplicados removidos.';
   } else if (acao === 'costura') {
@@ -4632,6 +5011,7 @@ async function aplicarCorrecaoTecnica(acao, origem, idx) {
     genLivroCompleto = novoConteudo;
     const pre = document.getElementById('gen-livro-texto');
     if (pre) pre.textContent = novoConteudo;
+    mostrarChecklistAutomatica(novoConteudo);
   } else {
     item.conteudo = novoConteudo;
     salvar();
@@ -4842,12 +5222,15 @@ function usarSugestaoTrecho(indice) {
     return;
   }
 
+  salvarVersaoAnterior(origem, idx, conteudoAtual, `Antes de aplicar sugestão: ${s.localizacao || 'trecho ' + (indice+1)}`);
+
   const novoConteudo = conteudoAtual.replace(s.trecho_original, s.trecho_sugerido);
 
   if (origem === 'gerador') {
     genLivroCompleto = novoConteudo;
     const pre = document.getElementById('gen-livro-texto');
     if (pre) pre.textContent = novoConteudo;
+    mostrarChecklistAutomatica(novoConteudo);
   } else {
     const arr = origem === 'calabouco' ? estado.calabouco : estado.masmorra;
     arr[idx].conteudo = novoConteudo;
@@ -4865,18 +5248,84 @@ function usarSugestaoTrecho(indice) {
   notif('TRECHO ATUALIZADO', 'A sugestão foi aplicada ao texto da obra.', 'sucesso');
 }
 
+// ===================== PERFIL AUTOMÁTICO DO HETERÔNIMO =====================
+// Quando o usuário escolhe um heterônimo conhecido, os checkboxes de Universo e
+// Tom são pré-marcados com o perfil padrão daquele autor — editável depois,
+// mas economiza cliques e garante consistência de estilo entre livros do mesmo autor.
+
+function popularListaHeteronimos() {
+  const datalist = document.getElementById('gen-heteronimos-lista');
+  if (!datalist) return;
+  datalist.innerHTML = HETERONIMOS.map(h => `<option value="${h.nome}">`).join('');
+}
+
+let genUltimoHeteronimoAplicado = null;
+
+function aplicarPerfilHeteronimo() {
+  const input = document.getElementById('gen-heteronimo');
+  const indicador = document.getElementById('gen-heteronimo-perfil');
+  if (!input || !indicador) return;
+
+  const nomeDigitado = input.value.trim().toLowerCase();
+  if (!nomeDigitado) {
+    indicador.style.display = 'none';
+    genUltimoHeteronimoAplicado = null;
+    return;
+  }
+
+  const match = HETERONIMOS.find(h => h.nome.toLowerCase() === nomeDigitado);
+  if (!match) {
+    indicador.style.display = 'none';
+    genUltimoHeteronimoAplicado = null;
+    return;
+  }
+
+  // Evita reaplicar repetidamente enquanto o usuário ainda está digitando o mesmo nome
+  if (genUltimoHeteronimoAplicado === match.nome) return;
+  genUltimoHeteronimoAplicado = match.nome;
+
+  // Marca os checkboxes de universo e tom padrão deste heterônimo
+  const universoBoxes = document.querySelectorAll('#gen-universos input[type="checkbox"]');
+  const tomBoxes = document.querySelectorAll('#gen-tons input[type="checkbox"]');
+  universoBoxes.forEach(c => { c.checked = (match.universoPadrao || []).includes(c.value); });
+  tomBoxes.forEach(c => { c.checked = (match.tomPadrao || []).includes(c.value); });
+
+  if ((match.universoPadrao || []).length || (match.tomPadrao || []).length) {
+    indicador.style.display = 'block';
+    indicador.textContent = `✓ Perfil de ${match.nome} aplicado: ${(match.universoPadrao||[]).join(', ')} · ${(match.tomPadrao||[]).join(', ')} (editável abaixo)`;
+  } else {
+    indicador.style.display = 'block';
+    indicador.textContent = `${match.nome} ainda não tem perfil padrão de universo/tom definido.`;
+  }
+}
+
 function novoLivro() {
   genJornadaSelecionada = null;
   genLivroCompleto = '';
   genUltimoItemIdx = null;
   genUltimoItemOrigem = null;
+  genUltimoHeteronimoAplicado = null;
+  genPararCronometro();
+  genCronometroInicio = null;
+  genPalavrasAcumuladas = 0;
+  genArcosDuracoes = [];
   document.getElementById('gen-titulo').value = '';
   document.getElementById('gen-heteronimo').value = '';
   document.getElementById('gen-sinopse').value = '';
   document.getElementById('gen-log').innerHTML = '';
   document.getElementById('gen-barra').style.width = '0%';
+  const elPalavras = document.getElementById('gen-stat-palavras');
+  const elTempo = document.getElementById('gen-stat-tempo');
+  const elEstimativa = document.getElementById('gen-stat-estimativa');
+  if (elPalavras) elPalavras.textContent = '0 palavras geradas';
+  if (elTempo) elTempo.textContent = '00:00 decorrido';
+  if (elEstimativa) elEstimativa.textContent = 'estimando tempo restante...';
   document.querySelectorAll('#gen-jornadas .btn-s').forEach(b => { b.style.borderColor = ''; b.style.color = ''; });
   document.querySelectorAll('#gen-universos input, #gen-tons input').forEach(c => c.checked = false);
+  const indicadorPerfil = document.getElementById('gen-heteronimo-perfil');
+  if (indicadorPerfil) indicadorPerfil.style.display = 'none';
+  const checklistAuto = document.getElementById('gen-checklist-auto');
+  if (checklistAuto) checklistAuto.style.display = 'none';
   document.getElementById('gerador-form').style.display = 'block';
   document.getElementById('gen-progresso').style.display = 'none';
   document.getElementById('gen-resultado').style.display = 'none';
@@ -4948,6 +5397,7 @@ function init() {
     renderizarHeteronimos();
     renderizarPaiol();
     atualizarContadores();
+    popularListaHeteronimos();
   }, 150);
   if (estado.sistemaParado) {
     document.getElementById('barra-emergencia').classList.add('ativa');
