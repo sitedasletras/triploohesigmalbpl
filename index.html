@@ -1978,11 +1978,15 @@ body::before {
       <div id="gen-resultado" style="display:none;max-width:600px;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.15em;color:var(--verde);margin-bottom:1rem;">✓ LIVRO GERADO COM SUCESSO</div>
         <pre id="gen-livro-texto" style="font-family:'Crimson Pro',serif;font-size:0.8rem;color:var(--creme);white-space:pre-wrap;line-height:1.8;background:rgba(0,0,0,0.3);border:1px solid rgba(201,168,76,0.1);padding:1.5rem;border-radius:4px;max-height:60vh;overflow-y:auto;margin-bottom:1rem;"></pre>
-        <div style="display:flex;gap:1rem;flex-wrap:wrap;">
-          <button onclick="copiarLivro()" class="btn-p">📋 COPIAR LIVRO</button>
-          <button onclick="enviarLivroGeradoParaPaiol()" class="btn-s" style="border-color:#f57f17;color:#f57f17;">🏹 ENVIAR AO PAIOL</button>
-          <button onclick="novoLivro()" class="btn-s">+ NOVO LIVRO</button>
-          <button onclick="sairDoGerador()" class="btn-s">✕ SAIR DO GERADOR</button>
+        <div style="display:flex;gap:0.7rem;flex-wrap:wrap;flex-direction:column;">
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+            <button onclick="copiarLivro()" class="btn-p">📋 COPIAR LIVRO</button>
+            <button onclick="enviarLivroGeradoParaPaiol()" class="btn-s" style="border-color:#f57f17;color:#f57f17;">🏹 ENVIAR AO PAIOL</button>
+            <button onclick="novoLivro()" class="btn-s">+ NOVO LIVRO</button>
+            <button onclick="sairDoGerador()" class="btn-s">✕ SAIR DO GERADOR</button>
+          </div>
+          <button onclick="costurarTextoFinal()" style="width:100%;padding:0.85rem;background:rgba(245,127,23,0.1);color:#f57f17;border:1px solid rgba(245,127,23,0.4);font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;font-weight:700;">🧵 COSTURAR TEXTO — COMPLETAR DESFECHO (se o livro terminou cortado)</button>
+          <button onclick="analisarObra(genLivroCompleto, document.getElementById('gen-titulo').value, 'gerador', null)" style="width:100%;padding:0.85rem;background:rgba(76,175,80,0.1);color:#4caf50;border:1px solid rgba(76,175,80,0.4);font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;font-weight:700;">🔍 ANALISAR OBRA — VERIFICAR QUALIDADE</button>
         </div>
       </div>
     </div>
@@ -2087,6 +2091,26 @@ body::before {
     <div class="modal-acoes">
       <button class="btn-p" onclick="salvarPersonagem()">SALVAR PERSONAGEM</button>
       <button class="btn-s" onclick="fecharModal('modal-personagem')">CANCELAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ANÁLISE DE OBRA -->
+<div class="modal-overlay" id="modal-analise">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <div class="modal-tit">🔍 ANÁLISE DA OBRA</div>
+      <button class="modal-x" onclick="fecharModal('modal-analise')">// FECHAR</button>
+    </div>
+    <div class="modal-corpo" id="analise-corpo" style="max-height:70vh;overflow-y:auto;">
+      <div id="analise-loading" style="text-align:center;padding:2rem 0;display:none;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.15em;color:var(--ouro);">ANALISANDO OBRA...</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:var(--prata);opacity:0.6;margin-top:0.5rem;">Verificando estrutura técnica e qualidade literária</div>
+      </div>
+      <div id="analise-conteudo"></div>
+    </div>
+    <div class="modal-acoes">
+      <button class="btn-s" onclick="fecharModal('modal-analise')">FECHAR</button>
     </div>
   </div>
 </div>
@@ -3317,6 +3341,7 @@ function renderizarCalabouco() {
       </div>
       <div class="cal-acoes">
         <button class="fa-btn" onclick="abrirGerador(${i})">📖 GERAR LIVRO</button>
+        <button class="fa-btn" style="color:#4caf50;border-color:#4caf50;" onclick="analisarObra(estado.calabouco[${i}].conteudo, estado.calabouco[${i}].titulo, 'calabouco', ${i})">🔍 ANALISAR</button>
         <button class="fa-btn" onclick="enviarParaSilo('livro', ${i})">→ SILO</button>
         <button class="fa-btn" style="color:#f57f17;border-color:#f57f17;" onclick="moverParaPaiol(${i})">🏹 → PAIOL</button>
         <button class="fa-btn" onclick="removerCalabouco(${i})">✕</button>
@@ -4175,6 +4200,10 @@ function enviarLivroGeradoParaPaiol() {
     if (!item) { notif('ERRO', 'Item ainda em quarentena na Masmorra — não pode ir ao Paiol.', 'erro'); return; }
     estado.masmorra.splice(genUltimoItemIdx, 1);
   }
+  // Sincroniza com genLivroCompleto, que pode ter sido atualizado por costurarTextoFinal()
+  if (genLivroCompleto && genLivroCompleto.length > 0) {
+    item = { ...item, conteudo: genLivroCompleto };
+  }
   estado.paiol.literario.push({
     ...item,
     dataEntrada: new Date().toLocaleDateString('pt-BR'),
@@ -4321,6 +4350,424 @@ Escreva agora sem introdução ou comentário.`;
   }
 }
 
+// Costura de segurança aplicada ao LIVRO JÁ MONTADO (tela de resultado final).
+// Diferente de costurarArcoAtual (que age durante a geração de cada arco),
+// esta função serve como rede de segurança caso o livro final, já com a
+// formatação editorial completa, ainda termine cortado.
+async function costurarTextoFinal() {
+  const btn = document.querySelector('[onclick="costurarTextoFinal()"]');
+  if (btn) { btn.textContent = '🧵 Costurando...'; btn.disabled = true; }
+  genLog('🧵 Costurando desfecho final...');
+
+  const texto = genLivroCompleto;
+  const ultimoChar = texto.trim().slice(-1);
+  const cortado = !'.!?…”»)—'.includes(ultimoChar);
+
+  // Pegar capítulos para contexto
+  const regexCap = /(?:^|\n)((?:Cap[ií]tulo\s+[IVXLCDM\d]+[^\n]*|[IVXLCDM]+\.\s*[^\n]*)\n)/gm;
+  const caps = [];
+  let m;
+  while ((m = regexCap.exec(texto)) !== null) caps.push({ pos: m.index });
+
+  let contextoAnterior = '';
+  let contextoFinal = '';
+  if (caps.length >= 2) {
+    contextoAnterior = texto.slice(caps[caps.length-2].pos, caps[caps.length-1].pos).slice(-2000);
+    contextoFinal = texto.slice(caps[caps.length-1].pos);
+  } else {
+    contextoFinal = texto.slice(-4000);
+  }
+
+  const tituloAtual = document.getElementById('gen-titulo')?.value || '';
+  const prompt = `Você é escritor literário da OHE gerando o livro "${tituloAtual}".
+
+${contextoAnterior ? 'CAPÍTULO ANTERIOR (contexto):\n' + contextoAnterior + '\n\n' : ''}ÚLTIMO CAPÍTULO (incompleto${cortado ? ' — cortado no meio' : ''}):
+${contextoFinal}
+
+MISSÃO — DESFECHO FINAL:
+1. ${cortado ? 'Complete exatamente de onde o texto parou (primeira palavra é continuação direta)' : 'Continue a cena atual'}
+2. Desenvolva as cenas finais necessárias
+3. Dê desfecho a todos os personagens principais
+4. Termine com frase final que ressoe como conclusão inevitável
+REGRA: Reescreva apenas os últimos 2-3 parágrafos e adicione o desfecho. NÃO reescreva o capítulo inteiro.
+PROIBIDO: tags HTML, markdown, ##, Arco I/II/III, separadores ---
+
+Escreva agora sem introdução ou comentário.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 16000, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await response.json();
+    const continuacao = limparTextoArco(data.content[0].text);
+
+    const sep = cortado ? '' : '\n\n';
+    genLivroCompleto = texto.trimEnd() + sep + continuacao;
+    document.getElementById('gen-livro-texto').textContent = genLivroCompleto;
+    genLog('✅ Desfecho concluído — ' + continuacao.split(/\s+/).filter(Boolean).length + ' palavras adicionadas.');
+
+    // Sincroniza o conteúdo costurado de volta no item salvo (Calabouço/Masmorra)
+    if (genUltimoItemIdx !== null && genUltimoItemOrigem) {
+      const arr = genUltimoItemOrigem === 'calabouco' ? estado.calabouco : estado.masmorra;
+      if (arr[genUltimoItemIdx]) {
+        arr[genUltimoItemIdx].conteudo = genLivroCompleto;
+        salvar();
+      }
+    }
+
+    if (btn) { btn.textContent = '🧵 COSTURAR NOVAMENTE'; btn.disabled = false; }
+  } catch(e) {
+    genLog('✗ Erro na costura: ' + e.message);
+    if (btn) { btn.textContent = '🧵 COSTURAR TEXTO — COMPLETAR DESFECHO (se o livro terminou cortado)'; btn.disabled = false; }
+  }
+}
+
+
+// ===================== ANALISADOR DE OBRA =====================
+// Checklist técnica instantânea (sem custo de API) + análise literária via IA.
+// Objetivo: identificar automaticamente problemas estruturais conhecidos
+// (título quebrado, capítulo duplicado, corte abrupto, numeração reiniciada)
+// e dar uma nota/recomendação literária sem que o usuário precise colar
+// o texto manualmente para revisão externa.
+
+function checklistTecnica(texto) {
+  const achados = [];
+
+  // 1. Capítulos sem título (ex: "CAPÍTULO 7" sozinho, sem travessão + nome)
+  const linhasCapitulo = texto.match(/^CAP[ÍI]TULO\s+\d+.*$/gim) || [];
+  const semTitulo = linhasCapitulo.filter(l => !/—|-/.test(l) || l.trim().split(/\s+/).length <= 2);
+  if (semTitulo.length > 0) {
+    achados.push({ tipo: 'aviso', acao: 'titulos', texto: `${semTitulo.length} capítulo(s) sem título identificado: ${semTitulo.slice(0,3).map(s=>s.trim()).join(' | ')}${semTitulo.length>3?'...':''}` });
+  }
+
+  // 2. Numeração de capítulo reiniciada ou fora de ordem
+  const numeros = linhasCapitulo.map(l => parseInt(l.match(/\d+/)?.[0] || '0', 10));
+  let numeracaoQuebrada = false;
+  for (let i = 1; i < numeros.length; i++) {
+    if (numeros[i] <= numeros[i-1] && !(numeros[i] === numeros[i-1])) {
+      // permite repetição exata (pode ser falso positivo de regex), mas não retrocesso
+      if (numeros[i] < numeros[i-1]) { numeracaoQuebrada = true; break; }
+    }
+  }
+  if (numeracaoQuebrada) {
+    achados.push({ tipo: 'erro', acao: null, texto: `Numeração de capítulos fora de ordem ou reiniciada: ${numeros.join(', ')}` });
+  }
+
+  // 3. Corte abrupto no final do texto
+  const ultimoChar = texto.trim().slice(-1);
+  if (!'.!?…"”»)'.includes(ultimoChar)) {
+    achados.push({ tipo: 'erro', acao: 'costura', texto: `O texto parece terminar de forma abrupta (último caractere: "${ultimoChar}"). Pode estar cortado.` });
+  }
+
+  // 4. Possível duplicação de parágrafo (mesmo trecho de 80+ caracteres aparecendo 2x)
+  const paragrafos = texto.split(/\n\n+/).map(p => p.trim()).filter(p => p.length > 80);
+  const vistos = new Map();
+  let duplicatas = 0;
+  for (const p of paragrafos) {
+    const chave = p.slice(0, 100);
+    vistos.set(chave, (vistos.get(chave) || 0) + 1);
+  }
+  for (const [, count] of vistos) { if (count > 1) duplicatas++; }
+  if (duplicatas > 0) {
+    achados.push({ tipo: 'erro', acao: 'duplicata', texto: `Possível duplicação detectada: ${duplicatas} parágrafo(s) parecem repetidos no texto.` });
+  }
+
+  // 5. Tamanho total muito baixo (heurística: menos de 1500 palavras é suspeito para um livro)
+  const totalPalavras = texto.split(/\s+/).filter(Boolean).length;
+  if (totalPalavras < 1500) {
+    achados.push({ tipo: 'aviso', acao: null, texto: `Volume total baixo: apenas ${totalPalavras.toLocaleString('pt-BR')} palavras. Verifique se todos os arcos foram gerados.` });
+  }
+
+  // 6. Diálogo aberto sem fechamento (aspas ímpares)
+  const aspasCount = (texto.match(/"/g) || []).length;
+  if (aspasCount % 2 !== 0) {
+    achados.push({ tipo: 'aviso', acao: null, texto: 'Há aspas de diálogo sem fechamento correspondente no texto.' });
+  }
+
+  return { achados, totalPalavras, totalCapitulos: linhasCapitulo.length };
+}
+
+// ===== Correções técnicas automáticas (sem IA) =====
+
+function removerParagrafosDuplicados(texto) {
+  const blocos = texto.split(/\n\n+/);
+  const vistos = new Set();
+  const resultado = [];
+  for (const bloco of blocos) {
+    const trimmed = bloco.trim();
+    if (trimmed.length > 80) {
+      const chave = trimmed.slice(0, 100);
+      if (vistos.has(chave)) continue; // pula duplicata
+      vistos.add(chave);
+    }
+    resultado.push(bloco);
+  }
+  return resultado.join('\n\n');
+}
+
+async function aplicarCorrecaoTecnica(acao, origem, idx) {
+  let item, conteudo;
+  if (origem === 'gerador') {
+    conteudo = genLivroCompleto;
+  } else {
+    const arr = origem === 'calabouco' ? estado.calabouco : estado.masmorra;
+    item = arr[idx];
+    if (!item) { notif('ERRO', 'Item não encontrado.', 'erro'); return; }
+    conteudo = item.conteudo;
+  }
+
+  let novoConteudo = conteudo;
+  let msg = '';
+
+  if (acao === 'titulos') {
+    novoConteudo = limparTextoArco(conteudo);
+    msg = 'Títulos de capítulo normalizados.';
+  } else if (acao === 'duplicata') {
+    novoConteudo = removerParagrafosDuplicados(conteudo);
+    msg = 'Parágrafos duplicados removidos.';
+  } else if (acao === 'costura') {
+    notif('USE A COSTURA', 'Para completar o corte, use o botão "Costurar texto" na tela do livro.', 'info');
+    return;
+  }
+
+  if (origem === 'gerador') {
+    genLivroCompleto = novoConteudo;
+    const pre = document.getElementById('gen-livro-texto');
+    if (pre) pre.textContent = novoConteudo;
+  } else {
+    item.conteudo = novoConteudo;
+    salvar();
+    renderizarCalabouco();
+    renderizarMasmorra();
+  }
+
+  notif('CORRIGIDO', msg, 'sucesso');
+  // Reabre a análise atualizada
+  const modal = document.getElementById('modal-analise');
+  const tituloAtual = modal?.dataset.titulo || '';
+  analisarObra(novoConteudo, tituloAtual, origem, idx);
+}
+
+async function analisarObra(conteudo, titulo, origem, idx) {
+  if (!conteudo || conteudo.trim().length < 200) {
+    notif('NADA PARA ANALISAR', 'Esta obra ainda não tem conteúdo suficiente.', 'erro');
+    return;
+  }
+
+  const modal = document.getElementById('modal-analise');
+  const loading = document.getElementById('analise-loading');
+  const corpo = document.getElementById('analise-conteudo');
+  if (!modal || !loading || !corpo) return;
+
+  // Guarda contexto para que os botões de correção saibam onde salvar de volta
+  modal.dataset.origem = origem || 'gerador';
+  modal.dataset.idx = (idx !== undefined && idx !== null) ? idx : '';
+  modal.dataset.titulo = titulo || '';
+
+  corpo.innerHTML = '';
+  loading.style.display = 'block';
+  modal.classList.add('aberto');
+
+  // Passo 1: checklist técnica instantânea
+  const { achados, totalPalavras, totalCapitulos } = checklistTecnica(conteudo);
+
+  // Passo 2: análise literária via IA, incluindo sugestões de trecho concretas
+  const trechoAnalise = conteudo.length > 18000
+    ? conteudo.slice(0, 9000) + '\n\n[... trecho intermediário omitido por limite de análise ...]\n\n' + conteudo.slice(-9000)
+    : conteudo;
+
+  const prompt = `Você é um editor literário sênior avaliando uma obra para publicação. Analise o texto abaixo com rigor profissional.
+
+TÍTULO: ${titulo || 'Sem título'}
+
+TEXTO:
+${trechoAnalise}
+
+Responda APENAS em formato JSON válido, sem markdown, sem texto fora do JSON, seguindo exatamente esta estrutura:
+{
+  "nota": (número de 0 a 10, com uma casa decimal, ex: 8.5),
+  "resumo": "uma frase de avaliação geral",
+  "pontos_fortes": ["item 1", "item 2", "item 3"],
+  "pontos_fracos": ["item 1", "item 2"],
+  "recomendacao": "pronto" ou "revisar",
+  "o_que_revisar": "se recomendacao for revisar, explique objetivamente o que precisa ser corrigido. Se for pronto, deixe vazio.",
+  "sugestoes_trecho": [
+    {
+      "localizacao": "ex: Capítulo 4, terceiro parágrafo",
+      "trecho_original": "cole aqui o trecho EXATO copiado do texto original, palavra por palavra, para que possa ser localizado e substituído",
+      "trecho_sugerido": "a versão reescrita deste mesmo trecho, resolvendo o problema apontado",
+      "motivo": "explicação objetiva de por que esta troca melhora a obra — ritmo, profundidade de personagem, consistência, tensão dramática, etc",
+      "nota_estimada_apos": (número de 0 a 10 estimando a nota da obra SE esta sugestão for aplicada)
+    }
+  ]
+}
+
+Para "sugestoes_trecho": escolha no MÁXIMO 3 trechos — os que mais desvalorizam a obra. Se a obra já estiver excelente sem pontos fracos relevantes, retorne um array vazio []. O "trecho_original" precisa ser uma cópia EXATA e LITERAL de uma passagem do texto fornecido (mínimo 2 frases, máximo 1 parágrafo), para que o sistema consiga localizá-la e substituí-la automaticamente.`;
+
+  let analiseIA = null;
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] })
+    });
+    if (response.ok) {
+      const data = await response.json();
+      const textoResp = data.content[0].text.replace(/```json|```/g, '').trim();
+      analiseIA = JSON.parse(textoResp);
+    }
+  } catch(e) {
+    console.warn('Análise literária via IA falhou:', e.message);
+  }
+
+  loading.style.display = 'none';
+
+  const corOk = '#4caf50', corAviso = '#f57f17', corErro = '#e53935';
+
+  let html = '';
+
+  // Bloco: checklist técnica
+  html += `<div style="margin-bottom:1.2rem;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.48rem;letter-spacing:0.15em;color:var(--ouro);text-transform:uppercase;margin-bottom:0.6rem;">// Checklist Técnica</div>
+    <div style="font-family:'Crimson Pro',serif;font-size:0.75rem;color:var(--prata);opacity:0.7;margin-bottom:0.5rem;">${totalCapitulos} capítulo(s) · ${totalPalavras.toLocaleString('pt-BR')} palavras</div>`;
+
+  if (achados.length === 0) {
+    html += `<div style="color:${corOk};font-family:'Crimson Pro',serif;font-size:0.8rem;">✓ Nenhum problema técnico detectado.</div>`;
+  } else {
+    html += achados.map(a => {
+      const cor = a.tipo === 'erro' ? corErro : corAviso;
+      const icone = a.tipo === 'erro' ? '✕' : '⚠';
+      const botaoCorrecao = a.acao
+        ? `<button onclick="aplicarCorrecaoTecnica('${a.acao}', '${origem || 'gerador'}', ${idx !== undefined && idx !== null ? idx : 'null'})" style="margin-left:0.6rem;background:rgba(76,175,80,0.1);border:1px solid ${corOk};color:${corOk};font-family:'Share Tech Mono',monospace;font-size:0.4rem;letter-spacing:0.08em;padding:0.2rem 0.5rem;cursor:pointer;text-transform:uppercase;border-radius:3px;">🔧 Corrigir</button>`
+        : '';
+      return `<div style="color:${cor};font-family:'Crimson Pro',serif;font-size:0.8rem;margin-bottom:0.4rem;padding-left:0.5rem;border-left:2px solid ${cor};display:flex;align-items:center;flex-wrap:wrap;">${icone} ${a.texto}${botaoCorrecao}</div>`;
+    }).join('');
+  }
+  html += `</div>`;
+
+  // Bloco: análise literária
+  html += `<div style="border-top:1px solid rgba(201,168,76,0.15);padding-top:1.2rem;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.48rem;letter-spacing:0.15em;color:var(--ouro);text-transform:uppercase;margin-bottom:0.6rem;">// Avaliação Literária</div>`;
+
+  if (!analiseIA) {
+    html += `<div style="color:${corAviso};font-family:'Crimson Pro',serif;font-size:0.8rem;">Não foi possível concluir a análise literária via IA. A checklist técnica acima ainda é válida.</div>`;
+  } else {
+    const nota = parseFloat(analiseIA.nota) || 0;
+    const corNota = nota >= 9.5 ? corOk : nota >= 8 ? corAviso : corErro;
+    html += `<div style="display:flex;align-items:baseline;gap:0.6rem;margin-bottom:0.8rem;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:1.6rem;font-weight:700;color:${corNota};">${nota.toFixed(1)}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:var(--prata);opacity:0.6;">/ 10.0 ${nota >= 9.5 ? '(atinge a meta de 9.5)' : '(abaixo da meta de 9.5)'}</div>
+    </div>
+    <div style="font-family:'Crimson Pro',serif;font-size:0.85rem;color:var(--creme);font-style:italic;margin-bottom:1rem;">${analiseIA.resumo || ''}</div>`;
+
+    if (analiseIA.pontos_fortes?.length) {
+      html += `<div style="margin-bottom:0.8rem;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:${corOk};text-transform:uppercase;margin-bottom:0.3rem;">Pontos fortes</div>
+        ${analiseIA.pontos_fortes.map(p => `<div style="font-family:'Crimson Pro',serif;font-size:0.78rem;color:var(--prata);padding-left:0.5rem;">+ ${p}</div>`).join('')}
+      </div>`;
+    }
+    if (analiseIA.pontos_fracos?.length) {
+      html += `<div style="margin-bottom:0.8rem;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:${corAviso};text-transform:uppercase;margin-bottom:0.3rem;">Pontos a melhorar</div>
+        ${analiseIA.pontos_fracos.map(p => `<div style="font-family:'Crimson Pro',serif;font-size:0.78rem;color:var(--prata);padding-left:0.5rem;">− ${p}</div>`).join('')}
+      </div>`;
+    }
+
+    const recomendado = analiseIA.recomendacao === 'pronto';
+    html += `<div style="margin-top:1rem;padding:0.8rem;border:1px solid ${recomendado ? corOk : corAviso};background:${recomendado ? 'rgba(76,175,80,0.06)' : 'rgba(245,127,23,0.06)'};border-radius:4px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.1em;color:${recomendado ? corOk : corAviso};text-transform:uppercase;font-weight:700;">
+        ${recomendado ? '✓ PRONTO PARA O PAIOL' : '⚠ RECOMENDA-SE REVISÃO'}
+      </div>
+      ${!recomendado && analiseIA.o_que_revisar ? `<div style="font-family:'Crimson Pro',serif;font-size:0.78rem;color:var(--creme);margin-top:0.4rem;">${analiseIA.o_que_revisar}</div>` : ''}
+    </div>`;
+
+    // Bloco: sugestões de trecho (troca com um clique)
+    if (analiseIA.sugestoes_trecho?.length) {
+      html += `<div style="margin-top:1.5rem;border-top:1px solid rgba(201,168,76,0.15);padding-top:1.2rem;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.48rem;letter-spacing:0.15em;color:var(--ouro);text-transform:uppercase;margin-bottom:0.8rem;">// Sugestões de Trecho (${analiseIA.sugestoes_trecho.length})</div>`;
+
+      analiseIA.sugestoes_trecho.forEach((s, si) => {
+        const notaEstimada = parseFloat(s.nota_estimada_apos) || nota;
+        // Guarda os textos em elementos data- para evitar problemas de escaping em onclick
+        html += `<div style="margin-bottom:1.2rem;border:1px solid rgba(201,168,76,0.15);border-radius:6px;padding:0.9rem;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.08em;color:var(--ouro);text-transform:uppercase;margin-bottom:0.5rem;">${s.localizacao || 'Trecho ' + (si+1)} · nota estimada após troca: <span style="color:${corOk};">${notaEstimada.toFixed(1)}</span></div>
+
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.38rem;letter-spacing:0.1em;color:${corErro};text-transform:uppercase;margin-bottom:0.3rem;">Trecho original</div>
+          <div id="sug-original-${si}" style="font-family:'Crimson Pro',serif;font-size:0.78rem;color:var(--prata);background:rgba(229,57,53,0.05);border-left:2px solid ${corErro};padding:0.5rem 0.7rem;margin-bottom:0.6rem;white-space:pre-wrap;">${(s.trecho_original||'').replace(/</g,'&lt;')}</div>
+
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.38rem;letter-spacing:0.1em;color:${corOk};text-transform:uppercase;margin-bottom:0.3rem;">Sugestão</div>
+          <div id="sug-novo-${si}" style="font-family:'Crimson Pro',serif;font-size:0.78rem;color:var(--creme);background:rgba(76,175,80,0.05);border-left:2px solid ${corOk};padding:0.5rem 0.7rem;margin-bottom:0.6rem;white-space:pre-wrap;">${(s.trecho_sugerido||'').replace(/</g,'&lt;')}</div>
+
+          <div style="font-family:'Crimson Pro',serif;font-size:0.74rem;color:var(--prata);opacity:0.75;font-style:italic;margin-bottom:0.7rem;">💡 ${s.motivo || ''}</div>
+
+          <button onclick="usarSugestaoTrecho(${si})" style="background:rgba(76,175,80,0.12);border:1px solid ${corOk};color:${corOk};font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.08em;padding:0.4rem 0.8rem;cursor:pointer;text-transform:uppercase;border-radius:4px;font-weight:700;">✓ Usar esta versão</button>
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Guarda as sugestões em escopo acessível para o botão usarSugestaoTrecho
+      window.__sugestoesTrechoAtuais = analiseIA.sugestoes_trecho;
+    } else {
+      window.__sugestoesTrechoAtuais = [];
+    }
+  }
+  html += `</div>`;
+
+  corpo.innerHTML = html;
+}
+
+// Aplica a troca de um trecho sugerido pela análise no texto completo do livro.
+function usarSugestaoTrecho(indice) {
+  const sugestoes = window.__sugestoesTrechoAtuais || [];
+  const s = sugestoes[indice];
+  if (!s || !s.trecho_original || !s.trecho_sugerido) {
+    notif('ERRO', 'Sugestão não encontrada.', 'erro');
+    return;
+  }
+
+  const modal = document.getElementById('modal-analise');
+  const origem = modal?.dataset.origem || 'gerador';
+  const idxRaw = modal?.dataset.idx;
+  const idx = (idxRaw !== undefined && idxRaw !== '') ? parseInt(idxRaw, 10) : null;
+
+  let conteudoAtual;
+  if (origem === 'gerador') {
+    conteudoAtual = genLivroCompleto;
+  } else {
+    const arr = origem === 'calabouco' ? estado.calabouco : estado.masmorra;
+    if (!arr[idx]) { notif('ERRO', 'Item não encontrado.', 'erro'); return; }
+    conteudoAtual = arr[idx].conteudo;
+  }
+
+  if (!conteudoAtual.includes(s.trecho_original)) {
+    notif('TRECHO NÃO ENCONTRADO', 'O texto pode ter mudado desde a análise. Tente analisar novamente.', 'erro');
+    return;
+  }
+
+  const novoConteudo = conteudoAtual.replace(s.trecho_original, s.trecho_sugerido);
+
+  if (origem === 'gerador') {
+    genLivroCompleto = novoConteudo;
+    const pre = document.getElementById('gen-livro-texto');
+    if (pre) pre.textContent = novoConteudo;
+  } else {
+    const arr = origem === 'calabouco' ? estado.calabouco : estado.masmorra;
+    arr[idx].conteudo = novoConteudo;
+    salvar();
+    renderizarCalabouco();
+    renderizarMasmorra();
+  }
+
+  // Marca visualmente o card como aplicado
+  const cardOriginal = document.getElementById(`sug-original-${indice}`);
+  const cardNovo = document.getElementById(`sug-novo-${indice}`);
+  if (cardOriginal) cardOriginal.style.opacity = '0.4';
+  if (cardNovo) { cardNovo.style.opacity = '1'; cardNovo.style.fontWeight = '600'; }
+
+  notif('TRECHO ATUALIZADO', 'A sugestão foi aplicada ao texto da obra.', 'sucesso');
+}
 
 function novoLivro() {
   genJornadaSelecionada = null;
