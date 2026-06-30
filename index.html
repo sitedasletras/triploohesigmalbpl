@@ -3826,7 +3826,47 @@ function limparTextoArco(texto) {
   // Garante que "Capítulo N" sempre apareça em maiúsculas (CAPÍTULO N)
   limpo = limpo.replace(/^Cap[ií]tulo(\s+\d+)/gim, 'CAPÍTULO$1');
 
+  // Remove capítulo duplicado: quando o mesmo título de capítulo aparece de novo
+  // dentro de uma janela curta (até 600 chars), com texto repetido entre as duas
+  // ocorrências — sintoma típico do bug de costura, onde a IA reabre o capítulo
+  // ao continuar o texto. Remove o segundo título junto com o trecho duplicado.
+  limpo = removerCapituloDuplicadoAdjacente(limpo);
+
   return limpo;
+}
+
+function removerCapituloDuplicadoAdjacente(texto) {
+  const regexTitulo = /^CAP[ÍI]TULO\s+\d+[^\n]*$/gim;
+  let match;
+  const ocorrencias = [];
+  while ((match = regexTitulo.exec(texto)) !== null) {
+    ocorrencias.push({ texto: match[0].trim().toUpperCase(), pos: match.index, len: match[0].length });
+  }
+
+  for (let i = 0; i < ocorrencias.length - 1; i++) {
+    const atual = ocorrencias[i];
+    const proxima = ocorrencias[i+1];
+    if (atual.texto === proxima.texto && (proxima.pos - atual.pos) < 600) {
+      const fimPrimeiroTitulo = atual.pos + atual.len;
+      const blocoEntre = texto.slice(fimPrimeiroTitulo, proxima.pos);
+      const fimSegundoTitulo = proxima.pos + proxima.len;
+      const trechoDepoisSegundo = texto.slice(fimSegundoTitulo, fimSegundoTitulo + blocoEntre.length + 50);
+      const amostra = blocoEntre.trim().slice(0, Math.min(40, blocoEntre.trim().length));
+      let novoTexto;
+      if (amostra.length > 10 && trechoDepoisSegundo.trim().startsWith(amostra)) {
+        // Bloco de texto também se repete logo após o segundo título: remove título + bloco duplicado inteiro
+        const corteAte = fimSegundoTitulo + blocoEntre.length;
+        novoTexto = texto.slice(0, proxima.pos) + texto.slice(corteAte);
+      } else {
+        // Sem confirmação do bloco duplicado: remove apenas a linha do título repetido
+        const fimLinha = texto.indexOf('\n', proxima.pos + proxima.len);
+        const corteAte = fimLinha === -1 ? texto.length : fimLinha + 1;
+        novoTexto = texto.slice(0, proxima.pos) + texto.slice(corteAte);
+      }
+      return removerCapituloDuplicadoAdjacente(novoTexto);
+    }
+  }
+  return texto;
 }
 
 function aprovarArcoGerador(aprovado) {
@@ -3866,13 +3906,19 @@ function detectarTextoCortado(texto) {
 // e atualiza genArcoTextoAtual antes do modal aparecer.
 async function costurarSilenciosamente(texto) {
   const ultimoTrecho = texto.slice(-3000);
+
+  // Identifica o último título de capítulo no contexto, para proibir sua repetição.
+  const matchesTitulo = texto.match(/^CAP[ÍI]TULO\s+\d+[^\n]*/gim) || [];
+  const ultimoTitulo = matchesTitulo.length ? matchesTitulo[matchesTitulo.length - 1].trim() : null;
+
   const prompt = `Você é escritor literário da OHE. Este texto foi cortado no meio de uma frase ou palavra. Continue de onde parou.
 
 TEXTO (últimos 3000 chars):
 ${ultimoTrecho}
 
 Comece EXATAMENTE de onde cortou (primeira palavra é continuação direta, sem repetir nada já escrito).
-PROIBIDO: tags HTML, markdown, ##, Arco I/II/III, separadores ---, comentários ou introduções.
+${ultimoTitulo ? `PROIBIDO ABSOLUTO: NÃO escreva novamente o cabeçalho "${ultimoTitulo}" ou variação dele — ele já existe no texto acima. Sua resposta é pura continuação de prosa, sem título.` : ''}
+PROIBIDO: tags HTML, markdown, ##, Arco I/II/III, separadores ---, comentários ou introduções, qualquer cabeçalho de capítulo novo.
 
 Escreva agora apenas a continuação direta.`;
 
@@ -3884,10 +3930,18 @@ Escreva agora apenas a continuação direta.`;
     });
     if (!response.ok) return texto;
     const data = await response.json();
-    const continuacao = data.content[0].text
+    let continuacao = data.content[0].text
       .replace(/<[^>]+>/g,'').replace(/^#{1,6}\s*/gm,'')
       .replace(/^---+\s*$/gm,'').replace(/\*\*([^*]+)\*\*/g,'$1')
       .replace(/\*([^*]+)\*/g,'$1').trim();
+
+    // Rede de segurança contra repetição do título mesmo após a instrução.
+    if (ultimoTitulo) {
+      const escapado = ultimoTitulo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regexRepeticao = new RegExp(`^\\s*${escapado}\\s*\\n*`, 'i');
+      continuacao = continuacao.replace(regexRepeticao, '').trim();
+    }
+
     return texto.trimEnd() + continuacao;
   } catch(e) {
     console.warn('Costura automática silenciosa falhou:', e.message);
@@ -4302,13 +4356,19 @@ async function costurarArcoAtual() {
   const cortado = !'.!?…”»)—'.includes(ultimoChar);
   const ultimoTrecho = textoBase.slice(-3000);
 
+  // Identifica o último título de capítulo presente no contexto, para proibir
+  // explicitamente sua repetição — é a causa raiz de capítulos duplicados pós-costura.
+  const matchesTitulo = textoBase.match(/^CAP[ÍI]TULO\s+\d+[^\n]*/gim) || [];
+  const ultimoTitulo = matchesTitulo.length ? matchesTitulo[matchesTitulo.length - 1].trim() : null;
+
   const prompt = `Você é escritor literário da OHE. Este texto foi cortado. Continue de onde parou.
 
 TEXTO (últimos 3000 chars):
 ${ultimoTrecho}
 
-${cortado ? 'Comece EXATAMENTE de onde cortou (primeira palavra é continuação direta).' : 'Adicione o quase-fechamento do arco com sombra suspensa para o próximo arco.'}
-PROIBIDO: tags HTML, markdown, ##, Arco I/II/III, separadores ---
+${cortado ? 'Comece EXATAMENTE de onde cortou (primeira palavra é continuação direta da última frase/parágrafo acima — NÃO recomece a cena, NÃO repita nenhuma frase já escrita).' : 'Adicione o quase-fechamento do arco com sombra suspensa para o próximo arco.'}
+${ultimoTitulo ? `PROIBIDO ABSOLUTO: NÃO escreva novamente o cabeçalho "${ultimoTitulo}" ou qualquer variação dele. Esse título JÁ EXISTE no texto acima — sua resposta deve ser PURA CONTINUAÇÃO DE PROSA, sem nenhum título, sem reabrir o capítulo.` : ''}
+PROIBIDO: tags HTML, markdown, ##, Arco I/II/III, separadores ---, qualquer cabeçalho de capítulo novo
 
 Escreva agora sem introdução ou comentário.`;
 
@@ -4319,10 +4379,18 @@ Escreva agora sem introdução ou comentário.`;
       body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 8000, messages: [{ role: 'user', content: prompt }] })
     });
     const data = await response.json();
-    const continuacao = data.content[0].text
+    let continuacao = data.content[0].text
       .replace(/<[^>]+>/g,'').replace(/^#{1,6}\s*/gm,'')
       .replace(/^---+\s*$/gm,'').replace(/\*\*([^*]+)\*\*/g,'$1')
       .replace(/\*([^*]+)\*/g,'$1').trim();
+
+    // Rede de segurança: se mesmo assim a IA repetiu o último título de capítulo
+    // logo no início da continuação, remove essa repetição automaticamente.
+    if (ultimoTitulo) {
+      const escapado = ultimoTitulo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regexRepeticao = new RegExp(`^\\s*${escapado}\\s*\\n*`, 'i');
+      continuacao = continuacao.replace(regexRepeticao, '').trim();
+    }
 
     const sep = cortado ? '' : '\n\n';
     const resultado = textoBase.trimEnd() + sep + continuacao;
@@ -4379,6 +4447,11 @@ async function costurarTextoFinal() {
   }
 
   const tituloAtual = document.getElementById('gen-titulo')?.value || '';
+
+  // Identifica o último título de capítulo no contexto final, para proibir sua repetição.
+  const matchesTituloCap = contextoFinal.match(/^CAP[ÍI]TULO\s+\d+[^\n]*/gim) || [];
+  const ultimoTituloCap = matchesTituloCap.length ? matchesTituloCap[matchesTituloCap.length - 1].trim() : null;
+
   const prompt = `Você é escritor literário da OHE gerando o livro "${tituloAtual}".
 
 ${contextoAnterior ? 'CAPÍTULO ANTERIOR (contexto):\n' + contextoAnterior + '\n\n' : ''}ÚLTIMO CAPÍTULO (incompleto${cortado ? ' — cortado no meio' : ''}):
@@ -4390,7 +4463,8 @@ MISSÃO — DESFECHO FINAL:
 3. Dê desfecho a todos os personagens principais
 4. Termine com frase final que ressoe como conclusão inevitável
 REGRA: Reescreva apenas os últimos 2-3 parágrafos e adicione o desfecho. NÃO reescreva o capítulo inteiro.
-PROIBIDO: tags HTML, markdown, ##, Arco I/II/III, separadores ---
+${ultimoTituloCap ? `PROIBIDO ABSOLUTO: NÃO escreva novamente o cabeçalho "${ultimoTituloCap}" — ele já existe no texto acima.` : ''}
+PROIBIDO: tags HTML, markdown, ##, Arco I/II/III, separadores ---, qualquer cabeçalho de capítulo novo
 
 Escreva agora sem introdução ou comentário.`;
 
@@ -4401,7 +4475,14 @@ Escreva agora sem introdução ou comentário.`;
       body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 16000, messages: [{ role: 'user', content: prompt }] })
     });
     const data = await response.json();
-    const continuacao = limparTextoArco(data.content[0].text);
+    let continuacao = limparTextoArco(data.content[0].text);
+
+    // Rede de segurança contra repetição do título mesmo após a instrução.
+    if (ultimoTituloCap) {
+      const escapado = ultimoTituloCap.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regexRepeticao = new RegExp(`^\\s*${escapado}\\s*\\n*`, 'i');
+      continuacao = continuacao.replace(regexRepeticao, '').trim();
+    }
 
     const sep = cortado ? '' : '\n\n';
     genLivroCompleto = texto.trimEnd() + sep + continuacao;
@@ -4453,6 +4534,21 @@ function checklistTecnica(texto) {
   }
   if (numeracaoQuebrada) {
     achados.push({ tipo: 'erro', acao: null, texto: `Numeração de capítulos fora de ordem ou reiniciada: ${numeros.join(', ')}` });
+  }
+
+  // 2b. Mesmo título de capítulo aparecendo mais de uma vez no livro inteiro
+  // (sintoma típico de bug de costura, onde a IA reabre um capítulo já existente)
+  const titulosVistos = new Map();
+  const titulosRepetidos = [];
+  for (const linha of linhasCapitulo) {
+    const chave = linha.trim().toUpperCase();
+    titulosVistos.set(chave, (titulosVistos.get(chave) || 0) + 1);
+  }
+  for (const [titulo, count] of titulosVistos) {
+    if (count > 1) titulosRepetidos.push(titulo);
+  }
+  if (titulosRepetidos.length > 0) {
+    achados.push({ tipo: 'erro', acao: 'titulos', texto: `Título de capítulo duplicado: "${titulosRepetidos[0]}"${titulosRepetidos.length > 1 ? ` (e mais ${titulosRepetidos.length - 1})` : ''}` });
   }
 
   // 3. Corte abrupto no final do texto
