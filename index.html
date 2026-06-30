@@ -593,6 +593,27 @@ body::before {
 .fta { resize: vertical; min-height: 80px; }
 .form-acoes { display: flex; gap: 0.8rem; margin-top: 1rem; flex-wrap: wrap; }
 
+/* Chips de preenchimento rápido (tap, sem digitar) */
+.maq-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+.maq-chip {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.04em;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid rgba(201,168,76,0.2);
+  background: rgba(201,168,76,0.04);
+  color: var(--prata);
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.2s;
+  text-transform: none;
+}
+.maq-chip:hover, .maq-chip:active { background: rgba(201,168,76,0.14); color: var(--dourado); border-color: rgba(201,168,76,0.4); }
+.maq-chip-especial { border-color: rgba(156,125,192,0.4); color: #ce93d8; background: rgba(106,27,154,0.08); }
+.maq-chip-especial:hover { background: rgba(106,27,154,0.18); color: #ce93d8; border-color: #9c27b0; }
+.maq-chip-limpar { border-color: rgba(211,47,47,0.25); color: #ff6b6b; background: transparent; opacity: 0.7; }
+.maq-chip-limpar:hover { opacity: 1; background: rgba(211,47,47,0.1); }
+
 /* Upload zone */
 .upload-zone {
   border: 2px dashed rgba(201,168,76,0.2);
@@ -1374,6 +1395,17 @@ body::before {
   <div class="fg">
     <label class="fl">Tema / Território central</label>
     <input type="text" class="fi" id="maq-tema" placeholder="ex: amor impossível no sertão, guerra medieval, vampiro aristocrático...">
+    <div class="maq-chips">
+      <span class="maq-chip" onclick="chipPreencher('maq-tema','Amor impossível')">Amor impossível</span>
+      <span class="maq-chip" onclick="chipPreencher('maq-tema','Vingança')">Vingança</span>
+      <span class="maq-chip" onclick="chipPreencher('maq-tema','Sobrevivência')">Sobrevivência</span>
+      <span class="maq-chip" onclick="chipPreencher('maq-tema','Redenção')">Redenção</span>
+      <span class="maq-chip" onclick="chipPreencher('maq-tema','Perda e luto')">Perda e luto</span>
+      <span class="maq-chip" onclick="chipPreencher('maq-tema','Resistência popular')">Resistência popular</span>
+      <span class="maq-chip" onclick="chipPreencher('maq-tema','Mistério e investigação')">Mistério/Investigação</span>
+      <span class="maq-chip maq-chip-especial" onclick="chipKardecista()">✦ Kardecista (Irmão Pullius)</span>
+      <span class="maq-chip maq-chip-limpar" onclick="chipLimpar('maq-tema')">✕ limpar</span>
+    </div>
   </div>
 
   <!-- DADOS DETALHADOS -->
@@ -1381,10 +1413,26 @@ body::before {
     <div class="fg">
       <label class="fl">Cenário (lugar, época, clima)</label>
       <input type="text" class="fi" id="maq-cenario" placeholder="ex: São Paulo anos 80, sertão nordestino, Transilvânia 1642...">
+      <div class="maq-chips">
+        <span class="maq-chip" onclick="chipPreencher('maq-cenario','Sertão nordestino')">Sertão nordestino</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-cenario','Cidade grande contemporânea')">Cidade grande</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-cenario','Medieval europeu')">Medieval europeu</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-cenario','Litoral caiçara')">Litoral caiçara</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-cenario','Era vitoriana')">Era vitoriana</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-cenario','Pós-apocalíptico')">Pós-apocalíptico</span>
+        <span class="maq-chip maq-chip-limpar" onclick="chipLimpar('maq-cenario')">✕ limpar</span>
+      </div>
     </div>
     <div class="fg">
       <label class="fl">Personagem principal</label>
       <input type="text" class="fi" id="maq-personagem" placeholder="ex: pescador caiçara de 60 anos, mãos calejadas...">
+      <div class="maq-chips">
+        <span class="maq-chip" onclick="chipPreencher('maq-personagem','Jovem em busca de identidade')">Jovem em busca de identidade</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-personagem','Idoso guardião de um segredo')">Idoso guardião de segredo</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-personagem','Forasteiro chegando à cidade')">Forasteiro chegando</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-personagem','Mãe/pai protegendo a família')">Mãe/pai protegendo família</span>
+        <span class="maq-chip maq-chip-limpar" onclick="chipLimpar('maq-personagem')">✕ limpar</span>
+      </div>
     </div>
   </div>
 
@@ -1392,6 +1440,14 @@ body::before {
     <div class="fg">
       <label class="fl">Conflito central</label>
       <input type="text" class="fi" id="maq-conflito" placeholder="ex: perda da terra, amor proibido, traição, sobrevivência...">
+      <div class="maq-chips">
+        <span class="maq-chip" onclick="chipPreencher('maq-conflito','Amor proibido')">Amor proibido</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-conflito','Traição familiar')">Traição familiar</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-conflito','Luta pela terra')">Luta pela terra</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-conflito','Segredo do passado que volta')">Segredo do passado</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-conflito','Escolha entre dever e desejo')">Dever x desejo</span>
+        <span class="maq-chip maq-chip-limpar" onclick="chipLimpar('maq-conflito')">✕ limpar</span>
+      </div>
     </div>
     <div class="fg">
       <label class="fl">Tom / Atmosfera</label>
@@ -1415,10 +1471,24 @@ body::before {
     <div class="fg">
       <label class="fl">Detalhe sensorial (ancora a cena)</label>
       <input type="text" class="fi" id="maq-sensorial" placeholder="ex: cheiro de chuva na terra seca, luz de neon refletida na poça...">
+      <div class="maq-chips">
+        <span class="maq-chip" onclick="chipPreencher('maq-sensorial','Cheiro de chuva na terra seca')">Cheiro de chuva na terra seca</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-sensorial','Som de sino distante')">Som de sino distante</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-sensorial','Luz de velas tremulando')">Luz de velas tremulando</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-sensorial','Silêncio antes da tempestade')">Silêncio antes da tempestade</span>
+        <span class="maq-chip maq-chip-limpar" onclick="chipLimpar('maq-sensorial')">✕ limpar</span>
+      </div>
     </div>
     <div class="fg">
       <label class="fl">Referência literária ou cultural</label>
       <input type="text" class="fi" id="maq-referencia" placeholder="ex: estilo Guimarães Rosa, clima de O Corvo, ritmo de cordel...">
+      <div class="maq-chips">
+        <span class="maq-chip" onclick="chipPreencher('maq-referencia','Estilo Guimarães Rosa')">Guimarães Rosa</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-referencia','Clima de Edgar Allan Poe')">Edgar Allan Poe</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-referencia','Ritmo de cordel popular')">Cordel popular</span>
+        <span class="maq-chip" onclick="chipPreencher('maq-referencia','Tom de Clarice Lispector')">Clarice Lispector</span>
+        <span class="maq-chip maq-chip-limpar" onclick="chipLimpar('maq-referencia')">✕ limpar</span>
+      </div>
     </div>
   </div>
 
@@ -2367,6 +2437,37 @@ function aplicarTemplateDesafio() {
   box.textContent = '📋 TEMPLATE — edite as lacunas entre [ ]:';
   campo.value = TEMPLATES_FORMATO[formato];
   campo.focus();
+}
+
+// ===================== CHIPS DE PREENCHIMENTO RÁPIDO (MÁQUINA DE DADOS) =====================
+function chipPreencher(campoId, valor) {
+  const campo = document.getElementById(campoId);
+  if (!campo) return;
+  const atual = campo.value.trim();
+  if (!atual) {
+    campo.value = valor;
+  } else if (!atual.toLowerCase().includes(valor.toLowerCase())) {
+    campo.value = atual + '; ' + valor;
+  }
+  campo.focus();
+}
+
+function chipLimpar(campoId) {
+  const campo = document.getElementById(campoId);
+  if (campo) campo.value = '';
+}
+
+function chipKardecida() {
+  // Preenche tema, trava o heterônimo em J.L.Gomes e adiciona a instrução de psicografia
+  chipPreencher('maq-tema', 'literatura espírita kardecista');
+  const het = document.getElementById('maq-heteronimo');
+  if (het) het.value = 'J.L.Gomes';
+  const instrucoes = document.getElementById('maq-instrucoes');
+  const textoInstrucao = 'Obra espírita kardecista — psicografada/ditada pelo Espírito Irmão Pullius, com J.L.Gomes como médium. Aprofundar de verdade na doutrina espírita: evolução espiritual, caridade, reencarnação, mundo espiritual. Linguagem fraterna e doutrinária — nunca tratar como ficção sobrenatural genérica.';
+  if (instrucoes && !instrucoes.value.includes('Irmão Pullius')) {
+    instrucoes.value = instrucoes.value.trim() ? instrucoes.value.trim() + '\n' + textoInstrucao : textoInstrucao;
+  }
+  notif('KARDECISTA SELECIONADO', 'Heterônimo travado em J.L.Gomes · ditado do Irmão Pullius.', 'sucesso');
 }
 
 async function gerarDadosMaquina() {
