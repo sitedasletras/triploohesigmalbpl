@@ -452,16 +452,34 @@
   </div>
 </div>
 
-<!-- OBSERVAÇÃO OPCIONAL -->
+<!-- PERSONAGENS (OPCIONAL) -->
+<div class="bloco" style="padding:0.8rem 1.2rem;">
+  <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;">
+    <input type="checkbox" id="chk-personagens" onchange="togglePersonagens()" style="width:16px;height:16px;accent-color:#c9a84c;">
+    <span style="font-family:monospace;font-size:0.52rem;letter-spacing:0.2em;color:#c9a84c;opacity:0.6;text-transform:uppercase;">Definir personagens (opcional)</span>
+  </label>
+  <div id="personagens-wrap" style="display:none;margin-top:0.8rem;">
+    <span class="label" style="margin-bottom:0.3rem;">Protagonista</span>
+    <input class="universo-input" id="nome-protagonista" type="text"
+      placeholder="Nome do protagonista (e uma característica, se quiser)"
+      style="margin-bottom:0.8rem;">
+    <span class="label" style="margin-bottom:0.3rem;">Antagonista</span>
+    <input class="universo-input" id="nome-antagonista" type="text"
+      placeholder="Nome do antagonista (e uma característica, se quiser)">
+    <div style="font-family:monospace;font-size:0.5rem;color:#6a7d90;margin-top:0.5rem;opacity:0.7;">Preenchido aqui = obrigatório. Em branco = Fernando Peçanha decide.</div>
+  </div>
+</div>
+
+<!-- DIRECIONAMENTO OPCIONAL -->
 <div class="bloco" style="padding:0.8rem 1.2rem;">
   <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;">
     <input type="checkbox" id="chk-obs" onchange="toggleObs()" style="width:16px;height:16px;accent-color:#c9a84c;">
-    <span style="font-family:monospace;font-size:0.52rem;letter-spacing:0.2em;color:#c9a84c;opacity:0.6;text-transform:uppercase;">Azeitar o desafio (opcional)</span>
+    <span style="font-family:monospace;font-size:0.52rem;letter-spacing:0.2em;color:#c9a84c;opacity:0.6;text-transform:uppercase;">Direcionar o desafio (opcional)</span>
   </label>
   <div id="obs-wrap" style="display:none;margin-top:0.8rem;">
-    <textarea id="obs-texto" placeholder="Ex: quero que tenha um cavaleiro feminino, ou que o desfecho seja ambíguo, ou que use linguagem arcaica..."
+    <textarea id="obs-texto" placeholder="Ex: linha kardecista, aprofundar na doutrina espírita; ou desfecho ambíguo; ou linguagem arcaica..."
       style="width:100%;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.2);border-radius:4px;color:#f0e8d0;font-family:Georgia,serif;font-size:0.85rem;padding:0.7rem 0.9rem;outline:none;min-height:80px;resize:vertical;line-height:1.6;"></textarea>
-    <div style="font-family:monospace;font-size:0.5rem;color:#6a7d90;margin-top:0.3rem;opacity:0.7;">Fernando Peçanha vai considerar mas continua decidindo o essencial</div>
+    <div style="font-family:monospace;font-size:0.5rem;color:#6a7d90;margin-top:0.3rem;opacity:0.7;">Preenchido aqui = regra obrigatória, seguida à risca. Em branco = Fernando Peçanha decide tudo livremente.</div>
   </div>
 </div>
 
@@ -650,6 +668,11 @@ function toggleObs() {
   wrap.style.display = document.getElementById('chk-obs').checked ? 'block' : 'none';
 }
 
+function togglePersonagens() {
+  const wrap = document.getElementById('personagens-wrap');
+  wrap.style.display = document.getElementById('chk-personagens').checked ? 'block' : 'none';
+}
+
 function selEpoca(e) {
   _epoca = e;
   document.querySelectorAll('.btn-epoca').forEach(b => b.classList.remove('ativo'));
@@ -695,6 +718,17 @@ async function lancar() {
   };
 
   const obs = document.getElementById('chk-obs').checked ? document.getElementById('obs-texto').value.trim() : '';
+  const nomeProtagonista = document.getElementById('chk-personagens').checked ? document.getElementById('nome-protagonista').value.trim() : '';
+  const nomeAntagonista = document.getElementById('chk-personagens').checked ? document.getElementById('nome-antagonista').value.trim() : '';
+
+  let direcionamento = '';
+  if (nomeProtagonista || nomeAntagonista || obs) {
+    direcionamento = '\n\nDIRECIONAMENTO OBRIGATÓRIO DO PRODUTOR — siga à risca, não é sugestão:';
+    if (nomeProtagonista) direcionamento += `\n- PROTAGONISTA: ${nomeProtagonista} (use exatamente este nome/característica, construa a obra em torno dele)`;
+    if (nomeAntagonista) direcionamento += `\n- ANTAGONISTA: ${nomeAntagonista} (use exatamente este nome/característica)`;
+    if (obs) direcionamento += `\n- DIREÇÃO TEMÁTICA: ${obs} (aprofunde de verdade neste direcionamento, não apenas mencione de passagem — ele é o eixo central da obra)`;
+  }
+
   const listaHet = HETERONIMOS_OHE.map(h => `- ${h.nome} | Território: ${h.territorio} | Formato preferido: ${h.formato}`).join('\n');
 
   // ── Prompt bifurcado por modo ──
@@ -765,7 +799,7 @@ SUA MISSÃO:
 
 O produtor lançou um DESAFIO com os seguintes parâmetros:
 - ÉPOCA: ${epocaDesc[_epoca]}
-- UNIVERSO/CENÁRIO/TEMA: ${universo}${obs ? '\n- OBSERVAÇÕES DO PRODUTOR: ' + obs : ''}
+- UNIVERSO/CENÁRIO/TEMA: ${universo}${direcionamento}
 
 HETERÔNIMOS DISPONÍVEIS — leia os territórios com atenção antes de escolher:
 ${listaHet}
@@ -834,7 +868,7 @@ Responda EXATAMENTE neste formato:
       .replace(/\*\*/g, '').replace(/\*/g, '').trim();
     const corpo  = linhas.slice(1).join('\n').trim();
 
-    _semente = { het, eixo, apres, titulo, corpo, epoca: _epoca, universo, modo: _modoAtual, forma: _formaPoesia };
+    _semente = { het, eixo, apres, titulo, corpo, epoca: _epoca, universo, modo: _modoAtual, forma: _formaPoesia, protagonista: nomeProtagonista, antagonista: nomeAntagonista, direcao: obs };
 
     // Preencher resultado
     document.getElementById('res-het-nome').textContent = het;
@@ -896,6 +930,9 @@ async function salvarBiografiaGitHub(s) {
       obraEstreia: s.titulo, epocaDesafio: s.epoca,
       universoDesafio: s.universo, modoDesafio: s.modo,
       formaPoesia: s.forma !== 'pecanha_decide' ? s.forma : null,
+      protagonista: s.protagonista || null,
+      antagonista: s.antagonista || null,
+      direcaoTematica: s.direcao || null,
       dataCriacao: new Date().toISOString(), origem: 'Máquina Desafio · OHE'
     };
 
@@ -1051,6 +1088,13 @@ function resetar() {
   _epoca = '';
   document.querySelectorAll('.btn-epoca').forEach(b => b.classList.remove('ativo'));
   document.getElementById('universo').value = '';
+  document.getElementById('chk-personagens').checked = false;
+  document.getElementById('nome-protagonista').value = '';
+  document.getElementById('nome-antagonista').value = '';
+  document.getElementById('personagens-wrap').style.display = 'none';
+  document.getElementById('chk-obs').checked = false;
+  document.getElementById('obs-texto').value = '';
+  document.getElementById('obs-wrap').style.display = 'none';
   document.getElementById('resultado').style.display = 'none';
   document.getElementById('log').style.display = 'none';
   document.getElementById('btn-lancar').disabled = true;
