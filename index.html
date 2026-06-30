@@ -3922,9 +3922,9 @@ VOLUME DO ARCO: ~${palavrasPorArco} palavras
 ${perfilUniverso}
 ${perfilTom}
 
-${sinopse ? `BASE NARRATIVA:\n${sinopse}\n` : ''}
-${resumoAnterior ? `RESUMO DO QUE JÁ FOI ESCRITO:\n${resumoAnterior}\n` : ''}
-${ai > 0 ? 'Continue EXATAMENTE de onde o arco anterior parou. Não repita conteúdo já escrito.' : 'Inicie o livro apresentando o mundo e personagens.'}
+${ai === 0 && sinopse ? `BASE NARRATIVA (use apenas para abrir a história — não repita nem reintroduza isso nos arcos seguintes):\n${sinopse}\n` : ''}
+${resumoAnterior ? `RESUMO DO QUE JÁ FOI ESCRITO (esta é a ÚNICA fonte de continuidade — os personagens, o cenário e os eventos já estão estabelecidos, NÃO os reapresente):\n${resumoAnterior}\n` : ''}
+${ai > 0 ? 'ATENÇÃO CRÍTICA: Este NÃO é um novo começo. Os personagens já foram apresentados, o cenário já existe, a premissa já está estabelecida. Continue a ação exatamente de onde o resumo acima parou. PROIBIDO: reapresentar o protagonista, redescrever a chegada ao local, reintroduzir personagens que já apareceram, repetir qualquer cena ou diálogo do resumo. Avance a trama para frente.' : 'Inicie o livro apresentando o mundo e personagens.'}
 ${ai === 2 ? 'Este é o ÚLTIMO arco. Conclua a história de forma satisfatória e coerente com a estrutura escolhida. A cena culminante exige densidade sensorial plena: descreva o que se vê, ouve, sente fisicamente — não apenas o que acontece. Não acelere o ritmo no momento mais importante do livro.' : ''}
 
 REGRAS OBRIGATÓRIAS:
@@ -3974,11 +3974,23 @@ Escreva aproximadamente ${palavrasPorArco} palavras. Comece diretamente com a na
       if (matchesCap.length > 0) capituloAtual += matchesCap.length;
 
       if (ai < 2) {
-        const resumoPrompt = `Resuma em 3-4 parágrafos o que aconteceu neste texto, focando em: personagens principais, eventos chave, estado emocional dos personagens e onde a história ficou:\n\n${textoArcoFinal.substring(0, 3000)}`;
+        const resumoPrompt = `Resuma este capítulo/arco de um livro de forma factual e densa, para que outro escritor continue a história sem repetir nada. O resumo é a ÚNICA informação que o próximo escritor terá sobre o que já aconteceu.
+
+OBRIGATÓRIO incluir:
+- Nome completo de TODOS os personagens já apresentados (não pode reapresentá-los depois)
+- Local(is) e cenário já estabelecidos
+- Todos os eventos principais em ordem
+- O estado emocional/físico de cada personagem no momento final
+- A ÚLTIMA CENA do texto com detalhe suficiente para a continuação ser perfeitamente fluida (onde cada personagem está, o que estava acontecendo, o que ficou em aberto)
+
+TEXTO COMPLETO DO ARCO:
+${textoArcoFinal}
+
+Escreva o resumo em 5-7 parágrafos densos. Não interprete nem analise — apenas relate os fatos com nomes e detalhes precisos.`;
         const resumoResp = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
-          body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1024, messages: [{ role: 'user', content: resumoPrompt }] })
+          body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 2048, messages: [{ role: 'user', content: resumoPrompt }] })
         });
         if (resumoResp.ok) {
           const resumoData = await resumoResp.json();
