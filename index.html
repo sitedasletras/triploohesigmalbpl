@@ -3629,6 +3629,7 @@ let genJornadaSelecionada = null;
 let genLivroCompleto = '';
 let genUltimoItemIdx = null;
 let genUltimoItemOrigem = null;
+let arcosTextoGlobal = [];
 let genResolveAprovacao = null;
 
 const GEN_JORNADAS = {
@@ -3786,15 +3787,76 @@ function avancarProximoArco() {
   aprovarArcoGerador(true);
 }
 
+// Detecta se um texto termina de forma incompleta: sem pontuação final,
+// vírgula pendente, diálogo aberto (aspas/travessão sem fechamento), ou palavra cortada.
+function detectarTextoCortado(texto) {
+  const t = texto.trim();
+  if (!t) return false;
+  const ultimoChar = t.slice(-1);
+  // Pontuação que indica frase/parágrafo concluído
+  if ('.!?…”»)'.includes(ultimoChar)) return false;
+  // Travessão final é aceitável apenas se for fala interrompida deliberadamente — tratamos como cortado
+  if (ultimoChar === '—') return true;
+  // Vírgula, ou qualquer letra/número no final, ou aspas/parênteses abertos sem fechar
+  if (','.includes(ultimoChar)) return true;
+  // Verifica aspas de diálogo abertas sem fechamento (contagem ímpar)
+  const aspasCount = (t.match(/"/g) || []).length;
+  if (aspasCount % 2 !== 0) return true;
+  // Qualquer outro caractere que não seja pontuação de fechamento = provável corte no meio da frase/palavra
+  if (!'.!?…”»)'.includes(ultimoChar)) return true;
+  return false;
+}
+
+// Costura silenciosa: roda em segundo plano, sem indicação visual para o usuário,
+// e atualiza genArcoTextoAtual antes do modal aparecer.
+async function costurarSilenciosamente(texto) {
+  const ultimoTrecho = texto.slice(-3000);
+  const prompt = `Você é escritor literário da OHE. Este texto foi cortado no meio de uma frase ou palavra. Continue de onde parou.
+
+TEXTO (últimos 3000 chars):
+${ultimoTrecho}
+
+Comece EXATAMENTE de onde cortou (primeira palavra é continuação direta, sem repetir nada já escrito).
+PROIBIDO: tags HTML, markdown, ##, Arco I/II/III, separadores ---, comentários ou introduções.
+
+Escreva agora apenas a continuação direta.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4096, messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!response.ok) return texto;
+    const data = await response.json();
+    const continuacao = data.content[0].text
+      .replace(/<[^>]+>/g,'').replace(/^#{1,6}\s*/gm,'')
+      .replace(/^---+\s*$/gm,'').replace(/\*\*([^*]+)\*\*/g,'$1')
+      .replace(/\*([^*]+)\*/g,'$1').trim();
+    return texto.trimEnd() + continuacao;
+  } catch(e) {
+    console.warn('Costura automática silenciosa falhou:', e.message);
+    return texto;
+  }
+}
+
 async function mostrarAprovacaoArcoGerador(num, nome, texto) {
+  // Costura automática silenciosa: se o arco terminar com frase incompleta,
+  // costura antes de mostrar o modal. O usuário só vê o texto já limpo.
+  let textoFinal = texto;
+  if (detectarTextoCortado(texto)) {
+    genLog(`🧵 Detectado corte no Arco ${num} — aplicando costura automática...`);
+    textoFinal = await costurarSilenciosamente(texto);
+  }
+
   return new Promise(resolve => {
     genResolveAprovacao = resolve;
     genArcoAtualNum = num;
-    genArcoTextoAtual = texto;
+    genArcoTextoAtual = textoFinal;
 
     document.getElementById('gen-arco-num').textContent = `Arco ${num} · ${nome}`;
 
-    const textoLimpo = limparTextoArco(texto);
+    const textoLimpo = limparTextoArco(textoFinal);
     document.getElementById('gen-arco-preview').textContent = textoLimpo;
 
     const btnP = document.getElementById('gen-btn-proximo');
@@ -3841,8 +3903,8 @@ async function iniciarGeracaoLivro() {
   document.getElementById('gen-resultado').style.display = 'none';
 
   genLivroCompleto = '';
+  arcosTextoGlobal = [];
   let resumoAnterior = '';
-  const arcosTexto = [];
   let capituloAtual = 1;
 
   for (let ai = 0; ai < jornada.arcos.length; ai++) {
@@ -3863,7 +3925,7 @@ ${perfilTom}
 ${sinopse ? `BASE NARRATIVA:\n${sinopse}\n` : ''}
 ${resumoAnterior ? `RESUMO DO QUE JÁ FOI ESCRITO:\n${resumoAnterior}\n` : ''}
 ${ai > 0 ? 'Continue EXATAMENTE de onde o arco anterior parou. Não repita conteúdo já escrito.' : 'Inicie o livro apresentando o mundo e personagens.'}
-${ai === 2 ? 'Este é o ÚLTIMO arco. Conclua a história de forma satisfatória e coerente com a estrutura escolhida.' : ''}
+${ai === 2 ? 'Este é o ÚLTIMO arco. Conclua a história de forma satisfatória e coerente com a estrutura escolhida. A cena culminante exige densidade sensorial plena: descreva o que se vê, ouve, sente fisicamente — não apenas o que acontece. Não acelere o ritmo no momento mais importante do livro.' : ''}
 
 REGRAS OBRIGATÓRIAS:
 - Diálogos com travessão (—) e verbo dicendi
@@ -3878,16 +3940,18 @@ REGRAS OBRIGATÓRIAS:
 Escreva aproximadamente ${palavrasPorArco} palavras. Comece diretamente com a narrativa.`;
 
     try {
+      const isUltimoArco = ai === jornada.arcos.length - 1;
+      const maxTokensArco = isUltimoArco ? 12000 : 8192;
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 8192, messages: [{ role: 'user', content: prompt }] })
+        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: maxTokensArco, messages: [{ role: 'user', content: prompt }] })
       });
 
       if (!response.ok) throw new Error(`Erro ${response.status}`);
       const data = await response.json();
       const textoArco = data.content[0].text;
-      arcosTexto.push(textoArco);
+      arcosTextoGlobal[ai] = textoArco;
 
       genLog(`⏸ Aguardando aprovação do Arco ${ai+1}...`);
       const aprovado = await mostrarAprovacaoArcoGerador(ai+1, arco.nome, textoArco);
@@ -3895,17 +3959,22 @@ Escreva aproximadamente ${palavrasPorArco} palavras. Comece diretamente com a na
       if (!aprovado) {
         genLog(`✗ Arco ${ai+1} rejeitado. Refazendo...`);
         ai--;
-        arcosTexto.pop();
+        arcosTextoGlobal.pop();
         continue;
       }
 
+      // CRÍTICO: usa genArcoTextoAtual, que reflete a costura aplicada (se houve).
+      // Isso evita duplicação e garante que o texto costurado seja o que entra no livro.
+      const textoArcoFinal = genArcoTextoAtual || textoArco;
+      arcosTextoGlobal[ai] = textoArcoFinal;
+
       genLog(`✓ Arco ${ai+1} aprovado!`);
-      genLivroCompleto += textoArco + '\n\n' + '─'.repeat(60) + '\n\n';
-      const matchesCap = textoArco.match(/Cap[ií]tulo\s+[IVXLC\d]+/gi) || [];
+      genLivroCompleto += textoArcoFinal + '\n\n' + '─'.repeat(60) + '\n\n';
+      const matchesCap = textoArcoFinal.match(/Cap[ií]tulo\s+[IVXLC\d]+/gi) || [];
       if (matchesCap.length > 0) capituloAtual += matchesCap.length;
 
       if (ai < 2) {
-        const resumoPrompt = `Resuma em 3-4 parágrafos o que aconteceu neste texto, focando em: personagens principais, eventos chave, estado emocional dos personagens e onde a história ficou:\n\n${textoArco.substring(0, 3000)}`;
+        const resumoPrompt = `Resuma em 3-4 parágrafos o que aconteceu neste texto, focando em: personagens principais, eventos chave, estado emocional dos personagens e onde a história ficou:\n\n${textoArcoFinal.substring(0, 3000)}`;
         const resumoResp = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
@@ -4128,8 +4197,10 @@ async function costurarArcoAtual() {
   if (btn) { btn.textContent = '🧵 Costurando...'; btn.disabled = true; }
   genLog('🧵 Costurando Arco ' + genArcoAtualNum + '...');
 
-  const textoBase = genLivroCompleto || genArcoTextoAtual;
-  const textoBefore = textoBase.length;
+  // CRÍTICO: a costura opera SOMENTE sobre o arco atual (genArcoTextoAtual),
+  // nunca sobre genLivroCompleto. genLivroCompleto só recebe o texto definitivo
+  // do arco no momento da aprovação (avancarProximoArco/aprovarArcoGerador).
+  const textoBase = genArcoTextoAtual;
   const ultimoChar = textoBase.trim().slice(-1);
   const cortado = !'.!?…”»)—'.includes(ultimoChar);
   const ultimoTrecho = textoBase.slice(-3000);
@@ -4158,7 +4229,9 @@ Escreva agora sem introdução ou comentário.`;
 
     const sep = cortado ? '' : '\n\n';
     const resultado = textoBase.trimEnd() + sep + continuacao;
-    genLivroCompleto = resultado;
+
+    // Atualiza SOMENTE o texto do arco atual — não o livro acumulado
+    genArcoTextoAtual = resultado;
 
     const parteNova = continuacao;
     const container = document.getElementById('gen-arco-costura-container');
@@ -4168,6 +4241,10 @@ Escreva agora sem introdução ou comentário.`;
       container.style.display = 'block';
       container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
+    // Atualiza também a prévia do modal para refletir o texto costurado
+    const preview = document.getElementById('gen-arco-preview');
+    if (preview) preview.textContent = limparTextoArco(resultado);
+
     genLog('✅ Costura do Arco ' + genArcoAtualNum + ' concluída — ' + continuacao.split(/\s+/).filter(Boolean).length + ' palavras adicionadas.');
     if (btn) { btn.textContent = '🧵 COSTURAR NOVAMENTE'; btn.disabled = false; }
   } catch(e) {
