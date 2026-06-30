@@ -214,6 +214,25 @@ body::before {
 .topo-dir { display: flex; align-items: center; gap: 1rem; }
 
 /* Botão de emergência/parar */
+/* Checkboxes do gerador */
+.gen-check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  color: var(--prata);
+  cursor: pointer;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid rgba(201,168,76,0.08);
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+.gen-check:hover { border-color: rgba(201,168,76,0.3); color: var(--ouro); }
+.gen-check input[type="checkbox"] { accent-color: var(--ouro); width: 12px; height: 12px; }
+.gen-check:has(input:checked) { border-color: var(--ouro); color: var(--ouro); background: rgba(201,168,76,0.06); }
+
 .btn-parar {
   background: rgba(211,47,47,0.15);
   border: 1px solid rgba(211,47,47,0.5);
@@ -1831,12 +1850,91 @@ body::before {
         </div>
         <div class="fg" style="margin-bottom:1rem;">
           <label class="fl">Estrutura narrativa</label>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-top:0.5rem;" id="gen-jornadas">
-            <button class="btn-s" onclick="selecionarJornada('heroi',this)" style="text-align:left;">🦸 Jornada do Herói</button>
-            <button class="btn-s" onclick="selecionarJornada('vilao',this)" style="text-align:left;">🦹 Jornada do Vilão</button>
-            <button class="btn-s" onclick="selecionarJornada('tragico',this)" style="text-align:left;">🎭 Arco Trágico</button>
-            <button class="btn-s" onclick="selecionarJornada('redencao',this)" style="text-align:left;">✨ Arco de Redenção</button>
-            <button class="btn-s" onclick="selecionarJornada('epico',this)" style="text-align:left;">⚔️ Estrutura Épica</button>
+          <div style="margin-top:0.5rem;" id="gen-jornadas">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.2em;color:var(--ouro);opacity:0.5;text-transform:uppercase;margin-bottom:0.4rem;">// Individual</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;margin-bottom:0.8rem;">
+              <button class="btn-s" onclick="selecionarJornada('heroi',this)" style="text-align:left;font-size:0.52rem;">🚀 Jornada do Herói</button>
+              <button class="btn-s" onclick="selecionarJornada('vilao',this)" style="text-align:left;font-size:0.52rem;">🎭 Jornada do Vilão</button>
+              <button class="btn-s" onclick="selecionarJornada('iniciacao',this)" style="text-align:left;font-size:0.52rem;">🌀 Arco de Iniciação</button>
+              <button class="btn-s" onclick="selecionarJornada('luto',this)" style="text-align:left;font-size:0.52rem;">🕯️ Arco de Luto</button>
+              <button class="btn-s" onclick="selecionarJornada('sobrevivencia',this)" style="text-align:left;font-size:0.52rem;">🔥 Arco de Sobrevivência</button>
+            </div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.2em;color:var(--ouro);opacity:0.5;text-transform:uppercase;margin-bottom:0.4rem;">// Vínculo</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;margin-bottom:0.8rem;">
+              <button class="btn-s" onclick="selecionarJornada('amor',this)" style="text-align:left;font-size:0.52rem;">💞 Amor Impossível</button>
+              <button class="btn-s" onclick="selecionarJornada('traicao',this)" style="text-align:left;font-size:0.52rem;">🩸 Arco de Traição</button>
+              <button class="btn-s" onclick="selecionarJornada('alianca',this)" style="text-align:left;font-size:0.52rem;">🤝 Arco de Aliança</button>
+              <button class="btn-s" onclick="selecionarJornada('obsessao',this)" style="text-align:left;font-size:0.52rem;">👁️ Arco de Obsessão</button>
+              <button class="btn-s" onclick="selecionarJornada('duplo',this)" style="text-align:left;font-size:0.52rem;">🪞 Arco do Duplo</button>
+            </div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.2em;color:var(--ouro);opacity:0.5;text-transform:uppercase;margin-bottom:0.4rem;">// Transformação</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;margin-bottom:0.8rem;">
+              <button class="btn-s" onclick="selecionarJornada('redencao',this)" style="text-align:left;font-size:0.52rem;">✨ Arco de Redenção</button>
+              <button class="btn-s" onclick="selecionarJornada('tragico',this)" style="text-align:left;font-size:0.52rem;">💔 Arco Trágico</button>
+              <button class="btn-s" onclick="selecionarJornada('deriva',this)" style="text-align:left;font-size:0.52rem;">🌊 Arco de Deriva</button>
+              <button class="btn-s" onclick="selecionarJornada('ciclico',this)" style="text-align:left;font-size:0.52rem;">🔄 Arco Cíclico</button>
+              <button class="btn-s" onclick="selecionarJornada('corrupcao',this)" style="text-align:left;font-size:0.52rem;">🌑 Arco de Corrupção</button>
+            </div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.2em;color:var(--ouro);opacity:0.5;text-transform:uppercase;margin-bottom:0.4rem;">// Coletivo</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;">
+              <button class="btn-s" onclick="selecionarJornada('epico',this)" style="text-align:left;font-size:0.52rem;">⚔️ Estrutura Épica</button>
+              <button class="btn-s" onclick="selecionarJornada('decadencia',this)" style="text-align:left;font-size:0.52rem;">🏚️ Arco de Decadência</button>
+              <button class="btn-s" onclick="selecionarJornada('fundacao',this)" style="text-align:left;font-size:0.52rem;">🌱 Arco de Fundação</button>
+              <button class="btn-s" onclick="selecionarJornada('ruptura',this)" style="text-align:left;font-size:0.52rem;">⚡ Arco de Ruptura</button>
+              <button class="btn-s" onclick="selecionarJornada('coral',this)" style="text-align:left;font-size:0.52rem;">🌐 Arco Coral</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="fg" style="margin-bottom:1rem;">
+          <label class="fl">Universo / Cenário <span style="opacity:0.5;">(múltipla escolha)</span></label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.3rem;margin-top:0.5rem;" id="gen-universos">
+            <label class="gen-check"><input type="checkbox" value="Medieval"> 🏰 Medieval</label>
+            <label class="gen-check"><input type="checkbox" value="Fantasia"> 🧙 Fantasia</label>
+            <label class="gen-check"><input type="checkbox" value="Sci-fi"> 🚀 Sci-fi</label>
+            <label class="gen-check"><input type="checkbox" value="Distopia"> 🔩 Distopia</label>
+            <label class="gen-check"><input type="checkbox" value="Guerra"> ⚔️ Guerra</label>
+            <label class="gen-check"><input type="checkbox" value="Pós-apocalíptico"> ☢️ Pós-apocalíptico</label>
+            <label class="gen-check"><input type="checkbox" value="Contemporâneo"> 🏙️ Contemporâneo</label>
+            <label class="gen-check"><input type="checkbox" value="Histórico"> 📜 Histórico</label>
+            <label class="gen-check"><input type="checkbox" value="Mitológico"> ⚡ Mitológico</label>
+            <label class="gen-check"><input type="checkbox" value="Sobrenatural"> 👁️ Sobrenatural</label>
+            <label class="gen-check"><input type="checkbox" value="Policial"> 🔍 Policial</label>
+            <label class="gen-check"><input type="checkbox" value="Western"> 🤠 Western</label>
+            <label class="gen-check"><input type="checkbox" value="Espaço"> 🌌 Espaço</label>
+            <label class="gen-check"><input type="checkbox" value="Submundo urbano"> 🌃 Submundo urbano</label>
+            <label class="gen-check"><input type="checkbox" value="Rural"> 🌾 Rural / Campo</label>
+            <label class="gen-check"><input type="checkbox" value="Mar"> ⛵ Mar / Náutico</label>
+            <label class="gen-check"><input type="checkbox" value="Medicina"> 🏥 Corpo / Medicina</label>
+            <label class="gen-check"><input type="checkbox" value="Político"> 🏛️ Político</label>
+            <label class="gen-check"><input type="checkbox" value="Religioso"> ✝️ Religioso</label>
+            <label class="gen-check"><input type="checkbox" value="Tecnológico"> 💻 Tecnológico</label>
+          </div>
+        </div>
+
+        <div class="fg" style="margin-bottom:1.5rem;">
+          <label class="fl">Tom / Modalidade <span style="opacity:0.5;">(múltipla escolha)</span></label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.3rem;margin-top:0.5rem;" id="gen-tons">
+            <label class="gen-check"><input type="checkbox" value="Drama"> 🎭 Drama</label>
+            <label class="gen-check"><input type="checkbox" value="Terror"> 👻 Terror</label>
+            <label class="gen-check"><input type="checkbox" value="Horror"> 🩸 Horror</label>
+            <label class="gen-check"><input type="checkbox" value="Suspense"> 🔦 Suspense</label>
+            <label class="gen-check"><input type="checkbox" value="Amor"> ❤️ Amor</label>
+            <label class="gen-check"><input type="checkbox" value="Lírico"> 🌸 Lírico</label>
+            <label class="gen-check"><input type="checkbox" value="Humor"> 😄 Humor</label>
+            <label class="gen-check"><input type="checkbox" value="Sátira"> 🎪 Sátira</label>
+            <label class="gen-check"><input type="checkbox" value="Aventura"> ⚡ Aventura</label>
+            <label class="gen-check"><input type="checkbox" value="Mistério"> 🔮 Mistério</label>
+            <label class="gen-check"><input type="checkbox" value="Psicológico"> 🧠 Psicológico</label>
+            <label class="gen-check"><input type="checkbox" value="Filosófico"> 💭 Filosófico</label>
+            <label class="gen-check"><input type="checkbox" value="Melancólico"> 🌧️ Melancólico</label>
+            <label class="gen-check"><input type="checkbox" value="Épico"> 🏔️ Épico</label>
+            <label class="gen-check"><input type="checkbox" value="Urgente"> ⏱️ Urgente</label>
+            <label class="gen-check"><input type="checkbox" value="Contemplativo"> 🌊 Contemplativo</label>
+            <label class="gen-check"><input type="checkbox" value="Visceral"> 🔥 Visceral</label>
+            <label class="gen-check"><input type="checkbox" value="Poético"> ✨ Poético</label>
+            <label class="gen-check"><input type="checkbox" value="Existencial"> 🌀 Existencial</label>
+            <label class="gen-check"><input type="checkbox" value="Erótico"> 🌹 Erótico</label>
           </div>
         </div>
         <div class="fg" style="margin-bottom:1.5rem;">
@@ -1882,7 +1980,9 @@ body::before {
         <pre id="gen-livro-texto" style="font-family:'Crimson Pro',serif;font-size:0.8rem;color:var(--creme);white-space:pre-wrap;line-height:1.8;background:rgba(0,0,0,0.3);border:1px solid rgba(201,168,76,0.1);padding:1.5rem;border-radius:4px;max-height:60vh;overflow-y:auto;margin-bottom:1rem;"></pre>
         <div style="display:flex;gap:1rem;flex-wrap:wrap;">
           <button onclick="copiarLivro()" class="btn-p">📋 COPIAR LIVRO</button>
+          <button onclick="enviarLivroGeradoParaPaiol()" class="btn-s" style="border-color:#f57f17;color:#f57f17;">🏹 ENVIAR AO PAIOL</button>
           <button onclick="novoLivro()" class="btn-s">+ NOVO LIVRO</button>
+          <button onclick="sairDoGerador()" class="btn-s">✕ SAIR DO GERADOR</button>
         </div>
       </div>
     </div>
@@ -1962,6 +2062,34 @@ body::before {
 
   </div><!-- /conteudo -->
 </div><!-- /app -->
+
+<!-- MODAL PERSONAGEM -->
+<div class="modal-overlay" id="modal-personagem">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-tit">REGISTRAR PERSONAGEM</div>
+      <button class="modal-x" onclick="fecharModal('modal-personagem')">// FECHAR</button>
+    </div>
+    <div class="modal-corpo">
+      <div class="fg">
+        <label class="fl">Nome do Personagem</label>
+        <input type="text" class="fi" id="pers-nome" placeholder="Nome completo do personagem">
+      </div>
+      <div class="fg">
+        <label class="fl">Papel / Função na obra</label>
+        <input type="text" class="fi" id="pers-papel" placeholder="ex: Protagonista, Antagonista, Coadjuvante...">
+      </div>
+      <div class="fg">
+        <label class="fl">Descrição / Notas</label>
+        <textarea class="fta" id="pers-desc" placeholder="Características físicas, psicológicas, arco do personagem..."></textarea>
+      </div>
+    </div>
+    <div class="modal-acoes">
+      <button class="btn-p" onclick="salvarPersonagem()">SALVAR PERSONAGEM</button>
+      <button class="btn-s" onclick="fecharModal('modal-personagem')">CANCELAR</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL ESTÚDIO -->
 <div class="modal-overlay" id="modal-estudio">
@@ -2207,7 +2335,7 @@ async function gerarDadosMaquina() {
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': window.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
     });
     const data = await response.json();
@@ -2924,7 +3052,7 @@ async function processarComFernandoPecanha(i) {
     }
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': window.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4096, messages: [{ role: 'user', content: userContent }] })
     });
     item.progresso = 80;
@@ -3164,20 +3292,72 @@ function renderizarCalabouco() {
     el.innerHTML = `<div class="vazio" style="grid-column:1/-1;"><div class="vazio-icon">📚</div><div class="vazio-txt">Nenhuma obra consolidada ainda.</div></div>`;
     return;
   }
-  el.innerHTML = estado.calabouco.map((item, i) => `
+  el.innerHTML = estado.calabouco.map((item, i) => {
+    const personagens = item.personagens || [];
+    const tags = [];
+    if (item.universo?.length) tags.push(...item.universo.slice(0,2));
+    if (item.tom?.length) tags.push(...item.tom.slice(0,2));
+    const tagsHtml = tags.length ? `<div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.5rem;">${tags.map(t=>`<span style="font-family:'Share Tech Mono',monospace;font-size:0.38rem;letter-spacing:0.1em;padding:0.15rem 0.4rem;border:1px solid rgba(201,168,76,0.2);color:var(--prata);text-transform:uppercase;">${t}</span>`).join('')}</div>` : '';
+    const persHtml = personagens.length ? `<div style="margin-top:0.5rem;border-top:1px solid rgba(201,168,76,0.08);padding-top:0.5rem;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.38rem;letter-spacing:0.15em;color:var(--ouro);opacity:0.5;text-transform:uppercase;margin-bottom:0.3rem;">// Personagens</div>
+      ${personagens.map((p,pi) => `<div style="font-family:'Crimson Pro',serif;font-size:0.72rem;color:var(--creme);display:flex;justify-content:space-between;align-items:center;padding:0.15rem 0;">
+        <span>${p.nome} <span style="opacity:0.4;font-size:0.65rem;">${p.papel||''}</span></span>
+        <button onclick="removerPersonagem(${i},${pi})" style="background:none;border:none;color:var(--vermelho);cursor:pointer;font-size:0.6rem;opacity:0.5;padding:0 0.2rem;">✕</button>
+      </div>`).join('')}
+    </div>` : '';
+    return `
     <div class="calabouco-card">
-      <div class="cal-tipo">${item.tipo?.toUpperCase() || '—'}</div>
+      <div class="cal-tipo">${item.tipo?.toUpperCase() || '—'} ${item.jornada ? `· ${GEN_JORNADAS[item.jornada]?.nome||item.jornada}` : ''}</div>
       <div class="cal-titulo">${item.titulo}</div>
       <div class="cal-autor">${item.autor || item.meta || '—'}</div>
+      ${tagsHtml}
+      ${persHtml}
+      <div style="margin-top:0.5rem;">
+        <button onclick="abrirAdicionarPersonagem(${i})" style="width:100%;background:rgba(201,168,76,0.04);border:1px dashed rgba(201,168,76,0.2);color:var(--prata);font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;padding:0.35rem;cursor:pointer;text-transform:uppercase;margin-bottom:0.5rem;">+ REGISTRAR PERSONAGEM</button>
+      </div>
       <div class="cal-acoes">
-      <button class="fa-btn" onclick="abrirGerador(${i})">📖 GERAR LIVRO</button>
-      <button class="fa-btn" onclick="enviarParaSilo('livro', ${i})">→ SILO</button>
-      <button class="fa-btn" style="color:#f57f17;border-color:#f57f17;" onclick="moverParaPaiol(${i})">🏹 → PAIOL</button>
+        <button class="fa-btn" onclick="abrirGerador(${i})">📖 GERAR LIVRO</button>
+        <button class="fa-btn" onclick="enviarParaSilo('livro', ${i})">→ SILO</button>
+        <button class="fa-btn" style="color:#f57f17;border-color:#f57f17;" onclick="moverParaPaiol(${i})">🏹 → PAIOL</button>
         <button class="fa-btn" onclick="removerCalabouco(${i})">✕</button>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
   atualizarContadores();
+}
+
+let calItemIdx = null;
+function abrirAdicionarPersonagem(i) {
+  calItemIdx = i;
+  const modal = document.getElementById('modal-personagem');
+  if (modal) {
+    document.getElementById('pers-nome').value = '';
+    document.getElementById('pers-papel').value = '';
+    document.getElementById('pers-desc').value = '';
+    modal.classList.add('aberto');
+  }
+}
+function salvarPersonagem() {
+  const nome = document.getElementById('pers-nome').value.trim();
+  if (!nome) { notif('OBRIGATÓRIO', 'Nome do personagem é necessário.', 'erro'); return; }
+  if (calItemIdx === null) return;
+  if (!estado.calabouco[calItemIdx].personagens) estado.calabouco[calItemIdx].personagens = [];
+  estado.calabouco[calItemIdx].personagens.push({
+    nome,
+    papel: document.getElementById('pers-papel').value.trim(),
+    desc: document.getElementById('pers-desc').value.trim(),
+    data: new Date().toLocaleDateString('pt-BR')
+  });
+  salvar();
+  renderizarCalabouco();
+  fecharModal('modal-personagem');
+  notif('PERSONAGEM REGISTRADO', `${nome} adicionado à obra.`, 'sucesso');
+}
+function removerPersonagem(itemIdx, persIdx) {
+  if (!confirm('Remover personagem?')) return;
+  estado.calabouco[itemIdx].personagens.splice(persIdx, 1);
+  salvar();
+  renderizarCalabouco();
 }
 
 function removerCalabouco(i) {
@@ -3447,33 +3627,114 @@ function notif(titulo, texto, tipo='info') {
 // ===================== GERADOR DE LIVRO INTEGRADO =====================
 let genJornadaSelecionada = null;
 let genLivroCompleto = '';
+let genUltimoItemIdx = null;
+let genUltimoItemOrigem = null;
 let genResolveAprovacao = null;
 
 const GEN_JORNADAS = {
-  heroi: { nome: 'Jornada do Herói', arcos: [
-    { nome: 'Mundo Comum & Chamado', desc: 'Apresente o protagonista, seu mundo ordinário e o evento que muda tudo.' },
-    { nome: 'Provações & Transformação', desc: 'O protagonista enfrenta obstáculos, aliados, inimigos e a crise central.' },
-    { nome: 'Clímax & Retorno', desc: 'A batalha final, a transformação completa e o retorno transformado.' }
+  // ── GRUPO 1: JORNADA INDIVIDUAL ──
+  heroi: { nome: 'Jornada do Herói', grupo: 'Individual', arcos: [
+    { nome: 'Mundo Comum & Chamado', desc: 'Apresente o protagonista, seu mundo ordinário e o evento que muda tudo. O herói reluta, mas aceita o chamado.' },
+    { nome: 'Provações & Transformação', desc: 'O protagonista enfrenta obstáculos, aliados, inimigos e a crise central que o força a mudar.' },
+    { nome: 'Clímax & Retorno', desc: 'A batalha final, a transformação completa e o retorno transformado — o herói já não é mais o mesmo.' }
   ]},
-  vilao: { nome: 'Jornada do Vilão', arcos: [
-    { nome: 'Origem & Motivação', desc: 'A origem do antagonista, sua ferida e o que o levou ao caminho sombrio.' },
-    { nome: 'Ascensão & Conflito', desc: 'O antagonista consolida poder, enfrenta resistência e intensifica o conflito.' },
-    { nome: 'Queda ou Vitória', desc: 'O confronto final — derrota trágica ou vitória sombria.' }
+  vilao: { nome: 'Jornada do Vilão', grupo: 'Individual', arcos: [
+    { nome: 'Origem & Motivação', desc: 'A origem do antagonista, sua ferida fundadora e o que o levou ao caminho sombrio. Humanize-o.' },
+    { nome: 'Ascensão & Conflito', desc: 'O antagonista consolida poder, enfrenta resistência interna e externa, e intensifica o conflito.' },
+    { nome: 'Queda ou Vitória', desc: 'O confronto final — derrota trágica com dignidade, ou vitória sombria com custo alto.' }
   ]},
-  tragico: { nome: 'Arco Trágico', arcos: [
-    { nome: 'Grandeza & Falha', desc: 'O herói em seu apogeu e a falha trágica que carrega.' },
-    { nome: 'Descida & Reconhecimento', desc: 'A queda gradual e o momento de reconhecimento da verdade.' },
-    { nome: 'Catástrofe & Catarse', desc: 'O desastre final e a catarse emocional do leitor.' }
+  iniciacao: { nome: 'Arco de Iniciação', grupo: 'Individual', arcos: [
+    { nome: 'A Ignorância Necessária', desc: 'O personagem existe no mundo sem saber o que é. Mostre a vida antes do saber, com todos os seus confortos e limites.' },
+    { nome: 'O Limiar do Conhecimento', desc: 'A verdade começa a vazar. O personagem toca o que não podia ser tocado e não pode mais desfazer.' },
+    { nome: 'O Preço de Saber', desc: 'O conhecimento completo chega com seu custo irreversível. O personagem é outro — melhor, pior, ou apenas diferente.' }
   ]},
-  redencao: { nome: 'Arco de Redenção', arcos: [
-    { nome: 'Queda & Culpa', desc: 'O personagem em seu ponto mais baixo, carregando o peso do passado.' },
-    { nome: 'Jornada Interior', desc: 'O confronto com os próprios erros e o início da mudança.' },
-    { nome: 'Redenção & Renascimento', desc: 'O ato redentor e a nova vida que emerge das cinzas.' }
+  luto: { nome: 'Arco de Luto', grupo: 'Individual', arcos: [
+    { nome: 'A Perda & O Silêncio', desc: 'A perda acontece ou já aconteceu. Mostre o mundo com o buraco deixado pela ausência — no cotidiano, nos objetos, no ar.' },
+    { nome: 'O Trabalho do Luto', desc: 'O personagem aprende, falha, regride e avança. O luto não é linear — mostre suas texturas, seus disfarces, suas surpresas.' },
+    { nome: 'O Que Permanece', desc: 'Não é cura, é transformação. O personagem aprende a carregar a perda de forma diferente — menor não, diferente.' }
   ]},
-  epico: { nome: 'Estrutura Épica', arcos: [
-    { nome: 'O Mundo em Perigo', desc: 'Estabeleça o mundo épico, a ameaça e os heróis improváveis.' },
-    { nome: 'Batalhas & Alianças', desc: 'Guerras, traições, alianças e o custo humano do conflito.' },
-    { nome: 'A Grande Batalha', desc: 'O confronto épico final e suas consequências para o mundo.' }
+  sobrevivencia: { nome: 'Arco de Sobrevivência', grupo: 'Individual', arcos: [
+    { nome: 'O Mundo Hostil', desc: 'Estabeleça a ameaça que quer destruir o personagem — física, psicológica, social. Mostre o custo de simplesmente existir.' },
+    { nome: 'O Limite', desc: 'O personagem chega ao ponto onde sobreviver parece impossível. Cada escolha tem custo. Mostre o que se perde para continuar.' },
+    { nome: 'O Que Sobrou', desc: 'A sobrevivência tem preço. O personagem chegou ao outro lado — mas o que chegou não é o mesmo que partiu.' }
+  ]},
+  // ── GRUPO 2: RELAÇÃO E VÍNCULO ──
+  amor: { nome: 'Arco de Amor Impossível', grupo: 'Vínculo', arcos: [
+    { nome: 'O Encontro que Não Deveria Ser', desc: 'Dois mundos que não deveriam se tocar se tocam. Mostre a atração e a impossibilidade com a mesma intensidade.' },
+    { nome: 'O Custo de Amar', desc: 'Amar o impossível tem preço. O mundo cobra. Mostre as forças que separam e a teimosia de ficar junto assim mesmo.' },
+    { nome: 'O Amor Que Ficou', desc: 'A impossibilidade vence, ou o amor vence a impossibilidade. Em ambos os casos, nada volta a ser como era.' }
+  ]},
+  traicao: { nome: 'Arco de Traição', grupo: 'Vínculo', arcos: [
+    { nome: 'A Confiança Construída', desc: 'Mostre o vínculo genuíno que existia. O leitor precisa acreditar na lealdade para sentir o peso do que vem depois.' },
+    { nome: 'A Faca nas Costas', desc: 'A traição acontece. Mostre tanto o traidor quanto o traído — nenhuma traição nasce do nada.' },
+    { nome: 'As Ruínas & O Que Nasce Delas', desc: 'O que se faz com a traição define o personagem mais do que a traição em si. Perdão, vingança, ou algo mais complexo.' }
+  ]},
+  alianca: { nome: 'Arco de Aliança', grupo: 'Vínculo', arcos: [
+    { nome: 'Inimigos Que Precisam Um do Outro', desc: 'Dois opostos são forçados à cooperação. Mostre a resistência, a desconfiança, o que os separa e o que os une.' },
+    { nome: 'O Vínculo Forjado', desc: 'A aliança se transforma em algo mais. Batalhas comuns criam laços que nenhum dos dois previa.' },
+    { nome: 'O Teste da Aliança', desc: 'A aliança é testada por sua maior tensão interna. O que sobra depois diz o que realmente é.' }
+  ]},
+  obsessao: { nome: 'Arco de Obsessão', grupo: 'Vínculo', arcos: [
+    { nome: 'O Objeto da Fixação', desc: 'A obsessão começa como algo compreensível — amor, perda, justiça. Mostre o ponto de partida antes da distorção.' },
+    { nome: 'A Obsessão Devora', desc: 'A fixação substitui tudo. Mostre o que o personagem sacrifica sem perceber — e o que a obsessão devolve em troca.' },
+    { nome: 'O Fim da Obsessão', desc: 'A obsessão se satisfaz, se quebra, ou consume o personagem. Não há saída limpa daqui.' }
+  ]},
+  duplo: { nome: 'Arco do Duplo', grupo: 'Vínculo', arcos: [
+    { nome: 'O Espelho', desc: 'O personagem encontra seu duplo — o que poderia ter sido, o que teme ser, o reverso de si mesmo.' },
+    { nome: 'A Confusão das Fronteiras', desc: 'As fronteiras entre o eu e o duplo começam a ceder. Quem é quem? O que pertence a quem?' },
+    { nome: 'A Ruptura ou a Fusão', desc: 'Os dois não podem coexistir infinitamente. A separação ou a fusão — e o que permanece depois.' }
+  ]},
+  // ── GRUPO 3: QUEDA E TRANSFORMAÇÃO ──
+  redencao: { nome: 'Arco de Redenção', grupo: 'Transformação', arcos: [
+    { nome: 'Queda & Culpa', desc: 'O personagem em seu ponto mais baixo, carregando o peso do passado. A culpa deve ser sentida como real.' },
+    { nome: 'Jornada Interior', desc: 'O confronto honesto com os próprios erros. Não é arrependimento fácil — é trabalho duro e incerto.' },
+    { nome: 'Redenção & Renascimento', desc: 'O ato redentor e a nova vida que emerge das cinzas. A redenção não apaga o passado — convive com ele.' }
+  ]},
+  tragico: { nome: 'Arco Trágico', grupo: 'Transformação', arcos: [
+    { nome: 'Grandeza & Falha', desc: 'O herói em seu apogeu e a falha trágica que carrega — não é maldade, é limitação humana.' },
+    { nome: 'Descida & Reconhecimento', desc: 'A queda gradual e o momento de reconhecimento da verdade — tarde demais para mudar o curso.' },
+    { nome: 'Catástrofe & Catarse', desc: 'O desastre final e a catarse emocional do leitor. A tragédia deve ser inevitável e justa ao mesmo tempo.' }
+  ]},
+  deriva: { nome: 'Arco de Deriva', grupo: 'Transformação', arcos: [
+    { nome: 'Sem Mapa', desc: 'O personagem existe sem destino claro — não é derrota, é abertura. Mostre a vida sem ancoragem.' },
+    { nome: 'O Que O Caminho Traz', desc: 'A deriva leva a encontros, lugares e situações que o destino não teria previsto. Sentido emerge do acaso.' },
+    { nome: 'O Novo Norte', desc: 'O personagem encontra algo — não necessariamente o que procurava. A deriva termina com um ponto de chegada inesperado.' }
+  ]},
+  ciclico: { nome: 'Arco Cíclico', grupo: 'Transformação', arcos: [
+    { nome: 'O Ponto de Partida', desc: 'O mundo e o personagem no início. Estabeleça os padrões que vão se repetir — o leitor deve reconhecê-los quando voltarem.' },
+    { nome: 'A Espiral', desc: 'A história parece repetir — mas cada volta da espiral é levemente diferente. O ciclo é o mesmo, o personagem não.' },
+    { nome: 'O Retorno Transformado', desc: 'A história volta ao início — mas o que chegou não é o que partiu. O mesmo ponto, outro ângulo de visão.' }
+  ]},
+  corrupcao: { nome: 'Arco de Corrupção', grupo: 'Transformação', arcos: [
+    { nome: 'A Integridade Original', desc: 'Mostre o personagem antes — seus valores, seus limites, o que ele nunca faria. O leitor precisa acreditar nisso.' },
+    { nome: 'As Pequenas Concessões', desc: 'A corrupção não acontece de uma vez. Mostre as pequenas escolhas que parecem razoáveis — e se acumulam.' },
+    { nome: 'O Ponto Sem Retorno', desc: 'A linha foi cruzada sem que o personagem soubesse exatamente quando. O que resta não é salvação — é consciência.' }
+  ]},
+  // ── GRUPO 4: COLETIVO E MUNDO ──
+  epico: { nome: 'Estrutura Épica', grupo: 'Coletivo', arcos: [
+    { nome: 'O Mundo em Perigo', desc: 'Estabeleça o mundo épico, a ameaça que o ameaça e os heróis improváveis que vão enfrentá-la.' },
+    { nome: 'Batalhas & Alianças', desc: 'Guerras, traições, alianças e o custo humano do conflito. O épico se conta nos indivíduos dentro do coletivo.' },
+    { nome: 'A Grande Batalha', desc: 'O confronto épico final e suas consequências para o mundo. O mundo muda — para melhor, pior, ou diferente.' }
+  ]},
+  decadencia: { nome: 'Arco de Decadência', grupo: 'Coletivo', arcos: [
+    { nome: 'O Esplendor Que Ainda Existe', desc: 'Mostre o que foi grandioso — família, civilização, instituição, corpo. A decadência só dói se houve grandeza.' },
+    { nome: 'A Erosão', desc: 'A decadência não colapsa — corrói. Mostre o processo lento, os sinais ignorados, as pequenas perdas que se acumulam.' },
+    { nome: 'As Ruínas & Seus Habitantes', desc: 'O que resta quando a decadência chega ao fim. Quem vive entre as ruínas? O que constroem com o que sobrou?' }
+  ]},
+  fundacao: { nome: 'Arco de Fundação', grupo: 'Coletivo', arcos: [
+    { nome: 'O Vazio & A Visão', desc: 'Algo precisa existir mas ainda não existe. O fundador carrega a visão do que pode ser — e o peso de construir do nada.' },
+    { nome: 'A Construção & Seus Custos', desc: 'Fundar algo exige sacrifício. Mostre o que é construído e o que é destruído no processo — pessoas, relações, ilusões.' },
+    { nome: 'O Legado', desc: 'O que foi fundado sobrevive ao fundador? O legado é o que resta quando o fundador não pode mais controlar o que criou.' }
+  ]},
+  ruptura: { nome: 'Arco de Ruptura', grupo: 'Coletivo', arcos: [
+    { nome: 'O Antes da Ruptura', desc: 'O mundo como era — sua ordem, seus acordos tácitos, o que todos fingiam não ver. A tensão abaixo da superfície.' },
+    { nome: 'A Ruptura', desc: 'O que não podia mais ser sustentado se quebra. A ruptura é violenta ou silenciosa — mas irreversível.' },
+    { nome: 'O Depois', desc: 'O mundo pós-ruptura. Não é reconstituição — é nova configuração. O que emerge das fraturas.' }
+  ]},
+  coral: { nome: 'Arco Coral', grupo: 'Coletivo', arcos: [
+    { nome: 'As Vozes Separadas', desc: 'Apresente cada voz do coral com sua própria lógica, seu próprio mundo interior. Cada um é protagonista da própria história.' },
+    { nome: 'O Entrelaçamento', desc: 'As histórias começam a se tocar, influenciar, contrariar. O que cada um faz afeta os outros — sem que percebam.' },
+    { nome: 'A Harmonia ou a Dissonância', desc: 'As vozes chegam a um ponto comum — de acordo ou de conflito. O coral encontra seu acorde final.' }
   ]}
 };
 
@@ -3561,11 +3822,19 @@ async function iniciarGeracaoLivro() {
   const volume = parseInt(document.getElementById('gen-volume').value) || 120;
   const destino = document.getElementById('gen-destino').value;
 
+  // Ler universos selecionados
+  const universosSel = [...document.querySelectorAll('#gen-universos input:checked')].map(c => c.value);
+  const tonsSel = [...document.querySelectorAll('#gen-tons input:checked')].map(c => c.value);
+
   if (!titulo) { notif('CAMPO OBRIGATÓRIO', 'Informe o título ou tema do livro.', 'erro'); return; }
   if (!genJornadaSelecionada) { notif('ESTRUTURA NECESSÁRIA', 'Selecione uma estrutura narrativa.', 'erro'); return; }
 
   const jornada = GEN_JORNADAS[genJornadaSelecionada];
   const palavrasPorArco = Math.floor((volume * 250) / 3);
+
+  // Montar perfil de estilo
+  const perfilUniverso = universosSel.length ? `UNIVERSO/CENÁRIO: ${universosSel.join(', ')}` : '';
+  const perfilTom = tonsSel.length ? `TOM/MODALIDADE: ${tonsSel.join(', ')}` : '';
 
   document.getElementById('gerador-form').style.display = 'none';
   document.getElementById('gen-progresso').style.display = 'block';
@@ -3574,7 +3843,7 @@ async function iniciarGeracaoLivro() {
   genLivroCompleto = '';
   let resumoAnterior = '';
   const arcosTexto = [];
-  let capituloAtual = 1; // contador global de capítulos entre arcos
+  let capituloAtual = 1;
 
   for (let ai = 0; ai < jornada.arcos.length; ai++) {
     const arco = jornada.arcos[ai];
@@ -3584,40 +3853,42 @@ async function iniciarGeracaoLivro() {
     const prompt = `Você é ${heteronimo || 'Fernando Peçanha, escolhendo o heterônimo mais adequado'}, escritor da OHE.
 
 LIVRO: ${titulo}
-JORNADA: ${jornada.nome}
+ESTRUTURA NARRATIVA: ${jornada.nome}
 ARCO ${ai+1} DE 3: ${arco.nome}
-DIRETRIZES: ${arco.desc}
+DIRETRIZES DO ARCO: ${arco.desc}
 VOLUME DO ARCO: ~${palavrasPorArco} palavras
+${perfilUniverso}
+${perfilTom}
 
 ${sinopse ? `BASE NARRATIVA:\n${sinopse}\n` : ''}
 ${resumoAnterior ? `RESUMO DO QUE JÁ FOI ESCRITO:\n${resumoAnterior}\n` : ''}
 ${ai > 0 ? 'Continue EXATAMENTE de onde o arco anterior parou. Não repita conteúdo já escrito.' : 'Inicie o livro apresentando o mundo e personagens.'}
-${ai === 2 ? 'Este é o ÚLTIMO arco. Conclua a história de forma satisfatória.' : ''}
+${ai === 2 ? 'Este é o ÚLTIMO arco. Conclua a história de forma satisfatória e coerente com a estrutura escolhida.' : ''}
 
 REGRAS OBRIGATÓRIAS:
 - Diálogos com travessão (—) e verbo dicendi
 - NUNCA travessão no meio de frases narrativas — use vírgula
 - Cada parágrafo com linha em branco entre eles
-- Títulos de capítulos CENTRALIZADOS
+- Títulos de capítulos centralizados em maiúsculas
 - PROIBIDO comentários editoriais ou análises fora da narrativa
 - Texto humanizado, sem rastro de IA
-- NUMERAÇÃO DE CAPÍTULOS: o primeiro capítulo DESTE arco é o Capítulo ${capituloAtual}. Continue numerando sequencialmente a partir daí. NUNCA recomece do Capítulo I ou Capítulo 1.
+- NUMERAÇÃO DE CAPÍTULOS: o primeiro capítulo DESTE arco é o Capítulo ${capituloAtual}. Continue numerando sequencialmente. NUNCA recomece do Capítulo 1.
+- Respeite rigorosamente o universo/cenário e o tom selecionados
 
 Escreva aproximadamente ${palavrasPorArco} palavras. Comece diretamente com a narrativa.`;
 
     try {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': window.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+        headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
         body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 8192, messages: [{ role: 'user', content: prompt }] })
-      }, 3, 2000);
+      });
 
       if (!response.ok) throw new Error(`Erro ${response.status}`);
       const data = await response.json();
       const textoArco = data.content[0].text;
       arcosTexto.push(textoArco);
 
-      // Aprovação
       genLog(`⏸ Aguardando aprovação do Arco ${ai+1}...`);
       const aprovado = await mostrarAprovacaoArcoGerador(ai+1, arco.nome, textoArco);
 
@@ -3630,18 +3901,16 @@ Escreva aproximadamente ${palavrasPorArco} palavras. Comece diretamente com a na
 
       genLog(`✓ Arco ${ai+1} aprovado!`);
       genLivroCompleto += textoArco + '\n\n' + '─'.repeat(60) + '\n\n';
-      // Contar capítulos gerados neste arco para continuar numeração no próximo
       const matchesCap = textoArco.match(/Cap[ií]tulo\s+[IVXLC\d]+/gi) || [];
       if (matchesCap.length > 0) capituloAtual += matchesCap.length;
 
-      // Gerar resumo para contexto
       if (ai < 2) {
         const resumoPrompt = `Resuma em 3-4 parágrafos o que aconteceu neste texto, focando em: personagens principais, eventos chave, estado emocional dos personagens e onde a história ficou:\n\n${textoArco.substring(0, 3000)}`;
         const resumoResp = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-api-key': window.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+          headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
           body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1024, messages: [{ role: 'user', content: resumoPrompt }] })
-        }, 3, 2000);
+        });
         if (resumoResp.ok) {
           const resumoData = await resumoResp.json();
           resumoAnterior = resumoData.content[0].text;
@@ -3659,7 +3928,6 @@ Escreva aproximadamente ${palavrasPorArco} palavras. Comece diretamente com a na
   genBarra(100);
   genLog('✓ Todos os arcos concluídos! Compilando livro...');
 
-  // Limpar tags do texto antes de montar livro editorial
   genLivroCompleto = genLivroCompleto
     .replace(/<div[^>]*align[^>]*>/gi,'').replace(/<\/div>/gi,'')
     .replace(/<div[^>]*>/gi,'').replace(/<p[^>]*>/gi,'').replace(/<\/p>/gi,'')
@@ -3669,10 +3937,8 @@ Escreva aproximadamente ${palavrasPorArco} palavras. Comece diretamente com a na
     .replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1')
     .replace(/\n{4,}/g,'\n\n').trim();
 
-  // Remover separadores entre arcos
   genLivroCompleto = genLivroCompleto.replace(/\n*─{10,}\n*/g, '\n\n');
 
-  // Montar livro completo com estrutura editorial
   const anoAtual = new Date().getFullYear();
   const autorFinal = heteronimo || 'A definir';
   const livroEditorial = `SITE DAS LETRAS EDIÇÕES LITERÁRIAS
@@ -3714,31 +3980,34 @@ SITE DAS LETRAS EDIÇÕES LITERÁRIAS`;
 
   genLivroCompleto = livroEditorial;
 
-  // Salvar no estado
   const livroItem = {
     id: Date.now(),
     titulo,
     autor: autorFinal,
     jornada: genJornadaSelecionada,
+    universo: universosSel,
+    tom: tonsSel,
     volume,
     destino,
     data: new Date().toLocaleDateString('pt-BR'),
     conteudo: genLivroCompleto,
-    tipo: 'livro'
+    tipo: 'livro',
+    personagens: []
   };
 
   if (destino === 'calabouco') {
     estado.calabouco.push(livroItem);
+    genUltimoItemIdx = estado.calabouco.length - 1;
+    genUltimoItemOrigem = 'calabouco';
   } else {
     estado.masmorra.push({...livroItem, dataEntrada: new Date().toISOString(), dataLiberacao: new Date(Date.now() + 750*24*60*60*1000).toISOString(), diasTotal: 750});
+    genUltimoItemIdx = estado.masmorra.length - 1;
+    genUltimoItemOrigem = 'masmorra';
   }
   salvar();
   atualizarContadores();
-
-  // Salvar no GitHub
   salvarNoGitHub(livroItem, destino);
 
-  // Mostrar resultado
   document.getElementById('gen-progresso').style.display = 'none';
   document.getElementById('gen-resultado').style.display = 'block';
   document.getElementById('gen-livro-texto').textContent = genLivroCompleto;
@@ -3752,6 +4021,42 @@ function copiarLivro() {
   }).catch(() => {
     notif('ERRO', 'Não foi possível copiar automaticamente.', 'erro');
   });
+}
+
+function enviarLivroGeradoParaPaiol() {
+  if (genUltimoItemIdx === null || genUltimoItemOrigem === null) {
+    notif('NADA PARA ENVIAR', 'Nenhum livro recém-gerado encontrado nesta sessão.', 'erro');
+    return;
+  }
+  let item;
+  if (genUltimoItemOrigem === 'calabouco') {
+    item = estado.calabouco[genUltimoItemIdx];
+    if (!item) { notif('ERRO', 'Item não encontrado no Calabouço.', 'erro'); return; }
+    estado.calabouco.splice(genUltimoItemIdx, 1);
+  } else {
+    item = estado.masmorra[genUltimoItemIdx];
+    if (!item) { notif('ERRO', 'Item ainda em quarentena na Masmorra — não pode ir ao Paiol.', 'erro'); return; }
+    estado.masmorra.splice(genUltimoItemIdx, 1);
+  }
+  estado.paiol.literario.push({
+    ...item,
+    dataEntrada: new Date().toLocaleDateString('pt-BR'),
+    status: 'no-paiol'
+  });
+  salvar();
+  renderizarCalabouco();
+  renderizarMasmorra();
+  renderizarPaiol();
+  genUltimoItemIdx = null;
+  genUltimoItemOrigem = null;
+  notif('PAIOL', `"${item.titulo}" enviado diretamente para o Paiol Literário.`, 'sucesso');
+}
+
+function sairDoGerador() {
+  novoLivro();
+  genUltimoItemIdx = null;
+  genUltimoItemOrigem = null;
+  irAla('dashboard', document.querySelector('.ala-btn[onclick*=dashboard]'));
 }
 
 async function retomarGeracaoLivro() {
@@ -3782,7 +4087,7 @@ async function retomarGeracaoLivro() {
     genBarra(((ai) / jornada.arcos.length) * 80);
     const prompt = `Você é ${heteronimoEscolhido}, escritor da OHE.\nLivro: ${tituloFinal}\nJornada: ${jornada.nome}\nARCO ${ai+1} DE 3: ${arco.nome}\nDiretrizes: ${arco.desc}\n\n${resumoAnterior ? 'RESUMO DO QUE JÁ FOI ESCRITO:\n' + resumoAnterior + '\n' : ''}Continue EXATAMENTE de onde parou.\n\nREGRAS OBRIGATÓRIAS:\n- Diálogos com travessão (—) e verbo dicendi\n- NUNCA travessão em frases narrativas\n- Parágrafos com linha em branco\n- Sem comentários editoriais\n- Texto humanizado\n\nEscreva ~${palavrasPorArco} palavras.`;
     try {
-      const response = await fetchComRetry('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': window.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 8192, messages: [{ role: 'user', content: prompt }] }) }, 3, 2000);
+      const response = await fetchComRetry('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 8192, messages: [{ role: 'user', content: prompt }] }) }, 3, 2000);
       if (!response.ok) throw new Error(`Erro ${response.status}`);
       const data = await response.json();
       const textoArco = data.content[0].text;
@@ -3809,6 +4114,8 @@ async function retomarGeracaoLivro() {
   }
   genBarra(100);
   limparEstadoGeracao();
+  genUltimoItemIdx = null;
+  genUltimoItemOrigem = null;
   document.getElementById('gen-btn-retomar').style.display = 'none';
   document.getElementById('gen-livro-texto').textContent = livroCompleto;
   document.getElementById('gen-progresso').style.display = 'none';
@@ -3873,12 +4180,15 @@ Escreva agora sem introdução ou comentário.`;
 function novoLivro() {
   genJornadaSelecionada = null;
   genLivroCompleto = '';
+  genUltimoItemIdx = null;
+  genUltimoItemOrigem = null;
   document.getElementById('gen-titulo').value = '';
   document.getElementById('gen-heteronimo').value = '';
   document.getElementById('gen-sinopse').value = '';
   document.getElementById('gen-log').innerHTML = '';
   document.getElementById('gen-barra').style.width = '0%';
   document.querySelectorAll('#gen-jornadas .btn-s').forEach(b => { b.style.borderColor = ''; b.style.color = ''; });
+  document.querySelectorAll('#gen-universos input, #gen-tons input').forEach(c => c.checked = false);
   document.getElementById('gerador-form').style.display = 'block';
   document.getElementById('gen-progresso').style.display = 'none';
   document.getElementById('gen-resultado').style.display = 'none';
