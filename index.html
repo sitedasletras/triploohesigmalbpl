@@ -3764,7 +3764,7 @@ let genTotalArcos = 3;
 let genArcoTextoAtual = '';
 
 function limparTextoArco(texto) {
-  return texto
+  let limpo = texto
     .replace(/<div[^>]*align[^>]*>/gi,'').replace(/<\/div>/gi,'')
     .replace(/<div[^>]*>/gi,'').replace(/<p[^>]*>/gi,'').replace(/<\/p>/gi,'')
     .replace(/<center[^>]*>/gi,'').replace(/<\/center>/gi,'')
@@ -3772,6 +3772,32 @@ function limparTextoArco(texto) {
     .replace(/^---+\s*$/gm,'')
     .replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1')
     .replace(/\n{3,}/g,'\n\n').trim();
+
+  // Normaliza formato de capítulo: funde "CAPÍTULO N" + título em linha separada
+  // num único padrão "CAPÍTULO N — TÍTULO". Só funde se a linha seguinte parecer
+  // mesmo um título (curta, sem ponto final, sem terminar em vírgula/dois-pontos
+  // de frase em andamento) — evita fundir com o início de um parágrafo narrativo.
+  limpo = limpo.replace(
+    /^(Cap[ií]tulo\s+\d+)\s*\n+\s*([A-ZÀ-ÚÇ][A-ZÀ-ÚÇ0-9\s,'.:!?-]{2,70})\n/gim,
+    (match, capLabel, possivelTitulo) => {
+      const t = possivelTitulo.trim();
+      // Heurística: título não termina em ponto final único (frase narrativa termina em .)
+      // e não tem mais de 8 palavras (títulos são curtos)
+      const palavras = t.split(/\s+/).length;
+      const pareceTitle = palavras <= 8 && !/\.\s*$/.test(t) && t === t.toUpperCase();
+      if (!pareceTitle) return match; // não mexe, deixa como estava
+      return `${capLabel.toUpperCase()} — ${t}\n\n`;
+    }
+  );
+  // Garante travessão quando capítulo e título já estão na mesma linha mas sem separador
+  limpo = limpo.replace(
+    /^(CAP[ÍI]TULO\s+\d+)\s+([A-ZÀ-ÚÇ][A-ZÀ-ÚÇ\s,'.:!?-]{2,80})$/gm,
+    (match, capLabel, titulo) => /—|-/.test(match) ? match : `${capLabel} — ${titulo.trim()}`
+  );
+  // Garante que "Capítulo N" sempre apareça em maiúsculas (CAPÍTULO N)
+  limpo = limpo.replace(/^Cap[ií]tulo(\s+\d+)/gim, 'CAPÍTULO$1');
+
+  return limpo;
 }
 
 function aprovarArcoGerador(aprovado) {
@@ -3898,6 +3924,36 @@ async function iniciarGeracaoLivro() {
   const perfilUniverso = universosSel.length ? `UNIVERSO/CENÁRIO: ${universosSel.join(', ')}` : '';
   const perfilTom = tonsSel.length ? `TOM/MODALIDADE: ${tonsSel.join(', ')}` : '';
 
+  // Resolver heterônimo contra o elenco real da OHE
+  let heteronimoFinal = heteronimo;
+  let perfilHeteronimo = '';
+  if (heteronimo) {
+    const match = HETERONIMOS.find(h => h.nome.toLowerCase() === heteronimo.toLowerCase())
+      || HETERONIMOS.find(h => h.nome.toLowerCase().includes(heteronimo.toLowerCase()) || heteronimo.toLowerCase().includes(h.nome.toLowerCase()));
+    if (match) {
+      heteronimoFinal = match.nome;
+      perfilHeteronimo = `PERFIL DO HETERÔNIMO (respeite o território e estilo característico deste autor):\nTerritório temático: ${match.territorio}\nEixo: ${match.eixo}\nFormato habitual: ${match.formato}`;
+    }
+  } else {
+    // Heterônimo vazio: o sistema escolhe um heterônimo real do elenco por correspondência
+    // de palavras-chave entre título/sinopse e o território de cada autor. Isso garante
+    // rastreabilidade total (a capa e a biografia sempre terão um nome real da OHE).
+    const textoBusca = `${titulo} ${sinopse}`.toLowerCase();
+    let melhorMatch = null;
+    let melhorScore = 0;
+    for (const h of HETERONIMOS) {
+      const palavrasTerritorio = h.territorio.toLowerCase().split(/[,\s]+/).filter(p => p.length > 3);
+      const score = palavrasTerritorio.filter(p => textoBusca.includes(p)).length;
+      if (score > melhorScore) { melhorScore = score; melhorMatch = h; }
+    }
+    // Sem correspondência clara: Fernando Peçanha escolhe aleatoriamente dentro do elenco
+    const escolhido = melhorMatch || HETERONIMOS[Math.floor(Math.random() * HETERONIMOS.length)];
+    heteronimoFinal = escolhido.nome;
+    perfilHeteronimo = `PERFIL DO HETERÔNIMO (Fernando Peçanha selecionou este autor da OHE para este livro — respeite seu território e estilo):\nTerritório temático: ${escolhido.territorio}\nEixo: ${escolhido.eixo}\nFormato habitual: ${escolhido.formato}`;
+    genLog(`✒ Fernando Peçanha selecionou: ${escolhido.nome} (${escolhido.territorio})`);
+  }
+
+
   document.getElementById('gerador-form').style.display = 'none';
   document.getElementById('gen-progresso').style.display = 'block';
   document.getElementById('gen-resultado').style.display = 'none';
@@ -3912,7 +3968,7 @@ async function iniciarGeracaoLivro() {
     genLog(`▶ Gerando Arco ${ai+1}: ${arco.nome}...`);
     genBarra(((ai) / jornada.arcos.length) * 80);
 
-    const prompt = `Você é ${heteronimo || 'Fernando Peçanha, escolhendo o heterônimo mais adequado'}, escritor da OHE.
+    const prompt = `Você é ${heteronimoFinal || 'Fernando Peçanha, escolhendo o heterônimo mais adequado'}, escritor da OHE.
 
 LIVRO: ${titulo}
 ESTRUTURA NARRATIVA: ${jornada.nome}
@@ -3921,6 +3977,7 @@ DIRETRIZES DO ARCO: ${arco.desc}
 VOLUME DO ARCO: ~${palavrasPorArco} palavras
 ${perfilUniverso}
 ${perfilTom}
+${perfilHeteronimo}
 
 ${ai === 0 && sinopse ? `BASE NARRATIVA (use apenas para abrir a história — não repita nem reintroduza isso nos arcos seguintes):\n${sinopse}\n` : ''}
 ${resumoAnterior ? `RESUMO DO QUE JÁ FOI ESCRITO (esta é a ÚNICA fonte de continuidade — os personagens, o cenário e os eventos já estão estabelecidos, NÃO os reapresente):\n${resumoAnterior}\n` : ''}
@@ -3931,7 +3988,9 @@ REGRAS OBRIGATÓRIAS:
 - Diálogos com travessão (—) e verbo dicendi
 - NUNCA travessão no meio de frases narrativas — use vírgula
 - Cada parágrafo com linha em branco entre eles
-- Títulos de capítulos centralizados em maiúsculas
+- FORMATO DE TÍTULO DE CAPÍTULO — siga EXATAMENTE este padrão, sem variação, em TODOS os capítulos deste arco e de todo o livro:
+  CAPÍTULO ${capituloAtual} — NOME DO CAPÍTULO EM MAIÚSCULAS
+  (tudo em UMA ÚNICA LINHA, com a palavra "CAPÍTULO" + número + travessão (—) + título em maiúsculas. NUNCA quebre o número e o título em linhas separadas. NUNCA omita o título. NUNCA use apenas "CAPÍTULO N" sem nome.)
 - PROIBIDO comentários editoriais ou análises fora da narrativa
 - Texto humanizado, sem rastro de IA
 - NUMERAÇÃO DE CAPÍTULOS: o primeiro capítulo DESTE arco é o Capítulo ${capituloAtual}. Continue numerando sequencialmente. NUNCA recomece do Capítulo 1.
@@ -4009,19 +4068,12 @@ Escreva o resumo em 5-7 parágrafos densos. Não interprete nem analise — apen
   genBarra(100);
   genLog('✓ Todos os arcos concluídos! Compilando livro...');
 
-  genLivroCompleto = genLivroCompleto
-    .replace(/<div[^>]*align[^>]*>/gi,'').replace(/<\/div>/gi,'')
-    .replace(/<div[^>]*>/gi,'').replace(/<p[^>]*>/gi,'').replace(/<\/p>/gi,'')
-    .replace(/<center[^>]*>/gi,'').replace(/<\/center>/gi,'')
-    .replace(/^#{1,6}\s*/gm,'')
-    .replace(/^---+\s*$/gm,'')
-    .replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1')
-    .replace(/\n{4,}/g,'\n\n').trim();
+  genLivroCompleto = limparTextoArco(genLivroCompleto).replace(/\n{4,}/g,'\n\n');
 
   genLivroCompleto = genLivroCompleto.replace(/\n*─{10,}\n*/g, '\n\n');
 
   const anoAtual = new Date().getFullYear();
-  const autorFinal = heteronimo || 'A definir';
+  const autorFinal = heteronimoFinal || 'A definir';
   const livroEditorial = `SITE DAS LETRAS EDIÇÕES LITERÁRIAS
 
 
