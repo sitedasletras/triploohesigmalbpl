@@ -3998,6 +3998,10 @@ function limparTextoArco(texto) {
     .replace(/^#{1,6}\s*/gm,'')
     .replace(/^---+\s*$/gm,'')
     .replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1')
+    // Rede de segurança: remove instruções/comentários editoriais que a IA às vezes
+    // deixa vazar entre colchetes (ex: "[Suprimir a linha ou substituir por...]").
+    // Prosa legítima praticamente nunca usa colchetes com mais de ~40 caracteres.
+    .replace(/\[[^\]]{40,}\]/g, '')
     .replace(/\n{3,}/g,'\n\n').trim();
 
   // Normaliza formato de capítulo: funde "CAPÍTULO N" + título em linha separada
@@ -4118,6 +4122,8 @@ Comece EXATAMENTE de onde cortou (primeira palavra é continuação direta, sem 
 ${ultimoTitulo ? `PROIBIDO ABSOLUTO: NÃO escreva novamente o cabeçalho "${ultimoTitulo}" ou variação dele — ele já existe no texto acima. Sua resposta é pura continuação de prosa, sem título.` : ''}
 PROIBIDO: tags HTML, markdown, ##, Arco I/II/III, separadores ---, comentários ou introduções, qualquer cabeçalho de capítulo novo.
 
+${REGRAS_PARAGRAFO_DIALOGO}
+
 Escreva agora apenas a continuação direta.`;
 
   try {
@@ -4183,6 +4189,14 @@ async function mostrarAprovacaoArcoGerador(num, nome, texto) {
     if (pre) pre.scrollTop = 0;
   });
 }
+
+// Regras fixas de formatação de prosa, injetadas em todo prompt de geração/costura
+// para garantir parágrafos curtos e diálogos claros em toda a obra.
+const REGRAS_PARAGRAFO_DIALOGO = `REGRAS DE PARÁGRAFO E DIÁLOGO — seguir sempre, sem exceção:
+- Nenhum parágrafo narrativo pode passar de 50 palavras. Se a ideia for maior, quebre em dois ou mais parágrafos. Parágrafo grande prejudica a leitura.
+- Diálogo: cada fala é um parágrafo PRÓPRIO, separado. Formato: travessão (—), a fala, verbo dicendi, ponto. Ex: — Não vou embora — disse ela.
+- Se a mesma personagem continuar falando, a continuação também é um NOVO parágrafo com novo travessão. NUNCA junte duas falas, ou fala longa com narração, no mesmo parágrafo.
+- Cada personagem que fala tem seu próprio parágrafo com travessão. Nunca deixe o leitor sem saber quem está falando.`;
 
 async function iniciarGeracaoLivro() {
   const titulo = document.getElementById('gen-titulo').value.trim();
@@ -4291,10 +4305,12 @@ REGRAS OBRIGATÓRIAS:
 - Diálogos com travessão (—) e verbo dicendi
 - NUNCA travessão no meio de frases narrativas — use vírgula
 - Cada parágrafo com linha em branco entre eles
+- ${REGRAS_PARAGRAFO_DIALOGO}
 - FORMATO DE TÍTULO DE CAPÍTULO — siga EXATAMENTE este padrão, sem variação, em TODOS os capítulos deste arco e de todo o livro:
   CAPÍTULO ${capituloAtual} — NOME DO CAPÍTULO EM MAIÚSCULAS
   (tudo em UMA ÚNICA LINHA, com a palavra "CAPÍTULO" + número + travessão (—) + título em maiúsculas. NUNCA quebre o número e o título em linhas separadas. NUNCA omita o título. NUNCA use apenas "CAPÍTULO N" sem nome.)
 - PROIBIDO comentários editoriais ou análises fora da narrativa
+- PROIBIDO deixar qualquer instrução entre colchetes, placeholder ou nota para si mesmo (ex: "[substituir por epígrafe]") — decida e escreva o conteúdo final diretamente, nunca deixe uma lacuna ou comentário sobre o que poderia ser escrito
 - Texto humanizado, sem rastro de IA
 - NUMERAÇÃO DE CAPÍTULOS: o primeiro capítulo DESTE arco é o Capítulo ${capituloAtual}. Continue numerando sequencialmente. NUNCA recomece do Capítulo 1.
 - Respeite rigorosamente o universo/cenário e o tom selecionados
@@ -4379,7 +4395,6 @@ Escreva o resumo em 5-7 parágrafos densos. Não interprete nem analise — apen
 
   genLivroCompleto = genLivroCompleto.replace(/\n*─{10,}\n*/g, '\n\n');
 
-  const anoAtual = new Date().getFullYear();
   const autorFinal = heteronimoFinal || 'A definir';
   const heteronimoUsado = HETERONIMOS.find(h => h.nome === heteronimoFinal);
   const ehObraEspirita = !!(heteronimoUsado && heteronimoUsado.espiritaExclusivo);
@@ -4388,46 +4403,12 @@ Escreva o resumo em 5-7 parágrafos densos. Não interprete nem analise — apen
     ? `Ditado pelo Espírito ${heteronimoUsado.espiritoMentor}\nPsicografia: ${autorFinal}`
     : `Autor: ${autorFinal}`;
 
-  const biografiaTexto = ehObraEspirita
-    ? `Obra psicografada por ${autorFinal}, médium da OHE — Organização Heterônima Editorial, sob ditado espiritual do Espírito ${heteronimoUsado.espiritoMentor}.`
-    : `${autorFinal} é escritor da OHE — Organização Heterônima Editorial.`;
-
-  const livroEditorial = `SITE DAS LETRAS EDIÇÕES LITERÁRIAS
-
-
-${titulo.toUpperCase()}
+  const livroEditorial = `${titulo.toUpperCase()}
 
 ${linhaAutorCapa}
 
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-${titulo}
-${linhaAutorCapa}
-Site das Letras Edições Literárias
-${anoAtual}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-ISBN: _______________
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-                    ${titulo.toUpperCase()}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-${genLivroCompleto}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-BIOGRAFIA
-
-${biografiaTexto}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-SITE DAS LETRAS EDIÇÕES LITERÁRIAS`;
+${genLivroCompleto}`;
 
   genLivroCompleto = livroEditorial;
 
@@ -4719,6 +4700,8 @@ ${cortado ? 'Comece EXATAMENTE de onde cortou (primeira palavra é continuação
 ${ultimoTitulo ? `PROIBIDO ABSOLUTO: NÃO escreva novamente o cabeçalho "${ultimoTitulo}" ou qualquer variação dele. Esse título JÁ EXISTE no texto acima — sua resposta deve ser PURA CONTINUAÇÃO DE PROSA, sem nenhum título, sem reabrir o capítulo.` : ''}
 PROIBIDO: tags HTML, markdown, ##, Arco I/II/III, separadores ---, qualquer cabeçalho de capítulo novo
 
+${REGRAS_PARAGRAFO_DIALOGO}
+
 Escreva agora sem introdução ou comentário.`;
 
   try {
@@ -4815,6 +4798,8 @@ MISSÃO — DESFECHO FINAL:
 REGRA: Reescreva apenas os últimos 2-3 parágrafos e adicione o desfecho. NÃO reescreva o capítulo inteiro.
 ${ultimoTituloCap ? `PROIBIDO ABSOLUTO: NÃO escreva novamente o cabeçalho "${ultimoTituloCap}" — ele já existe no texto acima.` : ''}
 PROIBIDO: tags HTML, markdown, ##, Arco I/II/III, separadores ---, qualquer cabeçalho de capítulo novo
+
+${REGRAS_PARAGRAFO_DIALOGO}
 
 Escreva agora sem introdução ou comentário.`;
 
