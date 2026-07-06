@@ -216,6 +216,8 @@ De quem no amor perdido ainda se esconda.</textarea>
     <div class="step-label">05 · Paiol</div>
     <h2>Enviar para o escritor</h2>
     <div class="route-box">
+      <label>Título da obra</label>
+      <input type="text" id="tituloObra" value="" placeholder="ex: Barco sem Retorno">
       <label>Heterônimo de destino</label>
       <input type="text" id="heteronimoDestino" value="">
       <label>Observação</label>
@@ -227,9 +229,11 @@ De quem no amor perdido ainda se esconda.</textarea>
       <div class="staged-list" id="stagedList"></div>
     </div>
     <p class="note">
-      ⚠️ Placeholder de integração: este botão grava o pacote em <code>localStorage['sigmal_paiol_staging_ocidental']</code>.
-      Mesmo contrato de dados do Motor Oriental — quando você me passar a função real de envio ao Paiol do
-      <code>index.html</code>, troco os dois motores de uma vez pela integração definitiva.
+      ✅ Integrado ao Paiol real: grava direto em <code>localStorage['sigmal_hq']</code> → <code>estado.paiol.literario</code>,
+      o mesmo array que o <code>index.html</code> usa. Abra ou recarregue a aba do HQ depois de enviar pra ver o item
+      na ala Paiol · Expedição, pronto pro Catapulta.<br><br>
+      ⚠️ Se a aba do HQ já estiver aberta com alterações não salvas, recarregue-a <em>antes</em> de mexer em algo lá —
+      quem salvar por último "ganha" na mesma chave.
     </p>
   </div>
 
@@ -399,7 +403,15 @@ function removerAcentos(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g
 function caudaFonetica(palavra){
   const s = silabizar(palavra);
   const idx = indiceSilabaTonica(s, palavra);
-  const tonicaSemOnset = s[idx].replace(/^[^aeiouáéíóúâêîôûãõàAEIOUÁÉÍÓÚÂÊÎÔÛÃÕÀ]+/, '');
+  const tonica = s[idx];
+  let i = 0;
+  while (i < tonica.length && !ehVogal(tonica[i])) i++;
+  if (i > 0 && tonica[i] && tonica[i].toLowerCase() === 'u' &&
+      'qg'.indexOf(tonica[i-1].toLowerCase()) !== -1 &&
+      i+1 < tonica.length && ehVogal(tonica[i+1])){
+    i++;
+  }
+  const tonicaSemOnset = tonica.slice(i);
   const resto = s.slice(idx+1).join('');
   return removerAcentos(tonicaSemOnset + resto).toLowerCase();
 }
@@ -774,27 +786,44 @@ function mostrarToast(msg){
 
 function enviarParaPaiol(){
   if (!ultimoResultado){ mostrarToast('Analise um texto primeiro.'); return; }
-  const pacote = {
-    ...ultimoResultado,
-    heteronimo_destino: document.getElementById('heteronimoDestino').value || null,
-    observacao_destino: document.getElementById('obsDestino').value || null,
-    status: 'aguardando_integracao_paiol'
-  };
-  const chave = 'sigmal_paiol_staging_ocidental';
-  const atual = JSON.parse(localStorage.getItem(chave) || '[]');
-  atual.push(pacote);
-  localStorage.setItem(chave, JSON.stringify(atual));
-  mostrarToast('Empacotado em localStorage (staging). Aguardando wiring real do Paiol.');
+  const forma = (ultimoResultado.classificacao && ultimoResultado.classificacao.forma) || 'Poema';
+  const titulo = document.getElementById('tituloObra').value.trim() || `${forma} sem título`;
+  const autor = document.getElementById('heteronimoDestino').value || 'A definir';
+  const obs = document.getElementById('obsDestino').value || null;
+
+  const chave = 'sigmal_hq';
+  let estadoHQ;
+  try { estadoHQ = JSON.parse(localStorage.getItem(chave) || 'null'); } catch(e){ estadoHQ = null; }
+  if (!estadoHQ){
+    estadoHQ = { sistemaParado:false, fila:[], masmorra:[], calabouco:[], paiol:{literario:[],musical:[]}, estudios:[], silo:{livros:[],singles:[],lps:[],clips:[]}, estudioAtivo:null };
+  }
+  if (!estadoHQ.paiol) estadoHQ.paiol = { literario: [], musical: [] };
+  if (!estadoHQ.paiol.literario) estadoHQ.paiol.literario = [];
+
+  estadoHQ.paiol.literario.push({
+    titulo, autor, tipo: forma,
+    conteudo: ultimoResultado.texto,
+    dataEntrada: new Date().toLocaleDateString('pt-BR'),
+    status: 'no-paiol',
+    origem_motor: 'Motor de Métrica Ocidental',
+    observacao: obs,
+    classificacao_detalhe: ultimoResultado.classificacao
+  });
+
+  localStorage.setItem(chave, JSON.stringify(estadoHQ));
+  mostrarToast(`"${titulo}" enviado ao Paiol Literário real.`);
   renderStagedList();
 }
 
 function renderStagedList(){
-  const chave = 'sigmal_paiol_staging_ocidental';
-  const atual = JSON.parse(localStorage.getItem(chave) || '[]');
+  let estadoHQ;
+  try { estadoHQ = JSON.parse(localStorage.getItem('sigmal_hq') || 'null'); } catch(e){ estadoHQ = null; }
   const el = document.getElementById('stagedList');
-  if (atual.length === 0){ el.textContent = 'Nenhum item em staging ainda.'; return; }
-  const ultimo = atual[atual.length-1];
-  el.innerHTML = `${atual.length} item(ns) em staging · último: "${ultimo.heteronimo_destino}" → ${(ultimo.classificacao && ultimo.classificacao.forma) || 'forma livre'}`;
+  const lista = (estadoHQ && estadoHQ.paiol && estadoHQ.paiol.literario) || [];
+  const doMotor = lista.filter(i => i.origem_motor === 'Motor de Métrica Ocidental');
+  if (doMotor.length === 0){ el.textContent = 'Nenhum item enviado por este motor ainda.'; return; }
+  const ultimo = doMotor[doMotor.length-1];
+  el.innerHTML = `${doMotor.length} item(ns) enviados por este motor · último: "${ultimo.titulo}" (${ultimo.autor})`;
 }
 
 function baixarJSON(){
