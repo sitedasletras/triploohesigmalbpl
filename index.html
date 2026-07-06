@@ -1179,6 +1179,10 @@ body::before {
       <span class="ala-dot" style="background:#ce93d8;"></span>
       GERADOR · LIVRO
     </button>
+    <button class="ala-btn" onclick="irAla('metrica',this)">
+      <div class="ala-dot" style="background:#00acc1"></div>
+      MÉTRICA · POESIA
+    </button>
     <button class="ala-btn" onclick="irAla('maternidade',this)">
       <div class="ala-dot" style="background:#ad1457"></div>
       MATERNIDADE
@@ -2071,6 +2075,55 @@ body::before {
           <button onclick="analisarObra(genLivroCompleto, document.getElementById('gen-titulo').value, 'gerador', null)" style="width:100%;padding:0.85rem;background:rgba(76,175,80,0.1);color:#4caf50;border:1px solid rgba(76,175,80,0.4);font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;font-weight:700;">🔍 ANALISAR OBRA — VERIFICAR QUALIDADE</button>
           <button onclick="abrirHistoricoVersoes('gerador', null)" style="width:100%;padding:0.6rem;background:rgba(201,168,76,0.05);color:var(--prata);border:1px dashed rgba(201,168,76,0.25);font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;border-radius:4px;">🕓 HISTÓRICO DE VERSÕES</button>
         </div>
+      </div>
+    </div>
+
+    <!-- ===== MÉTRICA · POESIA ===== -->
+    <div class="ala" id="ala-metrica">
+      <div class="sec-header">
+        <div>
+          <div class="sec-label">// MOTORES DE MÉTRICA · ANÁLISE E CLASSIFICAÇÃO DE FORMAS POÉTICAS</div>
+          <h2 class="sec-titulo">Departamento de <em>Métrica</em></h2>
+        </div>
+      </div>
+      <div style="font-family:'Crimson Pro',serif;font-style:italic;font-size:0.85rem;color:var(--prata);margin-bottom:1.5rem;max-width:640px;">
+        Três motores independentes de silabização, escansão e classificação de formas poéticas.
+        Cada um abre em aba própria — entre aqui para ter os três à mão, ou acesse cada arquivo direto se só precisar de um.
+      </div>
+
+      <!-- ACESSO RÁPIDO — ORIENTAL -->
+      <div onclick="window.open('motor_metrica_oriental_v1.html','_blank')" style="background:linear-gradient(135deg,rgba(183,28,28,0.12),rgba(183,28,28,0.05));border:1px solid rgba(183,28,28,0.35);border-radius:6px;padding:1.2rem;margin-bottom:1rem;cursor:pointer;display:flex;align-items:center;gap:1rem;">
+        <div style="font-size:2rem;">🎋</div>
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:0.9rem;color:#ef9a9a;">MOTOR ORIENTAL</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:var(--prata);letter-spacing:0.08em;margin-top:0.2rem;">HAICAI · SENRYŪ · TANKA · SEDŌKA · CHŌKA · RENGA · KATAUTA · HAIGA</div>
+        </div>
+        <div style="margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#ef9a9a;">→ ABRIR</div>
+      </div>
+
+      <!-- ACESSO RÁPIDO — OCIDENTAL -->
+      <div onclick="window.open('motor_metrica_ocidental_v1.html','_blank')" style="background:linear-gradient(135deg,rgba(121,85,72,0.15),rgba(121,85,72,0.06));border:1px solid rgba(121,85,72,0.4);border-radius:6px;padding:1.2rem;margin-bottom:1rem;cursor:pointer;display:flex;align-items:center;gap:1rem;">
+        <div style="font-size:2rem;">📜</div>
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:0.9rem;color:#bcaaa4;">MOTOR OCIDENTAL</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:var(--prata);letter-spacing:0.08em;margin-top:0.2rem;">SONETO · TROVA · GHAZAL · PANTUM · SEXTINA · CORDEL · POETRIX</div>
+        </div>
+        <div style="margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#bcaaa4;">→ ABRIR</div>
+      </div>
+
+      <!-- ACESSO RÁPIDO — FORMAS DIVERSAS -->
+      <div onclick="window.open('motor_formas_diversas_v1.html','_blank')" style="background:linear-gradient(135deg,rgba(51,105,30,0.15),rgba(51,105,30,0.06));border:1px solid rgba(51,105,30,0.4);border-radius:6px;padding:1.2rem;margin-bottom:1.5rem;cursor:pointer;display:flex;align-items:center;gap:1rem;">
+        <div style="font-size:2rem;">🗝️</div>
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:0.9rem;color:#aed581;">MOTOR DE FORMAS DIVERSAS</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:var(--prata);letter-spacing:0.08em;margin-top:0.2rem;">ACRÓSTICO · LIMERIQUE · EPIGRAMA · BALADA · VILANELA · ELEGIA</div>
+        </div>
+        <div style="margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#aed581;">→ ABRIR</div>
+      </div>
+
+      <div style="background:var(--preto-mid);border:1px dashed rgba(201,168,76,0.25);padding:1rem 1.2rem;font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.06em;color:var(--prata);line-height:1.7;">
+        ⚠️ OS TRÊS MOTORES AINDA GRAVAM EM STAGING LOCAL (localStorage), CADA UM EM CHAVE PRÓPRIA
+        (sigmal_paiol_staging_oriental / _ocidental / _diversas) — AINDA NÃO ESTÃO LIGADOS AO PAIOL REAL.
       </div>
     </div>
 
