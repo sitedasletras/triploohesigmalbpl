@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motor de Formas Diversas — SIGMAL</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --fundo:#1f2b28;
+    --fundo-deep:#182220;
+    --etiqueta:#e7ddc2;
+    --etiqueta-deep:#dbcda5;
+    --latao:#b8934a;
+    --latao-claro:#d4b876;
+    --tinta:#efe9d6;
+    --tinta-soft:#a9a693;
+    --linha:#3d4b46;
+    --bloco:#25332f;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--fundo);
+    background-image:
+      radial-gradient(ellipse 70% 50% at 15% 0%, rgba(184,147,74,0.06) 0%, transparent 60%),
+      repeating-linear-gradient(0deg, rgba(231,221,194,0.015) 0px, rgba(231,221,194,0.015) 1px, transparent 1px, transparent 3px);
+    color:var(--tinta);
+    font-family:'Crimson Pro',Georgia,serif;
+    line-height:1.55;
+  }
+  header{
+    padding:34px 20px 22px;
+    border-bottom:1px solid var(--latao);
+    display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  }
+  header h1{
+    margin:0;font-family:'Playfair Display',serif;font-size:26px;font-weight:700;font-style:italic;
+  }
+  header h1 em{ font-style:normal; color:var(--latao-claro); }
+  header .sub{
+    font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.08em;
+    text-transform:uppercase;color:var(--tinta-soft);
+  }
+  main{ max-width:940px;margin:0 auto;padding:30px 20px 80px; }
+  .step{ margin-bottom:36px; }
+  .step-label{
+    font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:0.1em;color:var(--latao-claro);
+    text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px;
+  }
+  .step-label::before{ content:'';width:18px;height:1px;background:var(--latao-claro); }
+  h2{ font-family:'Playfair Display',serif;font-size:20px;font-weight:500;margin:0 0 12px; }
+  select, textarea, input[type=text]{
+    width:100%;padding:14px 16px;background:var(--etiqueta);border:1px solid var(--linha);
+    border-radius:2px;font-family:'Crimson Pro',serif;font-size:16px;color:#1f2b28;
+  }
+  textarea{ min-height:180px;resize:vertical; }
+  textarea:focus, select:focus, input:focus, button:focus{ outline:3px solid var(--latao); outline-offset:1px; }
+  .controls{
+    display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:12px;
+    font-family:'Share Tech Mono',monospace;font-size:12.5px;
+  }
+  .controls label{ display:flex;align-items:center;gap:6px;cursor:pointer; }
+  .campo-alvo{ margin-top:14px; }
+  .campo-alvo label{
+    display:block;font-family:'Share Tech Mono',monospace;font-size:11px;text-transform:uppercase;
+    letter-spacing:0.06em;margin-bottom:6px;color:var(--tinta-soft);
+  }
+  button{
+    font-family:'Share Tech Mono',monospace;font-size:12.5px;letter-spacing:0.04em;text-transform:uppercase;
+    background:var(--latao);color:var(--fundo-deep);border:none;padding:11px 20px;border-radius:2px;
+    cursor:pointer;transition:background .15s ease;font-weight:bold;
+  }
+  button:hover{ background:var(--latao-claro); }
+  button.ghost{ background:transparent;color:var(--tinta);border:1px solid var(--tinta-soft); }
+  button.ghost:hover{ background:var(--bloco); }
+  .actions{ display:flex;gap:10px;margin-top:14px;flex-wrap:wrap; }
+
+  .verse-row{ display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px dashed var(--linha); }
+  .verse-row:last-child{ border-bottom:none; }
+  .verse-text{ flex:1;font-size:16px; }
+  .tonic{ color:var(--latao-claro);font-weight:bold; }
+  .inicial{ color:var(--latao-claro);font-weight:bold;font-size:1.15em; }
+  .etiqueta-selo{
+    flex-shrink:0;min-width:38px;height:32px;padding:0 8px;border:1px solid var(--latao);
+    color:var(--latao-claro);border-radius:2px;display:flex;align-items:center;justify-content:center;
+    font-family:'Share Tech Mono',monospace;font-size:13px;
+  }
+  .verse-detail{ font-family:'Share Tech Mono',monospace;font-size:11.5px;color:var(--tinta-soft);margin-top:3px; }
+
+  .result-card{ background:var(--bloco);border:1px solid var(--linha);padding:20px;margin-top:14px; }
+  .form-match{
+    display:flex;align-items:center;gap:14px;padding:14px 16px;
+    background:var(--fundo-deep);border-left:4px solid var(--latao);margin-bottom:16px;
+  }
+  .form-match.unmatched{ border-left-color:#8a5a4a; }
+  .form-match.classico{ border-left-color:#6a8a5a; }
+  .form-match .name{ font-family:'Playfair Display',serif;font-size:19px;font-weight:700; }
+  .form-match .pattern{ font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--tinta-soft); }
+  .acrostico-palavra{
+    font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--latao-claro);
+    letter-spacing:0.08em;margin:8px 0;
+  }
+
+  .route-box{ margin-top:16px;padding:16px;background:var(--fundo-deep); }
+  .route-box label{
+    display:block;font-family:'Share Tech Mono',monospace;font-size:11px;text-transform:uppercase;
+    letter-spacing:0.06em;margin-bottom:6px;color:var(--tinta-soft);
+  }
+  .route-box input{
+    width:100%;padding:10px;background:var(--bloco);border:1px solid var(--linha);color:var(--tinta);
+    font-family:'Crimson Pro',serif;font-size:14px;margin-bottom:12px;
+  }
+  .staged-list{ margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:11.5px;color:var(--tinta-soft); }
+  .note{ font-size:13px;color:var(--tinta-soft);margin-top:10px;border-top:1px solid var(--linha);padding-top:10px; }
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--latao);
+    color:var(--fundo-deep);padding:10px 18px;border-radius:3px;font-size:13px;font-weight:bold;
+    opacity:0;pointer-events:none;transition:opacity .25s ease;
+  }
+  .toast.show{ opacity:1; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Motor de Formas <em>Diversas</em></h1>
+  <div class="sub">SIGMAL · terceira costela do triploohesigmalbpl</div>
+</header>
+
+<main>
+
+  <div class="step">
+    <div class="step-label">01 · Texto</div>
+    <h2>Cole o texto ou poema</h2>
+    <select id="formaAlvo" style="margin-bottom:12px;">
+      <option value="auto">Detectar automaticamente</option>
+      <option value="acrostico">Forçar leitura como Acróstico</option>
+    </select>
+    <textarea id="input" placeholder="Um verso por linha.">Amor que nasce sem pedir licença
+Mora em mim como a chuva mora no chão
+Ondas de saudade vêm e vão
+Roubando o sono, ferindo a paciência</textarea>
+    <div class="campo-alvo" id="campoPalavraAlvo" style="display:none;">
+      <label>Palavra-alvo do acróstico (opcional — se vazio, eu só leio as iniciais e te mostro)</label>
+      <input type="text" id="palavraAlvo" placeholder="ex: AMOR">
+    </div>
+    <div class="controls">
+      <label><input type="checkbox" id="useSinalefa" checked> usar sinalefas na classificação</label>
+      <label><input type="checkbox" id="useGraveAdj" checked> aplicar ajuste métrico final (grave/esdrúxulo)</label>
+    </div>
+    <div class="actions">
+      <button onclick="analisar()">Analisar</button>
+      <button class="ghost" onclick="document.getElementById('input').value='';">Limpar</button>
+    </div>
+  </div>
+
+  <div class="step" id="resultsStep" style="display:none;">
+    <div class="step-label">02 · Contagem por verso</div>
+    <h2>Sílabas, tônica e iniciais</h2>
+    <div class="result-card" id="verseResults"></div>
+  </div>
+
+  <div class="step" id="formStep" style="display:none;">
+    <div class="step-label">03 · Classificação de forma</div>
+    <h2>Estrutura reconhecida</h2>
+    <div id="formResult"></div>
+  </div>
+
+  <div class="step" id="origemStep" style="display:none;">
+    <div class="step-label">04 · Contexto</div>
+    <h2>Origem da forma</h2>
+    <div id="origemResult"></div>
+  </div>
+
+  <div class="step" id="paiolStep" style="display:none;">
+    <div class="step-label">05 · Paiol</div>
+    <h2>Enviar para o escritor</h2>
+    <div class="route-box">
+      <label>Heterônimo de destino</label>
+      <input type="text" id="heteronimoDestino" value="">
+      <label>Observação</label>
+      <input type="text" id="obsDestino" value="">
+      <div class="actions">
+        <button onclick="enviarParaPaiol()">Enviar ao Paiol</button>
+        <button class="ghost" onclick="baixarJSON()">Baixar .json</button>
+      </div>
+      <div class="staged-list" id="stagedList"></div>
+    </div>
+    <p class="note">
+      ⚠️ Placeholder de integração: grava em <code>localStorage['sigmal_paiol_staging_diversas']</code> —
+      fila própria, isolada da Oriental e da Ocidental. Mesmo contrato de dados dos outros dois motores.
+    </p>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   NÚCLEO DE SILABIZAÇÃO — PORTUGUÊS (idêntico aos outros dois motores)
+   ========================================================= */
+const VOGAIS = "aeiouáéíóúâêîôûãõàAEIOUÁÉÍÓÚÂÊÎÔÛÃÕÀ";
+const VOGAIS_ACENTUADAS_HIATO = "íóúÍÓÚ";
+const DIGRAFOS_INSEPARAVEIS = ["ch","lh","nh"];
+const ENCONTROS_PERMITIDOS = ["bl","cl","fl","gl","pl","tl","br","cr","dr","fr","gr","pr","tr","vr"];
+
+function ehVogal(ch){ return ch && VOGAIS.indexOf(ch) !== -1; }
+function semAcento(ch){
+  const map = {á:'a',é:'e',í:'i',ó:'o',ú:'u',â:'a',ê:'e',î:'i',ô:'o',û:'u',ã:'a',õ:'o',à:'a'};
+  return map[ch.toLowerCase()] || ch.toLowerCase();
+}
+function temAcentoAgudoOuCircunflexo(ch){ return "áéíóúâêô".indexOf(ch.toLowerCase()) !== -1; }
+
+function ehDitongo(v1, v2){
+  if (VOGAIS_ACENTUADAS_HIATO.indexOf(v2) !== -1) return false;
+  if (VOGAIS_ACENTUADAS_HIATO.indexOf(v1) !== -1 && "aeo".indexOf(semAcento(v2))!==-1) return false;
+  if (semAcento(v1) === semAcento(v2)) return false;
+  const ditongosBase = ["ai","au","ei","eu","oi","ou","ui","iu","ao","ão","õe","ãe","ãi"];
+  return ditongosBase.indexOf(semAcento(v1)+semAcento(v2)) !== -1 || (v1+v2).indexOf("ã")!==-1 || (v1+v2).indexOf("õ")!==-1;
+}
+
+function silabizar(palavraOriginal){
+  const p = palavraOriginal;
+  const n = p.length;
+  const absorvido = new Array(n).fill(false);
+  for (let k = 0; k < n; k++){
+    const atual = p[k].toLowerCase();
+    if (atual === 'u' && k > 0 && k+1 < n){
+      const anterior = p[k-1].toLowerCase();
+      if ((anterior === 'q' || anterior === 'g') && ehVogal(p[k+1])){ absorvido[k] = true; }
+    }
+  }
+  const nucleos = [];
+  let i = 0;
+  while (i < n){
+    if (ehVogal(p[i]) && !absorvido[i]){
+      let start = i, end = i;
+      if (i+1 < n && ehVogal(p[i+1]) && !absorvido[i+1] && ehDitongo(p[i], p[i+1])){
+        end = i+1; i = i+2;
+      } else { i = i+1; }
+      nucleos.push({start, end});
+    } else { i++; }
+  }
+  if (nucleos.length === 0) return [p];
+  const silabas = [];
+  let cursor = 0;
+  for (let k = 0; k < nucleos.length; k++){
+    const nucleo = nucleos[k];
+    const proxNucleo = nucleos[k+1];
+    let fimSilaba;
+    if (!proxNucleo){ fimSilaba = n; }
+    else {
+      const consoantes = p.slice(nucleo.end+1, proxNucleo.start);
+      let corte;
+      if (consoantes.length === 0){ corte = 0; }
+      else if (consoantes.length === 1){ corte = 0; }
+      else {
+        const doisUltimos = consoantes.slice(-2).toLowerCase();
+        const inseparavel = DIGRAFOS_INSEPARAVEIS.indexOf(doisUltimos) !== -1 || ENCONTROS_PERMITIDOS.indexOf(doisUltimos) !== -1;
+        const guQu = (doisUltimos === "gu" || doisUltimos === "qu");
+        corte = (inseparavel || guQu) ? consoantes.length - 2 : consoantes.length - 1;
+      }
+      fimSilaba = nucleo.end + 1 + corte;
+    }
+    silabas.push(p.slice(cursor, fimSilaba));
+    cursor = fimSilaba;
+  }
+  return silabas.filter(s => s.length > 0);
+}
+
+function indiceSilabaTonica(silabas, palavra){
+  for (let idx = silabas.length - 1; idx >= 0; idx--){
+    for (const ch of silabas[idx]){
+      if (temAcentoAgudoOuCircunflexo(ch) || ch === 'ã' || ch === 'õ'){ return idx; }
+    }
+  }
+  const limpa = palavra.toLowerCase().replace(/[.,;:!?"'()]/g,'');
+  const terminacoesParoxitonas = /(a|e|o|em|ens|as|es|os)$/;
+  if (silabas.length === 1) return 0;
+  if (terminacoesParoxitonas.test(limpa)){ return silabas.length - 2; }
+  return silabas.length - 1;
+}
+
+function classificarTonicidade(silabas, palavra){
+  const idx = indiceSilabaTonica(silabas, palavra);
+  const posDoFim = silabas.length - 1 - idx;
+  if (posDoFim === 0) return "oxitona";
+  if (posDoFim === 1) return "paroxitona";
+  return "proparoxitona";
+}
+
+function limparPalavra(w){ return w.replace(/^[^\wÀ-ÿ]+|[^\wÀ-ÿ]+$/g,''); }
+
+function analisarVerso(linha, usarSinalefa, usarAjuste){
+  const palavrasRaw = linha.trim().split(/\s+/).filter(Boolean);
+  const palavras = palavrasRaw.map(limparPalavra).filter(Boolean);
+  if (palavras.length === 0) return null;
+  const silabasPorPalavra = palavras.map(p => silabizar(p));
+  const contagemBruta = silabasPorPalavra.reduce((acc, s) => acc + s.length, 0);
+  let elisoes = 0;
+  const sinalefaFlags = new Array(palavras.length - 1).fill(false);
+  for (let i = 0; i < palavras.length - 1; i++){
+    let fimAtual = palavras[i];
+    let inicioProx = palavras[i+1];
+    let ultimaLetra = fimAtual[fimAtual.length - 1];
+    let primeiraLetra = inicioProx[0];
+    if (primeiraLetra && primeiraLetra.toLowerCase() === 'h') primeiraLetra = inicioProx[1] || '';
+    if (ehVogal(ultimaLetra) && ehVogal(primeiraLetra)){ elisoes++; sinalefaFlags[i] = true; }
+  }
+  const tonicUltima = classificarTonicidade(silabasPorPalavra[silabasPorPalavra.length-1], palavras[palavras.length-1]);
+  let ajuste = 0;
+  if (tonicUltima === "paroxitona") ajuste = 1;
+  if (tonicUltima === "proparoxitona") ajuste = 2;
+  let contagemFinal = contagemBruta;
+  if (usarSinalefa) contagemFinal -= elisoes;
+  if (usarAjuste) contagemFinal -= ajuste;
+  return { linha, palavras, silabasPorPalavra, contagemBruta, elisoes, sinalefaFlags, tonicUltima, ajuste, contagemFinal };
+}
+
+function removerAcentos(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+function caudaFonetica(palavra){
+  const s = silabizar(palavra);
+  const idx = indiceSilabaTonica(s, palavra);
+  const tonica = s[idx];
+  let i = 0;
+  while (i < tonica.length && !ehVogal(tonica[i])) i++;
+  if (i > 0 && tonica[i] && tonica[i].toLowerCase() === 'u' &&
+      'qg'.indexOf(tonica[i-1].toLowerCase()) !== -1 &&
+      i+1 < tonica.length && ehVogal(tonica[i+1])){
+    i++;
+  }
+  const tonicaSemOnset = tonica.slice(i);
+  const resto = s.slice(idx+1).join('');
+  return removerAcentos(tonicaSemOnset + resto).toLowerCase();
+}
+
+function detectarEsquemaRima(analisadas){
+  const caudas = analisadas.map(a => caudaFonetica(a.palavras[a.palavras.length-1]));
+  const mapa = {}; let proxima = 65;
+  return caudas.map(c => {
+    if (!c) return '-';
+    if (!(c in mapa)) mapa[c] = String.fromCharCode(proxima++);
+    return mapa[c];
+  }).join('');
+}
+
+/* =========================================================
+   DICIONÁRIO TEMÁTICO — ELEGIA (heurística, sugestão)
+   ========================================================= */
+const ELEGIA_DICT = ["luto","saudade","morte","morreu","partida","lagrimas","adeus","sepultura",
+  "ausencia","perda","choro","enterro","tumulo","lamento","funeral","despedida","eterno descanso","viuvez"];
+
+function detectarTemaElegia(textoCompleto){
+  const low = removerAcentos(textoCompleto.toLowerCase());
+  return ELEGIA_DICT.filter(termo => low.includes(removerAcentos(termo)));
+}
+
+/* =========================================================
+   ORIGEM DAS FORMAS
+   ========================================================= */
+const ORIGENS = {
+  "Acróstico": "Forma antiquíssima — já aparece em salmos hebraicos e em poesia grega e latina. O nome vem do grego 'akros' (extremidade) + 'stikhos' (verso): a mensagem se esconde nas bordas do poema, lida verticalmente pelas iniciais.",
+  "Limerique": "Forma inglesa/irlandesa popularizada por Edward Lear no século XIX, ligada à tradição do nonsense verse. Cinco versos, rima AABBA, tom cômico ou absurdo — nasceu como entretenimento oral, não erudito.",
+  "Epigrama": "Origem grega (inscrições votivas e funerárias curtas), refinado por poetas latinos como Marcial em sátiras de poucas linhas terminando num golpe de espírito. É a forma-relâmpago da poesia: síntese e ironia.",
+  "Balada": "Forma fixa francesa medieval, popularizada por François Villon no século XV: três estrofes iguais mais um envio curto, todas fechadas pelo mesmo verso-refrão — uma insistência que vai ganhando peso a cada repetição.",
+  "Vilanela": "Originou-se como canção rústica italiana (villanella) e foi fixada como forma fixa poética na França do século XVI. Sua marca é a obsessão: duas linhas-refrão que voltam e se cruzam ao longo de 19 versos, como um pensamento que não sai da cabeça.",
+  "Elegia": "Do grego 'elegos' (canto fúnebre), acompanhado originalmente por flauta. Não tem métrica fixa — é definida pelo tom de luto, perda ou lamento, não por uma estrutura de versos."
+};
+
+/* =========================================================
+   ROTEAMENTO
+   ========================================================= */
+const ROTEAMENTO = {
+  "Acróstico": { heteronimo: "Nazário Wendt Colussi", obs: "único heterônimo autorizado para acróstico" },
+  "Limerique": { heteronimo: "Dárius Ninus Vamus", obs: "" },
+  "Elegia": { heteronimo: "Dárius Ninus Vamus", obs: "" },
+  "Epigrama": { heteronimo: "Riolando Kraze", obs: "" },
+  "Balada": { heteronimo: "", obs: "sem heterônimo mapeado ainda — preencher manualmente" },
+  "Vilanela": { heteronimo: "Riolando Kraze", obs: "" }
+};
+
+/* =========================================================
+   DETECTORES
+   ========================================================= */
+function detectarAcrostico(linhasRaw, palavraAlvo){
+  const iniciais = linhasRaw.map(l => {
+    const limpa = l.trim().replace(/^[^\wÀ-ÿ]+/, '');
+    return limpa[0] ? limpa[0].toUpperCase() : '';
+  }).join('');
+  if (palavraAlvo && palavraAlvo.trim()){
+    const alvo = removerAcentos(palavraAlvo.trim().toUpperCase());
+    const lido = removerAcentos(iniciais);
+    const veredito = lido === alvo ? 'classico' : (lido.includes(alvo) || alvo.includes(lido) ? 'variante' : 'nao-atende');
+    return { forma: 'Acróstico', veredito, iniciais, alvo: palavraAlvo.toUpperCase() };
+  }
+  return { forma: 'Acróstico', veredito: 'deteccao', iniciais, alvo: null };
+}
+
+function detectarLimerique(analisadas, cont){
+  if (analisadas.length !== 5) return null;
+  const esquema = detectarEsquemaRima(analisadas);
+  const rimaAABBA = esquema[0] === esquema[1] && esquema[1] === esquema[4] && esquema[2] === esquema[3] && esquema[0] !== esquema[2];
+  if (!rimaAABBA) return null;
+  const mediaLongas = (cont[0] + cont[1] + cont[4]) / 3;
+  const mediaCurtas = (cont[2] + cont[3]) / 2;
+  const ritmoTipico = mediaLongas > mediaCurtas;
+  const veredito = rimaAABBA && ritmoTipico ? 'classico' : 'variante';
+  return { forma: 'Limerique', veredito, esquema, ritmoTipico, mediaLongas, mediaCurtas };
+}
+
+function detectarEpigrama(analisadas){
+  const n = analisadas.length;
+  if (n < 1 || n > 6) return null;
+  const veredito = n <= 4 ? 'classico' : 'variante';
+  return { forma: 'Epigrama', veredito, versos: n };
+}
+
+function detectarBalada(linhasRaw, analisadas){
+  if (analisadas.length !== 28) return null;
+  const norm = (l) => removerAcentos(l.trim().toLowerCase()).replace(/[.,;:!?"'()—–]/g,'');
+  const refrao1 = norm(linhasRaw[7]);
+  const refroes = [7,15,23,27].map(i => norm(linhasRaw[i]));
+  const todasIguais = refroes.every(r => r === refrao1);
+  const veredito = todasIguais ? 'classico' : 'nao-atende';
+  return { forma: 'Balada', veredito, refrao: linhasRaw[27], refroesConsistentes: todasIguais };
+}
+
+function detectarVilanela(linhasRaw, analisadas){
+  if (analisadas.length !== 19) return null;
+  const norm = (l) => removerAcentos(l.trim().toLowerCase()).replace(/[.,;:!?"'()—–]/g,'');
+  const A1 = norm(linhasRaw[0]);
+  const A2 = norm(linhasRaw[2]);
+  const refraoA1_ok = [5,11,17].every(i => norm(linhasRaw[i]) === A1);
+  const refraoA2_ok = [8,14,18].every(i => norm(linhasRaw[i]) === A2);
+  const veredito = (refraoA1_ok && refraoA2_ok) ? 'classico' : 'nao-atende';
+  return { forma: 'Vilanela', veredito, refraoA1_ok, refraoA2_ok };
+}
+
+function detectarElegia(linhasRaw){
+  const termos = detectarTemaElegia(linhasRaw.join(' '));
+  if (termos.length === 0) return null;
+  return { forma: 'Elegia', veredito: 'tematica', termos };
+}
+
+function classificarFormaDiversa(linhasRaw, analisadas, usarSinalefa, forcarAcrostico, palavraAlvo){
+  const cont = analisadas.map(a => usarSinalefa ? a.contagemFinal : a.contagemBruta);
+  if (forcarAcrostico){
+    return { ...detectarAcrostico(linhasRaw, palavraAlvo), contagens: cont };
+  }
+  let r;
+  r = detectarVilanela(linhasRaw, analisadas); if (r) return { ...r, contagens: cont };
+  r = detectarBalada(linhasRaw, analisadas); if (r) return { ...r, contagens: cont };
+  r = detectarLimerique(analisadas, cont); if (r) return { ...r, contagens: cont };
+  r = detectarEpigrama(analisadas); if (r) return { ...r, contagens: cont };
+  r = detectarElegia(linhasRaw); if (r) return { ...r, contagens: cont };
+  return { forma: null, veredito: 'livre', contagens: cont };
+}
+
+/* =========================================================
+   UI
+   ========================================================= */
+let ultimoResultado = null;
+
+function marcarTonica(silabas, idxTonica){
+  return silabas.map((s, i) => i === idxTonica ? `<span class="tonic">${s}</span>` : s).join('-');
+}
+
+const VEREDITO_LABEL = { classico:'Clássico', variante:'Variante', 'nao-atende':'Fora do padrão', tematica:'Indício temático', deteccao:'Leitura das iniciais' };
+const VEREDITO_CLASSE = { classico:'classico', variante:'', 'nao-atende':'unmatched', tematica:'', deteccao:'' };
+
+document.getElementById('formaAlvo').addEventListener('change', function(){
+  document.getElementById('campoPalavraAlvo').style.display = this.value === 'acrostico' ? 'block' : 'none';
+});
+
+function detalhesForma(c){
+  switch (c.forma){
+    case 'Acróstico':
+      return c.alvo
+        ? `iniciais lidas: <span class="acrostico-palavra">${c.iniciais}</span> · alvo: <span class="acrostico-palavra">${c.alvo}</span>`
+        : `iniciais lidas: <span class="acrostico-palavra">${c.iniciais}</span> — confirme se é essa a palavra pretendida`;
+    case 'Limerique':
+      return `esquema: ${c.esquema} (AABBA) · média sílabas versos 1,2,5: ${c.mediaLongas.toFixed(1)} · média versos 3,4: ${c.mediaCurtas.toFixed(1)} · ritmo típico (longos>curtos): ${c.ritmoTipico ? 'sim' : 'não'}`;
+    case 'Epigrama':
+      return `${c.versos} verso(s) — epigrama clássico costuma ter até 4 versos, terminando num golpe de ironia ou síntese (isso o motor não verifica, é julgamento seu)`;
+    case 'Balada':
+      return `refrão detectado: "${c.refrao}" · repetido de forma idêntica nas 4 seções (3 estrofes + envio): ${c.refroesConsistentes ? 'sim' : 'não'}`;
+    case 'Vilanela':
+      return `refrão A1 (linha 1) repete nas linhas 6,12,18: ${c.refraoA1_ok ? 'sim' : 'não'} · refrão A2 (linha 3) repete nas linhas 9,15,19: ${c.refraoA2_ok ? 'sim' : 'não'}`;
+    case 'Elegia':
+      return `termos de campo semântico fúnebre/luto encontrados: ${c.termos.join(', ')} — isso é sugestão temática, não uma regra estrutural`;
+    default: return '';
+  }
+}
+
+function analisar(){
+  const texto = document.getElementById('input').value;
+  const usarSinalefa = document.getElementById('useSinalefa').checked;
+  const usarAjuste = document.getElementById('useGraveAdj').checked;
+  const forcarAcrostico = document.getElementById('formaAlvo').value === 'acrostico';
+  const palavraAlvo = document.getElementById('palavraAlvo').value;
+
+  const linhas = texto.split('\n').filter(l => l.trim().length > 0);
+  const analisadas = linhas.map(l => analisarVerso(l, usarSinalefa, usarAjuste)).filter(Boolean);
+
+  const container = document.getElementById('verseResults');
+  container.innerHTML = analisadas.map((r, i) => {
+    const idxTonica = indiceSilabaTonica(r.silabasPorPalavra[r.silabasPorPalavra.length-1], r.palavras[r.palavras.length-1]);
+    const palavrasHTML = r.silabasPorPalavra.map((sils, j) => {
+      const ehUltima = j === r.silabasPorPalavra.length - 1;
+      let texto = ehUltima ? marcarTonica(sils, idxTonica) : sils.join('-');
+      if (j === 0){
+        texto = `<span class="inicial">${texto[0]}</span>${texto.slice(1)}`;
+      }
+      return texto;
+    }).join(' ');
+    const detalhe = `bruto: ${r.contagemBruta} · sinalefas: -${r.elisoes} · ajuste (${r.tonicUltima}): -${r.ajuste} · final: ${r.contagemFinal}`;
+    return `<div class="verse-row">
+      <div class="etiqueta-selo">${r.contagemFinal}</div>
+      <div>
+        <div class="verse-text">${palavrasHTML}</div>
+        <div class="verse-detail">${detalhe}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('resultsStep').style.display = 'block';
+
+  const classificacao = classificarFormaDiversa(linhas, analisadas, usarSinalefa, forcarAcrostico, palavraAlvo);
+  const formaContainer = document.getElementById('formResult');
+  let html = '';
+  if (classificacao.forma){
+    html = `<div class="form-match ${VEREDITO_CLASSE[classificacao.veredito]}">
+      <div>
+        <div class="name">${classificacao.forma} — ${VEREDITO_LABEL[classificacao.veredito]}</div>
+        <div class="pattern">${classificacao.contagens.join('-')}</div>
+      </div>
+    </div>
+    <div class="result-card"><div class="verse-detail">${detalhesForma(classificacao)}</div></div>`;
+  } else {
+    html = `<div class="form-match unmatched">
+      <div><div class="name">Forma livre / não mapeada</div><div class="pattern">${classificacao.contagens.join('-')}</div></div>
+    </div>
+    <p class="note">Sem correspondência com Acróstico, Limerique, Epigrama, Balada, Vilanela ou indícios de Elegia. Pode ser uma forma ainda não coberta por este motor (ex: Rondó, Écloga, poesia concreta/visual) — essas ficaram de fora desta leva porque dependem de refrão parcial ou de layout visual, difíceis de verificar de forma confiável só pelo texto.</p>`;
+  }
+  formaContainer.innerHTML = html;
+  document.getElementById('formStep').style.display = 'block';
+
+  const origemContainer = document.getElementById('origemResult');
+  const origemStep = document.getElementById('origemStep');
+  if (classificacao.forma && ORIGENS[classificacao.forma]){
+    origemContainer.innerHTML = `<div class="result-card"><h2 style="margin-top:0;">${classificacao.forma}</h2><p>${ORIGENS[classificacao.forma]}</p></div>`;
+    origemStep.style.display = 'block';
+  } else {
+    origemStep.style.display = 'none';
+  }
+
+  const rota = classificacao.forma ? ROTEAMENTO[classificacao.forma] : null;
+  document.getElementById('heteronimoDestino').value = rota ? rota.heteronimo : '';
+  document.getElementById('obsDestino').value = rota ? rota.obs : '';
+  document.getElementById('paiolStep').style.display = 'block';
+
+  ultimoResultado = {
+    texto,
+    versos: analisadas.map(r => ({
+      linha: r.linha, contagem_bruta: r.contagemBruta, elisoes: r.elisoes,
+      ajuste_metrico: r.ajuste, contagem_final: r.contagemFinal, tonica_ultima_palavra: r.tonicUltima
+    })),
+    classificacao,
+    parametros: { usarSinalefa, usarAjuste, forcarAcrostico, palavraAlvo: palavraAlvo || null },
+    timestamp: new Date().toISOString()
+  };
+
+  renderStagedList();
+}
+
+function mostrarToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function enviarParaPaiol(){
+  if (!ultimoResultado){ mostrarToast('Analise um texto primeiro.'); return; }
+  const pacote = {
+    ...ultimoResultado,
+    heteronimo_destino: document.getElementById('heteronimoDestino').value || null,
+    observacao_destino: document.getElementById('obsDestino').value || null,
+    status: 'aguardando_integracao_paiol'
+  };
+  const chave = 'sigmal_paiol_staging_diversas';
+  const atual = JSON.parse(localStorage.getItem(chave) || '[]');
+  atual.push(pacote);
+  localStorage.setItem(chave, JSON.stringify(atual));
+  mostrarToast('Empacotado em localStorage (staging). Aguardando wiring real do Paiol.');
+  renderStagedList();
+}
+
+function renderStagedList(){
+  const chave = 'sigmal_paiol_staging_diversas';
+  const atual = JSON.parse(localStorage.getItem(chave) || '[]');
+  const el = document.getElementById('stagedList');
+  if (atual.length === 0){ el.textContent = 'Nenhum item em staging ainda.'; return; }
+  const ultimo = atual[atual.length-1];
+  el.innerHTML = `${atual.length} item(ns) em staging · último: "${ultimo.heteronimo_destino}" → ${(ultimo.classificacao && ultimo.classificacao.forma) || 'forma livre'}`;
+}
+
+function baixarJSON(){
+  if (!ultimoResultado){ mostrarToast('Analise um texto primeiro.'); return; }
+  const pacote = {
+    ...ultimoResultado,
+    heteronimo_destino: document.getElementById('heteronimoDestino').value || null,
+    observacao_destino: document.getElementById('obsDestino').value || null
+  };
+  const blob = new Blob([JSON.stringify(pacote, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `analise_formas_diversas_${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+renderStagedList();
+</script>
+</body>
+</html>
