@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motor de Métrica Ocidental — SIGMAL</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --papel:#e9dfc4;
+    --papel-deep:#ddcfa8;
+    --tinta:#1a1613;
+    --tinta-soft:#3d362c;
+    --vinho:#7a1f1f;
+    --vinho-escuro:#54140f;
+    --ocre:#a67c2e;
+    --linha:#cbb98f;
+    --bloco-branco:#faf6ec;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--papel);
+    background-image:
+      repeating-linear-gradient(45deg, rgba(26,22,19,0.025) 0px, rgba(26,22,19,0.025) 1px, transparent 1px, transparent 10px);
+    color:var(--tinta);
+    font-family:'Crimson Pro',Georgia,serif;
+    line-height:1.55;
+  }
+  header{
+    padding:34px 20px 22px;
+    border-bottom:4px double var(--tinta);
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  header h1{
+    margin:0;
+    font-family:'Cinzel',serif;
+    font-size:24px;
+    font-weight:600;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+  }
+  header h1 em{
+    font-style:normal;
+    color:var(--vinho);
+  }
+  header .sub{
+    font-family:'Share Tech Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--tinta-soft);
+  }
+  main{
+    max-width:940px;
+    margin:0 auto;
+    padding:30px 20px 80px;
+  }
+  .step{margin-bottom:36px;}
+  .step-label{
+    font-family:'Share Tech Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.1em;
+    color:var(--vinho);
+    text-transform:uppercase;
+    margin-bottom:6px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .step-label::before{content:'';width:18px;height:2px;background:var(--vinho);}
+  h2{
+    font-family:'Cinzel',serif;
+    font-size:19px;
+    font-weight:600;
+    margin:0 0 12px;
+  }
+  select, textarea{
+    width:100%;
+    padding:14px 16px;
+    background:var(--bloco-branco);
+    border:1px solid var(--linha);
+    border-radius:2px;
+    font-family:'Crimson Pro',serif;
+    font-size:16px;
+    color:var(--tinta);
+  }
+  textarea{min-height:180px;resize:vertical;}
+  textarea:focus, select:focus, input:focus, button:focus{outline:3px solid var(--ocre);outline-offset:1px;}
+  .controls{
+    display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:12px;
+    font-family:'Share Tech Mono',monospace;font-size:12.5px;
+  }
+  .controls label{display:flex;align-items:center;gap:6px;cursor:pointer;}
+  button{
+    font-family:'Share Tech Mono',monospace;font-size:12.5px;letter-spacing:0.04em;
+    text-transform:uppercase;background:var(--tinta);color:var(--papel);border:none;
+    padding:11px 20px;border-radius:2px;cursor:pointer;transition:background .15s ease;
+  }
+  button:hover{background:var(--tinta-soft);}
+  button.primary{background:var(--vinho);}
+  button.primary:hover{background:var(--vinho-escuro);}
+  button.ghost{background:transparent;color:var(--tinta);border:1px solid var(--tinta);}
+  button.ghost:hover{background:var(--tinta);color:var(--papel);}
+  .actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+
+  .verse-row{
+    display:flex;align-items:flex-start;gap:14px;padding:10px 0;
+    border-bottom:1px dashed var(--linha);
+  }
+  .verse-row:last-child{border-bottom:none;}
+  .verse-text{flex:1;font-size:16px;}
+  .tonic{color:var(--vinho);font-weight:bold;}
+  .selo{
+    flex-shrink:0;width:40px;height:40px;border:2px solid var(--vinho);color:var(--vinho);
+    border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:'Share Tech Mono',monospace;font-size:14px;font-weight:bold;
+  }
+  .verse-detail{font-family:'Share Tech Mono',monospace;font-size:11.5px;color:var(--tinta-soft);margin-top:3px;}
+  .tam-verso{
+    font-family:'Share Tech Mono',monospace;font-size:10.5px;color:var(--ocre);
+    text-transform:uppercase;letter-spacing:0.04em;
+  }
+
+  .result-card{background:var(--bloco-branco);border:1px solid var(--linha);padding:20px;margin-top:14px;}
+  .form-match{
+    display:flex;align-items:center;gap:14px;padding:14px 16px;
+    background:var(--papel-deep);border-left:4px solid var(--ocre);margin-bottom:16px;
+  }
+  .form-match.unmatched{border-left-color:var(--vinho);}
+  .form-match.classico{border-left-color:#4a6b3a;}
+  .form-match .name{font-family:'Cinzel',serif;font-size:18px;font-weight:600;}
+  .form-match .pattern{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--tinta-soft);}
+
+  .route-box{margin-top:16px;padding:16px;background:var(--tinta);color:var(--papel);}
+  .route-box label{
+    display:block;font-family:'Share Tech Mono',monospace;font-size:11px;text-transform:uppercase;
+    letter-spacing:0.06em;margin-bottom:6px;color:var(--linha);
+  }
+  .route-box input{
+    width:100%;padding:10px;background:#2a241d;border:1px solid #55493a;color:var(--papel);
+    font-family:'Crimson Pro',serif;font-size:14px;margin-bottom:12px;
+  }
+  .staged-list{margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:11.5px;color:var(--tinta-soft);}
+  .note{font-size:13px;color:var(--tinta-soft);margin-top:10px;border-top:1px solid var(--linha);padding-top:10px;}
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:var(--tinta);color:var(--papel);padding:10px 18px;border-radius:3px;
+    font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s ease;
+  }
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Motor de Métrica <em>Ocidental</em></h1>
+  <div class="sub">SIGMAL · costela do triploohesigmalbpl</div>
+</header>
+
+<main>
+
+  <div class="step">
+    <div class="step-label">01 · Texto</div>
+    <h2>Cole o texto ou poema</h2>
+    <textarea id="input" placeholder="Um verso por linha. Título em linha isolada + linha em branco antes do corpo, se houver.">Ele partiu num barco sem retorno,
+Deixando a praia em prantos e saudade,
+O mar rugia em fúria, sem piedade,
+Como se ao próprio céu fizesse em torno.
+
+A vela ao longe sumia, e o contorno
+Do sonho se apagava na cidade,
+Enquanto a noite, em muda escuridade,
+Guardava o eco de um adeus tão morno.
+
+Ficou na areia o traço do seu passo,
+E o vento, companheiro do cansaço,
+Levava o nome dela em cada onda.
+
+Silêncio e mar, testemunhas do momento,
+Guardando a dor de um triste sentimento,
+De quem no amor perdido ainda se esconda.</textarea>
+    <div class="controls">
+      <label><input type="checkbox" id="useSinalefa" checked> usar sinalefas na classificação</label>
+      <label><input type="checkbox" id="useGraveAdj" checked> aplicar ajuste métrico final (grave/esdrúxulo)</label>
+    </div>
+    <div class="actions">
+      <button class="primary" onclick="analisar()">Analisar</button>
+      <button class="ghost" onclick="document.getElementById('input').value='';">Limpar</button>
+    </div>
+  </div>
+
+  <div class="step" id="resultsStep" style="display:none;">
+    <div class="step-label">02 · Contagem por verso</div>
+    <h2>Sílabas, tônica e classificação métrica</h2>
+    <div class="result-card" id="verseResults"></div>
+  </div>
+
+  <div class="step" id="formStep" style="display:none;">
+    <div class="step-label">03 · Classificação de forma</div>
+    <h2>Estrutura reconhecida</h2>
+    <div id="formResult"></div>
+  </div>
+
+  <div class="step" id="origemStep" style="display:none;">
+    <div class="step-label">04 · Contexto</div>
+    <h2>Origem da forma</h2>
+    <div id="origemResult"></div>
+  </div>
+
+  <div class="step" id="paiolStep" style="display:none;">
+    <div class="step-label">05 · Paiol</div>
+    <h2>Enviar para o escritor</h2>
+    <div class="route-box">
+      <label>Heterônimo de destino</label>
+      <input type="text" id="heteronimoDestino" value="">
+      <label>Observação</label>
+      <input type="text" id="obsDestino" value="">
+      <div class="actions">
+        <button class="primary" onclick="enviarParaPaiol()">Enviar ao Paiol</button>
+        <button class="ghost" onclick="baixarJSON()">Baixar .json</button>
+      </div>
+      <div class="staged-list" id="stagedList"></div>
+    </div>
+    <p class="note">
+      ⚠️ Placeholder de integração: este botão grava o pacote em <code>localStorage['sigmal_paiol_staging_ocidental']</code>.
+      Mesmo contrato de dados do Motor Oriental — quando você me passar a função real de envio ao Paiol do
+      <code>index.html</code>, troco os dois motores de uma vez pela integração definitiva.
+    </p>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   NÚCLEO DE SILABIZAÇÃO — PORTUGUÊS
+   (idêntico ao usado no Motor de Métrica Oriental — o motor
+   de sílabas não muda por causa do tema; só a camada de
+   classificação de formas é diferente)
+   ========================================================= */
+
+const VOGAIS = "aeiouáéíóúâêîôûãõàAEIOUÁÉÍÓÚÂÊÎÔÛÃÕÀ";
+const VOGAIS_ACENTUADAS_HIATO = "íóúÍÓÚ";
+const DIGRAFOS_INSEPARAVEIS = ["ch","lh","nh"];
+const ENCONTROS_PERMITIDOS = ["bl","cl","fl","gl","pl","tl","br","cr","dr","fr","gr","pr","tr","vr"];
+
+function ehVogal(ch){ return ch && VOGAIS.indexOf(ch) !== -1; }
+function semAcento(ch){
+  const map = {á:'a',é:'e',í:'i',ó:'o',ú:'u',â:'a',ê:'e',î:'i',ô:'o',û:'u',ã:'a',õ:'o',à:'a'};
+  return map[ch.toLowerCase()] || ch.toLowerCase();
+}
+function temAcentoAgudoOuCircunflexo(ch){ return "áéíóúâêô".indexOf(ch.toLowerCase()) !== -1; }
+
+function ehDitongo(v1, v2){
+  if (VOGAIS_ACENTUADAS_HIATO.indexOf(v2) !== -1) return false;
+  if (VOGAIS_ACENTUADAS_HIATO.indexOf(v1) !== -1 && "aeo".indexOf(semAcento(v2))!==-1) return false;
+  if (semAcento(v1) === semAcento(v2)) return false;
+  const ditongosBase = ["ai","au","ei","eu","oi","ou","ui","iu","ao","ão","õe","ãe","ãi"];
+  return ditongosBase.indexOf(semAcento(v1)+semAcento(v2)) !== -1 || (v1+v2).indexOf("ã")!==-1 || (v1+v2).indexOf("õ")!==-1;
+}
+
+function silabizar(palavraOriginal){
+  const p = palavraOriginal;
+  const n = p.length;
+
+  const absorvido = new Array(n).fill(false);
+  for (let k = 0; k < n; k++){
+    const atual = p[k].toLowerCase();
+    if (atual === 'u' && k > 0 && k+1 < n){
+      const anterior = p[k-1].toLowerCase();
+      if ((anterior === 'q' || anterior === 'g') && ehVogal(p[k+1])){
+        absorvido[k] = true;
+      }
+    }
+  }
+
+  const nucleos = [];
+  let i = 0;
+  while (i < n){
+    if (ehVogal(p[i]) && !absorvido[i]){
+      let start = i, end = i;
+      if (i+1 < n && ehVogal(p[i+1]) && !absorvido[i+1] && ehDitongo(p[i], p[i+1])){
+        end = i+1;
+        i = i+2;
+      } else {
+        i = i+1;
+      }
+      nucleos.push({start, end});
+    } else {
+      i++;
+    }
+  }
+  if (nucleos.length === 0) return [p];
+
+  const silabas = [];
+  let cursor = 0;
+  for (let k = 0; k < nucleos.length; k++){
+    const nucleo = nucleos[k];
+    const proxNucleo = nucleos[k+1];
+    let fimSilaba;
+    if (!proxNucleo){
+      fimSilaba = n;
+    } else {
+      const consoantes = p.slice(nucleo.end+1, proxNucleo.start);
+      let corte;
+      if (consoantes.length === 0){
+        corte = 0;
+      } else if (consoantes.length === 1){
+        corte = 0;
+      } else {
+        const doisUltimos = consoantes.slice(-2).toLowerCase();
+        const inseparavel = DIGRAFOS_INSEPARAVEIS.indexOf(doisUltimos) !== -1 ||
+                             ENCONTROS_PERMITIDOS.indexOf(doisUltimos) !== -1;
+        const guQu = (doisUltimos === "gu" || doisUltimos === "qu");
+        if (inseparavel || guQu){
+          corte = consoantes.length - 2;
+        } else {
+          corte = consoantes.length - 1;
+        }
+      }
+      fimSilaba = nucleo.end + 1 + corte;
+    }
+    silabas.push(p.slice(cursor, fimSilaba));
+    cursor = fimSilaba;
+  }
+  return silabas.filter(s => s.length > 0);
+}
+
+function indiceSilabaTonica(silabas, palavra){
+  for (let idx = silabas.length - 1; idx >= 0; idx--){
+    for (const ch of silabas[idx]){
+      if (temAcentoAgudoOuCircunflexo(ch) || ch === 'ã' || ch === 'õ'){
+        return idx;
+      }
+    }
+  }
+  const limpa = palavra.toLowerCase().replace(/[.,;:!?"'()]/g,'');
+  const terminacoesParoxitonas = /(a|e|o|em|ens|as|es|os)$/;
+  if (silabas.length === 1) return 0;
+  if (terminacoesParoxitonas.test(limpa)){
+    return silabas.length - 2;
+  }
+  return silabas.length - 1;
+}
+
+function classificarTonicidade(silabas, palavra){
+  const idx = indiceSilabaTonica(silabas, palavra);
+  const posDoFim = silabas.length - 1 - idx;
+  if (posDoFim === 0) return "oxitona";
+  if (posDoFim === 1) return "paroxitona";
+  return "proparoxitona";
+}
+
+function limparPalavra(w){ return w.replace(/^[^\wÀ-ÿ]+|[^\wÀ-ÿ]+$/g,''); }
+
+function analisarVerso(linha, usarSinalefa, usarAjuste){
+  const palavrasRaw = linha.trim().split(/\s+/).filter(Boolean);
+  const palavras = palavrasRaw.map(limparPalavra).filter(Boolean);
+  if (palavras.length === 0) return null;
+
+  const silabasPorPalavra = palavras.map(p => silabizar(p));
+  const contagemBruta = silabasPorPalavra.reduce((acc, s) => acc + s.length, 0);
+
+  let elisoes = 0;
+  const sinalefaFlags = new Array(palavras.length - 1).fill(false);
+  for (let i = 0; i < palavras.length - 1; i++){
+    let fimAtual = palavras[i];
+    let inicioProx = palavras[i+1];
+    let idxFim = fimAtual.length - 1;
+    let ultimaLetra = fimAtual[idxFim];
+    let primeiraLetra = inicioProx[0];
+    if (primeiraLetra && primeiraLetra.toLowerCase() === 'h') primeiraLetra = inicioProx[1] || '';
+    if (ehVogal(ultimaLetra) && ehVogal(primeiraLetra)){
+      elisoes++;
+      sinalefaFlags[i] = true;
+    }
+  }
+
+  const tonicUltima = classificarTonicidade(silabasPorPalavra[silabasPorPalavra.length-1], palavras[palavras.length-1]);
+  let ajuste = 0;
+  if (tonicUltima === "paroxitona") ajuste = 1;
+  if (tonicUltima === "proparoxitona") ajuste = 2;
+
+  let contagemFinal = contagemBruta;
+  if (usarSinalefa) contagemFinal -= elisoes;
+  if (usarAjuste) contagemFinal -= ajuste;
+
+  return { linha, palavras, silabasPorPalavra, contagemBruta, elisoes, sinalefaFlags, tonicUltima, ajuste, contagemFinal };
+}
+
+function removerAcentos(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+function caudaFonetica(palavra){
+  const s = silabizar(palavra);
+  const idx = indiceSilabaTonica(s, palavra);
+  const tonicaSemOnset = s[idx].replace(/^[^aeiouáéíóúâêîôûãõàAEIOUÁÉÍÓÚÂÊÎÔÛÃÕÀ]+/, '');
+  const resto = s.slice(idx+1).join('');
+  return removerAcentos(tonicaSemOnset + resto).toLowerCase();
+}
+
+function classificarTamanhoVerso(n){
+  const nomes = {
+    1:'monossílabo',2:'dissílabo',3:'trissílabo',4:'tetrassílabo',
+    5:'redondilha menor',6:'hexassílabo',7:'redondilha maior',
+    8:'octossílabo',9:'eneassílabo',10:'decassílabo',
+    11:'hendecassílabo',12:'dodecassílabo (alexandrino)'
+  };
+  return nomes[n] || `${n} sílabas (métrica exótica)`;
+}
+
+/* =========================================================
+   ESQUEMA DE RIMA — genérico, reutilizável por qualquer forma
+   ========================================================= */
+function detectarEsquemaRima(analisadas){
+  const caudas = analisadas.map(a => caudaFonetica(a.palavras[a.palavras.length-1]));
+  const mapa = {};
+  let proxima = 65;
+  return caudas.map(c => {
+    if (!c) return '-';
+    if (!(c in mapa)) mapa[c] = String.fromCharCode(proxima++);
+    return mapa[c];
+  }).join('');
+}
+
+function padraoRelativo(sub){
+  const mapa = {}; let proxima = 65, out = '';
+  for (const ch of sub){
+    if (ch === '-'){ out += '-'; continue; }
+    if (!(ch in mapa)) mapa[ch] = String.fromCharCode(proxima++);
+    out += mapa[ch];
+  }
+  return out;
+}
+
+function tipoRimaQuarteto(p){
+  if (p === 'ABBA') return 'abraçada';
+  if (p === 'ABAB') return 'cruzada/alternada';
+  if (p === 'AABB') return 'emparelhada';
+  if (p === 'AAAA') return 'monórrima';
+  return 'sem padrão fixo';
+}
+function tipoRimaTerceto(p){
+  if (p === 'ABA') return 'intercalada';
+  if (p === 'AAA') return 'monórrima';
+  if (p === 'ABB' || p === 'AAB') return 'parcial';
+  return 'sem rima definida';
+}
+
+/* =========================================================
+   ORIGEM DAS FORMAS OCIDENTAIS
+   ========================================================= */
+const ORIGENS = {
+  "Soneto": "Criado na Sicília do século XIII por Giacomo da Lentini, consolidado por Petrarca na Itália e trazido ao português por Sá de Miranda no século XVI. Camões o elevou ao apogeu na literatura de língua portuguesa.",
+  "Trova": "Raiz medieval ibérica, ligada ao trovadorismo galego-português. No Brasil, a forma se mantém viva através do repentismo e da UBT (União Brasileira de Trovadores), que também fixa regras de metrificação e elisão.",
+  "Ghazal": "Forma árabe pré-islâmica, refinada na Pérsia por poetas como Rumi e Hafez. Estrutura de dísticos independentes unidos por um refrão fixo (radif) e uma rima que o precede (qafia) — hoje também praticada em português.",
+  "Pantum": "Derivado do pantun malaio, de tradição oral do Sudeste Asiático. Poetas franceses do século XIX, como Victor Hugo e Baudelaire, fixaram no ocidente o formato de quadras com repetição encadeada de versos.",
+  "Sextina": "Forma trovadoresca provençal criada por Arnaut Daniel no século XII: seis estrofes de seis versos cada, com seis palavras-fim que se repetem numa rotação fixa, fechadas por um envio de três versos. Uma das formas fixas mais rígidas da poesia ocidental.",
+  "Cordel": "Tradição popular nordestina brasileira, herdeira dos folhetos ibéricos impressos e ilustrados com xilogravura, tradicionalmente vendidos pendurados em barbante — daí o nome.",
+  "Poetrix": "Forma brasileira contemporânea criada por Gabriel Goulart, com regramento fixado pela Academia Internacional Poetrixta: três versos, título obrigatório, síntese extrema e multiplicidade de sentido — o oposto do Haicai nesse ponto, já que o Haicai não admite título.",
+  "Ode": "Sem template fixo por tradição — já a ode grega clássica de Píndaro variava livremente de estrofe. Hoje o termo designa tom elevado e estrutura livre, não uma métrica fixa."
+};
+
+/* =========================================================
+   ROTEAMENTO PARA HETERÔNIMOS (mapeamento real do HETERONIMOS[])
+   ========================================================= */
+const ROTEAMENTO = {
+  "Soneto": { heteronimo: "Amélie Maia Hanna", obs: "" },
+  "Trova": { heteronimo: "Dona Catarina Trovante", obs: "" },
+  "Ghazal": { heteronimo: "Birihani Selami Ina Tesifa", obs: "" },
+  "Pantum": { heteronimo: "Hama Amarin", obs: "" },
+  "Sextina": { heteronimo: "Icabode Kahpote", obs: "" },
+  "Ode": { heteronimo: "Hernesto Bevilácqua", obs: "" },
+  "Poetrix": { heteronimo: "Santiago Poetrix", obs: "" },
+  "Cordel — Sextilha": { heteronimo: "Jorge Cavalcanti", obs: "alternativa: Raimundo José da Silva Nonato (seca nordestina)" },
+  "Cordel — Sétima": { heteronimo: "Jorge Cavalcanti", obs: "alternativa: Raimundo José da Silva Nonato (seca nordestina)" },
+  "Cordel — Oitava": { heteronimo: "Jorge Cavalcanti", obs: "alternativa: Raimundo José da Silva Nonato (seca nordestina)" },
+  "Cordel — Décima": { heteronimo: "Jorge Cavalcanti", obs: "alternativa: Raimundo José da Silva Nonato (seca nordestina)" }
+};
+
+/* =========================================================
+   DETECTORES DE FORMA
+   ========================================================= */
+function detectarSoneto(analisadas, cont){
+  if (analisadas.length !== 14) return null;
+  const base = cont[0];
+  const isometrico = cont.every(c => c === base);
+  const esquema = detectarEsquemaRima(analisadas);
+  const q1 = padraoRelativo(esquema.slice(0,4));
+  const q2 = padraoRelativo(esquema.slice(4,8));
+  const t1letras = esquema.slice(8,11);
+  const t2letras = esquema.slice(11,14);
+  const t1 = padraoRelativo(t1letras);
+  const t2 = padraoRelativo(t2letras);
+
+  const t1sons = [8,9,10].map(i => caudaFonetica(analisadas[i].palavras[analisadas[i].palavras.length-1]));
+  const t2sons = [11,12,13].map(i => caudaFonetica(analisadas[i].palavras[analisadas[i].palavras.length-1]));
+  const set1 = new Set(t1sons.filter(Boolean)), set2 = new Set(t2sons.filter(Boolean));
+  let comuns = 0; set1.forEach(s => { if (set2.has(s)) comuns++; });
+  const tercetosEncadeados = comuns >= 2;
+
+  const quartetosClassicos = (tipoRimaQuarteto(q1) !== 'sem padrão fixo') && (tipoRimaQuarteto(q2) !== 'sem padrão fixo');
+  const tercetosComRima = (tipoRimaTerceto(t1) !== 'sem rima definida') && (tipoRimaTerceto(t2) !== 'sem rima definida');
+
+  let veredito;
+  if (isometrico && base === 10 && quartetosClassicos && tercetosComRima) veredito = 'classico';
+  else if (isometrico && quartetosClassicos) veredito = 'variante';
+  else veredito = 'nao-atende';
+
+  return {
+    forma: 'Soneto', veredito, isometrico, base,
+    esquema, q1tipo: tipoRimaQuarteto(q1), q2tipo: tipoRimaQuarteto(q2),
+    t1tipo: tipoRimaTerceto(t1), t2tipo: tipoRimaTerceto(t2), tercetosEncadeados
+  };
+}
+
+const CORDEL_RIMAS = { 6:[1,3,5], 7:[1,3,4,6], 8:[1,3,5,7], 10:[1,3,5,7,9] };
+const CORDEL_NOMES = { 6:'Sextilha', 7:'Sétima', 8:'Oitava', 10:'Décima' };
+
+function detectarCordel(analisadas, cont){
+  const n = analisadas.length;
+  if (!(n in CORDEL_RIMAS)) return null;
+  const isHept = cont.every(c => c === 7);
+  const esquema = detectarEsquemaRima(analisadas);
+  const posicoes = CORDEL_RIMAS[n];
+  const todasRimam = posicoes.every(p => esquema[p] === esquema[posicoes[0]]);
+  if (!isHept && !todasRimam) return null;
+  const veredito = (isHept && todasRimam) ? 'classico' : 'variante';
+  return {
+    forma: `Cordel — ${CORDEL_NOMES[n]}`, veredito, isHept, esquema,
+    posicoesEsperadas: posicoes.map(p => p+1)
+  };
+}
+
+function detectarTrova(analisadas, cont){
+  if (analisadas.length !== 4) return null;
+  const isHept = cont.every(c => c === 7);
+  const esquema = detectarEsquemaRima(analisadas);
+  const cruzadaCompleta = esquema[0] === esquema[2] && esquema[1] === esquema[3];
+  const paresRimam = esquema[1] === esquema[3];
+  if (!isHept && !cruzadaCompleta && !paresRimam) return null;
+  let veredito;
+  if (isHept && cruzadaCompleta) veredito = 'classico';
+  else if (isHept && paresRimam) veredito = 'variante';
+  else veredito = 'nao-atende';
+  return { forma: 'Trova', veredito, isHept, esquema, cruzadaCompleta, paresRimam };
+}
+
+function detectarPoetrix(analisadas, titulo){
+  if (analisadas.length !== 3) return null;
+  const veredito = titulo ? 'classico' : 'nao-atende';
+  return { forma: 'Poetrix', veredito, temTitulo: !!titulo };
+}
+
+function detectarPantum(linhasRaw, analisadas){
+  const n = analisadas.length;
+  if (n < 8 || n % 4 !== 0) return null;
+  const norm = linhasRaw.map(l => removerAcentos(l.trim().toLowerCase()).replace(/[.,;:!?"'()—–]/g,''));
+  const estrofes = [];
+  for (let i = 0; i < n; i += 4) estrofes.push(norm.slice(i, i+4));
+  let encadeamentos = 0, total = 0;
+  for (let e = 0; e < estrofes.length - 1; e++){
+    total += 2;
+    if (estrofes[e][1] === estrofes[e+1][0]) encadeamentos++;
+    if (estrofes[e][3] === estrofes[e+1][2]) encadeamentos++;
+  }
+  if (encadeamentos === 0) return null;
+  const proporcao = encadeamentos / total;
+  const veredito = proporcao === 1 ? 'classico' : (proporcao >= 0.5 ? 'variante' : 'nao-atende');
+  return { forma: 'Pantum', veredito, encadeamentos, total };
+}
+
+function detectarGhazal(analisadas, cont){
+  const n = analisadas.length;
+  if (n < 4 || n % 2 !== 0) return null;
+  const baseMetro = cont[0];
+  const metroConsistente = cont.every(c => c === baseMetro);
+  const ultimaPalavra = (idx) => removerAcentos(analisadas[idx].palavras[analisadas[idx].palavras.length-1].toLowerCase());
+  const candidatoRadif = ultimaPalavra(1);
+  const indicesFinais = [];
+  for (let i = 1; i < n; i += 2) indicesFinais.push(i);
+  const linha0Bate = ultimaPalavra(0) === candidatoRadif;
+  const todasBatem = indicesFinais.every(i => ultimaPalavra(i) === candidatoRadif);
+  if (!todasBatem || !linha0Bate) return null;
+  const penultimaCauda = (idx) => {
+    const p = analisadas[idx].palavras;
+    if (p.length < 2) return '';
+    return caudaFonetica(p[p.length-2]);
+  };
+  const caudas = [0, ...indicesFinais].map(penultimaCauda);
+  const qafiaConsistente = caudas.every(c => c && c === caudas[0]);
+  const veredito = metroConsistente && qafiaConsistente ? 'classico' : (metroConsistente ? 'variante' : 'nao-atende');
+  return { forma: 'Ghazal', veredito, radif: candidatoRadif, metroConsistente, qafiaConsistente };
+}
+
+function detectarSextina(linhasRaw, analisadas){
+  if (analisadas.length !== 39) return null;
+  const palavraFinal = (idx) => removerAcentos(analisadas[idx].palavras[analisadas[idx].palavras.length-1].toLowerCase()).replace(/[^\wà-ÿ]/g,'');
+  const estrofes = [];
+  for (let e = 0; e < 6; e++) estrofes.push([0,1,2,3,4,5].map(i => palavraFinal(e*6+i)));
+  function permuta(prev){ return [prev[5],prev[0],prev[4],prev[1],prev[3],prev[2]]; }
+  let ok = true;
+  for (let e = 1; e < 6 && ok; e++){
+    const esperado = permuta(estrofes[e-1]);
+    for (let i = 0; i < 6; i++){
+      if (estrofes[e][i] !== esperado[i]){ ok = false; break; }
+    }
+  }
+  const palavrasBase = new Set(estrofes[0]);
+  const envioTexto = removerAcentos(linhasRaw.slice(36).join(' ').toLowerCase());
+  const envioContemTodas = [...palavrasBase].every(p => envioTexto.includes(p));
+  const veredito = ok && envioContemTodas ? 'classico' : (ok ? 'variante' : 'nao-atende');
+  return { forma: 'Sextina', veredito, permutacaoOk: ok, envioContemTodas };
+}
+
+function classificarFormaOcidental(linhasRaw, analisadas, titulo, usarSinalefa){
+  const cont = analisadas.map(a => usarSinalefa ? a.contagemFinal : a.contagemBruta);
+  let r;
+  r = detectarSextina(linhasRaw, analisadas); if (r) return { ...r, contagens: cont };
+  r = detectarSoneto(analisadas, cont); if (r) return { ...r, contagens: cont };
+  r = detectarCordel(analisadas, cont); if (r) return { ...r, contagens: cont };
+  r = detectarGhazal(analisadas, cont); if (r) return { ...r, contagens: cont };
+  r = detectarTrova(analisadas, cont); if (r) return { ...r, contagens: cont };
+  r = detectarPoetrix(analisadas, titulo); if (r) return { ...r, contagens: cont };
+  r = detectarPantum(linhasRaw, analisadas); if (r) return { ...r, contagens: cont };
+  return { forma: null, veredito: 'livre', contagens: cont };
+}
+
+/* =========================================================
+   UI
+   ========================================================= */
+let ultimoResultado = null;
+
+function marcarTonica(silabas, idxTonica){
+  return silabas.map((s, i) => i === idxTonica ? `<span class="tonic">${s}</span>` : s).join('-');
+}
+
+const VEREDITO_LABEL = { classico: 'Clássico', variante: 'Variante', 'nao-atende': 'Fora do padrão' };
+const VEREDITO_CLASSE = { classico: 'classico', variante: '', 'nao-atende': 'unmatched' };
+
+function detalhesForma(classificacao){
+  switch (classificacao.forma){
+    case 'Soneto':
+      return `isométrico: ${classificacao.isometrico ? 'sim' : 'não'} (base ${classificacao.base} sílabas) ·
+        esquema: ${classificacao.esquema} ·
+        1º quarteto: ${classificacao.q1tipo} · 2º quarteto: ${classificacao.q2tipo} ·
+        1º terceto: ${classificacao.t1tipo} · 2º terceto: ${classificacao.t2tipo} ·
+        tercetos encadeados: ${classificacao.tercetosEncadeados ? 'sim' : 'não'}`;
+    case 'Trova':
+      return `heptassílabo em todos os versos: ${classificacao.isHept ? 'sim' : 'não'} ·
+        esquema: ${classificacao.esquema} ·
+        rima cruzada completa (AC/BD): ${classificacao.cruzadaCompleta ? 'sim' : 'não'} ·
+        pares rimam (BD): ${classificacao.paresRimam ? 'sim' : 'não'}`;
+    case 'Ghazal':
+      return `radif detectado: "${classificacao.radif}" ·
+        métrica consistente entre todos os versos: ${classificacao.metroConsistente ? 'sim' : 'não'} ·
+        qafia (rima antes do radif) consistente: ${classificacao.qafiaConsistente ? 'sim' : 'não'}`;
+    case 'Pantum':
+      return `versos encadeados entre estrofes: ${classificacao.encadeamentos}/${classificacao.total}`;
+    case 'Sextina':
+      return `permutação clássica das palavras-fim: ${classificacao.permutacaoOk ? 'correta' : 'não corresponde'} ·
+        envio contém as 6 palavras-base: ${classificacao.envioContemTodas ? 'sim' : 'não'}`;
+    case 'Poetrix':
+      return `título obrigatório presente: ${classificacao.temTitulo ? 'sim' : 'não — Poetrix exige título, ao contrário do Haicai'}`;
+    default:
+      if (classificacao.forma && classificacao.forma.startsWith('Cordel')){
+        return `heptassílabo (setissílabo) em todos os versos: ${classificacao.isHept ? 'sim' : 'não'} ·
+          esquema: ${classificacao.esquema} ·
+          posições que deveriam rimar: ${classificacao.posicoesEsperadas.join(', ')}`;
+      }
+      return '';
+  }
+}
+
+function analisar(){
+  const texto = document.getElementById('input').value;
+  const usarSinalefa = document.getElementById('useSinalefa').checked;
+  const usarAjuste = document.getElementById('useGraveAdj').checked;
+
+  const blocos = texto.split(/\n\s*\n+/).map(b => b.split('\n').map(l => l.trim()).filter(Boolean)).filter(b => b.length > 0);
+  let titulo = null, linhas;
+  if (blocos.length === 2 && blocos[0].length === 1 && blocos[1].length >= 3){
+    titulo = blocos[0][0];
+    linhas = blocos[1];
+  } else {
+    linhas = texto.split('\n').filter(l => l.trim().length > 0);
+  }
+
+  const analisadas = linhas.map(l => analisarVerso(l, usarSinalefa, usarAjuste)).filter(Boolean);
+
+  const container = document.getElementById('verseResults');
+  container.innerHTML = analisadas.map(r => {
+    const idxTonica = indiceSilabaTonica(r.silabasPorPalavra[r.silabasPorPalavra.length-1], r.palavras[r.palavras.length-1]);
+    const palavrasHTML = r.silabasPorPalavra.map((sils, i) => {
+      const ehUltima = i === r.silabasPorPalavra.length - 1;
+      return ehUltima ? marcarTonica(sils, idxTonica) : sils.join('-');
+    }).join(' ');
+    const detalhe = `bruto: ${r.contagemBruta} · sinalefas: -${r.elisoes} · ajuste (${r.tonicUltima}): -${r.ajuste} · final: ${r.contagemFinal}`;
+    return `<div class="verse-row">
+      <div class="selo">${r.contagemFinal}</div>
+      <div>
+        <div class="verse-text">${palavrasHTML}</div>
+        <div class="tam-verso">${classificarTamanhoVerso(usarSinalefa ? r.contagemFinal : r.contagemBruta)}</div>
+        <div class="verse-detail">${detalhe}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('resultsStep').style.display = 'block';
+
+  const classificacao = classificarFormaOcidental(linhas, analisadas, titulo, usarSinalefa);
+  const formaContainer = document.getElementById('formResult');
+  let html = '';
+  if (classificacao.forma){
+    html = `<div class="form-match ${VEREDITO_CLASSE[classificacao.veredito]}">
+      <div>
+        <div class="name">${classificacao.forma} — ${VEREDITO_LABEL[classificacao.veredito]}</div>
+        <div class="pattern">${classificacao.contagens.join('-')}</div>
+      </div>
+    </div>
+    <div class="result-card"><div class="verse-detail">${detalhesForma(classificacao)}</div></div>`;
+  } else {
+    html = `<div class="form-match unmatched">
+      <div>
+        <div class="name">Forma livre</div>
+        <div class="pattern">${classificacao.contagens.join('-')}</div>
+      </div>
+    </div>
+    <p class="note">Sem correspondência com nenhuma forma fixa ocidental mapeada. Se for uma Ode ou verso livre, isso é esperado — essas formas não têm template métrico fixo por tradição.</p>`;
+  }
+  formaContainer.innerHTML = html;
+  document.getElementById('formStep').style.display = 'block';
+
+  const origemContainer = document.getElementById('origemResult');
+  const origemStep = document.getElementById('origemStep');
+  const nomeBase = classificacao.forma ? classificacao.forma.split(' — ')[0] : null;
+  if (nomeBase && ORIGENS[nomeBase]){
+    origemContainer.innerHTML = `<div class="result-card"><h2 style="margin-top:0;">${nomeBase}</h2><p>${ORIGENS[nomeBase]}</p></div>`;
+    origemStep.style.display = 'block';
+  } else {
+    origemStep.style.display = 'none';
+  }
+
+  const rota = classificacao.forma ? ROTEAMENTO[classificacao.forma] : null;
+  document.getElementById('heteronimoDestino').value = rota ? rota.heteronimo : '';
+  document.getElementById('obsDestino').value = rota ? rota.obs : '';
+  document.getElementById('paiolStep').style.display = 'block';
+
+  ultimoResultado = {
+    texto, titulo,
+    versos: analisadas.map(r => ({
+      linha: r.linha, contagem_bruta: r.contagemBruta, elisoes: r.elisoes,
+      ajuste_metrico: r.ajuste, contagem_final: r.contagemFinal, tonica_ultima_palavra: r.tonicUltima,
+      classificacao_tamanho: classificarTamanhoVerso(usarSinalefa ? r.contagemFinal : r.contagemBruta)
+    })),
+    classificacao,
+    parametros: { usarSinalefa, usarAjuste },
+    timestamp: new Date().toISOString()
+  };
+
+  renderStagedList();
+}
+
+function mostrarToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function enviarParaPaiol(){
+  if (!ultimoResultado){ mostrarToast('Analise um texto primeiro.'); return; }
+  const pacote = {
+    ...ultimoResultado,
+    heteronimo_destino: document.getElementById('heteronimoDestino').value || null,
+    observacao_destino: document.getElementById('obsDestino').value || null,
+    status: 'aguardando_integracao_paiol'
+  };
+  const chave = 'sigmal_paiol_staging_ocidental';
+  const atual = JSON.parse(localStorage.getItem(chave) || '[]');
+  atual.push(pacote);
+  localStorage.setItem(chave, JSON.stringify(atual));
+  mostrarToast('Empacotado em localStorage (staging). Aguardando wiring real do Paiol.');
+  renderStagedList();
+}
+
+function renderStagedList(){
+  const chave = 'sigmal_paiol_staging_ocidental';
+  const atual = JSON.parse(localStorage.getItem(chave) || '[]');
+  const el = document.getElementById('stagedList');
+  if (atual.length === 0){ el.textContent = 'Nenhum item em staging ainda.'; return; }
+  const ultimo = atual[atual.length-1];
+  el.innerHTML = `${atual.length} item(ns) em staging · último: "${ultimo.heteronimo_destino}" → ${(ultimo.classificacao && ultimo.classificacao.forma) || 'forma livre'}`;
+}
+
+function baixarJSON(){
+  if (!ultimoResultado){ mostrarToast('Analise um texto primeiro.'); return; }
+  const pacote = {
+    ...ultimoResultado,
+    heteronimo_destino: document.getElementById('heteronimoDestino').value || null,
+    observacao_destino: document.getElementById('obsDestino').value || null
+  };
+  const blob = new Blob([JSON.stringify(pacote, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `analise_metrica_ocidental_${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+renderStagedList();
+</script>
+</body>
+</html>

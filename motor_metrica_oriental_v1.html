@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motor de Métrica Oriental — SIGMAL</title>
+<style>
+  :root{
+    --sumi:#1b1b1f;
+    --sumi-soft:#3a3934;
+    --washi:#efe6d8;
+    --washi-deep:#e4d8c4;
+    --hanko:#a83226;
+    --hanko-dark:#7e241b;
+    --take:#5c6b4f;
+    --line:#c9bda6;
+    --white-block:#fbf8f2;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--washi);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(27,27,31,0.05) 1px, transparent 1px);
+    background-size:14px 14px;
+    color:var(--sumi);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.5;
+  }
+  header{
+    padding:32px 20px 20px;
+    border-bottom:2px solid var(--sumi);
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  header h1{
+    margin:0;
+    font-size:26px;
+    letter-spacing:0.02em;
+    font-weight:400;
+  }
+  header h1 em{
+    font-style:normal;
+    color:var(--hanko);
+  }
+  header .sub{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--sumi-soft);
+  }
+  main{
+    max-width:920px;
+    margin:0 auto;
+    padding:28px 20px 80px;
+  }
+  .step{
+    margin-bottom:34px;
+  }
+  .step-label{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:12px;
+    letter-spacing:0.1em;
+    color:var(--hanko);
+    text-transform:uppercase;
+    margin-bottom:6px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .step-label::before{
+    content:'';
+    width:18px;height:1px;background:var(--hanko);
+  }
+  h2{
+    font-size:19px;
+    font-weight:400;
+    margin:0 0 12px;
+  }
+  textarea{
+    width:100%;
+    min-height:150px;
+    padding:16px;
+    background:var(--white-block);
+    border:1px solid var(--line);
+    border-radius:2px;
+    font-family:Georgia,serif;
+    font-size:16px;
+    color:var(--sumi);
+    resize:vertical;
+  }
+  textarea:focus, select:focus, input:focus, button:focus{
+    outline:2px solid var(--hanko);
+    outline-offset:2px;
+  }
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px;
+    align-items:center;
+    margin-top:12px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:12.5px;
+  }
+  .controls label{display:flex;align-items:center;gap:6px;cursor:pointer;}
+  button{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:12.5px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    background:var(--sumi);
+    color:var(--washi);
+    border:none;
+    padding:11px 20px;
+    border-radius:2px;
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  button:hover{background:var(--sumi-soft);}
+  button.primary{background:var(--hanko);}
+  button.primary:hover{background:var(--hanko-dark);}
+  button.ghost{
+    background:transparent;
+    color:var(--sumi);
+    border:1px solid var(--sumi);
+  }
+  button.ghost:hover{background:var(--sumi);color:var(--washi);}
+  .actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+
+  .verse-row{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    padding:10px 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .verse-row:last-child{border-bottom:none;}
+  .verse-text{flex:1;font-size:16px;}
+  .tonic{color:var(--hanko);font-weight:bold;}
+  .hanko-badge{
+    flex-shrink:0;
+    width:38px;height:38px;
+    border:2px solid var(--hanko);
+    color:var(--hanko);
+    border-radius:3px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:15px;font-weight:bold;
+    transform:rotate(-1.5deg);
+  }
+  .verse-detail{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:11.5px;
+    color:var(--sumi-soft);
+    margin-top:3px;
+  }
+
+  .result-card{
+    background:var(--white-block);
+    border:1px solid var(--line);
+    padding:20px;
+    margin-top:14px;
+  }
+  .form-match{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px 16px;
+    background:var(--washi-deep);
+    border-left:4px solid var(--take);
+    margin-bottom:16px;
+  }
+  .form-match.unmatched{border-left-color:var(--hanko);}
+  .form-match .name{font-size:18px;}
+  .form-match .pattern{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:12px;color:var(--sumi-soft);
+  }
+  .route-box{
+    margin-top:16px;
+    padding:16px;
+    background:var(--sumi);
+    color:var(--washi);
+  }
+  .route-box label{
+    display:block;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    margin-bottom:6px;
+    color:#c9bda6;
+  }
+  .route-box input{
+    width:100%;
+    padding:10px;
+    background:#2a2a2e;
+    border:1px solid #4a493f;
+    color:var(--washi);
+    font-family:Georgia,serif;
+    font-size:14px;
+    margin-bottom:12px;
+  }
+  .staged-list{
+    margin-top:10px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:11.5px;
+    color:var(--sumi-soft);
+  }
+  .note{
+    font-size:13px;
+    color:var(--sumi-soft);
+    margin-top:10px;
+    border-top:1px solid var(--line);
+    padding-top:10px;
+  }
+  .toast{
+    position:fixed;
+    bottom:24px;left:50%;
+    transform:translateX(-50%);
+    background:var(--sumi);
+    color:var(--washi);
+    padding:10px 18px;
+    border-radius:3px;
+    font-size:13px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Motor de Métrica <em>Oriental</em></h1>
+  <div class="sub">SIGMAL · costela do triploohesigmalbpl</div>
+</header>
+
+<main>
+
+  <div class="step">
+    <div class="step-label">01 · Texto</div>
+    <h2>Cole o texto, verso ou poema</h2>
+    <textarea id="input" placeholder="Um verso por linha. Deixe uma linha em branco entre estrofes.">Uma folha cai
+Cai uma folha seca
+E um galho nu</textarea>
+    <div class="controls">
+      <label><input type="checkbox" id="useSinalefa" checked> usar sinalefas na classificação</label>
+      <label><input type="checkbox" id="useGraveAdj" checked> aplicar ajuste métrico final (grave/esdrúxulo)</label>
+    </div>
+    <div class="actions">
+      <button class="primary" onclick="analisar()">Analisar</button>
+      <button class="ghost" onclick="document.getElementById('input').value='';">Limpar</button>
+    </div>
+  </div>
+
+  <div class="step" id="resultsStep" style="display:none;">
+    <div class="step-label">02 · Contagem por verso</div>
+    <h2>Sílabas, tônica e sinalefas</h2>
+    <div class="result-card" id="verseResults"></div>
+  </div>
+
+  <div class="step" id="formStep" style="display:none;">
+    <div class="step-label">03 · Classificação de forma</div>
+    <h2>Estrutura reconhecida</h2>
+    <div id="formResult"></div>
+  </div>
+
+  <div class="step" id="purezaStep" style="display:none;">
+    <div class="step-label">04 · Pureza</div>
+    <h2>Haicai clássico ou livre?</h2>
+    <div id="purezaResult"></div>
+  </div>
+
+  <div class="step" id="origemStep" style="display:none;">
+    <div class="step-label">05 · Contexto</div>
+    <h2>Origem da forma</h2>
+    <div id="origemResult"></div>
+  </div>
+
+  <div class="step" id="paiolStep" style="display:none;">
+    <div class="step-label">06 · Paiol</div>
+    <h2>Enviar para o escritor</h2>
+    <div class="route-box">
+      <label>Heterônimo de destino</label>
+      <input type="text" id="heteronimoDestino" value="Noraya Sakamoto">
+      <label>Diagramador / motor</label>
+      <input type="text" id="diagramadorDestino" value="Samurai">
+      <div class="actions">
+        <button class="primary" onclick="enviarParaPaiol()">Enviar ao Paiol</button>
+        <button class="ghost" onclick="baixarJSON()">Baixar .json</button>
+      </div>
+      <div class="staged-list" id="stagedList"></div>
+    </div>
+    <p class="note">
+      ⚠️ Placeholder de integração: este botão grava o pacote em <code>localStorage['sigmal_paiol_staging_oriental']</code> em formato JSON.
+      Para que ele caia de fato dentro do Paiol do triploohesigmalbpl, preciso que você me passe a função real de envio
+      já usada em <code>index.html</code> ("Enviar ao Paiol") — daí eu troco este stub pela chamada correta, mantendo
+      o mesmo contrato de dados.
+    </p>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   MOTOR DE SILABIZAÇÃO — PORTUGUÊS
+   Heurística baseada em núcleos vocálicos (ditongo/hiato) e
+   distribuição de encontros consonantais.
+   ========================================================= */
+
+const VOGAIS = "aeiouáéíóúâêîôûãõàAEIOUÁÉÍÓÚÂÊÎÔÛÃÕÀ";
+const VOGAIS_ACENTUADAS_HIATO = "íóúÍÓÚ"; // acento agudo em i/u = hiato marcado
+const DIGRAFOS_INSEPARAVEIS = ["ch","lh","nh"]; // um só som, nunca se separam
+const ENCONTROS_PERMITIDOS = ["bl","cl","fl","gl","pl","tl","br","cr","dr","fr","gr","pr","tr","vr"]; // obstruinte + l/r
+
+function ehVogal(ch){ return ch && VOGAIS.indexOf(ch) !== -1; }
+function semAcento(ch){
+  const map = {á:'a',é:'e',í:'i',ó:'o',ú:'u',â:'a',ê:'e',î:'i',ô:'o',û:'u',ã:'a',õ:'o',à:'a'};
+  return map[ch.toLowerCase()] || ch.toLowerCase();
+}
+function temAcentoAgudoOuCircunflexo(ch){
+  return "áéíóúâêô".indexOf(ch.toLowerCase()) !== -1;
+}
+
+// Ditongos e tritongos (mesma sílaba) — pares/vogal+semivogal comuns em PT
+const DITONGOS = new Set([
+  "ai","au","ei","eu","oi","ou","ui","iu","ao","ão","õe","ãe","ãi",
+  "ei","éi","éu","ói","iu","uí" // uí só é ditongo se não tiver acento marcando hiato — tratado à parte
+]);
+
+function ehDitongo(v1, v2){
+  const par = semAcento(v1) + semAcento(v2);
+  // hiato marcado por acento agudo em i/u sempre quebra
+  if (VOGAIS_ACENTUADAS_HIATO.indexOf(v2) !== -1) return false;
+  if (VOGAIS_ACENTUADAS_HIATO.indexOf(v1) !== -1 && "aeo".indexOf(semAcento(v2))!==-1) return false;
+  // vogais idênticas (voo, coordenar) => hiato
+  if (semAcento(v1) === semAcento(v2)) return false;
+  const ditongosBase = ["ai","au","ei","eu","oi","ou","ui","iu","ao","ão","õe","ãe","ãi"];
+  return ditongosBase.indexOf(semAcento(v1)+semAcento(v2)) !== -1 || (v1+v2).indexOf("ã")!==-1 || (v1+v2).indexOf("õ")!==-1;
+}
+
+function silabizar(palavraOriginal){
+  const p = palavraOriginal;
+  const n = p.length;
+
+  // marcar 'u' absorvido pelo 'q'/'g' precedente quando seguido de vogal
+  // (qu/gu nunca formam núcleo próprio para o 'u': que, quem, quase, guerra, água...)
+  const absorvido = new Array(n).fill(false);
+  for (let k = 0; k < n; k++){
+    const atual = p[k].toLowerCase();
+    if (atual === 'u' && k > 0 && k+1 < n){
+      const anterior = p[k-1].toLowerCase();
+      if ((anterior === 'q' || anterior === 'g') && ehVogal(p[k+1])){
+        absorvido[k] = true;
+      }
+    }
+  }
+
+  // 1. localizar núcleos vocálicos (considerando dígrafos gu/qu com u mudo)
+  const nucleos = []; // cada núcleo: {start, end} índices na string
+  let i = 0;
+  while (i < n){
+    if (ehVogal(p[i]) && !absorvido[i]){
+      let start = i, end = i;
+      // checar ditongo com a vogal seguinte
+      if (i+1 < n && ehVogal(p[i+1]) && !absorvido[i+1] && ehDitongo(p[i], p[i+1])){
+        end = i+1;
+        i = i+2;
+        // tritongo raro (ex: "quais" -> u mudo + ai já tratado no consoante)
+      } else {
+        i = i+1;
+      }
+      nucleos.push({start, end});
+    } else {
+      i++;
+    }
+  }
+  if (nucleos.length === 0) return [p]; // sem vogais (sigla, etc.)
+
+  // 2. montar sílabas distribuindo consoantes entre núcleos
+  const silabas = [];
+  let cursor = 0;
+  for (let k = 0; k < nucleos.length; k++){
+    const nucleo = nucleos[k];
+    const proxNucleo = nucleos[k+1];
+    let fimSilaba;
+    if (!proxNucleo){
+      fimSilaba = n; // última sílaba pega até o fim da palavra
+    } else {
+      const consoantes = p.slice(nucleo.end+1, proxNucleo.start);
+      let corte;
+      if (consoantes.length === 0){
+        corte = 0; // hiato direto, nada a distribuir
+      } else if (consoantes.length === 1){
+        corte = 0; // consoante única vai para a sílaba seguinte
+      } else {
+        const doisUltimos = consoantes.slice(-2).toLowerCase();
+        const inseparavel = DIGRAFOS_INSEPARAVEIS.indexOf(doisUltimos) !== -1 ||
+                             ENCONTROS_PERMITIDOS.indexOf(doisUltimos) !== -1;
+        // 'gu'/'qu' antes de e/i também não se separam do u
+        const guQu = (doisUltimos === "gu" || doisUltimos === "qu");
+        if (inseparavel || guQu){
+          corte = consoantes.length - 2; // últimas 2 consoantes vão com a próxima sílaba
+        } else {
+          corte = consoantes.length - 1; // só a última consoante vai com a próxima
+        }
+      }
+      fimSilaba = nucleo.end + 1 + corte;
+    }
+    silabas.push(p.slice(cursor, fimSilaba));
+    cursor = fimSilaba;
+  }
+  return silabas.filter(s => s.length > 0);
+}
+
+/* =========================================================
+   CLASSIFICAÇÃO TÔNICA (oxítona / paroxítona / proparoxítona)
+   ========================================================= */
+function indiceSilabaTonica(silabas, palavra){
+  // 1. procurar sílaba com acento gráfico explícito
+  for (let idx = silabas.length - 1; idx >= 0; idx--){
+    for (const ch of silabas[idx]){
+      if (temAcentoAgudoOuCircunflexo(ch) || ch === 'ã' || ch === 'õ'){
+        return idx;
+      }
+    }
+  }
+  // 2. regra de default (sem acento gráfico)
+  const limpa = palavra.toLowerCase().replace(/[.,;:!?"'()]/g,'');
+  const terminacoesParoxitonas = /(a|e|o|em|ens|as|es|os)$/;
+  if (silabas.length === 1) return 0;
+  if (terminacoesParoxitonas.test(limpa)){
+    return silabas.length - 2; // paroxítona (penúltima)
+  }
+  return silabas.length - 1; // oxítona (última)
+}
+
+function classificarTonicidade(silabas, palavra){
+  const idx = indiceSilabaTonica(silabas, palavra);
+  const posDoFim = silabas.length - 1 - idx;
+  if (posDoFim === 0) return "oxitona";
+  if (posDoFim === 1) return "paroxitona";
+  return "proparoxitona"; // posDoFim >= 2
+}
+
+/* =========================================================
+   ANÁLISE DE VERSO (sinalefas + ajuste métrico final)
+   ========================================================= */
+function limparPalavra(w){ return w.replace(/^[^\wÀ-ÿ]+|[^\wÀ-ÿ]+$/g,''); }
+
+function analisarVerso(linha, usarSinalefa, usarAjuste){
+  const palavrasRaw = linha.trim().split(/\s+/).filter(Boolean);
+  const palavras = palavrasRaw.map(limparPalavra).filter(Boolean);
+  if (palavras.length === 0) return null;
+
+  const silabasPorPalavra = palavras.map(p => silabizar(p));
+  const contagemBruta = silabasPorPalavra.reduce((acc, s) => acc + s.length, 0);
+
+  // sinalefas entre palavras adjacentes
+  let elisoes = 0;
+  const sinalefaFlags = new Array(palavras.length - 1).fill(false);
+  for (let i = 0; i < palavras.length - 1; i++){
+    let fimAtual = palavras[i];
+    let inicioProx = palavras[i+1];
+    // ignora H mudo no início da próxima palavra
+    let idxFim = fimAtual.length - 1;
+    let ultimaLetra = fimAtual[idxFim];
+    let primeiraLetra = inicioProx[0];
+    if (primeiraLetra && primeiraLetra.toLowerCase() === 'h') primeiraLetra = inicioProx[1] || '';
+    if (ehVogal(ultimaLetra) && ehVogal(primeiraLetra)){
+      elisoes++;
+      sinalefaFlags[i] = true;
+    }
+  }
+
+  const tonicUltima = classificarTonicidade(silabasPorPalavra[silabasPorPalavra.length-1], palavras[palavras.length-1]);
+  let ajuste = 0;
+  if (tonicUltima === "paroxitona") ajuste = 1;
+  if (tonicUltima === "proparoxitona") ajuste = 2;
+
+  let contagemFinal = contagemBruta;
+  if (usarSinalefa) contagemFinal -= elisoes;
+  if (usarAjuste) contagemFinal -= ajuste;
+
+  return {
+    linha, palavras, silabasPorPalavra, contagemBruta,
+    elisoes, sinalefaFlags, tonicUltima, ajuste, contagemFinal
+  };
+}
+
+/* =========================================================
+   FORMAS POÉTICAS ORIENTAIS — TEMPLATES
+   ========================================================= */
+const FORMAS = [
+  { nome: "Haicai", padrao: [5,7,5], nota: "estrutura idêntica ao Senryū — a distinção é temática (natureza x humano/humor), não métrica." },
+  { nome: "Senryū", padrao: [5,7,5], nota: "estrutura idêntica ao Haicai — verifique o tema para desambiguar." },
+  { nome: "Haiga", padrao: [5,7,5], nota: "estrutura de Haicai + imagem associada. Confirme se há imagem para anexar." },
+  { nome: "Katauta", padrao: [5,7,7] },
+  { nome: "Tanka", padrao: [5,7,5,7,7] },
+  { nome: "Sedōka", padrao: [5,7,7,5,7,7], nota: "par de Katauta." },
+];
+
+const ORIGENS = {
+  "Haicai": "Nasceu como o hokku — a estrofe de abertura do renga colaborativo. No século XVII, Matsuo Bashô consolidou o hokku como forma independente, unindo imagem natural e instante de contemplação. É a forma oriental mais difundida fora do Japão.",
+  "Senryū": "Surgiu no século XVIII e leva o nome do poeta Karai Senryū. Usa a mesma métrica 5-7-5 do Haicai, mas troca a natureza pelo olhar irônico sobre o comportamento humano — geralmente com humor ou crítica social.",
+  "Haiga": "Tradição que une um Haicai a uma pintura minimalista a tinta (sumi-e). Bashô já esboçava essa combinação; o pintor-poeta Yosa Buson, no século XVIII, a elevou a forma de arte plena.",
+  "Katauta": "Forma antiga de 'meia-estrofe' (5-7-7), considerada estruturalmente incompleta sozinha — era tradicionalmente respondida por outro Katauta, formando um Sedōka, ou usada em trocas poéticas diretas.",
+  "Tanka": "Uma das formas mais antigas da poesia japonesa, presente já na Man'yōshū (antologia do século VIII). Sua métrica 5-7-5-7-7 sustentou séculos de poesia cortesã, geralmente em tom pessoal e emocional — a base da qual o Haicai depois se desprendeu.",
+  "Sedōka": "Literalmente 'canção repetida': dois Katauta encadeados (5-7-7 + 5-7-7), muitas vezes em formato de pergunta e resposta entre duas vozes. Caiu em desuso após o período Heian.",
+  "Chōka": "O 'poema longo' da Man'yōshū: alterna versos de 5 e 7 sílabas livremente, sempre fechando com um dístico 7-7. Perdeu espaço para a Tanka, mais curta, a partir do período Heian.",
+  "Renga / Renku": "Poesia colaborativa encadeada: múltiplos poetas alternam estrofes de 5-7-5 e 7-7 em sequência. A primeira estrofe (hokku) dessa cadeia é justamente a semente de onde nasceu o Haicai independente."
+};
+
+function classificarForma(linhasAnalisadas, usarSinalefa){
+  const contagens = linhasAnalisadas.map(l => usarSinalefa ? l.contagemFinal : l.contagemBruta);
+
+  // checagem exata contra templates fixos
+  for (const forma of FORMAS){
+    if (contagens.length === forma.padrao.length &&
+        contagens.every((c, i) => c === forma.padrao[i])){
+      return { tipo: "exata", forma: forma.nome, padrao: forma.padrao, nota: forma.nota || null };
+    }
+  }
+
+  // Chōka: alterna 5-7-5-7...-7-7, comprimento par >=4, termina em 7,7
+  if (contagens.length >= 4 && contagens.length % 2 === 0){
+    let ok = true;
+    for (let i = 0; i < contagens.length - 2; i++){
+      const esperado = (i % 2 === 0) ? 5 : 7;
+      if (contagens[i] !== esperado) { ok = false; break; }
+    }
+    if (ok && contagens[contagens.length-1] === 7 && contagens[contagens.length-2] === 7){
+      return { tipo: "exata", forma: "Chōka", padrao: contagens, nota: "forma longa alternando 5-7, encerrada em dístico 7-7." };
+    }
+  }
+
+  // Renga/Renku: estrofes alternando bloco [5,7,5] e [7,7]
+  if (contagens.length >= 5){
+    let ok = true;
+    for (let i = 0; i < contagens.length; i++){
+      const cicloPos = i % 5;
+      const esperado = [5,7,5,7,7][cicloPos];
+      if (contagens[i] !== esperado){ ok = false; break; }
+    }
+    if (ok){
+      return { tipo: "exata", forma: "Renga / Renku", padrao: contagens, nota: "sequência de estrofes alternando 5-7-5 e 7-7." };
+    }
+  }
+
+  // nenhuma forma fechada — indicar a mais próxima por distância
+  let melhor = null, menorDist = Infinity;
+  for (const forma of FORMAS){
+    if (forma.padrao.length !== contagens.length) continue;
+    const dist = forma.padrao.reduce((acc, v, i) => acc + Math.abs(v - contagens[i]), 0);
+    if (dist < menorDist){ menorDist = dist; melhor = forma; }
+  }
+  if (melhor){
+    return { tipo: "aproximada", forma: melhor.nome, padrao: melhor.padrao, distancia: menorDist };
+  }
+  return { tipo: "livre" };
+}
+
+/* =========================================================
+   VERIFICAÇÃO DE PUREZA (Haicai/Senryū clássico)
+   - Estrutural: 3 versos, 5-7-5 exato, sem título, sem rima (verificável)
+   - Kigo / Kireji: heurística por dicionário — SUGESTÃO, não certeza
+   ========================================================= */
+function removerAcentos(s){
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+const KIGO_DICT = {
+  "Primavera": ["flor","flores","floracao","cerejeira","cerejeiras","borboleta","borboletas","brotos","andorinha","andorinhas"],
+  "Verão": ["cigarra","cigarras","calor","mormaco","praia"],
+  "Outono": ["outono","folha seca","folhas secas","colheita","lua cheia","geada leve","vento frio"],
+  "Inverno": ["neve","geada","gelo","inverno","friagem","lareira"],
+  "Geral / natureza": ["lua","orvalho","chuva","vento","rio","nevoeiro","montanha","cascata"]
+};
+
+function detectarKigo(textoCompleto){
+  const low = removerAcentos(textoCompleto.toLowerCase());
+  const encontrados = [];
+  for (const [estacao, termos] of Object.entries(KIGO_DICT)){
+    for (const termo of termos){
+      if (low.includes(removerAcentos(termo))){
+        encontrados.push({ estacao, termo });
+      }
+    }
+  }
+  return encontrados;
+}
+
+function detectarKireji(linhasRaw){
+  const marcadores = ['—','–','…','...',':',';','!'];
+  const achados = [];
+  for (let i = 0; i < linhasRaw.length - 1; i++){
+    const trim = linhasRaw[i].trim();
+    for (const m of marcadores){
+      if (trim.endsWith(m)){ achados.push({ verso: i+1, marcador: m }); break; }
+    }
+  }
+  return achados;
+}
+
+function caudaFonetica(palavra){
+  const s = silabizar(palavra);
+  const idx = indiceSilabaTonica(s, palavra);
+  const tonicaSemOnset = s[idx].replace(/^[^aeiouáéíóúâêîôûãõàAEIOUÁÉÍÓÚÂÊÎÔÛÃÕÀ]+/, '');
+  const resto = s.slice(idx+1).join('');
+  return removerAcentos(tonicaSemOnset + resto).toLowerCase();
+}
+
+function verificarRima(analisadas){
+  const caudas = analisadas.map(a => caudaFonetica(a.palavras[a.palavras.length-1]));
+  for (let i = 0; i < caudas.length; i++){
+    for (let j = i+1; j < caudas.length; j++){
+      if (caudas[i] && caudas[i] === caudas[j]){
+        return { versoA: i+1, versoB: j+1, som: caudas[i] };
+      }
+    }
+  }
+  return null;
+}
+
+function verificarPureza(linhasRaw, analisadas, titulo, usarSinalefa){
+  if (analisadas.length !== 3) return null;
+  const contagens = analisadas.map(a => usarSinalefa ? a.contagemFinal : a.contagemBruta);
+  const estruturaOk = contagens[0] === 5 && contagens[1] === 7 && contagens[2] === 5;
+  const semTitulo = !titulo;
+  const rima = verificarRima(analisadas);
+  const semRima = !rima;
+  const kigo = detectarKigo(linhasRaw.join(' '));
+  const kireji = detectarKireji(linhasRaw);
+  const estruturalCompleta = estruturaOk && semTitulo && semRima;
+
+  let veredito;
+  if (estruturalCompleta && kigo.length > 0 && kireji.length > 0) veredito = "puro";
+  else if (estruturalCompleta) veredito = "estrutural";
+  else veredito = "livre";
+
+  return { estruturaOk, semTitulo, semRima, rima, kigo, kireji, veredito, contagens };
+}
+
+/* =========================================================
+   UI
+   ========================================================= */
+let ultimoResultado = null;
+
+function marcarTonica(silabas, idxTonica){
+  return silabas.map((s, i) => i === idxTonica ? `<span class="tonic">${s}</span>` : s).join('-');
+}
+
+function analisar(){
+  const texto = document.getElementById('input').value;
+  const usarSinalefa = document.getElementById('useSinalefa').checked;
+  const usarAjuste = document.getElementById('useGraveAdj').checked;
+
+  // detectar bloco de título separado por linha em branco (título + corpo de 3 versos)
+  const blocos = texto.split(/\n\s*\n+/).map(b => b.split('\n').map(l => l.trim()).filter(Boolean)).filter(b => b.length > 0);
+  let titulo = null, linhas;
+  if (blocos.length === 2 && blocos[0].length === 1 && blocos[1].length === 3){
+    titulo = blocos[0][0];
+    linhas = blocos[1];
+  } else {
+    linhas = texto.split('\n').filter(l => l.trim().length > 0);
+  }
+
+  const analisadas = linhas.map(l => analisarVerso(l, usarSinalefa, usarAjuste)).filter(Boolean);
+
+  // resultado por verso
+  const container = document.getElementById('verseResults');
+  container.innerHTML = analisadas.map(r => {
+    const idxTonica = indiceSilabaTonica(r.silabasPorPalavra[r.silabasPorPalavra.length-1], r.palavras[r.palavras.length-1]);
+    const palavrasHTML = r.silabasPorPalavra.map((sils, i) => {
+      const ehUltima = i === r.silabasPorPalavra.length - 1;
+      if (ehUltima){
+        return marcarTonica(sils, idxTonica);
+      }
+      return sils.join('-');
+    }).join(' ');
+    const detalhe = `bruto: ${r.contagemBruta} · sinalefas: -${r.elisoes} · ajuste (${r.tonicUltima}): -${r.ajuste} · final: ${r.contagemFinal}`;
+    return `<div class="verse-row">
+      <div class="hanko-badge">${r.contagemFinal}</div>
+      <div>
+        <div class="verse-text">${palavrasHTML}</div>
+        <div class="verse-detail">${detalhe}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('resultsStep').style.display = 'block';
+
+  // classificação de forma
+  const classificacao = classificarForma(analisadas, usarSinalefa);
+  const formaContainer = document.getElementById('formResult');
+  let html = '';
+  if (classificacao.tipo === 'exata'){
+    html = `<div class="form-match">
+      <div>
+        <div class="name">${classificacao.forma}</div>
+        <div class="pattern">${classificacao.padrao.join('-')}</div>
+      </div>
+    </div>`;
+    if (classificacao.nota) html += `<p class="note">${classificacao.nota}</p>`;
+  } else if (classificacao.tipo === 'aproximada'){
+    html = `<div class="form-match unmatched">
+      <div>
+        <div class="name">Próximo de: ${classificacao.forma}</div>
+        <div class="pattern">esperado ${classificacao.padrao.join('-')} · distância total: ${classificacao.distancia} sílaba(s)</div>
+      </div>
+    </div>`;
+  } else {
+    html = `<div class="form-match unmatched">
+      <div>
+        <div class="name">Forma livre / não identificada</div>
+        <div class="pattern">${analisadas.map(r => usarSinalefa ? r.contagemFinal : r.contagemBruta).join('-')}</div>
+      </div>
+    </div>`;
+  }
+  formaContainer.innerHTML = html;
+  document.getElementById('formStep').style.display = 'block';
+
+  // pureza (só faz sentido para tercetos 5-7-5 tipo Haicai/Senryū)
+  const pureza = verificarPureza(linhas, analisadas, titulo, usarSinalefa);
+  const purezaContainer = document.getElementById('purezaResult');
+  const purezaStep = document.getElementById('purezaStep');
+  if (pureza){
+    const check = (ok) => ok ? '✓' : '✗';
+    const vereditoTexto = {
+      puro: 'Haicai puro — estrutura clássica completa, com kigo e kireji identificados.',
+      estrutural: 'Estruturalmente correto (5-7-5, sem título, sem rima), mas sem kigo e/ou kireji detectados — comum no haicai moderno/livre. Não invalida o poema.',
+      livre: 'Não segue os critérios clássicos (rima, título ou contagem fora do 5-7-5) — forma livre.'
+    }[pureza.veredito];
+    purezaContainer.innerHTML = `
+      <div class="form-match ${pureza.veredito === 'livre' ? 'unmatched' : ''}">
+        <div>
+          <div class="name">${pureza.veredito === 'puro' ? 'Puro' : pureza.veredito === 'estrutural' ? 'Estrutural' : 'Livre'}</div>
+          <div class="pattern">${vereditoTexto}</div>
+        </div>
+      </div>
+      <div class="result-card">
+        <div class="verse-detail">
+          ${check(pureza.estruturaOk)} 5-7-5 exato (${pureza.contagens.join('-')})<br>
+          ${check(pureza.semTitulo)} sem título ${titulo ? `("${titulo}" detectado)` : ''}<br>
+          ${check(pureza.semRima)} sem rima ${pureza.rima ? `(versos ${pureza.rima.versoA} e ${pureza.rima.versoB} rimam)` : ''}<br>
+          ${pureza.kigo.length ? '✓' : '—'} kigo (sugestão): ${pureza.kigo.length ? pureza.kigo.map(k => `${k.termo} (${k.estacao})`).join(', ') : 'nenhum termo do dicionário encontrado'}<br>
+          ${pureza.kireji.length ? '✓' : '—'} kireji/cesura (sugestão): ${pureza.kireji.length ? pureza.kireji.map(k => `verso ${k.verso} termina em "${k.marcador}"`).join(', ') : 'nenhuma pausa marcante detectada'}
+        </div>
+        <p class="note">Kigo e kireji são heurística por dicionário/pontuação — trate como sugestão de leitura, não veredito literário.</p>
+      </div>`;
+    purezaStep.style.display = 'block';
+  } else {
+    purezaStep.style.display = 'none';
+  }
+
+  // origem histórica da forma identificada
+  const origemContainer = document.getElementById('origemResult');
+  const origemStep = document.getElementById('origemStep');
+  const nomeForma = (classificacao.tipo === 'exata' || classificacao.tipo === 'aproximada') ? classificacao.forma : null;
+  if (nomeForma && ORIGENS[nomeForma]){
+    origemContainer.innerHTML = `<div class="result-card"><h2 style="margin-top:0;">${nomeForma}</h2><p>${ORIGENS[nomeForma]}</p></div>`;
+    origemStep.style.display = 'block';
+  } else {
+    origemStep.style.display = 'none';
+  }
+
+  document.getElementById('paiolStep').style.display = 'block';
+
+  // sugestão de heterônimo (só temos mapeado Noraya Sakamoto para forma oriental por ora)
+  const ehOriental = classificacao.tipo !== 'livre';
+  document.getElementById('heteronimoDestino').value = ehOriental ? 'Noraya Sakamoto' : '';
+  document.getElementById('diagramadorDestino').value = ehOriental ? 'Samurai' : '';
+
+  ultimoResultado = {
+    texto,
+    titulo,
+    versos: analisadas.map(r => ({
+      linha: r.linha,
+      contagem_bruta: r.contagemBruta,
+      elisoes: r.elisoes,
+      ajuste_metrico: r.ajuste,
+      contagem_final: r.contagemFinal,
+      tonica_ultima_palavra: r.tonicUltima
+    })),
+    classificacao,
+    pureza,
+    parametros: { usarSinalefa, usarAjuste },
+    timestamp: new Date().toISOString()
+  };
+
+  renderStagedList();
+}
+
+function mostrarToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function enviarParaPaiol(){
+  if (!ultimoResultado){ mostrarToast('Analise um texto primeiro.'); return; }
+  const pacote = {
+    ...ultimoResultado,
+    heteronimo_destino: document.getElementById('heteronimoDestino').value || null,
+    diagramador_destino: document.getElementById('diagramadorDestino').value || null,
+    status: 'aguardando_integracao_paiol'
+  };
+  const chave = 'sigmal_paiol_staging_oriental';
+  const atual = JSON.parse(localStorage.getItem(chave) || '[]');
+  atual.push(pacote);
+  localStorage.setItem(chave, JSON.stringify(atual));
+  mostrarToast('Empacotado em localStorage (staging). Aguardando wiring real do Paiol.');
+  renderStagedList();
+}
+
+function renderStagedList(){
+  const chave = 'sigmal_paiol_staging_oriental';
+  const atual = JSON.parse(localStorage.getItem(chave) || '[]');
+  const el = document.getElementById('stagedList');
+  if (atual.length === 0){ el.textContent = 'Nenhum item em staging ainda.'; return; }
+  el.innerHTML = `${atual.length} item(ns) em staging · último: "${atual[atual.length-1].heteronimo_destino}" → ${atual[atual.length-1].classificacao.forma || 'forma livre'}`;
+}
+
+function baixarJSON(){
+  if (!ultimoResultado){ mostrarToast('Analise um texto primeiro.'); return; }
+  const pacote = {
+    ...ultimoResultado,
+    heteronimo_destino: document.getElementById('heteronimoDestino').value || null,
+    diagramador_destino: document.getElementById('diagramadorDestino').value || null
+  };
+  const blob = new Blob([JSON.stringify(pacote, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `analise_metrica_${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// análise inicial de exemplo
+renderStagedList();
+</script>
+</body>
+</html>
