@@ -162,6 +162,21 @@
   <div class="sub">SIGMAL · costela do triploohesigmalbpl</div>
 </header>
 
+<div style="max-width:940px;margin:0 auto;padding:20px 20px 0;">
+  <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.1em;color:var(--vinho);text-transform:uppercase;margin-bottom:10px;">
+    // O QUE TEM AQUI DENTRO — clique pra carregar um exemplo já testado
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;">
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('soneto')">Soneto <span style="opacity:0.6;">14 versos · decassílabo</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('trova')">Trova <span style="opacity:0.6;">4×7 ABAB</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('ghazal')">Ghazal <span style="opacity:0.6;">radif</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('pantum')">Pantum <span style="opacity:0.6;">encadeado</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('sextina')">Sextina <span style="opacity:0.6;">39 versos (estrutura)</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('cordel')">Cordel <span style="opacity:0.6;">sextilha 6×7</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('poetrix')">Poetrix <span style="opacity:0.6;">3 versos + título</span></button>
+  </div>
+</div>
+
 <main>
 
   <div class="step">
@@ -644,9 +659,43 @@ function classificarFormaOcidental(linhasRaw, analisadas, titulo, usarSinalefa){
 }
 
 /* =========================================================
+   ÍNDICE DE EXEMPLOS — cada um testado e verificado antes de entrar aqui
+   ========================================================= */
+const EXEMPLOS = {
+  soneto: {
+    texto: "Amor é fogo que arde sem se ver;\nÉ ferida que dói, e não se sente;\nÉ um contentamento descontente;\nÉ dor que desatina sem doer.\n\nÉ um não querer mais que bem querer;\nÉ um andar solitário entre a gente;\nÉ nunca contentar-se de contente;\nÉ cuidar que se ganha em se perder.\n\nÉ querer estar preso por vontade;\nÉ servir a quem vence, o vencedor;\nÉ ter com quem nos mata lealdade.\n\nMas como causar pode seu favor\nNos corações humanos amizade,\nSe tão contrário a si é o mesmo Amor?",
+    nota: "Soneto real de Camões (esquema ABBA ABBA CDC DCD confere certinho). A contagem pode não fechar 10-10-10... porque a sinalefa clássica é uma licença poética opcional, não uma regra fixa — o motor aplica sempre que pode, o que às vezes diverge da escansão tradicional.",
+    sinalefa: true, ajuste: true
+  },
+  trova: { texto: "Eu encontrei um amor\nQue ficou na tradição\nFindou com muito ardor\nEncheu-me de emoção", sinalefa: false, ajuste: false },
+  ghazal: { texto: "Guardo no peito o teu amor\nNada supera o teu amor\nJá noite sinto o teu amor\nEm cada canto o teu amor", sinalefa: false, ajuste: false },
+  pantum: { texto: "A chuva cai sobre o telhado\nO tempo passa devagar\nUm velho livro esquecido ao lado\nNinguém mais volta a procurar\nO tempo passa devagar\nEnquanto a noite vai chegando\nNinguém mais volta a procurar\nO que ficou se vai apagando", sinalefa: false, ajuste: false },
+  sextina: {
+    texto: "Verso 1.1 terminando em mar\nVerso 1.2 terminando em luz\nVerso 1.3 terminando em flor\nVerso 1.4 terminando em dor\nVerso 1.5 terminando em paz\nVerso 1.6 terminando em voz\nVerso 2.1 terminando em voz\nVerso 2.2 terminando em mar\nVerso 2.3 terminando em paz\nVerso 2.4 terminando em luz\nVerso 2.5 terminando em dor\nVerso 2.6 terminando em flor\nVerso 3.1 terminando em flor\nVerso 3.2 terminando em voz\nVerso 3.3 terminando em dor\nVerso 3.4 terminando em mar\nVerso 3.5 terminando em luz\nVerso 3.6 terminando em paz\nVerso 4.1 terminando em paz\nVerso 4.2 terminando em flor\nVerso 4.3 terminando em luz\nVerso 4.4 terminando em voz\nVerso 4.5 terminando em mar\nVerso 4.6 terminando em dor\nVerso 5.1 terminando em dor\nVerso 5.2 terminando em paz\nVerso 5.3 terminando em mar\nVerso 5.4 terminando em flor\nVerso 5.5 terminando em voz\nVerso 5.6 terminando em luz\nVerso 6.1 terminando em luz\nVerso 6.2 terminando em dor\nVerso 6.3 terminando em voz\nVerso 6.4 terminando em paz\nVerso 6.5 terminando em flor\nVerso 6.6 terminando em mar\nNo envio ficam mar e luz\nE também flor e dor\nEncerrando com paz e voz",
+    nota: "Isto é o esqueleto estrutural (rotação das 6 palavras-fim correta) — os versos de preenchimento não são poesia de verdade, é só pra você ver a forma funcionando. Trocar o conteúdo mantendo as palavras-fim nas mesmas posições.",
+    sinalefa: false, ajuste: false
+  },
+  cordel: { texto: "Lá no meio do sertão\nA seca castigava\nVivia um vaqueiro\nNinguém mais duvidava\nCom bravura e com fé\nO povo já cantava", sinalefa: false, ajuste: false },
+  poetrix: { texto: "O Que Falta\n\nSilêncio\nA palavra que não veio\nEcoa mais alto", sinalefa: false, ajuste: false }
+};
+
+function carregarExemplo(chave){
+  const ex = EXEMPLOS[chave];
+  if (!ex) return;
+  document.getElementById('input').value = ex.texto;
+  document.getElementById('useSinalefa').checked = ex.sinalefa;
+  document.getElementById('useGraveAdj').checked = ex.ajuste;
+  analisar();
+  if (ex.nota) mostrarToast(ex.nota);
+  document.getElementById('input').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* =========================================================
    UI
    ========================================================= */
 let ultimoResultado = null;
+
+
 
 function marcarTonica(silabas, idxTonica){
   return silabas.map((s, i) => i === idxTonica ? `<span class="tonic">${s}</span>` : s).join('-');

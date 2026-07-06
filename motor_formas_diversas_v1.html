@@ -128,6 +128,20 @@
   <div class="sub">SIGMAL · terceira costela do triploohesigmalbpl</div>
 </header>
 
+<div style="max-width:940px;margin:0 auto;padding:20px 20px 0;">
+  <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.1em;color:var(--latao-claro);text-transform:uppercase;margin-bottom:10px;">
+    // O QUE TEM AQUI DENTRO — clique pra carregar um exemplo já testado
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;">
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('acrostico')">Acróstico <span style="opacity:0.6;">iniciais</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('limerique')">Limerique <span style="opacity:0.6;">AABBA</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('epigrama')">Epigrama <span style="opacity:0.6;">curto</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('balada')">Balada <span style="opacity:0.6;">28 versos (estrutura)</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('vilanela')">Vilanela <span style="opacity:0.6;">19 versos (estrutura)</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('elegia')">Elegia <span style="opacity:0.6;">temática</span></button>
+  </div>
+</div>
+
 <main>
 
   <div class="step">
@@ -459,9 +473,42 @@ function classificarFormaDiversa(linhasRaw, analisadas, usarSinalefa, forcarAcro
   r = detectarVilanela(linhasRaw, analisadas); if (r) return { ...r, contagens: cont };
   r = detectarBalada(linhasRaw, analisadas); if (r) return { ...r, contagens: cont };
   r = detectarLimerique(analisadas, cont); if (r) return { ...r, contagens: cont };
-  r = detectarEpigrama(analisadas); if (r) return { ...r, contagens: cont };
   r = detectarElegia(linhasRaw); if (r) return { ...r, contagens: cont };
+  r = detectarEpigrama(analisadas); if (r) return { ...r, contagens: cont };
   return { forma: null, veredito: 'livre', contagens: cont };
+}
+
+/* =========================================================
+   ÍNDICE DE EXEMPLOS — cada um testado e verificado antes de entrar aqui
+   ========================================================= */
+const EXEMPLOS = {
+  acrostico: {
+    texto: "Amor que nasce sem pedir licença\nMora em mim como a chuva mora no chão\nOndas de saudade vêm e vão\nRoubando o sono, ferindo a paciência",
+    palavraAlvo: "AMOR", forcar: true
+  },
+  limerique: { texto: "Um gato que amava sardinha\nVivia contente na cozinha\nComia sem parar\nAté quase estourar\nE ficou redondo que nem uma bolinha" },
+  epigrama: { texto: "Elogiaste meu poema com tanto fervor\nque suspeitei logo do teu bom humor." },
+  balada: {
+    texto: "Estrofe 1, verso 1\nEstrofe 1, verso 2\nEstrofe 1, verso 3\nEstrofe 1, verso 4\nEstrofe 1, verso 5\nEstrofe 1, verso 6\nEstrofe 1, verso 7\nMas nada apaga o que ficou de nós\nEstrofe 2, verso 1\nEstrofe 2, verso 2\nEstrofe 2, verso 3\nEstrofe 2, verso 4\nEstrofe 2, verso 5\nEstrofe 2, verso 6\nEstrofe 2, verso 7\nMas nada apaga o que ficou de nós\nEstrofe 3, verso 1\nEstrofe 3, verso 2\nEstrofe 3, verso 3\nEstrofe 3, verso 4\nEstrofe 3, verso 5\nEstrofe 3, verso 6\nEstrofe 3, verso 7\nMas nada apaga o que ficou de nós\nEnvio, verso 1\nEnvio, verso 2\nEnvio, verso 3\nMas nada apaga o que ficou de nós",
+    nota: "Esqueleto estrutural (28 versos, refrão idêntico nas 4 seções) — troque o conteúdo, mas mantenha o verso-refrão igual no fim de cada bloco."
+  },
+  vilanela: {
+    texto: "Não vou dormir enquanto o mundo dorme\nVerso de conteúdo número 2\nA noite cresce e ninguém me responde\nVerso de conteúdo número 4\nVerso de conteúdo número 5\nNão vou dormir enquanto o mundo dorme\nVerso de conteúdo número 7\nVerso de conteúdo número 8\nA noite cresce e ninguém me responde\nVerso de conteúdo número 10\nVerso de conteúdo número 11\nNão vou dormir enquanto o mundo dorme\nVerso de conteúdo número 13\nVerso de conteúdo número 14\nA noite cresce e ninguém me responde\nVerso de conteúdo número 16\nVerso de conteúdo número 17\nNão vou dormir enquanto o mundo dorme\nA noite cresce e ninguém me responde",
+    nota: "Esqueleto estrutural (19 versos, os dois refrões nas posições certas) — troque os versos de conteúdo, mantendo os dois refrões fixos."
+  },
+  elegia: { texto: "A saudade que ficou depois da partida\nÉ a única coisa que a morte não levou\nGuardo o luto em silêncio pela vida\nE na ausência, o teu nome ainda ecoou" }
+};
+
+function carregarExemplo(chave){
+  const ex = EXEMPLOS[chave];
+  if (!ex) return;
+  document.getElementById('input').value = ex.texto;
+  document.getElementById('formaAlvo').value = ex.forcar ? 'acrostico' : 'auto';
+  document.getElementById('campoPalavraAlvo').style.display = ex.forcar ? 'block' : 'none';
+  document.getElementById('palavraAlvo').value = ex.palavraAlvo || '';
+  analisar();
+  if (ex.nota) mostrarToast(ex.nota);
+  document.getElementById('input').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 /* =========================================================

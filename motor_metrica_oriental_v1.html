@@ -241,6 +241,22 @@
   <div class="sub">SIGMAL · costela do triploohesigmalbpl</div>
 </header>
 
+<div style="max-width:940px;margin:0 auto;padding:20px 20px 0;">
+  <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.1em;color:var(--hanko);text-transform:uppercase;margin-bottom:10px;">
+    // O QUE TEM AQUI DENTRO — clique pra carregar um exemplo já testado
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;">
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('haicai')">俳 Haicai <span style="opacity:0.6;">5-7-5</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('senryu')">川 Senryū <span style="opacity:0.6;">5-7-5 humor</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('tanka')">短 Tanka <span style="opacity:0.6;">5-7-5-7-7</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('sedoka')">旋 Sedōka <span style="opacity:0.6;">5-7-7-5-7-7</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('choka')">長 Chōka <span style="opacity:0.6;">5-7...7-7</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('katauta')">片 Katauta <span style="opacity:0.6;">5-7-7</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('renga')">連 Renga/Renku <span style="opacity:0.6;">encadeado</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('haiga')">画 Haiga <span style="opacity:0.6;">5-7-5 + imagem</span></button>
+  </div>
+</div>
+
 <main>
 
   <div class="step">
@@ -662,9 +678,36 @@ function verificarPureza(linhasRaw, analisadas, titulo, usarSinalefa){
 }
 
 /* =========================================================
+   ÍNDICE DE EXEMPLOS — cada um testado e verificado antes de entrar aqui
+   ========================================================= */
+const EXEMPLOS = {
+  haicai: { texto: "Uma folha cai\nCai uma folha seca\nE um galho nu" },
+  senryu: { texto: "O wifi caiu\nTodo mundo reclama\nNinguém atendeu" },
+  tanka: { texto: "Chove sem parar\nGuardo o teu retrato\nEspero você\nO silêncio cresce\nA tarde adormece" },
+  sedoka: { texto: "O trem já partiu\nA estrada é longa\nA tarde adormece\nO sol se ergue\nO inverno é longo\nA primavera volta" },
+  choka: { texto: "Chove sem parar\nO inverno é longo\nA primavera volta\nAs flores desabrocham" },
+  katauta: { texto: "O orvalho cai\nA caneta escreve\nO papel amarela" },
+  renga: { texto: "Chove sem parar\nGuardo o teu retrato\nEspero você\nO silêncio cresce\nA tarde adormece\nO trem já partiu\nA estrada é longa\nO sol se ergue\nO inverno é longo\nA primavera volta" },
+  haiga: { texto: "Uma folha cai\nCai uma folha seca\nE um galho nu", nota: "Estruturalmente igual ao Haicai — o Haiga pede também uma imagem/pintura associada ao texto, que este motor não verifica." }
+};
+
+function carregarExemplo(chave){
+  const ex = EXEMPLOS[chave];
+  if (!ex) return;
+  document.getElementById('input').value = ex.texto;
+  document.getElementById('useSinalefa').checked = false;
+  document.getElementById('useGraveAdj').checked = false;
+  analisar();
+  if (ex.nota) mostrarToast(ex.nota);
+  document.getElementById('input').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* =========================================================
    UI
    ========================================================= */
 let ultimoResultado = null;
+
+
 
 function marcarTonica(silabas, idxTonica){
   return silabas.map((s, i) => i === idxTonica ? `<span class="tonic">${s}</span>` : s).join('-');
