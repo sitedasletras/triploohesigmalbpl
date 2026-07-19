@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trajano Estrada · Gestão de Carreira · OHE</title>
+<script src="config.js"></script>
+<script src="heteronimos_roster.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Bebas+Neue&display=swap');
+
+  :root {
+    --bg: #0a0a0c;
+    --surface: #111114;
+    --border: #2a2a32;
+    --accent: #c8a96e;
+    --accent2: #7a9e8a;
+    --danger: #c86e6e;
+    --text: #d4cfc7;
+    --muted: #6b6860;
+    --mono: 'Share Tech Mono', monospace;
+    --serif: 'Crimson Pro', serif;
+    --display: 'Bebas Neue', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .hq-header {
+    border-bottom: 1px solid var(--border);
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .hq-header .logo { font-family: var(--display); font-size: 22px; letter-spacing: 3px; color: var(--accent); }
+  .hq-header .sub { color: var(--muted); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
+  .hq-header .sep { color: var(--border); margin: 0 4px; }
+  .btn-voltar {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 1px; color: var(--muted);
+    border: 1px solid var(--border); padding: 8px 14px; text-decoration: none; transition: all .2s;
+  }
+  .btn-voltar:hover { color: var(--accent); border-color: var(--accent); }
+
+  .main { max-width: 1100px; margin: 0 auto; padding: 24px 28px 60px; display: flex; flex-direction: column; gap: 28px; }
+
+  .section-label { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+  .section-titulo { font-family: var(--display); font-size: 22px; letter-spacing: 1px; color: var(--text); margin-bottom: 4px; }
+  .section-titulo em { color: var(--accent); font-style: italic; font-family: var(--serif); }
+
+  .painel { background: var(--surface); border: 1px solid var(--border); padding: 18px; }
+
+  textarea, select, input {
+    background: var(--bg); border: 1px solid var(--border); color: var(--text);
+    font-family: var(--mono); font-size: 12px; padding: 10px; width: 100%; outline: none;
+    transition: border-color .2s;
+  }
+  textarea:focus, select:focus, input:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 140px; line-height: 1.5; margin-bottom: 12px; }
+
+  .btn {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 2px; padding: 10px 18px;
+    border: 1px solid; cursor: pointer; transition: all .2s; text-transform: uppercase; background: transparent;
+  }
+  .btn-primary { border-color: var(--accent); color: var(--accent); }
+  .btn-primary:hover { background: var(--accent); color: var(--bg); }
+  .btn-secondary { border-color: var(--border); color: var(--muted); }
+  .btn-secondary:hover { border-color: var(--text); color: var(--text); }
+  .btn-danger { border-color: var(--danger); color: var(--danger); }
+  .btn-danger:hover { background: var(--danger); color: var(--bg); }
+  .btn:disabled { opacity: .35; cursor: not-allowed; }
+  .btn-sm { font-size: 10px; padding: 6px 10px; letter-spacing: 1px; }
+
+  .loading-area { display: none; padding: 14px 0; color: var(--accent); font-size: 12px; letter-spacing: 1px; }
+  .loading-area.visivel { display: block; }
+
+  .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-top: 14px; }
+  .vazio { color: var(--muted); font-size: 12px; font-style: italic; padding: 8px 0; }
+
+  .op-card { background: var(--bg); border: 1px solid var(--border); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .op-card.match { border-left: 3px solid var(--accent2); }
+  .op-card.gap { border-left: 3px solid var(--danger); }
+  .op-tipo { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .op-titulo { font-family: var(--serif); font-size: 15px; color: var(--text); }
+  .op-resumo { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .op-heteronimo { font-family: var(--display); font-size: 15px; letter-spacing: 1px; color: var(--accent2); }
+  .op-justificativa { font-size: 11px; color: var(--muted); font-style: italic; font-family: var(--serif); }
+  .op-territorio { font-size: 11px; color: var(--danger); font-family: var(--serif); font-style: italic; }
+  .op-acoes { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+  .op-acoes .btn { flex: 1; }
+
+  .ficha-item { border: 1px solid var(--border); background: var(--bg); margin-bottom: 8px; }
+  .ficha-header { padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 10px; }
+  .ficha-nome { font-family: var(--display); font-size: 15px; letter-spacing: 1px; color: var(--accent); }
+  .ficha-count { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+  .ficha-corpo { display: none; padding: 0 14px 14px; border-top: 1px solid var(--border); }
+  .ficha-corpo.aberta { display: block; }
+  .ficha-op { padding: 10px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .ficha-op:last-child { border-bottom: none; }
+  .ficha-op-info { flex: 1; }
+  .ficha-op-titulo { font-family: var(--serif); font-size: 13px; color: var(--text); }
+  .ficha-op-meta { font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-top: 2px; }
+  .ficha-op-acoes { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+  .ficha-op-acoes select { width: auto; font-size: 10px; padding: 5px 6px; }
+
+  .toast {
+    position: fixed; top: 20px; right: 20px; background: var(--surface); border: 1px solid var(--accent);
+    color: var(--accent); padding: 10px 16px; font-size: 11px; letter-spacing: 2px; z-index: 200;
+    opacity: 0; transform: translateY(-10px); transition: all .3s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="hq-header">
+  <div>
+    <div class="logo">TRAJANO ESTRADA</div>
+    <div class="sub">Gestão de Carreira <span class="sep">·</span> OHE · SIGMAL HQ</div>
+  </div>
+  <a href="espinha_dorsal.html" class="btn-voltar">← ESPINHA DORSAL</a>
+</div>
+
+<div class="main">
+
+  <!-- ENTRADA -->
+  <div>
+    <div class="section-label">// RADAR · MATERIAL BRUTO</div>
+    <div class="section-titulo">O que a <em>CICILE</em> encontrou</div>
+    <div class="painel" style="margin-top:14px;">
+      <textarea id="material-radar" placeholder="Cole aqui concursos, editais, festivais, tendências — o material bruto do radar. O Trajano vai cruzar cada oportunidade com o território dos 57 heterônimos e devolver, para cada uma, um heterônimo compatível ou uma lacuna."></textarea>
+      <button class="btn btn-primary" id="btn-refinar" onclick="refinarComTrajano()">✦ REFINAR COM TRAJANO</button>
+      <div class="loading-area" id="loading-area">⟳ Trajano Estrada analisando o material contra os 57 territórios...</div>
+    </div>
+  </div>
+
+  <!-- RESULTADOS: MATCHES -->
+  <div>
+    <div class="section-label">// OPORTUNIDADES COM HETERÔNIMO COMPATÍVEL</div>
+    <div class="section-titulo">Direcionamentos <em>sugeridos</em></div>
+    <div class="grade" id="grade-matches"></div>
+  </div>
+
+  <!-- RESULTADOS: GAPS -->
+  <div>
+    <div class="section-label">// TERRITÓRIOS SEM REPRESENTANTE</div>
+    <div class="section-titulo">Lacunas <em>detectadas</em></div>
+    <div class="grade" id="grade-gaps"></div>
+  </div>
+
+  <!-- FICHAS ATIVAS -->
+  <div>
+    <div class="section-label">// CARREIRAS EM GESTÃO</div>
+    <div class="section-titulo">Fichas <em>ativas</em></div>
+    <div id="lista-fichas" style="margin-top:14px;"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let pendentes = { matches: [], gaps: [] };
+let fichas = JSON.parse(localStorage.getItem('trajano_fichas') || '{}');
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function salvarFichas() {
+  localStorage.setItem('trajano_fichas', JSON.stringify(fichas));
+}
+
+// ── REFINAR COM TRAJANO ──────────────────────────────────
+async function refinarComTrajano() {
+  const material = document.getElementById('material-radar').value.trim();
+  if (!material) { toast('// COLE O MATERIAL DO RADAR PRIMEIRO'); return; }
+
+  const roster = getRosterCompleto();
+  const listaTerritorios = roster.map(h => `${h.nome} | ${h.territorio}`).join('\n');
+
+  const system = `Você é Trajano Estrada, gestor de carreira da OHE — Oficina Heteronômica da Escrita. Sua função é analisar material bruto de radar (concursos, editais, festivais, tendências) e cruzar cada oportunidade encontrada com os territórios soberanos dos heterônimos abaixo, identificando ONDE HÁ MATCH (um heterônimo cujo território cobre claramente a oportunidade) e ONDE HÁ LACUNA (nenhum heterônimo cobre aquele território).
+
+HETERÔNIMOS E TERRITÓRIOS:
+${listaTerritorios}
+
+Responda APENAS em JSON válido, sem markdown, sem crases, sem texto antes ou depois, no formato:
+{"oportunidades":[{"titulo":"","resumo":"","tipo":"concurso|edital|festival|trend|outro","match":{"heteronimo":"<nome exato de um da lista, ou null>","justificativa":""},"gap":true|false,"territorioSugerido":"<preenchido apenas se gap=true>"}]}`;
+
+  const btn = document.getElementById('btn-refinar');
+  btn.disabled = true;
+  document.getElementById('loading-area').classList.add('visivel');
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        system,
+        messages: [{ role: 'user', content: material }]
+      })
+    });
+    const data = await resp.json();
+    let txt = (data.content || []).map(c => c.text || '').join('');
+    txt = txt.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(txt);
+
+    pendentes = { matches: [], gaps: [] };
+    (parsed.oportunidades || []).forEach(op => {
+      if (op.gap) {
+        pendentes.gaps.push({
+          titulo: op.titulo, resumo: op.resumo, tipo: op.tipo,
+          territorioSugerido: op.territorioSugerido || ''
+        });
+        return;
+      }
+      const alvo = getHeteronimoPorNome(op.match && op.match.heteronimo);
+      if (!alvo) {
+        // A IA disse que havia match mas o nome não bateu com nenhum heterônimo do roster — trata como lacuna.
+        pendentes.gaps.push({
+          titulo: op.titulo, resumo: op.resumo, tipo: op.tipo,
+          territorioSugerido: (op.match && op.match.justificativa) || op.resumo || ''
+        });
+        return;
+      }
+      pendentes.matches.push({
+        titulo: op.titulo, resumo: op.resumo, tipo: op.tipo,
+        heteronimoNome: alvo.nome, heteronimoTerritorio: alvo.territorio,
+        justificativa: (op.match && op.match.justificativa) || ''
+      });
+    });
+
+    renderPendentes();
+    toast(`✦ ${pendentes.matches.length} direcionamento(s) · ${pendentes.gaps.length} lacuna(s)`);
+  } catch (e) {
+    console.error(e);
+    toast('// ERRO AO REFINAR — TENTE NOVAMENTE');
+  } finally {
+    btn.disabled = false;
+    document.getElementById('loading-area').classList.remove('visivel');
+  }
+}
+
+// ── RENDER PENDENTES ──────────────────────────────────────
+function renderPendentes() {
+  const gm = document.getElementById('grade-matches');
+  const gg = document.getElementById('grade-gaps');
+
+  gm.innerHTML = pendentes.matches.length ? pendentes.matches.map((m, i) => `
+    <div class="op-card match">
+      <div class="op-tipo">${m.tipo || 'oportunidade'}</div>
+      <div class="op-titulo">${m.titulo || 'Sem título'}</div>
+      <div class="op-resumo">${m.resumo || ''}</div>
+      <div class="op-heteronimo">→ ${m.heteronimoNome}</div>
+      <div class="op-justificativa">${m.justificativa || ''}</div>
+      <div class="op-acoes">
+        <button class="btn btn-primary btn-sm" onclick="aplicarMatch(${i})">APLICAR</button>
+        <button class="btn btn-secondary btn-sm" onclick="descartarMatch(${i})">DESCARTAR</button>
+      </div>
+    </div>
+  `).join('') : '<div class="vazio">Nenhum direcionamento pendente — cole material e refine com o Trajano.</div>';
+
+  gg.innerHTML = pendentes.gaps.length ? pendentes.gaps.map((g, i) => `
+    <div class="op-card gap">
+      <div class="op-tipo">${g.tipo || 'oportunidade'}</div>
+      <div class="op-titulo">${g.titulo || 'Sem título'}</div>
+      <div class="op-resumo">${g.resumo || ''}</div>
+      <div class="op-territorio">✕ território sem heterônimo: ${g.territorioSugerido || '—'}</div>
+      <div class="op-acoes">
+        <button class="btn btn-secondary btn-sm" onclick="copiarTerritorio(${i})">COPIAR TERRITÓRIO</button>
+        <button class="btn btn-primary btn-sm" onclick="abrirMaternidade(${i})">ABRIR MATERNIDADE →</button>
+        <button class="btn btn-secondary btn-sm" onclick="descartarGap(${i})">DESCARTAR</button>
+      </div>
+    </div>
+  `).join('') : '<div class="vazio">Nenhuma lacuna pendente.</div>';
+}
+
+function aplicarMatch(idx) {
+  const m = pendentes.matches[idx];
+  if (!m) return;
+  const ficha = fichas[m.heteronimoNome] || { territorio: m.heteronimoTerritorio || '', ativo: true, oportunidades: [], atualizadoEm: null };
+  ficha.territorio = m.heteronimoTerritorio || ficha.territorio;
+  ficha.ativo = true;
+  ficha.oportunidades.push({
+    id: 'op_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+    titulo: m.titulo, resumo: m.resumo, tipo: m.tipo, justificativa: m.justificativa,
+    status: 'pendente', criadoEm: new Date().toISOString()
+  });
+  ficha.atualizadoEm = new Date().toISOString();
+  fichas[m.heteronimoNome] = ficha;
+  salvarFichas();
+
+  pendentes.matches.splice(idx, 1);
+  renderPendentes();
+  renderFichas();
+  toast(`✦ Oportunidade aplicada à ficha de ${m.heteronimoNome}`);
+}
+
+function descartarMatch(idx) {
+  pendentes.matches.splice(idx, 1);
+  renderPendentes();
+}
+
+function descartarGap(idx) {
+  pendentes.gaps.splice(idx, 1);
+  renderPendentes();
+}
+
+function copiarTerritorio(idx) {
+  const g = pendentes.gaps[idx];
+  if (!g) return;
+  navigator.clipboard.writeText(g.territorioSugerido || '');
+  toast('✦ Território copiado');
+}
+
+function abrirMaternidade(idx) {
+  const g = pendentes.gaps[idx];
+  if (!g) return;
+  const url = 'gerador_obra.html?maternidade=1&territorio=' + encodeURIComponent(g.territorioSugerido || g.titulo || '');
+  window.open(url, '_blank');
+}
+
+// ── FICHAS ATIVAS ─────────────────────────────────────────
+function statusLabel(s) {
+  return { 'pendente': 'PENDENTE', 'em-andamento': 'EM ANDAMENTO', 'concluida': 'CONCLUÍDA', 'descartada': 'DESCARTADA' }[s] || s;
+}
+
+function renderFichas() {
+  const el = document.getElementById('lista-fichas');
+  const nomes = Object.keys(fichas).filter(n => (fichas[n].oportunidades || []).length > 0);
+
+  if (!nomes.length) {
+    el.innerHTML = '<div class="vazio">Nenhuma ficha ativa ainda — aplique um direcionamento acima para começar.</div>';
+    return;
+  }
+
+  el.innerHTML = nomes.map(nome => {
+    const f = fichas[nome];
+    const abertas = f.oportunidades.filter(o => o.status !== 'concluida' && o.status !== 'descartada').length;
+    const opsHtml = f.oportunidades.map(o => `
+      <div class="ficha-op">
+        <div class="ficha-op-info">
+          <div class="ficha-op-titulo">${o.titulo || 'Sem título'}</div>
+          <div class="ficha-op-meta">${o.tipo || ''} · ${new Date(o.criadoEm).toLocaleDateString('pt-BR')}</div>
+        </div>
+        <div class="ficha-op-acoes">
+          <select onchange="mudarStatus('${nome.replace(/'/g, "\\'")}','${o.id}',this.value)">
+            ${['pendente', 'em-andamento', 'concluida', 'descartada'].map(s =>
+              `<option value="${s}" ${s === o.status ? 'selected' : ''}>${statusLabel(s)}</option>`).join('')}
+          </select>
+          <button class="btn btn-danger btn-sm" onclick="removerOportunidade('${nome.replace(/'/g, "\\'")}','${o.id}')">✕</button>
+        </div>
+      </div>
+    `).join('');
+
+    return `
+      <div class="ficha-item">
+        <div class="ficha-header" onclick="toggleFicha(this)">
+          <div class="ficha-nome">${nome}</div>
+          <div class="ficha-count">${abertas} oportunidade(s) aberta(s) · ${f.oportunidades.length} no total</div>
+        </div>
+        <div class="ficha-corpo">${opsHtml}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleFicha(headerEl) {
+  headerEl.nextElementSibling.classList.toggle('aberta');
+}
+
+function mudarStatus(nome, opId, novoStatus) {
+  const f = fichas[nome];
+  if (!f) return;
+  const op = f.oportunidades.find(o => o.id === opId);
+  if (!op) return;
+  op.status = novoStatus;
+  f.atualizadoEm = new Date().toISOString();
+  salvarFichas();
+  renderFichas();
+}
+
+function removerOportunidade(nome, opId) {
+  const f = fichas[nome];
+  if (!f) return;
+  f.oportunidades = f.oportunidades.filter(o => o.id !== opId);
+  f.atualizadoEm = new Date().toISOString();
+  salvarFichas();
+  renderFichas();
+}
+
+// ── INIT ──────────────────────────────────────────────────
+renderPendentes();
+renderFichas();
+</script>
+</body>
+</html>

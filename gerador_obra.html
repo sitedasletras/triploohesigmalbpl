@@ -140,6 +140,16 @@
     margin-top: 4px;
     width: fit-content;
   }
+  .het-badge-trajano {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    margin-top: 4px;
+    width: fit-content;
+  }
 
   /* ESTRUTURA DO LIVRO */
   .estrutura-box {
@@ -541,6 +551,8 @@
     .sinopse-box { margin: 0 20px 16px; }
   }
 </style>
+<script src="config.js"></script>
+<script src="heteronimos_roster.js"></script>
 </head>
 <body>
 
@@ -587,19 +599,6 @@
         <div class="field-label">Heterônimo (ou Fernando decide)</div>
         <select id="heteronimo-select" onchange="carregarHeteronimo()">
           <option value="auto">Fernando Peçanha decide</option>
-          <option value="amanda">Amanda Fernanda Fisher Leão</option>
-          <option value="imediato">Imediato Thompson</option>
-          <option value="aurora">Aurora Wings</option>
-          <option value="aj">A.J. dos Santos</option>
-          <option value="amelie">Amélie Maia Hanna</option>
-          <option value="anisio">Anísio Teixeira</option>
-          <option value="articus">Articus da Pérsida</option>
-          <option value="birihani">Birihani Selami Ina Tesifa</option>
-          <option value="caliope">Calíope Papazissis</option>
-          <option value="chesco">Chesco Irlanda</option>
-          <option value="creone">Creone Porfírio</option>
-          <option value="darius">Dárius Ninus Vamus</option>
-          <option value="wagner">Wagner Planas</option>
           <option value="novo">⊕ Criar novo heterônimo na Maternidade</option>
         </select>
       </div>
@@ -609,6 +608,7 @@
         <div class="het-eixo" id="het-eixo">—</div>
         <div class="het-territorio" id="het-territorio">—</div>
         <div class="het-arco" id="het-arco">—</div>
+        <div class="het-badge-trajano" id="het-badge-trajano" style="display:none"></div>
       </div>
     </div>
 
@@ -918,100 +918,60 @@
 </div>
 
 <script>
-// ─── DADOS DOS HETERÔNIMOS ───────────────────────────────────────────────────
-const HETERONIMOS = {
-  amanda: {
-    nome: "Amanda Fernanda Fisher Leão",
-    eixo: "PROSA",
-    territorio: "Mar, sereias mitológicas, Iara, pirataria, horror marítimo, Fomea, experiências genéticas oceânicas.",
-    arco: "JORNADA DO HERÓI",
-    voz: "narrativa oceânica visceral, mitologia marítima, tensão entre o conhecido e o abissal"
-  },
-  imediato: {
-    nome: "Imediato Thompson",
-    eixo: "PROSA COSMOLÓGICA",
-    territorio: "Atlantis como planeta em Ophiuchus, constelação de Ophiuchus, estrela Rasalhague, cosmologia Atlantis/Ophiuchus.",
-    arco: "JORNADA DO HERÓI",
-    voz: "épico cosmológico, tempo dilatado, civilizações que existem além da compreensão humana"
-  },
-  aurora: {
-    nome: "Aurora Wings",
-    eixo: "PROSA · SCI-FI",
-    territorio: "Espaço tecnológico, sci-fi espacial, naves, discos voadores (fora do eixo Atlantis), cibernética espacial.",
-    arco: "JORNADA DO HERÓI",
-    voz: "tech-noir espacial, frieza calculada, humanidade confrontada pela máquina"
-  },
-  aj: {
-    nome: "A.J. dos Santos",
-    eixo: "PROSA",
-    territorio: "Território urbano marginal, cotidiano tenso, realismo cru.",
-    arco: "JORNADA DA VILANIA",
-    voz: "frases curtas, ritmo urbano, personagens com moralidade ambígua"
-  },
-  amelie: {
-    nome: "Amélie Maia Hanna",
-    eixo: "PROSA · HÍBRIDO",
-    territorio: "Europa interior, memória afetiva, melancolia lírica, identidade fragmentada.",
-    arco: "JORNADA DO HERÓI",
-    voz: "prosa poética densa, tempo não-linear, imagens que pesam mais que palavras"
-  },
-  anisio: {
-    nome: "Anísio Teixeira",
-    eixo: "PROSA",
-    territorio: "Brasil profundo, sertão, história social, personagens coletivos.",
-    arco: "JORNADA DO HERÓI",
-    voz: "narrador onisciente compassivo, oralidade nordestina, tempo lento e implacável"
-  },
-  articus: {
-    nome: "Articus da Pérsida",
-    eixo: "PROSA · HÍBRIDO",
-    territorio: "Oriente mítico, Pérsia narrativa, misticismo filosófico, contos dentro de contos.",
-    arco: "JORNADA DO HERÓI",
-    voz: "narrativa em espiral, aforismos, voz de contador de histórias ancestral"
-  },
-  birihani: {
-    nome: "Birihani Selami Ina Tesifa",
-    eixo: "POESIA · PROSA",
-    territorio: "África do Leste, oralidade ancestral, ritmo percussivo, natureza como entidade.",
-    arco: "JORNADA DO HERÓI",
-    voz: "verso-prosa ritualístico, imagens da terra e do tempo"
-  },
-  caliope: {
-    nome: "Calíope Papazissis",
-    eixo: "POESIA",
-    territorio: "Grécia interior, mitologia viva, tragédia cotidiana, o corpo como território.",
-    arco: "JORNADA DA VILANIA",
-    voz: "poesia densa com ecos trágicos, imagens que sangram"
-  },
-  chesco: {
-    nome: "Chesco Irlanda",
-    eixo: "PROSA",
-    territorio: "América Latina mágica, sincretismo, tempo circular, o sobrenatural como cotidiano.",
-    arco: "JORNADA DO HERÓI",
-    voz: "realismo mágico com ironia sutil, narradores não-confiáveis"
-  },
-  creone: {
-    nome: "Creone Porfírio",
-    eixo: "PROSA",
-    territorio: "Poder, corrupção institucional, ambição, colapso moral.",
-    arco: "JORNADA DA VILANIA",
-    voz: "narrador frio, clínico, que expõe sem julgar"
-  },
-  darius: {
-    nome: "Dárius Ninus Vamus",
-    eixo: "PROSA · SCI-FI",
-    territorio: "Distopia política, tecnologia de controle, resistência individual.",
-    arco: "JORNADA DA VILANIA",
-    voz: "tensão paranóica constante, linguagem fragmentada sob pressão"
-  },
-  wagner: {
-    nome: "Wagner Planas",
-    eixo: "HÍBRIDO",
-    territorio: "Metacriação, o processo da escrita como tema, o autor dentro da obra.",
-    arco: "JORNADA DO HERÓI",
-    voz: "autorreferencial, filosófico, onde a forma é também o conteúdo"
-  }
+// ─── DADOS DOS HETERÔNIMOS (a partir do roster compartilhado de 57) ──────────
+// arco/voz curados manualmente para os heterônimos já tunados; os demais do
+// roster usam os mesmos defaults que confirmarNovoHeteronimo() já aplica a
+// heterônimos novos (arco: JORNADA DO HERÓI, voz: o próprio território).
+const ARCO_CURADO = {
+  'A.J. dos Santos': 'JORNADA DA VILANIA',
+  'Calíope Papazissis': 'JORNADA DA VILANIA',
+  'Creone Porfirio': 'JORNADA DA VILANIA',
+  'Dárius Ninus Vamus': 'JORNADA DA VILANIA'
 };
+const VOZ_CURADA = {
+  'Amanda Fernanda Fisher Leão': 'narrativa oceânica visceral, mitologia marítima, tensão entre o conhecido e o abissal',
+  'Imediato Thompson': 'épico cosmológico, tempo dilatado, civilizações que existem além da compreensão humana',
+  'Aurora Wings': 'tech-noir espacial, frieza calculada, humanidade confrontada pela máquina',
+  'A.J. dos Santos': 'frases curtas, ritmo urbano, personagens com moralidade ambígua',
+  'Amélie Maia Hanna': 'prosa poética densa, tempo não-linear, imagens que pesam mais que palavras',
+  'Anísio Teixeira': 'narrador onisciente compassivo, oralidade nordestina, tempo lento e implacável',
+  'Articus da Persida': 'narrativa em espiral, aforismos, voz de contador de histórias ancestral',
+  'Birihani Selami Ina Tesifa': 'verso-prosa ritualístico, imagens da terra e do tempo',
+  'Calíope Papazissis': 'poesia densa com ecos trágicos, imagens que sangram',
+  'Chesco Irlanda': 'realismo mágico com ironia sutil, narradores não-confiáveis',
+  'Creone Porfirio': 'narrador frio, clínico, que expõe sem julgar',
+  'Dárius Ninus Vamus': 'tensão paranóica constante, linguagem fragmentada sob pressão',
+  'Wagner Planas': 'autorreferencial, filosófico, onde a forma é também o conteúdo'
+};
+
+const HETERONIMOS = {};
+function construirHeteronimosLocal() {
+  const roster = (typeof getRosterCompleto === 'function') ? getRosterCompleto() : [];
+  for (const h of roster) {
+    const key = slugifyNome(h.nome);
+    HETERONIMOS[key] = {
+      nome: h.nome,
+      eixo: h.eixo,
+      territorio: h.territorio,
+      arco: ARCO_CURADO[h.nome] || 'JORNADA DO HERÓI',
+      voz: VOZ_CURADA[h.nome] || h.territorio
+    };
+  }
+}
+construirHeteronimosLocal();
+
+function popularSelectHeteronimos() {
+  const sel = document.getElementById('heteronimo-select');
+  const novoOpt = sel.lastElementChild; // 'novo' fica sempre por último
+  Object.entries(HETERONIMOS)
+    .sort((a, b) => a[1].nome.localeCompare(b[1].nome, 'pt-BR'))
+    .forEach(([key, h]) => {
+      const opt = document.createElement('option');
+      opt.value = key; opt.textContent = h.nome;
+      sel.insertBefore(opt, novoOpt);
+    });
+}
+popularSelectHeteronimos();
 
 // ─── ESTRUTURAS DE ARCO ──────────────────────────────────────────────────────
 const JORNADA_HEROI = [
@@ -1094,6 +1054,17 @@ function carregarHeteronimo() {
   document.getElementById('het-territorio').textContent = h.territorio;
   document.getElementById('het-arco').textContent = h.arco;
   document.getElementById('het-card').classList.add('visible');
+
+  const badge = document.getElementById('het-badge-trajano');
+  const fichas = JSON.parse(localStorage.getItem('trajano_fichas') || '{}');
+  const ficha = fichas[h.nome];
+  const abertas = ficha ? ficha.oportunidades.filter(o => o.status !== 'concluida' && o.status !== 'descartada').length : 0;
+  if (abertas > 0) {
+    badge.textContent = `✦ TRAJANO: ${abertas} OPORTUNIDADE${abertas > 1 ? 'S' : ''} ATIVA${abertas > 1 ? 'S' : ''}`;
+    badge.style.display = 'inline-block';
+  } else {
+    badge.style.display = 'none';
+  }
 }
 
 function abrirModalMaternidade() {
@@ -1117,6 +1088,10 @@ function confirmarNovoHeteronimo() {
   HETERONIMOS[key] = { nome, eixo, territorio,
     arco:'JORNADA DO HERÓI', voz:territorio };
 
+  if (typeof registrarHeteronimoExtra === 'function') {
+    registrarHeteronimoExtra({ nome, eixo, territorio, formato:'variado', volumeMinimo:10, destino:'masmorra', universoPadrao:[], tomPadrao:[] });
+  }
+
   const sel = document.getElementById('heteronimo-select');
   const opt = document.createElement('option');
   opt.value = key; opt.textContent = nome;
@@ -1129,6 +1104,16 @@ function confirmarNovoHeteronimo() {
   // ── AUTOMAÇÃO: Gerar biografia e publicar no Celeiro ──
   gerarEPublicarBiografia({ id:key, nome, eixo, territorio });
 }
+
+// ── HANDOFF DO TRAJANO ESTRADA: abre a Maternidade já preenchida quando
+// chega um link do tipo gerador_obra.html?maternidade=1&territorio=... ──
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(location.search);
+  if (params.get('maternidade') === '1') {
+    document.getElementById('novo-het-territorio').value = params.get('territorio') || '';
+    abrirModalMaternidade();
+  }
+});
 
 // ── GERA BIOGRAFIA VIA IA E PUBLICA NO CELEIRO ───────────
 async function gerarEPublicarBiografia(autor) {
@@ -1366,6 +1351,17 @@ async function fernandoEscolheHeteronimo(tema) {
     `${k}: ${v.nome} | Território: ${v.territorio}`
   ).join('\n');
 
+  const fichaFallback = slugifyNome('Wagner Planas');
+
+  const fichas = JSON.parse(localStorage.getItem('trajano_fichas') || '{}');
+  const ativos = Object.entries(fichas)
+    .map(([nome, f]) => ({ nome, abertas: (f.oportunidades || []).filter(o => o.status !== 'concluida' && o.status !== 'descartada') }))
+    .filter(x => x.abertas.length > 0);
+  const contextoTrajano = ativos.length
+    ? `\n\nCONTEXTO DO TRAJANO ESTRADA (gestor de carreira) — heterônimos com oportunidades ativas mapeadas por território. Priorize-os SOMENTE SE o território bater com o tema da obra; isto é um sinal adicional, não uma ordem que sobrepõe seu julgamento:\n` +
+      ativos.map(x => `- ${x.nome}: ${x.abertas.length} oportunidade(s), ex.: "${x.abertas[0].titulo}"`).join('\n')
+    : '';
+
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -1373,15 +1369,15 @@ async function fernandoEscolheHeteronimo(tema) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 100,
-        system: `Você é Fernando Peçanha, curador máximo da OHE. Analise o tema e escolha o heterônimo mais compatível por território soberano e DNA narrativo. Responda APENAS com a chave do heterônimo (ex: amanda, imediato, aurora). Heterônimos disponíveis:\n${lista}`,
+        system: `Você é Fernando Peçanha, curador máximo da OHE. Analise o tema e escolha o heterônimo mais compatível por território soberano e DNA narrativo. Responda APENAS com a chave do heterônimo (ex: amanda, imediato, aurora). Heterônimos disponíveis:\n${lista}${contextoTrajano}`,
         messages: [{ role: 'user', content: `Tema da obra: ${tema}\n\nQual heterônimo assume esta obra?` }]
       })
     });
     const data = await resp.json();
     const escolha = data.content[0].text.trim().toLowerCase().replace(/[^a-z_]/g,'');
-    return HETERONIMOS[escolha] ? escolha : 'wagner';
+    return HETERONIMOS[escolha] ? escolha : fichaFallback;
   } catch(e) {
-    return 'wagner';
+    return fichaFallback;
   }
 }
 

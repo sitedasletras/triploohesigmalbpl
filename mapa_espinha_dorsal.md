@@ -22,6 +22,9 @@
 | `extrair_personagens.html` | Extrai personagens das obras via API e salva na Vitrine | ✅ Corrigido hoje |
 | `vitrine_personagens.html` | Exibe e filtra personagens salvos no localStorage | ✅ Ativo |
 | `injetar_calabouco.html` | Injeta obras manualmente no Calabouço via localStorage | ✅ Ativo |
+| `gerador_obra.html` | Gerador de obra individual — Fernando Peçanha escolhe/recebe heterônimo, gera capítulos por arco | ✅ Atualizado hoje — agora lê o roster de 57 via `heteronimos_roster.js` |
+| `trajano_estrada.html` | **Novo.** Trajano Estrada — gestor de carreira: recebe material bruto de radar (concursos/editais/festivais), cruza com o território dos heterônimos, gera fichas de carreira que alimentam o Fernando Peçanha | ✅ Novo hoje |
+| `heteronimos_roster.js` | **Novo.** Roster compartilhado dos 57 heterônimos oficiais (espelho do array de `index.html`) + heterônimos criados em runtime pela Maternidade | ✅ Novo hoje |
 
 ---
 
@@ -106,7 +109,8 @@
 | `gh_token` | GitHub token salvo pelo usuário | index_15, catapulta |
 | `sigmal_hq_auth` | Flag de autenticação (='1') | index_15 |
 | `lapidar_story_bible` | Story bible do Lapidar | lapidar |
-| `trajano_ficha` | Ficha do Trajano Estrada | trajano |
+| `trajano_fichas` | **Corrigido (era `trajano_ficha`, nunca implementado).** Objeto por nome de heterônimo, cada um com array `oportunidades[]` (título, tipo, justificativa, status) aplicadas pelo Trajano — append-only, alimenta o selo em `gerador_obra.html` e o contexto extra de `fernandoEscolheHeteronimo()` | trajano_estrada, gerador_obra |
+| `heteronimos_extras` | Heterônimos criados em runtime pela Maternidade (`confirmarNovoHeteronimo()`), persistidos para sobreviver a reloads e ficarem visíveis ao roster completo | gerador_obra, trajano_estrada (via `heteronimos_roster.js`) |
 
 ---
 
