@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trajano Estrada · Gestão de Carreira · OHE</title>
+<title>Cartógrafo de Território · OHE</title>
 <script src="config.js"></script>
 <script src="heteronimos_roster.js"></script>
 <style>
@@ -129,7 +129,7 @@
 
 <div class="hq-header">
   <div>
-    <div class="logo">TRAJANO ESTRADA</div>
+    <div class="logo">CARTÓGRAFO DE TERRITÓRIO</div>
     <div class="sub">Gestão de Carreira <span class="sep">·</span> OHE · SIGMAL HQ</div>
   </div>
   <a href="espinha_dorsal.html" class="btn-voltar">← ESPINHA DORSAL</a>
@@ -142,9 +142,9 @@
     <div class="section-label">// RADAR · MATERIAL BRUTO</div>
     <div class="section-titulo">O que a <em>CICILE</em> encontrou</div>
     <div class="painel" style="margin-top:14px;">
-      <textarea id="material-radar" placeholder="Cole aqui concursos, editais, festivais, tendências — o material bruto do radar. O Trajano vai cruzar cada oportunidade com o território dos 57 heterônimos e devolver, para cada uma, um heterônimo compatível ou uma lacuna."></textarea>
-      <button class="btn btn-primary" id="btn-refinar" onclick="refinarComTrajano()">✦ REFINAR COM TRAJANO</button>
-      <div class="loading-area" id="loading-area">⟳ Trajano Estrada analisando o material contra os 57 territórios...</div>
+      <textarea id="material-radar" placeholder="Cole aqui concursos, editais, festivais, tendências — o material bruto do radar. O Cartógrafo vai cruzar cada oportunidade com o território dos 57 heterônimos e devolver, para cada uma, um heterônimo compatível ou uma lacuna."></textarea>
+      <button class="btn btn-primary" id="btn-refinar" onclick="refinarTerritorio()">✦ CRUZAR COM O TERRITÓRIO</button>
+      <div class="loading-area" id="loading-area">⟳ Cartógrafo de Território analisando o material contra os 57 territórios...</div>
     </div>
   </div>
 
@@ -175,7 +175,7 @@
 
 <script>
 let pendentes = { matches: [], gaps: [] };
-let fichas = JSON.parse(localStorage.getItem('trajano_fichas') || '{}');
+let fichas = JSON.parse(localStorage.getItem('territorio_fichas') || '{}');
 
 function toast(msg) {
   const t = document.getElementById('toast');
@@ -185,18 +185,18 @@ function toast(msg) {
 }
 
 function salvarFichas() {
-  localStorage.setItem('trajano_fichas', JSON.stringify(fichas));
+  localStorage.setItem('territorio_fichas', JSON.stringify(fichas));
 }
 
-// ── REFINAR COM TRAJANO ──────────────────────────────────
-async function refinarComTrajano() {
+// ── CRUZAR MATERIAL DO RADAR COM O TERRITÓRIO DOS HETERÔNIMOS ──────────────
+async function refinarTerritorio() {
   const material = document.getElementById('material-radar').value.trim();
   if (!material) { toast('// COLE O MATERIAL DO RADAR PRIMEIRO'); return; }
 
   const roster = getRosterCompleto();
   const listaTerritorios = roster.map(h => `${h.nome} | ${h.territorio}`).join('\n');
 
-  const system = `Você é Trajano Estrada, gestor de carreira da OHE — Oficina Heteronômica da Escrita. Sua função é analisar material bruto de radar (concursos, editais, festivais, tendências) e cruzar cada oportunidade encontrada com os territórios soberanos dos heterônimos abaixo, identificando ONDE HÁ MATCH (um heterônimo cujo território cobre claramente a oportunidade) e ONDE HÁ LACUNA (nenhum heterônimo cobre aquele território).
+  const system = `Você é o Cartógrafo de Território da OHE — Oficina Heteronômica da Escrita. Sua função é analisar material bruto de radar (concursos, editais, festivais, tendências) e cruzar cada oportunidade encontrada com os territórios soberanos dos heterônimos abaixo, identificando ONDE HÁ MATCH (um heterônimo cujo território cobre claramente a oportunidade) e ONDE HÁ LACUNA (nenhum heterônimo cobre aquele território).
 
 HETERÔNIMOS E TERRITÓRIOS:
 ${listaTerritorios}
@@ -277,7 +277,7 @@ function renderPendentes() {
         <button class="btn btn-secondary btn-sm" onclick="descartarMatch(${i})">DESCARTAR</button>
       </div>
     </div>
-  `).join('') : '<div class="vazio">Nenhum direcionamento pendente — cole material e refine com o Trajano.</div>';
+  `).join('') : '<div class="vazio">Nenhum direcionamento pendente — cole material e cruze com o território.</div>';
 
   gg.innerHTML = pendentes.gaps.length ? pendentes.gaps.map((g, i) => `
     <div class="op-card gap">

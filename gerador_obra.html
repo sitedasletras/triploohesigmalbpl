@@ -140,7 +140,7 @@
     margin-top: 4px;
     width: fit-content;
   }
-  .het-badge-trajano {
+  .het-badge-cartografo {
     display: inline-block;
     font-size: 9px;
     letter-spacing: 1px;
@@ -610,7 +610,7 @@
         <div class="het-eixo" id="het-eixo">—</div>
         <div class="het-territorio" id="het-territorio">—</div>
         <div class="het-arco" id="het-arco">—</div>
-        <div class="het-badge-trajano" id="het-badge-trajano" style="display:none"></div>
+        <div class="het-badge-cartografo" id="het-badge-cartografo" style="display:none"></div>
       </div>
     </div>
 
@@ -1060,12 +1060,12 @@ function carregarHeteronimo() {
   document.getElementById('het-arco').textContent = h.arco;
   document.getElementById('het-card').classList.add('visible');
 
-  const badge = document.getElementById('het-badge-trajano');
-  const fichas = JSON.parse(localStorage.getItem('trajano_fichas') || '{}');
+  const badge = document.getElementById('het-badge-cartografo');
+  const fichas = JSON.parse(localStorage.getItem('territorio_fichas') || '{}');
   const ficha = fichas[h.nome];
   const abertas = ficha ? ficha.oportunidades.filter(o => o.status !== 'concluida' && o.status !== 'descartada').length : 0;
   if (abertas > 0) {
-    badge.textContent = `✦ TRAJANO: ${abertas} OPORTUNIDADE${abertas > 1 ? 'S' : ''} ATIVA${abertas > 1 ? 'S' : ''}`;
+    badge.textContent = `✦ TERRITÓRIO: ${abertas} OPORTUNIDADE${abertas > 1 ? 'S' : ''} ATIVA${abertas > 1 ? 'S' : ''}`;
     badge.style.display = 'inline-block';
   } else {
     badge.style.display = 'none';
@@ -1110,8 +1110,8 @@ function confirmarNovoHeteronimo() {
   gerarEPublicarBiografia({ id:key, nome, eixo, territorio });
 }
 
-// ── HANDOFF DO TRAJANO ESTRADA: abre a Maternidade já preenchida quando
-// chega um link do tipo gerador_obra.html?maternidade=1&territorio=... ──
+// ── HANDOFF DO CARTÓGRAFO DE TERRITÓRIO: abre a Maternidade já preenchida
+// quando chega um link do tipo gerador_obra.html?maternidade=1&territorio=... ──
 window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(location.search);
   if (params.get('maternidade') === '1') {
@@ -1352,12 +1352,12 @@ async function fernandoEscolheHeteronimo(tema) {
 
   const fichaFallback = slugifyNome('Wagner Planas');
 
-  const fichas = JSON.parse(localStorage.getItem('trajano_fichas') || '{}');
+  const fichas = JSON.parse(localStorage.getItem('territorio_fichas') || '{}');
   const ativos = Object.entries(fichas)
     .map(([nome, f]) => ({ nome, abertas: (f.oportunidades || []).filter(o => o.status !== 'concluida' && o.status !== 'descartada') }))
     .filter(x => x.abertas.length > 0);
-  const contextoTrajano = ativos.length
-    ? `\n\nCONTEXTO DO TRAJANO ESTRADA (gestor de carreira) — heterônimos com oportunidades ativas mapeadas por território. Priorize-os SOMENTE SE o território bater com o tema da obra; isto é um sinal adicional, não uma ordem que sobrepõe seu julgamento:\n` +
+  const contextoCartografo = ativos.length
+    ? `\n\nCONTEXTO DO CARTÓGRAFO DE TERRITÓRIO — heterônimos com oportunidades ativas mapeadas por território. Priorize-os SOMENTE SE o território bater com o tema da obra; isto é um sinal adicional, não uma ordem que sobrepõe seu julgamento:\n` +
       ativos.map(x => `- ${x.nome}: ${x.abertas.length} oportunidade(s), ex.: "${x.abertas[0].titulo}"`).join('\n')
     : '';
 
@@ -1368,7 +1368,7 @@ async function fernandoEscolheHeteronimo(tema) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 100,
-        system: `Você é Fernando Peçanha, curador máximo da OHE. Analise o tema e escolha o heterônimo mais compatível por território soberano e DNA narrativo. Responda APENAS com o nome completo e exato de um heterônimo da lista abaixo — ou, se NENHUM heterônimo cobrir bem este território, responda exatamente a palavra NOVO (nada mais). Heterônimos disponíveis:\n${lista}${contextoTrajano}`,
+        system: `Você é Fernando Peçanha, curador máximo da OHE. Analise o tema e escolha o heterônimo mais compatível por território soberano e DNA narrativo. Responda APENAS com o nome completo e exato de um heterônimo da lista abaixo — ou, se NENHUM heterônimo cobrir bem este território, responda exatamente a palavra NOVO (nada mais). Heterônimos disponíveis:\n${lista}${contextoCartografo}`,
         messages: [{ role: 'user', content: `Tema da obra: ${tema}\n\nQual heterônimo assume esta obra?` }]
       })
     });

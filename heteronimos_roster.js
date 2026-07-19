@@ -6,7 +6,7 @@
  * adicionado/editado diretamente em index.html, replique a mudança aqui —
  * este arquivo é um espelho, não o original.
  *
- * Criado para dar a gerador_obra.html e trajano_estrada.html uma base
+ * Criado para dar a gerador_obra.html e cartografo_territorio.html uma base
  * comum de 57 (em vez de listas parciais divergentes), mais os
  * heterônimos criados em runtime pela Maternidade (localStorage
  * 'heteronimos_extras'), que ficam disponíveis via getRosterCompleto()
@@ -82,7 +82,7 @@ function slugifyNome(nome) {
 }
 
 // Heterônimos criados em runtime pela Maternidade (gerador_obra.html), persistidos
-// para sobreviver a reloads e ficarem visíveis ao Trajano Estrada.
+// para sobreviver a reloads e ficarem visíveis ao Cartógrafo de Território.
 function getHeteronimosExtras() {
   try { return JSON.parse(localStorage.getItem('heteronimos_extras') || '[]'); }
   catch (e) { return []; }
