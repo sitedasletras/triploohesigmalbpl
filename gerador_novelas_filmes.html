@@ -57,6 +57,14 @@ body{font-family:'Libre Baskerville',Georgia,serif;background:linear-gradient(17
 .filtro-elenco{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .chip-filtro{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:999px;border:1px solid rgba(201,166,70,.2);color:rgba(201,166,70,.55);cursor:pointer}
 .chip-filtro.ativo{background:var(--ouro);color:var(--azul);border-color:var(--ouro)}
+.ia-card{border-color:rgba(59,31,110,.35);background:rgba(20,12,36,.6)}
+.ia-toggle{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.ia-btn{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:10px 16px;border-radius:12px;border:1px solid rgba(201,166,70,.25);background:rgba(255,255,255,.03);color:rgba(201,166,70,.6);cursor:pointer;transition:.15s}
+.ia-btn.ativo{background:var(--roxo);color:#d0b0ff;border-color:rgba(59,31,110,.6)}
+.ia-status{font-family:'DM Mono',monospace;font-size:11px;color:rgba(128,232,160,.75);margin-top:6px}
+.ia-status.falta{color:#ffb0a0}
+.ia-nota{font-size:12px;color:rgba(240,236,224,.5);margin-top:10px;line-height:1.6}
+.ia-nota a{color:var(--ouro2)}
 .btn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:999px;padding:11px 18px;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;text-decoration:none}
 .btn:hover{transform:translateY(-1px)}
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
@@ -139,6 +147,34 @@ footer p{font-size:13px;line-height:1.8}
 
   <!-- PAINEL NOVO PROJETO -->
   <div class="painel ativo" id="painel-novo">
+
+    <div class="card ia-card">
+      <h3>🧠 Provedor de IA</h3>
+      <p class="sub">ESCOLHA O MODELO QUE VAI ESCREVER A BÍBLIA E OS ROTEIROS</p>
+      <div class="ia-toggle">
+        <button class="ia-btn ativo" id="ia-anthropic" onclick="setProvedor('anthropic')">✦ Claude (Anthropic)</button>
+        <button class="ia-btn" id="ia-gemini" onclick="setProvedor('gemini')">✦ Gemini (Google)</button>
+      </div>
+      <div id="bloco-cfg-anthropic">
+        <div class="ia-status">Usa a chave já configurada em <code>config.js</code>. Sem custo adicional de configuração.</div>
+      </div>
+      <div id="bloco-cfg-gemini" style="display:none">
+        <div class="f2">
+          <div class="campo"><label>Chave da API Gemini</label>
+            <input type="password" id="gemini-key" placeholder="AIza..." oninput="localStorage.setItem('gemini_api_key', this.value); atualizaStatusIA()">
+          </div>
+          <div class="campo"><label>Modelo</label>
+            <select id="p-modelo-gemini">
+              <option value="gemini-2.5-flash">gemini-2.5-flash (rápido, tier gratuito)</option>
+              <option value="gemini-2.5-pro">gemini-2.5-pro (mais qualidade)</option>
+              <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+            </select>
+          </div>
+        </div>
+        <div class="ia-status" id="status-gemini"></div>
+        <div class="ia-nota">Chave gratuita em <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a>. Fica salva só neste dispositivo (localStorage), nunca é enviada a lugar nenhum além da própria API do Google.</div>
+      </div>
+    </div>
 
     <div class="card">
       <h3>🎬 Configuração do Projeto</h3>
@@ -316,6 +352,32 @@ var elencoSelecionado = [];
 var filtroEspAtivo = '';
 var estado = null; // projeto em edição
 var acervo = JSON.parse(localStorage.getItem(ACERVO_KEY) || '[]');
+var provedorIA = localStorage.getItem('novelas_ia_provider') || 'anthropic';
+
+// ── PROVEDOR DE IA ──
+function setProvedor(p) {
+  provedorIA = p;
+  localStorage.setItem('novelas_ia_provider', p);
+  document.getElementById('ia-anthropic').classList.toggle('ativo', p === 'anthropic');
+  document.getElementById('ia-gemini').classList.toggle('ativo', p === 'gemini');
+  document.getElementById('bloco-cfg-anthropic').style.display = p === 'anthropic' ? 'block' : 'none';
+  document.getElementById('bloco-cfg-gemini').style.display = p === 'gemini' ? 'block' : 'none';
+  atualizaStatusIA();
+}
+
+function atualizaStatusIA() {
+  var el = document.getElementById('status-gemini');
+  if (!el) return;
+  var key = localStorage.getItem('gemini_api_key') || '';
+  el.textContent = key ? '✓ chave Gemini configurada' : '⚠ informe a chave Gemini para usar este provedor';
+  el.classList.toggle('falta', !key);
+}
+
+function initProvedor() {
+  var savedKey = localStorage.getItem('gemini_api_key') || '';
+  if (savedKey) document.getElementById('gemini-key').value = savedKey;
+  setProvedor(provedorIA);
+}
 
 // ── NAVEGAÇÃO ──
 function mudarAba(id, ev) {
@@ -396,7 +458,17 @@ function toggleAtor(id, el, ev) {
   var cb = el.querySelector('input'); if (cb) cb.checked = elencoSelecionado.indexOf(id) > -1;
 }
 
-// ── CHAMADA ANTHROPIC ──
+// ── CHAMADA DE IA (despacha para o provedor selecionado) ──
+async function chamarIA(system, prompt, maxTokens) {
+  if (provedorIA === 'gemini') return chamarGemini(system, prompt, maxTokens);
+  return chamarClaude(system, prompt, maxTokens);
+}
+
+function modeloAtualIA() {
+  if (provedorIA === 'gemini') return document.getElementById('p-modelo-gemini').value;
+  return window.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
+}
+
 async function chamarClaude(system, prompt, maxTokens) {
   var resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -411,6 +483,27 @@ async function chamarClaude(system, prompt, maxTokens) {
   var data = await resp.json();
   if (data.error) throw new Error(data.error.message || 'Erro na API Anthropic');
   return (data.content && data.content[0] && data.content[0].text) ? data.content[0].text.trim() : '';
+}
+
+async function chamarGemini(system, prompt, maxTokens) {
+  var key = localStorage.getItem('gemini_api_key') || '';
+  if (!key) throw new Error('Configure a chave da API Gemini no card "Provedor de IA".');
+  var modelo = document.getElementById('p-modelo-gemini').value;
+  var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + modelo + ':generateContent?key=' + encodeURIComponent(key), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: system }] },
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: maxTokens }
+    })
+  });
+  var data = await resp.json();
+  if (data.error) throw new Error(data.error.message || 'Erro na API Gemini');
+  var cand = data.candidates && data.candidates[0];
+  if (!cand) throw new Error('Gemini não retornou conteúdo (possível bloqueio de segurança).');
+  var partes = (cand.content && cand.content.parts) || [];
+  return partes.map(function(p){ return p.text || ''; }).join('').trim();
 }
 
 function extrairJSON(texto) {
@@ -458,7 +551,7 @@ async function gerarBiblia() {
   document.getElementById('loading-biblia').classList.add('vis');
   document.getElementById('btn-gerar-biblia').disabled = true;
   try {
-    var texto = await chamarClaude(system, prompt, 3000);
+    var texto = await chamarIA(system, prompt, 3000);
     var json = extrairJSON(texto);
 
     estado = {
@@ -471,6 +564,8 @@ async function gerarBiblia() {
       sinopse: json.sinopse || '',
       personagens: json.personagens || [],
       episodios: (json.episodios || []).map(function(e){ return { numero: e.numero, titulo: e.titulo, sinopse: e.sinopse, roteiro: '' }; }),
+      provedor: provedorIA,
+      modelo: modeloAtualIA(),
       criadoEm: new Date().toLocaleDateString('pt-BR'),
       atualizadoEm: new Date().toLocaleDateString('pt-BR')
     };
@@ -534,7 +629,7 @@ async function gerarRoteiroEpisodio(i) {
 
   document.getElementById('loading-episodio').classList.add('vis');
   try {
-    var roteiro = await chamarClaude(system, prompt, 4096);
+    var roteiro = await chamarIA(system, prompt, 4096);
     ep.roteiro = roteiro;
     estado.atualizadoEm = new Date().toLocaleDateString('pt-BR');
     renderEpisodios();
@@ -594,6 +689,7 @@ function carregarProjeto(id) {
   document.getElementById('p-tom').value = p.tom;
   document.getElementById('p-autor').value = p.autor || '';
   document.getElementById('p-num-episodios').value = p.episodios.length;
+  if (p.provedor) setProvedor(p.provedor);
   setOrigem(p.origem);
   if (p.origem === 'zero') document.getElementById('p-tema').value = p.livroRef || '';
   atualizaFormato();
@@ -630,6 +726,7 @@ function compilarProjetoTxt(p) {
     '══════════════════════════════════════════════════════════',
     'Formato: ' + p.formato + '   Gênero: ' + p.genero + '   Tom: ' + p.tom,
     p.autor ? 'Voz autoral: ' + p.autor : '',
+    'Gerado com: ' + (p.provedor === 'gemini' ? 'Google Gemini' : 'Anthropic Claude') + (p.modelo ? ' (' + p.modelo + ')' : ''),
     'Criado em: ' + p.criadoEm,
     '──────────────────────────────────────────────────────────',
     '', 'SINOPSE', p.sinopse, '',
@@ -713,10 +810,11 @@ function renderAcervo(lista) {
   if (!lista.length) { el.innerHTML = '<div class="vazio">Nenhum projeto salvo ainda. Crie um em "Novo Projeto".</div>'; return; }
   el.innerHTML = lista.map(function(p) {
     var epsProntos = p.episodios.filter(function(e){ return e.roteiro; }).length;
+    var provNome = p.provedor === 'gemini' ? 'Gemini' : 'Claude';
     return '<div class="material-card">' +
       '<div class="mc-head" onclick="carregarProjeto(\'' + p.id + '\')">' +
         '<div><div class="mc-nome">' + p.titulo + '</div>' +
-        '<div class="mc-meta">' + p.id + ' · ' + p.formato + ' · ' + p.genero + ' · ' + epsProntos + '/' + p.episodios.length + ' roteiros prontos · ' + p.atualizadoEm + '</div></div>' +
+        '<div class="mc-meta">' + p.id + ' · ' + p.formato + ' · ' + p.genero + ' · ' + provNome + ' · ' + epsProntos + '/' + p.episodios.length + ' roteiros prontos · ' + p.atualizadoEm + '</div></div>' +
         '<div class="mc-acoes"><button class="btn b-sm b-esc" onclick="excluirProjeto(\'' + p.id + '\',event)">🗑</button></div>' +
       '</div>' +
     '</div>';
@@ -730,6 +828,7 @@ function buscarAcervo(q) {
 // ── INIT ──
 initElenco();
 atualizaFormato();
+initProvedor();
 </script>
 </body>
 </html>
