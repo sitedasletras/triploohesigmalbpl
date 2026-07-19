@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Novelas &amp; Filmes — triploohesigmalbpl</title>
+<script src="config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#07101d;--ouro:#c9a646;--ouro2:#f4dc88;--vinho:#6d1a2a;--verde:#1f7a42;--roxo:#3b1f6e;--r:20px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Libre Baskerville',Georgia,serif;background:linear-gradient(170deg,#03060a,#07101d 60%,#03060a);color:white;min-height:100vh}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(3,6,10,.98);border-bottom:2px solid var(--ouro);backdrop-filter:blur(10px)}
+.top-in{max-width:1200px;margin:auto;padding:10px 22px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.marca{font-family:'DM Mono',monospace;color:var(--ouro2);font-size:13px;font-weight:700}
+.marca small{display:block;font-size:10px;color:rgba(244,220,136,.4);letter-spacing:.08em}
+.tnav{display:flex;gap:5px;flex-wrap:wrap}
+.tnav a{font-family:'DM Mono',monospace;font-size:11px;color:#c8c0ae;text-decoration:none;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.1);transition:.15s}
+.tnav a:hover{color:var(--ouro2);border-color:var(--ouro);background:rgba(201,166,70,.1)}
+.hero{background:radial-gradient(ellipse 60% 50% at 15% 20%,rgba(109,26,42,.25),transparent),linear-gradient(148deg,#030609,#07101d 50%,#030609);padding:44px 22px 34px;border-bottom:5px solid var(--ouro)}
+.hero-in{max-width:1200px;margin:auto}
+.eyebrow{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.12em;color:rgba(201,166,70,.6);text-transform:uppercase;margin-bottom:10px}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(30px,5vw,52px);line-height:1.05;color:var(--ouro2);margin-bottom:10px}
+.hero p{font-size:15px;line-height:1.7;color:rgba(240,236,224,.72);max-width:760px}
+.wrap{max-width:1200px;margin:auto;padding:30px 22px 70px;display:flex;flex-direction:column;gap:24px}
+.abas{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid rgba(201,166,70,.2);padding-bottom:14px}
+.aba{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:9px 18px;border-radius:12px;border:1px solid rgba(201,166,70,.2);color:rgba(201,166,70,.5);cursor:pointer;transition:.15s;background:rgba(255,255,255,.03)}
+.aba:hover{color:var(--ouro2);border-color:var(--ouro)}
+.aba.ativa{background:rgba(201,166,70,.15);color:var(--ouro2);border-color:var(--ouro)}
+.painel{display:none}.painel.ativo{display:block}
+.card{background:rgba(10,18,32,.95);border:1px solid rgba(201,166,70,.15);border-radius:var(--r);padding:26px;margin-bottom:18px}
+.card h3{font-family:'Playfair Display',serif;font-size:22px;color:var(--ouro2);margin-bottom:6px}
+.card .sub{font-size:13px;color:rgba(240,236,224,.55);margin-bottom:18px;font-family:'DM Mono',monospace}
+.origem-toggle{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.ot-btn{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:10px 16px;border-radius:12px;border:1px solid rgba(201,166,70,.25);background:rgba(255,255,255,.03);color:rgba(201,166,70,.6);cursor:pointer;transition:.15s}
+.ot-btn.ativo{background:var(--vinho);color:#ffb0a0;border-color:rgba(192,57,43,.5)}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.f3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.campo label{display:block;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:rgba(201,166,70,.65);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.campo input,.campo select,.campo textarea{width:100%;border:1px solid rgba(201,166,70,.25);border-radius:12px;padding:11px 14px;font-family:'Libre Baskerville',serif;font-size:14px;background:rgba(7,16,29,.8);color:var(--ouro2);outline:none;transition:border-color .2s}
+.campo textarea{min-height:100px;resize:vertical}
+.campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--ouro)}
+.wide{grid-column:1/-1}
+.campo{margin-bottom:14px}
+.upload-box{border:2px dashed rgba(201,166,70,.3);border-radius:16px;padding:24px;text-align:center;cursor:pointer;transition:.15s;margin-bottom:14px}
+.upload-box:hover{border-color:var(--ouro);background:rgba(201,166,70,.04)}
+.upload-box.tem-arquivo{border-style:solid;border-color:var(--verde)}
+.upload-info{font-family:'DM Mono',monospace;font-size:12px;color:rgba(128,232,160,.8);margin-top:8px}
+.elenco-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;max-height:280px;overflow-y:auto;padding:4px;border:1px solid rgba(201,166,70,.1);border-radius:12px;background:rgba(7,16,29,.4)}
+.ator-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.03);border:1px solid rgba(201,166,70,.12);border-radius:10px;padding:8px 10px;cursor:pointer;font-size:12px}
+.ator-chip:hover{border-color:var(--ouro)}
+.ator-chip.sel{background:rgba(201,166,70,.15);border-color:var(--ouro)}
+.ator-chip input{margin:0}
+.ator-nome{font-family:'DM Mono',monospace;color:var(--ouro2);font-size:11.5px}
+.ator-esp{color:rgba(240,236,224,.45);font-size:10px}
+.filtro-elenco{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chip-filtro{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:999px;border:1px solid rgba(201,166,70,.2);color:rgba(201,166,70,.55);cursor:pointer}
+.chip-filtro.ativo{background:var(--ouro);color:var(--azul);border-color:var(--ouro)}
+.btn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:999px;padding:11px 18px;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;text-decoration:none}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.b-ouro{background:var(--ouro);color:var(--azul)}.b-ouro:hover{background:var(--ouro2)}
+.b-verm{background:var(--vinho);color:#ffb0a0}
+.b-verde{background:var(--verde);color:white}
+.b-roxo{background:var(--roxo);color:#d0b0ff}
+.b-esc{background:rgba(255,255,255,.06);color:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.12)}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.bloco-resultado{display:none;background:rgba(31,122,66,.1);border:1px solid rgba(31,122,66,.35);border-radius:16px;padding:20px;margin-top:16px}
+.bloco-resultado.vis{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.bloco-resultado h4{font-family:'Playfair Display',serif;font-size:19px;color:#80e8a0;margin-bottom:10px}
+.sinopse-txt{font-size:14px;line-height:1.75;color:rgba(240,236,224,.8);margin-bottom:14px}
+.personagens-lista{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.pers-item{background:rgba(7,16,29,.6);border:1px solid rgba(201,166,70,.12);border-radius:10px;padding:10px 14px;font-size:13px}
+.pers-item b{color:var(--ouro2)}
+.pers-item .ator-ind{color:rgba(255,176,160,.8);font-family:'DM Mono',monospace;font-size:11px}
+.ep-lista{display:flex;flex-direction:column;gap:10px}
+.ep-card{background:rgba(7,16,29,.65);border:1px solid rgba(201,166,70,.15);border-radius:14px;padding:16px 18px}
+.ep-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ep-titulo{font-family:'Playfair Display',serif;font-size:16px;color:var(--ouro2)}
+.ep-num{font-family:'DM Mono',monospace;font-size:10px;color:rgba(201,166,70,.5)}
+.ep-sinopse{font-size:13px;color:rgba(240,236,224,.6);margin-top:6px;line-height:1.6}
+.ep-status{font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:999px}
+.st-pendente{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+.st-pronto{background:rgba(31,122,66,.25);color:#80e8a0}
+.ep-roteiro{display:none;margin-top:12px;background:rgba(3,6,10,.6);border-radius:10px;padding:14px}
+.ep-roteiro.vis{display:block}
+.ep-roteiro pre{font-family:'DM Mono',monospace;font-size:12px;color:rgba(240,236,224,.82);line-height:1.75;white-space:pre-wrap;max-height:420px;overflow-y:auto}
+.material-card{background:rgba(10,18,32,.9);border:1px solid rgba(201,166,70,.1);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.mc-head{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;cursor:pointer;border-bottom:1px solid rgba(201,166,70,.06)}
+.mc-head:hover{background:rgba(201,166,70,.04)}
+.mc-nome{font-family:'Playfair Display',serif;font-size:17px;color:var(--ouro2)}
+.mc-meta{font-family:'DM Mono',monospace;font-size:10px;color:rgba(201,166,70,.38);margin-top:2px}
+.mc-acoes{display:flex;gap:6px}
+.mc-body{display:none;padding:16px 18px;background:rgba(7,16,29,.4)}
+.mc-body.aberto{display:block}
+.b-sm{padding:6px 12px;font-size:11px;border-radius:8px}
+.vazio{text-align:center;padding:36px;font-family:'DM Mono',monospace;font-size:13px;color:rgba(201,166,70,.25);border:1px dashed rgba(201,166,70,.12);border-radius:var(--r)}
+.loading{display:none;align-items:center;gap:10px;font-family:'DM Mono',monospace;font-size:12px;color:var(--ouro2);margin-top:12px}
+.loading.vis{display:flex}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(201,166,70,.25);border-top-color:var(--ouro);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--ouro);color:var(--azul);font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:12px 22px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:999;transition:transform .25s ease}
+.toast.vis{transform:translateX(-50%) translateY(0)}
+footer{background:rgba(0,0,0,.5);border-top:3px solid var(--ouro);padding:26px 22px;text-align:center;color:rgba(200,192,178,.5)}
+footer strong{color:var(--ouro2)}
+footer p{font-size:13px;line-height:1.8}
+@media(max-width:860px){.f2,.f3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="top-in">
+    <div class="marca">GERADOR DE NOVELAS &amp; FILMES<small>ROTEIROS · TRIPLOOHESIGMALBPL</small></div>
+    <nav class="tnav">
+      <a href="#" onclick="mudarAba('novo',event)">Novo Projeto</a>
+      <a href="#" onclick="mudarAba('acervo',event)">Projetos Salvos</a>
+      <a href="bpl_banco_personagens_literarios.html">Banco de Atores</a>
+      <a href="charlton_heston_sistema.html">Sistema Charlton</a>
+      <a href="index.html">↗ SIGMAL HQ</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="hero-in">
+    <div class="eyebrow">✦ Adaptação Dramatúrgica · BPL / Celeiro Literário</div>
+    <h1>Gerador de Novelas &amp; Filmes</h1>
+    <p>Crie roteiros do zero — sinopse, elenco do BPL e estrutura de episódios gerados por IA — ou envie um livro já escrito e transforme-o em roteiro de telenovela, minissérie, série ou filme. Tudo fica salvo neste dispositivo e pode ser publicado direto no Celeiro Literário.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="abas">
+    <div class="aba ativa" onclick="mudarAba('novo',event)">🎬 Novo Projeto</div>
+    <div class="aba" onclick="mudarAba('acervo',event)">📚 Projetos Salvos</div>
+  </div>
+
+  <!-- PAINEL NOVO PROJETO -->
+  <div class="painel ativo" id="painel-novo">
+
+    <div class="card">
+      <h3>🎬 Configuração do Projeto</h3>
+      <p class="sub">ORIGEM DO MATERIAL · FORMATO · ELENCO</p>
+
+      <div class="origem-toggle">
+        <button class="ot-btn ativo" id="ot-zero" onclick="setOrigem('zero')">✍️ Criar do zero</button>
+        <button class="ot-btn" id="ot-upload" onclick="setOrigem('upload')">📖 Adaptar livro enviado</button>
+      </div>
+
+      <div id="bloco-zero">
+        <div class="campo wide"><label>Tema / Premissa da história</label>
+          <textarea id="p-tema" placeholder="Ex: Duas famílias rivais no interior do Nordeste, ligadas por um segredo de 30 anos que volta à tona quando os filhos se apaixonam..."></textarea>
+        </div>
+      </div>
+
+      <div id="bloco-upload" style="display:none">
+        <div class="upload-box" id="upload-box" onclick="document.getElementById('input-arquivo').click()">
+          <div style="font-size:28px;margin-bottom:6px">📤</div>
+          <div style="font-family:'DM Mono',monospace;font-size:12px;color:rgba(201,166,70,.7)">Clique para enviar um livro (.txt ou .md)</div>
+          <div class="upload-info" id="upload-info"></div>
+        </div>
+        <input type="file" id="input-arquivo" accept=".txt,.md,text/plain,text/markdown" style="display:none" onchange="handleUpload(this.files[0])">
+        <div class="campo wide"><label>Ou cole o texto do livro diretamente</label>
+          <textarea id="p-livro-texto" placeholder="Cole aqui o texto do livro a ser adaptado..." style="min-height:140px"></textarea>
+        </div>
+      </div>
+
+      <div class="f3">
+        <div class="campo"><label>Título (opcional — IA gera se vazio)</label><input type="text" id="p-titulo" placeholder="Título do projeto"></div>
+        <div class="campo"><label>Formato</label>
+          <select id="p-formato" onchange="atualizaFormato()">
+            <option value="Filme">Filme</option>
+            <option value="Telenovela">Telenovela</option>
+            <option value="Minissérie">Minissérie</option>
+            <option value="Série Semanal">Série Semanal</option>
+          </select>
+        </div>
+        <div class="campo"><label>Gênero</label>
+          <select id="p-genero">
+            <option value="drama">Drama</option>
+            <option value="comedia">Comédia</option>
+            <option value="acao">Ação</option>
+            <option value="suspense">Suspense</option>
+            <option value="romance">Romance</option>
+            <option value="tragedia">Tragédia</option>
+            <option value="experimental">Experimental</option>
+          </select>
+        </div>
+      </div>
+      <div class="f3">
+        <div class="campo" id="campo-episodios"><label>Nº de episódios</label><input type="number" id="p-num-episodios" value="1" min="1" max="60"></div>
+        <div class="campo"><label>Heterônimo / voz autoral (opcional)</label><input type="text" id="p-autor" placeholder="Ex: Fernando Peçanha"></div>
+        <div class="campo"><label>Tom narrativo</label>
+          <select id="p-tom">
+            <option>Realista / naturalista</option>
+            <option>Folhetinesco / melodramático</option>
+            <option>Popular / regional</option>
+            <option>Sofisticado / urbano</option>
+            <option>Onírico / experimental</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="campo wide">
+        <label>Elenco do BPL (opcional — a IA sugere se nada for marcado)</label>
+        <div class="filtro-elenco" id="filtro-elenco"></div>
+        <div class="elenco-grid" id="elenco-grid"></div>
+      </div>
+
+      <div class="btns">
+        <button class="btn b-verm" id="btn-gerar-biblia" onclick="gerarBiblia()">🪄 Gerar Bíblia + Estrutura</button>
+        <button class="btn b-esc" onclick="limparProjeto()">✕ Novo / Limpar</button>
+      </div>
+      <div class="loading" id="loading-biblia"><span class="spinner"></span> Gerando bíblia da história...</div>
+    </div>
+
+    <div class="bloco-resultado" id="bloco-biblia">
+      <h4>📖 Bíblia da História</h4>
+      <div class="sinopse-txt" id="res-sinopse"></div>
+      <div class="personagens-lista" id="res-personagens"></div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(201,166,70,.5);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Episódios / Roteiro</div>
+      <div class="ep-lista" id="res-episodios"></div>
+      <div class="loading" id="loading-episodio"><span class="spinner"></span> Escrevendo roteiro...</div>
+      <div class="btns">
+        <button class="btn b-roxo" id="btn-gerar-todos" onclick="gerarTodosEpisodios()">🤖 Gerar todos os episódios automaticamente</button>
+        <button class="btn b-ouro" onclick="salvarProjeto()">💾 Salvar projeto</button>
+        <button class="btn b-verde" onclick="baixarProjetoCompleto()">📦 Baixar tudo (.txt)</button>
+        <button class="btn b-esc" onclick="publicarCeleiro()">🚀 Publicar no Celeiro Literário</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAINEL ACERVO -->
+  <div class="painel" id="painel-acervo">
+    <div class="card">
+      <h3>📚 Projetos Salvos</h3>
+      <p class="sub">TODOS OS ROTEIROS DE NOVELA/FILME SALVOS NESTE DISPOSITIVO</p>
+      <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+        <input type="text" style="flex:1;min-width:180px;border:1px solid rgba(201,166,70,.25);border-radius:10px;padding:9px 13px;font-family:'DM Mono',monospace;font-size:13px;background:rgba(7,16,29,.8);color:var(--ouro2);outline:none" placeholder="Buscar projeto..." oninput="buscarAcervo(this.value)">
+        <button class="btn b-ouro" onclick="baixarTodosProjetos()">📦 Baixar todos</button>
+      </div>
+      <div id="lista-acervo"></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p><strong>Gerador de Novelas &amp; Filmes</strong> · triploohesigmalbpl</p>
+  <p>W.S.P. S/A-ME · Word Stars Productions · Adaptação dramatúrgica a partir do acervo do Celeiro Literário e do BPL</p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── ELENCO BPL (resumo — id, nome, gênero, especialidade, formatos) ──
+const ARTISTAS_BPL = [
+{id:'BPL-001',nome:'Isolde Vael Carrim',genero:'F',esp:'drama',fmt:['cinema','teatro','serie']},
+{id:'BPL-002',nome:'Esteban Morales Vega',genero:'M',esp:'drama',fmt:['teatro','cinema','audiobook']},
+{id:'BPL-003',nome:'Yuki Tanegawa',genero:'F',esp:'drama',fmt:['anime','teatro','performance']},
+{id:'BPL-004',nome:'Darius Mehrabani',genero:'M',esp:'drama',fmt:['cinema','serie','videoclipe']},
+{id:'BPL-005',nome:'Amara Diallo Keïta',genero:'F',esp:'drama',fmt:['teatro','performance','cinema']},
+{id:'BPL-006',nome:'Mirela Szabo',genero:'F',esp:'tragedia',fmt:['teatro','cinema','audiobook']},
+{id:'BPL-007',nome:'Tomás Induni Leal',genero:'M',esp:'drama',fmt:['teatro','serie','cinema']},
+{id:'BPL-008',nome:'Bridget Afolabi',genero:'F',esp:'comedia',fmt:['teatro','serie','videoclipe']},
+{id:'BPL-009',nome:'Serafino Conti Neri',genero:'M',esp:'comedia',fmt:['teatro','performance','cinema']},
+{id:'BPL-010',nome:'Park Jiwon',genero:'M',esp:'comedia',fmt:['serie','animacao','videoclipe']},
+{id:'BPL-011',nome:'Fatou Mbengue',genero:'F',esp:'comedia',fmt:['teatro','performance','serie']},
+{id:'BPL-012',nome:'Lucho Cienfuegos',genero:'M',esp:'comedia',fmt:['teatro','cinema','animacao']},
+{id:'BPL-013',nome:'Zara Nkemdirim',genero:'F',esp:'acao',fmt:['cinema','serie','performance']},
+{id:'BPL-014',nome:'Ren Bashir Khattak',genero:'M',esp:'acao',fmt:['cinema','serie','videoclipe']},
+{id:'BPL-015',nome:'Ingrid Valkonen',genero:'F',esp:'acao',fmt:['cinema','teatro','performance']},
+{id:'BPL-016',nome:'Celestino Aguiar Fontes',genero:'M',esp:'acao',fmt:['cinema','serie','videoclipe']},
+{id:'BPL-017',nome:'Vera Silvestri Manzoni',genero:'F',esp:'suspense',fmt:['cinema','serie','audiobook']},
+{id:'BPL-018',nome:'Konrad Brehmer',genero:'M',esp:'suspense',fmt:['cinema','serie','teatro']},
+{id:'BPL-019',nome:'Layla Haddad Osman',genero:'F',esp:'suspense',fmt:['cinema','serie','performance']},
+{id:'BPL-020',nome:'Gavriil Petrov-Ilyich',genero:'M',esp:'suspense',fmt:['cinema','teatro','audiobook']},
+{id:'BPL-021',nome:'Celeste Mourão Braga',genero:'F',esp:'romance',fmt:['cinema','serie','videoclipe']},
+{id:'BPL-022',nome:'Olivier Chastenet',genero:'M',esp:'romance',fmt:['cinema','teatro','videoclipe']},
+{id:'BPL-023',nome:'Priya Subramaniam',genero:'F',esp:'romance',fmt:['cinema','animacao','videoclipe']},
+{id:'BPL-024',nome:"Rafael Queiroga Salave'a",genero:'M',esp:'romance',fmt:['teatro','cinema','audiobook']},
+{id:'BPL-025',nome:'Nadia Oufkir',genero:'F',esp:'romance',fmt:['cinema','serie','videoclipe']},
+{id:'BPL-026',nome:'Sable Huxley Owens',genero:'F',esp:'experimental',fmt:['performance','teatro','animacao']},
+{id:'BPL-027',nome:'Kenji Matsunaga Rios',genero:'M',esp:'experimental',fmt:['performance','animacao','teatro']},
+{id:'BPL-028',nome:'Asel Mamytbekova',genero:'F',esp:'experimental',fmt:['performance','teatro','videoclipe']},
+{id:'BPL-029',nome:'Adaeze Onwudiwe',genero:'F',esp:'tragedia',fmt:['teatro','cinema','audiobook']},
+{id:'BPL-030',nome:'Vasile Ionescu-Doran',genero:'M',esp:'tragedia',fmt:['teatro','cinema','audiobook']},
+{id:'BPL-031',nome:'Sunita Karmakar',genero:'F',esp:'drama',fmt:['cinema','serie','audiobook']},
+{id:'BPL-032',nome:'Marcus Elroy Thorne',genero:'M',esp:'drama',fmt:['teatro','cinema','serie']},
+{id:'BPL-033',nome:'Florentina Oprea Vlad',genero:'F',esp:'comedia',fmt:['teatro','serie','animacao']},
+{id:'BPL-034',nome:'Ibrahim Al-Rashid',genero:'M',esp:'drama',fmt:['cinema','teatro','audiobook']},
+{id:'BPL-035',nome:'Esperanza Villarreal',genero:'F',esp:'drama',fmt:['cinema','performance','teatro']},
+{id:'BPL-036',nome:'Nnamdi Achebe Osei',genero:'M',esp:'acao',fmt:['cinema','serie','videoclipe']},
+{id:'BPL-037',nome:'Valentina Russo Ferretti',genero:'F',esp:'romance',fmt:['cinema','serie','teatro']},
+{id:'BPL-038',nome:'Taavi Mäkinen',genero:'M',esp:'suspense',fmt:['cinema','serie','audiobook']},
+{id:'BPL-039',nome:'Chidinma Ezeh',genero:'F',esp:'comedia',fmt:['teatro','serie','videoclipe']},
+{id:'BPL-040',nome:'Aleksandr Voronov',genero:'M',esp:'tragedia',fmt:['teatro','cinema','audiobook']},
+{id:'BPL-041',nome:'Meera Pillai Nair',genero:'F',esp:'experimental',fmt:['performance','teatro','animacao']},
+{id:'BPL-042',nome:'Cássio Avelar Drummond',genero:'M',esp:'drama',fmt:['teatro','cinema','serie']},
+{id:'BPL-043',nome:'Áine Ní Bhriain',genero:'F',esp:'romance',fmt:['teatro','cinema','audiobook']},
+{id:'BPL-044',nome:'Hideo Watanabe Suzu',genero:'M',esp:'suspense',fmt:['cinema','animacao','serie']},
+{id:'BPL-045',nome:'Blessing Okonkwo',genero:'F',esp:'drama',fmt:['teatro','serie','cinema']},
+{id:'BPL-046',nome:'Simón Arce Palomino',genero:'M',esp:'drama',fmt:['teatro','cinema','performance']},
+{id:'BPL-047',nome:'Roksana Wiśniewska',genero:'F',esp:'tragedia',fmt:['teatro','cinema','audiobook']},
+{id:'BPL-048',nome:'Chukwuemeka Eze',genero:'M',esp:'acao',fmt:['cinema','serie','videoclipe']},
+{id:'BPL-049',nome:'Luna Sepúlveda Araya',genero:'F',esp:'experimental',fmt:['performance','teatro','videoclipe']},
+{id:'BPL-050',nome:'Ezra Blackwood-Osei',genero:'M',esp:'drama',fmt:['teatro','cinema','audiobook']}
+];
+
+const ESPECIALIDADES = ['drama','comedia','acao','suspense','romance','tragedia','experimental'];
+const ACERVO_KEY = 'novelas_filmes_acervo';
+
+var origemAtual = 'zero';
+var elencoSelecionado = [];
+var filtroEspAtivo = '';
+var estado = null; // projeto em edição
+var acervo = JSON.parse(localStorage.getItem(ACERVO_KEY) || '[]');
+
+// ── NAVEGAÇÃO ──
+function mudarAba(id, ev) {
+  if (ev && ev.preventDefault) ev.preventDefault();
+  document.querySelectorAll('.aba').forEach(function(a){ a.classList.remove('ativa'); });
+  document.querySelectorAll('.painel').forEach(function(p){ p.classList.remove('ativo'); });
+  var idx = ['novo','acervo'].indexOf(id);
+  document.querySelectorAll('.aba')[idx].classList.add('ativa');
+  document.getElementById('painel-' + id).classList.add('ativo');
+  if (id === 'acervo') renderAcervo(acervo);
+}
+
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('vis');
+  setTimeout(function(){ t.classList.remove('vis'); }, 3200);
+}
+
+// ── ORIGEM (zero / upload) ──
+function setOrigem(tipo) {
+  origemAtual = tipo;
+  document.getElementById('ot-zero').classList.toggle('ativo', tipo === 'zero');
+  document.getElementById('ot-upload').classList.toggle('ativo', tipo === 'upload');
+  document.getElementById('bloco-zero').style.display = tipo === 'zero' ? 'block' : 'none';
+  document.getElementById('bloco-upload').style.display = tipo === 'upload' ? 'block' : 'none';
+}
+
+function atualizaFormato() {
+  var formato = document.getElementById('p-formato').value;
+  document.getElementById('campo-episodios').style.display = formato === 'Filme' ? 'none' : 'block';
+  if (formato === 'Filme') document.getElementById('p-num-episodios').value = 1;
+}
+
+function handleUpload(file) {
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('p-livro-texto').value = e.target.result;
+    document.getElementById('upload-box').classList.add('tem-arquivo');
+    var palavras = e.target.result.trim().split(/\s+/).length;
+    document.getElementById('upload-info').textContent = '✓ "' + file.name + '" carregado — ~' + palavras.toLocaleString('pt-BR') + ' palavras';
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+// ── ELENCO ──
+function initElenco() {
+  var filtroEl = document.getElementById('filtro-elenco');
+  filtroEl.innerHTML = '<div class="chip-filtro ativo" onclick="filtrarElenco(\'\',this)">Todos</div>' +
+    ESPECIALIDADES.map(function(e){ return '<div class="chip-filtro" onclick="filtrarElenco(\'' + e + '\',this)">' + e + '</div>'; }).join('');
+  renderElenco();
+}
+
+function filtrarElenco(esp, el) {
+  filtroEspAtivo = esp;
+  document.querySelectorAll('.chip-filtro').forEach(function(c){ c.classList.remove('ativo'); });
+  el.classList.add('ativo');
+  renderElenco();
+}
+
+function renderElenco() {
+  var grid = document.getElementById('elenco-grid');
+  var lista = filtroEspAtivo ? ARTISTAS_BPL.filter(function(a){ return a.esp === filtroEspAtivo; }) : ARTISTAS_BPL;
+  grid.innerHTML = lista.map(function(a) {
+    var sel = elencoSelecionado.indexOf(a.id) > -1;
+    return '<label class="ator-chip' + (sel ? ' sel' : '') + '" onclick="toggleAtor(\'' + a.id + '\',this,event)">' +
+      '<input type="checkbox" ' + (sel ? 'checked' : '') + ' onclick="event.stopPropagation()">' +
+      '<div><div class="ator-nome">' + a.nome + '</div><div class="ator-esp">' + a.id + ' · ' + a.esp + '</div></div>' +
+    '</label>';
+  }).join('');
+}
+
+function toggleAtor(id, el, ev) {
+  var idx = elencoSelecionado.indexOf(id);
+  if (idx > -1) { elencoSelecionado.splice(idx, 1); el.classList.remove('sel'); }
+  else { elencoSelecionado.push(id); el.classList.add('sel'); }
+  var cb = el.querySelector('input'); if (cb) cb.checked = elencoSelecionado.indexOf(id) > -1;
+}
+
+// ── CHAMADA ANTHROPIC ──
+async function chamarClaude(system, prompt, maxTokens) {
+  var resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: window.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+      max_tokens: maxTokens,
+      system: system,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  var data = await resp.json();
+  if (data.error) throw new Error(data.error.message || 'Erro na API Anthropic');
+  return (data.content && data.content[0] && data.content[0].text) ? data.content[0].text.trim() : '';
+}
+
+function extrairJSON(texto) {
+  var m = texto.match(/\{[\s\S]*\}/);
+  if (!m) throw new Error('Resposta da IA não trouxe JSON válido');
+  return JSON.parse(m[0]);
+}
+
+// ── GERAR BÍBLIA + ESTRUTURA ──
+async function gerarBiblia() {
+  var formato = document.getElementById('p-formato').value;
+  var genero = document.getElementById('p-genero').value;
+  var tom = document.getElementById('p-tom').value;
+  var autor = document.getElementById('p-autor').value.trim();
+  var numEp = formato === 'Filme' ? 1 : Math.max(1, parseInt(document.getElementById('p-num-episodios').value || '1', 10));
+  var tituloManual = document.getElementById('p-titulo').value.trim();
+
+  var origemTexto = '';
+  if (origemAtual === 'zero') {
+    origemTexto = document.getElementById('p-tema').value.trim();
+    if (!origemTexto) { toast('Descreva o tema/premissa da história.'); return; }
+  } else {
+    origemTexto = document.getElementById('p-livro-texto').value.trim();
+    if (!origemTexto) { toast('Envie um livro ou cole o texto para adaptar.'); return; }
+  }
+
+  var elencoInfo = elencoSelecionado.length
+    ? ARTISTAS_BPL.filter(function(a){ return elencoSelecionado.indexOf(a.id) > -1; }).map(function(a){ return a.nome + ' (' + a.esp + ', ' + (a.genero === 'F' ? 'atriz' : 'ator') + ')'; }).join(', ')
+    : 'nenhum pré-selecionado — sugira nomes de personagens compatíveis com o gênero';
+
+  var fonte = origemAtual === 'zero'
+    ? 'PREMISSA ORIGINAL (criar do zero):\n' + origemTexto
+    : 'LIVRO A SER ADAPTADO (trecho, use como base narrativa):\n' + origemTexto.slice(0, 12000);
+
+  var system = 'Você é um roteirista-showrunner brasileiro especializado em adaptar literatura para ' + formato.toLowerCase() + '. Responda SOMENTE com um objeto JSON válido, sem markdown, sem texto fora do JSON, seguindo exatamente este formato:\n' +
+'{"titulo":"...", "sinopse":"(200-300 palavras)", "personagens":[{"nome":"...", "perfil":"...", "ator_sugerido":"..."}], "episodios":[{"numero":1,"titulo":"...","sinopse":"(60-100 palavras)"}]}\n' +
+'O array "episodios" deve ter exatamente ' + numEp + ' item(ns). O array "personagens" deve ter entre 4 e 8 protagonistas/antagonistas centrais.';
+
+  var prompt = fonte + '\n\nFORMATO: ' + formato + '\nGÊNERO: ' + genero + '\nTOM NARRATIVO: ' + tom +
+    (autor ? '\nVOZ AUTORAL / HETERÔNIMO: ' + autor : '') +
+    '\nELENCO DISPONÍVEL NO BPL: ' + elencoInfo +
+    (tituloManual ? '\nTÍTULO DEFINIDO PELO AUTOR (use exatamente este): ' + tituloManual : '') +
+    '\n\nCrie a bíblia completa da produção no formato JSON pedido.';
+
+  document.getElementById('loading-biblia').classList.add('vis');
+  document.getElementById('btn-gerar-biblia').disabled = true;
+  try {
+    var texto = await chamarClaude(system, prompt, 3000);
+    var json = extrairJSON(texto);
+
+    estado = {
+      id: 'PRJ-' + Date.now().toString(36).toUpperCase(),
+      titulo: tituloManual || json.titulo || 'Sem título',
+      formato: formato, genero: genero, tom: tom, autor: autor,
+      origem: origemAtual,
+      livroRef: origemAtual === 'upload' ? origemTexto.slice(0, 400) : '',
+      elenco: elencoSelecionado.slice(),
+      sinopse: json.sinopse || '',
+      personagens: json.personagens || [],
+      episodios: (json.episodios || []).map(function(e){ return { numero: e.numero, titulo: e.titulo, sinopse: e.sinopse, roteiro: '' }; }),
+      criadoEm: new Date().toLocaleDateString('pt-BR'),
+      atualizadoEm: new Date().toLocaleDateString('pt-BR')
+    };
+
+    renderBiblia();
+    document.getElementById('bloco-biblia').classList.add('vis');
+    document.getElementById('bloco-biblia').scrollIntoView({ behavior: 'smooth' });
+    toast('✦ Bíblia da história gerada com sucesso');
+  } catch (e) {
+    toast('Erro ao gerar bíblia: ' + e.message);
+  } finally {
+    document.getElementById('loading-biblia').classList.remove('vis');
+    document.getElementById('btn-gerar-biblia').disabled = false;
+  }
+}
+
+function renderBiblia() {
+  document.getElementById('res-sinopse').innerHTML = '<b style="color:var(--ouro2)">' + estado.titulo + '</b><br><br>' + estado.sinopse;
+  document.getElementById('res-personagens').innerHTML = estado.personagens.map(function(p) {
+    return '<div class="pers-item"><b>' + p.nome + '</b> — ' + p.perfil + (p.ator_sugerido ? '<div class="ator-ind">Ator sugerido: ' + p.ator_sugerido + '</div>' : '') + '</div>';
+  }).join('');
+  renderEpisodios();
+}
+
+function renderEpisodios() {
+  document.getElementById('res-episodios').innerHTML = estado.episodios.map(function(ep, i) {
+    var pronto = !!ep.roteiro;
+    return '<div class="ep-card">' +
+      '<div class="ep-head">' +
+        '<div><div class="ep-num">EPISÓDIO ' + ep.numero + '</div><div class="ep-titulo">' + ep.titulo + '</div></div>' +
+        '<span class="ep-status ' + (pronto ? 'st-pronto' : 'st-pendente') + '">' + (pronto ? '✓ roteiro pronto' : 'pendente') + '</span>' +
+      '</div>' +
+      '<div class="ep-sinopse">' + ep.sinopse + '</div>' +
+      '<div class="btns" style="margin-top:10px">' +
+        (pronto
+          ? '<button class="btn b-esc b-sm" onclick="toggleRoteiro(' + i + ')">👁 Ver / ocultar roteiro</button><button class="btn b-esc b-sm" onclick="baixarEpisodio(' + i + ')">⬇️ Baixar</button>'
+          : '<button class="btn b-verm b-sm" onclick="gerarRoteiroEpisodio(' + i + ')">🎬 Gerar roteiro completo</button>') +
+      '</div>' +
+      '<div class="ep-roteiro" id="ep-roteiro-' + i + '"><pre>' + (ep.roteiro || '') + '</pre></div>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleRoteiro(i) {
+  document.getElementById('ep-roteiro-' + i).classList.toggle('vis');
+}
+
+// ── GERAR ROTEIRO DE UM EPISÓDIO ──
+async function gerarRoteiroEpisodio(i) {
+  var ep = estado.episodios[i];
+  var personagensTxt = estado.personagens.map(function(p){ return p.nome + ': ' + p.perfil; }).join('\n');
+  var ehFilme = estado.formato === 'Filme';
+
+  var system = 'Você é roteirista profissional de ' + estado.formato.toLowerCase() + ' brasileiro(a), gênero ' + estado.genero + ', tom ' + estado.tom + '. Escreva em formato de roteiro (cabeçalhos de cena INT./EXT. — LOCAL — DIA/NOITE, ação em itálico narrativo, nomes de personagens em maiúsculas antes da fala). Responda APENAS com o texto do roteiro, sem comentários.';
+
+  var prompt = 'TÍTULO DA PRODUÇÃO: ' + estado.titulo + '\nSINOPSE GERAL: ' + estado.sinopse +
+    '\n\nPERSONAGENS:\n' + personagensTxt +
+    '\n\n' + (ehFilme ? 'Escreva o ROTEIRO COMPLETO DO FILME' : 'Escreva o ROTEIRO COMPLETO DO EPISÓDIO ' + ep.numero + ' ("' + ep.titulo + '")') +
+    ', com sinopse do episódio: ' + ep.sinopse +
+    '.\nDivida em cenas numeradas, com diálogos completos e indicações de cena. Extensão: roteiro de leitura de 8 a 15 minutos.';
+
+  document.getElementById('loading-episodio').classList.add('vis');
+  try {
+    var roteiro = await chamarClaude(system, prompt, 4096);
+    ep.roteiro = roteiro;
+    estado.atualizadoEm = new Date().toLocaleDateString('pt-BR');
+    renderEpisodios();
+    toggleRoteiro(i);
+    toast('✦ Roteiro do episódio ' + ep.numero + ' pronto');
+  } catch (e) {
+    toast('Erro ao gerar roteiro: ' + e.message);
+  } finally {
+    document.getElementById('loading-episodio').classList.remove('vis');
+  }
+}
+
+async function gerarTodosEpisodios() {
+  if (!estado) return;
+  var btn = document.getElementById('btn-gerar-todos');
+  btn.disabled = true;
+  for (var i = 0; i < estado.episodios.length; i++) {
+    if (!estado.episodios[i].roteiro) {
+      await gerarRoteiroEpisodio(i);
+    }
+  }
+  btn.disabled = false;
+  toast('✦ Todos os episódios foram gerados');
+}
+
+// ── SALVAR / CARREGAR PROJETO ──
+function salvarProjeto() {
+  if (!estado) { toast('Nada para salvar ainda.'); return; }
+  estado.atualizadoEm = new Date().toLocaleDateString('pt-BR');
+  var idx = acervo.findIndex(function(p){ return p.id === estado.id; });
+  if (idx > -1) acervo[idx] = estado; else acervo.unshift(estado);
+  localStorage.setItem(ACERVO_KEY, JSON.stringify(acervo));
+  toast('💾 Projeto "' + estado.titulo + '" salvo');
+}
+
+function limparProjeto() {
+  estado = null;
+  elencoSelecionado = [];
+  document.getElementById('p-tema').value = '';
+  document.getElementById('p-livro-texto').value = '';
+  document.getElementById('p-titulo').value = '';
+  document.getElementById('p-autor').value = '';
+  document.getElementById('upload-box').classList.remove('tem-arquivo');
+  document.getElementById('upload-info').textContent = '';
+  document.getElementById('bloco-biblia').classList.remove('vis');
+  renderElenco();
+}
+
+function carregarProjeto(id) {
+  var p = acervo.find(function(x){ return x.id === id; });
+  if (!p) return;
+  estado = p;
+  elencoSelecionado = (p.elenco || []).slice();
+  document.getElementById('p-titulo').value = p.titulo;
+  document.getElementById('p-formato').value = p.formato;
+  document.getElementById('p-genero').value = p.genero;
+  document.getElementById('p-tom').value = p.tom;
+  document.getElementById('p-autor').value = p.autor || '';
+  document.getElementById('p-num-episodios').value = p.episodios.length;
+  setOrigem(p.origem);
+  if (p.origem === 'zero') document.getElementById('p-tema').value = p.livroRef || '';
+  atualizaFormato();
+  renderElenco();
+  renderBiblia();
+  document.getElementById('bloco-biblia').classList.add('vis');
+  mudarAba('novo');
+  toast('Projeto "' + p.titulo + '" carregado para edição');
+}
+
+function excluirProjeto(id, ev) {
+  if (ev) ev.stopPropagation();
+  if (!confirm('Excluir este projeto permanentemente?')) return;
+  acervo = acervo.filter(function(p){ return p.id !== id; });
+  localStorage.setItem(ACERVO_KEY, JSON.stringify(acervo));
+  renderAcervo(acervo);
+  toast('Projeto excluído');
+}
+
+// ── DOWNLOAD ──
+function baixarArquivo(conteudo, nome) {
+  var blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = nome;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+}
+
+function compilarProjetoTxt(p) {
+  var linhas = [
+    '══════════════════════════════════════════════════════════',
+    p.titulo.toUpperCase(),
+    '══════════════════════════════════════════════════════════',
+    'Formato: ' + p.formato + '   Gênero: ' + p.genero + '   Tom: ' + p.tom,
+    p.autor ? 'Voz autoral: ' + p.autor : '',
+    'Criado em: ' + p.criadoEm,
+    '──────────────────────────────────────────────────────────',
+    '', 'SINOPSE', p.sinopse, '',
+    'PERSONAGENS',
+    p.personagens.map(function(c){ return '- ' + c.nome + ': ' + c.perfil + (c.ator_sugerido ? ' [Ator: ' + c.ator_sugerido + ']' : ''); }).join('\n'),
+    ''
+  ];
+  p.episodios.forEach(function(ep) {
+    linhas.push('══════════════════════════════════════════════════════════');
+    linhas.push('EPISÓDIO ' + ep.numero + ' — ' + ep.titulo);
+    linhas.push('══════════════════════════════════════════════════════════');
+    linhas.push(ep.sinopse, '');
+    linhas.push(ep.roteiro || '(roteiro ainda não gerado)');
+    linhas.push('');
+  });
+  linhas.push('triploohesigmalbpl · W.S.P. S/A-ME · Word Stars Productions');
+  return linhas.filter(function(l){ return l !== undefined; }).join('\n');
+}
+
+function baixarEpisodio(i) {
+  var ep = estado.episodios[i];
+  var txt = estado.titulo + ' — EPISÓDIO ' + ep.numero + ': ' + ep.titulo + '\n' + '─'.repeat(50) + '\n\n' + (ep.roteiro || '');
+  baixarArquivo(txt, estado.id + '_ep' + ep.numero + '.txt');
+}
+
+function baixarProjetoCompleto() {
+  if (!estado) return;
+  baixarArquivo(compilarProjetoTxt(estado), estado.id + '_' + estado.titulo.replace(/\s+/g, '_').slice(0, 40) + '.txt');
+}
+
+function baixarTodosProjetos() {
+  if (!acervo.length) { toast('Nenhum projeto salvo.'); return; }
+  var sep = '\n\n' + '═'.repeat(64) + '\n\n';
+  var txt = acervo.map(compilarProjetoTxt).join(sep);
+  baixarArquivo(txt, 'projetos_novelas_filmes_' + new Date().toISOString().split('T')[0] + '.txt');
+}
+
+// ── PUBLICAR NO CELEIRO LITERÁRIO ──
+async function publicarCeleiro() {
+  if (!estado) { toast('Gere um projeto antes de publicar.'); return; }
+  var token = localStorage.getItem('gh_token') || '';
+  if (!token) { toast('Configure o Token GitHub (gh_token) para publicar.'); return; }
+
+  var repo = 'sitedasletras/CeleiroLiterario';
+  var branch = 'main';
+  var slug = estado.titulo.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  var caminho = 'roteiro_' + slug + '.txt';
+
+  toast('Publicando no Celeiro Literário...');
+  try {
+    var sha = null;
+    var r = await fetch('https://api.github.com/repos/' + repo + '/contents/' + caminho + '?ref=' + branch, {
+      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (r.ok) { var d = await r.json(); sha = d.sha; }
+
+    var conteudo = compilarProjetoTxt(estado);
+    var body = {
+      message: '[Novelas/Filmes] Roteiro: ' + estado.titulo,
+      content: btoa(unescape(encodeURIComponent(conteudo))),
+      branch: branch
+    };
+    if (sha) body.sha = sha;
+
+    var pub = await fetch('https://api.github.com/repos/' + repo + '/contents/' + caminho, {
+      method: 'PUT',
+      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (pub.ok) toast('🚀 "' + estado.titulo + '" publicado no Celeiro Literário');
+    else { var err = await pub.json(); toast('Erro ao publicar: ' + (err.message || pub.status)); }
+  } catch (e) {
+    toast('Erro ao publicar: ' + e.message);
+  }
+}
+
+// ── ACERVO ──
+function renderAcervo(lista) {
+  var el = document.getElementById('lista-acervo');
+  if (!lista.length) { el.innerHTML = '<div class="vazio">Nenhum projeto salvo ainda. Crie um em "Novo Projeto".</div>'; return; }
+  el.innerHTML = lista.map(function(p) {
+    var epsProntos = p.episodios.filter(function(e){ return e.roteiro; }).length;
+    return '<div class="material-card">' +
+      '<div class="mc-head" onclick="carregarProjeto(\'' + p.id + '\')">' +
+        '<div><div class="mc-nome">' + p.titulo + '</div>' +
+        '<div class="mc-meta">' + p.id + ' · ' + p.formato + ' · ' + p.genero + ' · ' + epsProntos + '/' + p.episodios.length + ' roteiros prontos · ' + p.atualizadoEm + '</div></div>' +
+        '<div class="mc-acoes"><button class="btn b-sm b-esc" onclick="excluirProjeto(\'' + p.id + '\',event)">🗑</button></div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function buscarAcervo(q) {
+  renderAcervo(q ? acervo.filter(function(p){ return JSON.stringify(p).toLowerCase().includes(q.toLowerCase()); }) : acervo);
+}
+
+// ── INIT ──
+initElenco();
+atualizaFormato();
+</script>
+</body>
+</html>

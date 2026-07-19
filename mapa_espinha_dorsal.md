@@ -75,6 +75,7 @@
 |---|---|---|
 | `bpl_banco_personagens_literarios.html` | Banco de 50 artistas fundadores — geração de rosto via IA | ✅ Referenciado |
 | `charlton_heston_sistema.html` | Diretor isolado — elenco para produções visuais | ⚠️ Não auditado |
+| `gerador_novelas_filmes.html` | Gera roteiros de novela/filme do zero (IA + elenco BPL) ou por upload de livro para adaptação | ✅ Novo |
 
 ---
 
