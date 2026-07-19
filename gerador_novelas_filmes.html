@@ -720,11 +720,24 @@ function baixarArquivo(conteudo, nome) {
   setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
 }
 
+function centralizar(txt, largura) {
+  largura = largura || 62;
+  var esp = Math.max(0, Math.floor((largura - txt.length) / 2));
+  return ' '.repeat(esp) + txt;
+}
+
 function compilarProjetoTxt(p) {
+  // Folha de rosto — só título e autor, sem capa/imagem, como roteiro de leitura
   var linhas = [
-    '══════════════════════════════════════════════════════════',
-    p.titulo.toUpperCase(),
-    '══════════════════════════════════════════════════════════',
+    '', '', '', '', '', '', '', '', '',
+    centralizar(p.titulo.toUpperCase()),
+    '',
+    centralizar('(' + p.formato + ')'),
+    '', '', '', '', '', '', '', '', '', '', '',
+    centralizar(p.autor ? p.autor : 'Autoria a definir'),
+    centralizar('triploohesigmalbpl · W.S.P. S/A-ME'),
+    '', '', '',
+    '════════════════════════ FICHA TÉCNICA ════════════════════════',
     'Formato: ' + p.formato + '   Gênero: ' + p.genero + '   Tom: ' + p.tom,
     p.autor ? 'Voz autoral: ' + p.autor : '',
     'Gerado com: ' + (p.provedor === 'gemini' ? 'Google Gemini' : 'Anthropic Claude') + (p.modelo ? ' (' + p.modelo + ')' : ''),
