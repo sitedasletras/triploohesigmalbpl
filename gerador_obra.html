@@ -553,6 +553,7 @@
 </style>
 <script src="config.js"></script>
 <script src="heteronimos_roster.js"></script>
+<script src="biografias_heteronimos.js"></script>
 <script src="ia_gratuita.js"></script>
 </head>
 <body>
@@ -955,7 +956,10 @@ function construirHeteronimosLocal() {
       eixo: h.eixo,
       territorio: h.territorio,
       arco: ARCO_CURADO[h.nome] || 'JORNADA DO HERÓI',
-      voz: VOZ_CURADA[h.nome] || h.territorio
+      voz: VOZ_CURADA[h.nome] || h.territorio,
+      // biografia real (quando existir) é a base de estilo de fala/escrita
+      // usada em gerarCapitulo() — mais rica que o "voz" curto acima
+      biografia: (typeof getBiografiaPorNome === 'function' ? getBiografiaPorNome(h.nome) : null) || ''
     };
   }
 }
@@ -1415,7 +1419,7 @@ Responda APENAS em JSON válido, sem markdown, sem crases, sem texto antes ou de
   const territorio = dados.territorio;
   const tracosDeVoz = dados.tracosDeVoz || territorio;
 
-  HETERONIMOS[key] = { nome: dados.nome, eixo, territorio, arco: 'JORNADA DO HERÓI', voz: tracosDeVoz };
+  HETERONIMOS[key] = { nome: dados.nome, eixo, territorio, arco: 'JORNADA DO HERÓI', voz: tracosDeVoz, biografia: dados.biografia || '' };
 
   if (typeof registrarHeteronimoExtra === 'function') {
     registrarHeteronimoExtra({
@@ -1593,13 +1597,17 @@ async function gerarCapitulo(idx) {
     .map(c => `CAPÍTULO ${c.num} (${c.etapaArco.nome}):\n${c.conteudo.substring(0, 600)}...`)
     .join('\n\n---\n\n');
 
+  const blocoBiografia = h.biografia
+    ? `\n\nSUA BIOGRAFIA (use como base real do seu estilo de fala/escrita — origem, sotaque, cadência e vícios de linguagem vêm daqui, não de uma descrição genérica):\n${h.biografia}`
+    : '';
+
   const systemPrompt = `Você é ${h.nome}, heterônimo literário da OHE (Oficina Heteronímica da Escrita).
 
 SEU DNA NARRATIVO:
 - Eixo: ${h.eixo}
 - Território soberano: ${h.territorio}
 - Voz e assinatura: ${h.voz}
-- Arco estrutural desta obra: ${h.arco}
+- Arco estrutural desta obra: ${h.arco}${blocoBiografia}
 
 REGRAS INVIOLÁVEIS:
 1. Escreva exclusivamente na sua voz e território. Não saia do seu DNA.
