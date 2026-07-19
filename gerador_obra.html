@@ -553,6 +553,7 @@
 </style>
 <script src="config.js"></script>
 <script src="heteronimos_roster.js"></script>
+<script src="ia_gratuita.js"></script>
 </head>
 <body>
 
@@ -1117,12 +1118,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ── GERA BIOGRAFIA VIA IA E PUBLICA NO CELEIRO ───────────
 async function gerarEPublicarBiografia(autor) {
-  toast(`✦ Fernando Peçanha escrevendo biografia de ${autor.nome}...`);
+  toast(`✦ Escrevendo biografia de ${autor.nome} (IA gratuita)...`);
   try {
-    // 1. Gerar biografia via API
-    const prompt = `Você é Fernando Peçanha, curador da OHE — Oficina Heteronômica da Escrita.
-
-Escreva a biografia literária completa do heterônimo abaixo para publicação no Celeiro Literário.
+    // 1. Gerar biografia via IA gratuita (Gemini) — não gasta o Claude pago
+    const systemPrompt = `Você é Fernando Peçanha, curador da OHE — Oficina Heteronômica da Escrita. Responda APENAS com o texto pedido, sem títulos ou marcadores.`;
+    const prompt = `Escreva a biografia literária completa do heterônimo abaixo para publicação no Celeiro Literário.
 
 NOME: ${autor.nome}
 EIXO: ${autor.eixo}
@@ -1134,70 +1134,65 @@ A biografia deve ter:
 - Parágrafo 3: obras, temas recorrentes, assinatura estética
 - Linha de especialidade: uma frase que define o território soberano deste heterônimo
 
-Escreva em terceira pessoa, tom literário elevado, entre 250 e 350 palavras.
-Responda APENAS com o texto da biografia, sem títulos ou marcadores.`;
+Escreva em terceira pessoa, tom literário elevado, entre 250 e 350 palavras.`;
 
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-6',
-        max_tokens:800,
-        messages:[{ role:'user', content: prompt }]
-      })
-    });
-    const data = await resp.json();
-    const textoBio = data.content?.[0]?.text?.trim()||'';
+    const textoBio = (await chamarIAGratuita(systemPrompt, prompt, 1200)).trim();
     if(!textoBio){ toast('// ERRO AO GERAR BIOGRAFIA'); return; }
 
-    // 2. Montar HTML da página de biografia
-    const htmlBio = gerarHtmlBiografia(autor, textoBio);
-
-    // 3. Publicar no CeleiroLiterario via GitHub
-    const token = localStorage.getItem('gh_token')||'';
-    const repo = 'sitedasletras/CeleiroLiterario';
-    const branch = 'main';
-    if(!token){ toast('// Configure o Token GitHub para publicar a biografia'); return; }
-
-    const caminho = `biografia_${autor.id}.html`;
-    // Verificar se já existe (pegar SHA)
-    let sha = null;
-    try {
-      const r = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}?ref=${branch}`,{
-        headers:{'Authorization':`token ${token}`,'Accept':'application/vnd.github.v3+json'}
-      });
-      if(r.ok){ const d=await r.json(); sha=d.sha; }
-    } catch(_){}
-
-    const body = {
-      message:`[OHE] Nova biografia: ${autor.nome}`,
-      content: btoa(unescape(encodeURIComponent(htmlBio))),
-      branch
-    };
-    if(sha) body.sha = sha;
-
-    const pub = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}`,{
-      method:'PUT',
-      headers:{
-        'Authorization':`token ${token}`,
-        'Accept':'application/vnd.github.v3+json',
-        'Content-Type':'application/json'
-      },
-      body: JSON.stringify(body)
-    });
-
-    if(pub.ok){
-      toast(`✦ Biografia de ${autor.nome} publicada no Celeiro Literário ✓`);
-      // Salvar no localStorage para uso imediato pelo diagramador
-      localStorage.setItem(`celeiro_bio_${autor.id}`, textoBio);
-      localStorage.setItem(`celeiro_bio_nome_${autor.id}`, autor.nome);
-    } else {
-      const err = await pub.json();
-      toast(`// ERRO NA PUBLICAÇÃO: ${err.message||pub.status}`);
-    }
+    await publicarBiografiaGitHub(autor, textoBio);
   } catch(e) {
-    toast(`// ERRO: ${e.message}`);
+    toast(`// ERRO AO GERAR BIOGRAFIA (IA gratuita): ${e.message}`);
     console.error(e);
+  }
+}
+
+// ── PUBLICA UMA BIOGRAFIA JÁ GERADA NO CELEIRO LITERÁRIO VIA GITHUB ──
+// (separado de gerarEPublicarBiografia pra ser reutilizado por
+// criarHeteronimoAutomatico, que já gera nome+território+biografia
+// numa única chamada à IA gratuita)
+async function publicarBiografiaGitHub(autor, textoBio) {
+  const htmlBio = gerarHtmlBiografia(autor, textoBio);
+
+  const token = localStorage.getItem('gh_token')||'';
+  const repo = 'sitedasletras/CeleiroLiterario';
+  const branch = 'main';
+  if(!token){ toast('// Configure o Token GitHub para publicar a biografia'); return; }
+
+  const caminho = `biografia_${autor.id}.html`;
+  // Verificar se já existe (pegar SHA)
+  let sha = null;
+  try {
+    const r = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}?ref=${branch}`,{
+      headers:{'Authorization':`token ${token}`,'Accept':'application/vnd.github.v3+json'}
+    });
+    if(r.ok){ const d=await r.json(); sha=d.sha; }
+  } catch(_){}
+
+  const body = {
+    message:`[OHE] Nova biografia: ${autor.nome}`,
+    content: btoa(unescape(encodeURIComponent(htmlBio))),
+    branch
+  };
+  if(sha) body.sha = sha;
+
+  const pub = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}`,{
+    method:'PUT',
+    headers:{
+      'Authorization':`token ${token}`,
+      'Accept':'application/vnd.github.v3+json',
+      'Content-Type':'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if(pub.ok){
+    toast(`✦ Biografia de ${autor.nome} publicada no Celeiro Literário ✓`);
+    // Salvar no localStorage para uso imediato pelo diagramador
+    localStorage.setItem(`celeiro_bio_${autor.id}`, textoBio);
+    localStorage.setItem(`celeiro_bio_nome_${autor.id}`, autor.nome);
+  } else {
+    const err = await pub.json();
+    toast(`// ERRO NA PUBLICAÇÃO: ${err.message||pub.status}`);
   }
 }
 
@@ -1348,7 +1343,7 @@ async function iniciarObra() {
 // Fernando Peçanha escolhe heterônimo via IA
 async function fernandoEscolheHeteronimo(tema) {
   const lista = Object.entries(HETERONIMOS).map(([k,v]) =>
-    `${k}: ${v.nome} | Território: ${v.territorio}`
+    `${v.nome} | Território: ${v.territorio}`
   ).join('\n');
 
   const fichaFallback = slugifyNome('Wagner Planas');
@@ -1369,16 +1364,82 @@ async function fernandoEscolheHeteronimo(tema) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 100,
-        system: `Você é Fernando Peçanha, curador máximo da OHE. Analise o tema e escolha o heterônimo mais compatível por território soberano e DNA narrativo. Responda APENAS com a chave do heterônimo (ex: amanda, imediato, aurora). Heterônimos disponíveis:\n${lista}${contextoTrajano}`,
+        system: `Você é Fernando Peçanha, curador máximo da OHE. Analise o tema e escolha o heterônimo mais compatível por território soberano e DNA narrativo. Responda APENAS com o nome completo e exato de um heterônimo da lista abaixo — ou, se NENHUM heterônimo cobrir bem este território, responda exatamente a palavra NOVO (nada mais). Heterônimos disponíveis:\n${lista}${contextoTrajano}`,
         messages: [{ role: 'user', content: `Tema da obra: ${tema}\n\nQual heterônimo assume esta obra?` }]
       })
     });
     const data = await resp.json();
-    const escolha = data.content[0].text.trim().toLowerCase().replace(/[^a-z_]/g,'');
-    return HETERONIMOS[escolha] ? escolha : fichaFallback;
+    const resposta = data.content[0].text.trim();
+
+    if (/^novo\b/i.test(resposta)) {
+      try {
+        return await criarHeteronimoAutomatico(tema);
+      } catch (e) {
+        console.error('Erro ao criar heterônimo automático:', e);
+        toast(`// Não foi possível criar heterônimo novo (${e.message}) — usando fallback`);
+        return fichaFallback;
+      }
+    }
+
+    const alvo = (typeof getHeteronimoPorNome === 'function') ? getHeteronimoPorNome(resposta) : null;
+    if (alvo) {
+      const key = slugifyNome(alvo.nome);
+      if (HETERONIMOS[key]) return key;
+    }
+    return fichaFallback;
   } catch(e) {
     return fichaFallback;
   }
+}
+
+// Fernando Peçanha cria um heterônimo novo (nome, território, local de
+// nascimento, traços de voz e biografia) quando nenhum dos existentes cobre
+// o tema pedido — usa a IA gratuita (Gemini), não o Claude pago, porque isto
+// é "ficha"/perfil, não a escrita literária em si.
+async function criarHeteronimoAutomatico(tema) {
+  toast('✦ Fernando Peçanha não achou heterônimo compatível — criando um novo...');
+
+  const system = `Você é Fernando Peçanha, curador máximo da OHE — Oficina Heteronômica da Escrita. Quando nenhum heterônimo existente cobre um território temático, você cria um heterônimo novo: nome, eixo, território soberano, local de nascimento e biografia completa. O local de nascimento e a história de vida devem moldar de forma coerente o estilo de fala/escrita do heterônimo — sotaque, cadência, vícios de linguagem, grau de formalidade — para que cada heterônimo novo tenha uma voz distinta e não repetitiva em relação aos demais.
+
+Responda APENAS em JSON válido, sem markdown, sem crases, sem texto antes ou depois, no formato:
+{"nome":"nome completo do heterônimo","eixo":"Prosa|Poesia|Híbrido|Cordel","territorio":"descrição do território soberano, coerente com o tema pedido","localNascimento":"cidade e país/região (pode ser fictícia, mas coerente)","tracosDeVoz":"descrição breve do estilo de fala/escrita derivado do local de nascimento e história de vida","biografia":"biografia literária em terceira pessoa, tom literário elevado, 250 a 350 palavras, com origens/infância, descoberta da escrita, e obras/temas recorrentes"}`;
+
+  const user = `Tema da obra que precisa de um heterônimo novo: ${tema}\n\nCrie o heterônimo que vai assumir este território.`;
+
+  const resposta = await chamarIAGratuita(system, user, 1600);
+  const dados = parseJSONGratuito(resposta);
+  if (!dados.nome || !dados.territorio) throw new Error('IA gratuita não retornou nome/território válidos');
+
+  const key = slugifyNome(dados.nome);
+  const eixo = dados.eixo || 'Híbrido';
+  const territorio = dados.territorio;
+  const tracosDeVoz = dados.tracosDeVoz || territorio;
+
+  HETERONIMOS[key] = { nome: dados.nome, eixo, territorio, arco: 'JORNADA DO HERÓI', voz: tracosDeVoz };
+
+  if (typeof registrarHeteronimoExtra === 'function') {
+    registrarHeteronimoExtra({
+      nome: dados.nome, eixo, territorio, formato: 'variado', volumeMinimo: 10, destino: 'masmorra',
+      universoPadrao: [], tomPadrao: [], localNascimento: dados.localNascimento || '', tracosDeVoz
+    });
+  }
+
+  const sel = document.getElementById('heteronimo-select');
+  if (sel && !sel.querySelector(`option[value="${key}"]`)) {
+    const opt = document.createElement('option');
+    opt.value = key; opt.textContent = dados.nome;
+    sel.insertBefore(opt, sel.lastElementChild);
+  }
+
+  toast(`✦ ${dados.nome} nasceu para cobrir este território`);
+
+  // Publica a biografia já gerada na mesma chamada — sem custo extra de IA.
+  if (dados.biografia) {
+    publicarBiografiaGitHub({ id: key, nome: dados.nome, eixo, territorio }, dados.biografia.trim())
+      .catch(e => console.error('Erro ao publicar biografia automática:', e));
+  }
+
+  return key;
 }
 
 // Gera título da obra

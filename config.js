@@ -10,7 +10,12 @@ const CONFIG = {
   GITHUB_TOKEN: "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",
   GITHUB_OWNER: "sitedasletras",
   GITHUB_REPO: "triploohesigmalbpl",
-  STABILITY_API_KEY: "sk-MUyr0gAR6H9JRh8IrfNh0Ppzgz51DdUNxQHGyz7PIBq16W2r"
+  STABILITY_API_KEY: "sk-MUyr0gAR6H9JRh8IrfNh0Ppzgz51DdUNxQHGyz7PIBq16W2r",
+  // Chave GRATUITA do Google Gemini (tier free, sem cartão de crédito).
+  // Pegue a sua em https://aistudio.google.com/apikey e cole aqui.
+  // Usada só em biografias/perfis físico-psicológicos (ver ia_gratuita.js) —
+  // a escrita das obras continua no Claude acima.
+  GEMINI_API_KEY: ""
 };
 
 window.ANTHROPIC_API_KEY    = CONFIG.ANTHROPIC_API_KEY;
@@ -20,6 +25,7 @@ window.GITHUB_TOKEN         = CONFIG.GITHUB_TOKEN;
 window.GITHUB_OWNER         = CONFIG.GITHUB_OWNER;
 window.GITHUB_REPO          = CONFIG.GITHUB_REPO;
 window.STABILITY_API_KEY    = CONFIG.STABILITY_API_KEY;
+window.GEMINI_API_KEY       = CONFIG.GEMINI_API_KEY;
 
 // FETCH INTERCEPTOR — injeta chave em todas as chamadas Anthropic
 (function() {

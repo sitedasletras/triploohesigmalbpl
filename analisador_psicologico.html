@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Analisador Psicológico · OHE-Peçanha</title>
 <script src="config.js"></script>
+<script src="ia_gratuita.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -622,21 +623,9 @@ ${texto.substring(0, 8000)}
 Gere o Raio-X Psicológico completo no formato JSON especificado.`;
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userPrompt }]
-      })
-    });
-
-    const data = await resp.json();
-    let textoResposta = data.content.map(c => c.text || '').join('');
-    textoResposta = textoResposta.replace(/```json|```/g, '').trim();
-    const analise = JSON.parse(textoResposta);
+    // Perfil físico/psicológico não precisa do Claude pago — usa IA gratuita (Gemini)
+    const textoResposta = await chamarIAGratuita(systemPrompt, userPrompt, 4000);
+    const analise = parseJSONGratuito(textoResposta);
 
     analiseAtual = { analise, titulo, personagens };
     pararLoading();
