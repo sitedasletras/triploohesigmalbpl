@@ -4,7 +4,7 @@
 // ============================================================
 
 const CONFIG = {
-  ANTHROPIC_API_KEY: "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",
+  ANTHROPIC_API_KEY: "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",
   MODEL: "claude-sonnet-4-6",
   MAX_TOKENS: 4096,
   GITHUB_TOKEN: "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",
