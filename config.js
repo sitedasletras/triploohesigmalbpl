@@ -15,7 +15,7 @@ const CONFIG = {
   // Pegue a sua em https://aistudio.google.com/apikey e cole aqui.
   // Usada só em biografias/perfis físico-psicológicos (ver ia_gratuita.js) —
   // a escrita das obras continua no Claude acima.
-  GEMINI_API_KEY: "",
+  GEMINI_API_KEY: "AQ.Ab8RN6JB2YdrPdoZLAahyYO5X5L1ZO6evW65V0lemVf074L3aw",
   // Chave GRATUITA do OpenRouter (sem cartão de crédito) — usada como
   // fallback do Gemini em ia_gratuita.js, rodando um modelo Llama gratuito
   // (a Llama API oficial da própria Meta foi desativada em 6/jul/2026).
