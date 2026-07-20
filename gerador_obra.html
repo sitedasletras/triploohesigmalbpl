@@ -554,6 +554,7 @@
 <script src="config.js"></script>
 <script src="heteronimos_roster.js"></script>
 <script src="biografias_heteronimos.js"></script>
+<script src="perfis_voz.js"></script>
 <script src="ia_gratuita.js"></script>
 </head>
 <body>
@@ -1571,9 +1572,12 @@ async function gerarCapitulo(idx) {
   renderizarListaCaps();
 
   // Mostra loading
-  document.getElementById('estado-inicial').style.display = 'none';
-  document.getElementById('cap-text').style.display = 'none';
-  document.getElementById('cap-text-edit').style.display = 'none';
+  const elEstadoInicial = document.getElementById('estado-inicial');
+  if (elEstadoInicial) elEstadoInicial.style.display = 'none';
+  const elCapText = document.getElementById('cap-text');
+  if (elCapText) elCapText.style.display = 'none';
+  const elCapTextEdit = document.getElementById('cap-text-edit');
+  if (elCapTextEdit) elCapTextEdit.style.display = 'none';
   document.getElementById('cap-content').innerHTML = `
     <div class="estado-vazio">
       <div class="loading-line">
@@ -1601,13 +1605,15 @@ async function gerarCapitulo(idx) {
     ? `\n\nSUA BIOGRAFIA (use como base real do seu estilo de fala/escrita — origem, sotaque, cadência e vícios de linguagem vêm daqui, não de uma descrição genérica):\n${h.biografia}`
     : '';
 
+  const blocoPerfilVoz = (typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(h.nome) : '';
+
   const systemPrompt = `Você é ${h.nome}, heterônimo literário da OHE (Oficina Heteronímica da Escrita).
 
 SEU DNA NARRATIVO:
 - Eixo: ${h.eixo}
 - Território soberano: ${h.territorio}
 - Voz e assinatura: ${h.voz}
-- Arco estrutural desta obra: ${h.arco}${blocoBiografia}
+- Arco estrutural desta obra: ${h.arco}${blocoBiografia}${blocoPerfilVoz}
 
 REGRAS INVIOLÁVEIS:
 1. Escreva exclusivamente na sua voz e território. Não saia do seu DNA.
