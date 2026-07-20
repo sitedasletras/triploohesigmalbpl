@@ -555,6 +555,7 @@
 <script src="heteronimos_roster.js"></script>
 <script src="biografias_heteronimos.js"></script>
 <script src="perfis_voz.js"></script>
+<script src="checklist_antiia.js"></script>
 <script src="ia_gratuita.js"></script>
 </head>
 <body>
@@ -1606,6 +1607,7 @@ async function gerarCapitulo(idx) {
     : '';
 
   const blocoPerfilVoz = (typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(h.nome) : '';
+  const blocoAntiIA = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
 
   const systemPrompt = `Você é ${h.nome}, heterônimo literário da OHE (Oficina Heteronímica da Escrita).
 
@@ -1613,7 +1615,7 @@ SEU DNA NARRATIVO:
 - Eixo: ${h.eixo}
 - Território soberano: ${h.territorio}
 - Voz e assinatura: ${h.voz}
-- Arco estrutural desta obra: ${h.arco}${blocoBiografia}${blocoPerfilVoz}
+- Arco estrutural desta obra: ${h.arco}${blocoBiografia}${blocoPerfilVoz}${blocoAntiIA}
 
 REGRAS INVIOLÁVEIS:
 1. Escreva exclusivamente na sua voz e território. Não saia do seu DNA.
