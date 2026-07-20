@@ -15,7 +15,12 @@ const CONFIG = {
   // Pegue a sua em https://aistudio.google.com/apikey e cole aqui.
   // Usada só em biografias/perfis físico-psicológicos (ver ia_gratuita.js) —
   // a escrita das obras continua no Claude acima.
-  GEMINI_API_KEY: ""
+  GEMINI_API_KEY: "",
+  // Chave GRATUITA do OpenRouter (sem cartão de crédito) — usada como
+  // fallback do Gemini em ia_gratuita.js, rodando um modelo Llama gratuito
+  // (a Llama API oficial da própria Meta foi desativada em 6/jul/2026).
+  // Pegue a sua em https://openrouter.ai/settings/keys e cole aqui.
+  OPENROUTER_API_KEY: ""
 };
 
 window.ANTHROPIC_API_KEY    = CONFIG.ANTHROPIC_API_KEY;
@@ -26,6 +31,7 @@ window.GITHUB_OWNER         = CONFIG.GITHUB_OWNER;
 window.GITHUB_REPO          = CONFIG.GITHUB_REPO;
 window.STABILITY_API_KEY    = CONFIG.STABILITY_API_KEY;
 window.GEMINI_API_KEY       = CONFIG.GEMINI_API_KEY;
+window.OPENROUTER_API_KEY   = CONFIG.OPENROUTER_API_KEY;
 
 // FETCH INTERCEPTOR — injeta chave em todas as chamadas Anthropic
 (function() {
