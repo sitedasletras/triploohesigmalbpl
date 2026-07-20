@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gerador de Novelas &amp; Filmes — triploohesigmalbpl</title>
 <script src="config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 :root{--azul:#07101d;--ouro:#c9a646;--ouro2:#f4dc88;--vinho:#6d1a2a;--verde:#1f7a42;--roxo:#3b1f6e;--r:20px}
@@ -195,10 +197,10 @@ footer p{font-size:13px;line-height:1.8}
       <div id="bloco-upload" style="display:none">
         <div class="upload-box" id="upload-box" onclick="document.getElementById('input-arquivo').click()">
           <div style="font-size:28px;margin-bottom:6px">📤</div>
-          <div style="font-family:'DM Mono',monospace;font-size:12px;color:rgba(201,166,70,.7)">Clique para enviar um livro (.txt ou .md)</div>
+          <div style="font-family:'DM Mono',monospace;font-size:12px;color:rgba(201,166,70,.7)">Clique para enviar um livro (.txt, .md, .docx, .doc ou .pdf)</div>
           <div class="upload-info" id="upload-info"></div>
         </div>
-        <input type="file" id="input-arquivo" accept=".txt,.md,text/plain,text/markdown" style="display:none" onchange="handleUpload(this.files[0])">
+        <input type="file" id="input-arquivo" accept=".txt,.md,.docx,.doc,.pdf,text/plain,text/markdown,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleUpload(this.files[0])">
         <div class="campo wide"><label>Ou cole o texto do livro diretamente</label>
           <textarea id="p-livro-texto" placeholder="Cole aqui o texto do livro a ser adaptado..." style="min-height:140px"></textarea>
         </div>
@@ -413,16 +415,99 @@ function atualizaFormato() {
   if (formato === 'Filme') document.getElementById('p-num-episodios').value = 1;
 }
 
-function handleUpload(file) {
+function lerComoArrayBuffer(file) {
+  return new Promise(function(resolve, reject) {
+    var reader = new FileReader();
+    reader.onload = function(e) { resolve(e.target.result); };
+    reader.onerror = function() { reject(new Error('Falha ao ler o arquivo.')); };
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function lerComoTexto(file) {
+  return new Promise(function(resolve, reject) {
+    var reader = new FileReader();
+    reader.onload = function(e) { resolve(e.target.result); };
+    reader.onerror = function() { reject(new Error('Falha ao ler o arquivo.')); };
+    reader.readAsText(file, 'UTF-8');
+  });
+}
+
+async function extrairTextoPdf(file) {
+  if (!window.pdfjsLib) throw new Error('Biblioteca de leitura de PDF não carregou.');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  var buffer = await lerComoArrayBuffer(file);
+  var pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+  var partes = [];
+  for (var i = 1; i <= pdf.numPages; i++) {
+    var pagina = await pdf.getPage(i);
+    var conteudo = await pagina.getTextContent();
+    partes.push(conteudo.items.map(function(it) { return it.str; }).join(' '));
+  }
+  return partes.join('\n\n');
+}
+
+async function extrairTextoDocx(file) {
+  if (!window.mammoth) throw new Error('Biblioteca de leitura de .docx não carregou.');
+  var buffer = await lerComoArrayBuffer(file);
+  var resultado = await mammoth.extractRawText({ arrayBuffer: buffer });
+  return resultado.value;
+}
+
+// Extração heurística ("best effort") de .doc binário antigo (Word 97-2003).
+// Não existe parser confiável em JS puro para esse formato — isto varre o
+// arquivo em busca de trechos de texto legível (UTF-16LE, como o Word grava
+// internamente). Funciona razoavelmente para documentos simples, mas pode
+// trazer ruído; por isso o resultado cai no campo de colar texto, editável,
+// em vez de ir direto pra geração.
+function extrairTextoDocLegado(buffer) {
+  var bytes = new Uint8Array(buffer);
+  var chars = [];
+  for (var i = 0; i < bytes.length - 1; i += 2) {
+    var code = bytes[i] | (bytes[i + 1] << 8);
+    if (bytes[i + 1] === 0 && code >= 32 && code < 0x2500) {
+      chars.push(String.fromCharCode(code));
+    } else if (code === 13 || code === 10) {
+      chars.push('\n');
+    } else {
+      chars.push(' ');
+    }
+  }
+  var linhas = chars.join('').split('\n')
+    .map(function(l) { return l.trim(); })
+    .filter(function(l) { return l.length > 1; });
+  return linhas.join('\n').replace(/[ \t]{2,}/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+async function handleUpload(file) {
   if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    document.getElementById('p-livro-texto').value = e.target.result;
+  var nome = file.name.toLowerCase();
+  var info = document.getElementById('upload-info');
+  var caixa = document.getElementById('p-livro-texto');
+  info.textContent = '⏳ Lendo "' + file.name + '"...';
+  try {
+    var texto = '';
+    var aviso = '';
+    if (nome.endsWith('.pdf')) {
+      texto = await extrairTextoPdf(file);
+    } else if (nome.endsWith('.docx')) {
+      texto = await extrairTextoDocx(file);
+    } else if (nome.endsWith('.doc')) {
+      var buffer = await lerComoArrayBuffer(file);
+      texto = extrairTextoDocLegado(buffer);
+      aviso = ' ⚠ extração experimental de .doc antigo — revise o texto antes de gerar.';
+    } else {
+      texto = await lerComoTexto(file);
+    }
+    texto = (texto || '').trim();
+    if (!texto) throw new Error('Não encontrei texto legível neste arquivo.');
+    caixa.value = texto;
     document.getElementById('upload-box').classList.add('tem-arquivo');
-    var palavras = e.target.result.trim().split(/\s+/).length;
-    document.getElementById('upload-info').textContent = '✓ "' + file.name + '" carregado — ~' + palavras.toLocaleString('pt-BR') + ' palavras';
-  };
-  reader.readAsText(file, 'UTF-8');
+    var palavras = texto.split(/\s+/).length;
+    info.textContent = '✓ "' + file.name + '" carregado — ~' + palavras.toLocaleString('pt-BR') + ' palavras' + aviso;
+  } catch (e) {
+    info.textContent = '⚠ Erro ao ler "' + file.name + '": ' + e.message + ' — tente converter para .txt/.docx ou colar o texto manualmente.';
+  }
 }
 
 // ── ELENCO ──
