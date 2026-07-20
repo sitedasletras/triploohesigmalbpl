@@ -20,6 +20,8 @@ const CONFIG = {
   // fallback do Gemini em ia_gratuita.js, rodando um modelo Llama gratuito
   // (a Llama API oficial da própria Meta foi desativada em 6/jul/2026).
   // Pegue a sua em https://openrouter.ai/settings/keys e cole aqui.
+  // ⚠ LEMBRETE: chave criada em 20/07/2026, vence em 20/07/2027 (1 ano).
+  // Renovar até 05/07/2027 (11,5 meses a partir da criação).
   OPENROUTER_API_KEY: "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"
 };
 
