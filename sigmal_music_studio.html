@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIGMAL Music Studio · Produção Musical</title>
 <script src="config.js"></script>
+<script src="elenco_musical.js"></script>
+<script src="perfil_vocal.js"></script>
+<script src="checklist_antiia.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -246,83 +249,6 @@ body { background: var(--preto); color: var(--creme); font-family: 'Crimson Pro'
       <label class="fl">Intérprete / Voz (opcional — Maestro Aaron escala se vazio)</label>
       <select class="fs" id="interprete-selecionado">
         <option value="">Maestro Aaron escolhe pelo sabor de voz</option>
-        <optgroup label="— BANDAS —">
-          <option value="Ferro & Chuva">Ferro & Chuva</option>
-          <option value="Noite de Sal">Noite de Sal</option>
-          <option value="Forró do Fim do Mundo">Forró do Fim do Mundo</option>
-          <option value="Diáspora Sound System">Diáspora Sound System</option>
-          <option value="Câmara Negra">Câmara Negra</option>
-          <option value="Tango Bruto">Tango Bruto</option>
-          <option value="Big Band do Celeiro">Big Band do Celeiro</option>
-          <option value="Al-Andalus">Al-Andalus</option>
-          <option value="Ângelus Prime">Ângelus Prime</option>
-        </optgroup>
-        <optgroup label="— SOLISTAS —">
-          <option value="Isadora Vellini">Isadora Vellini</option>
-          <option value="Valentina Osei-Bonsu">Valentina Osei-Bonsu</option>
-          <option value="Camille Dufresne">Camille Dufresne</option>
-          <option value="Fatimah Al-Rashid">Fatimah Al-Rashid</option>
-          <option value="Marco Ferretti">Marco Ferretti</option>
-          <option value="Kwabena Asante">Kwabena Asante</option>
-          <option value="Hiroshi Tanaka">Hiroshi Tanaka</option>
-          <option value="Viktor Melnyk">Viktor Melnyk</option>
-          <option value="Samuel Okafor">Samuel Okafor</option>
-          <option value="Maristela Braga">Maristela Braga</option>
-          <option value="Sebastião Neto">Sebastião Neto</option>
-          <option value="Dandara Quilombo">Dandara Quilombo</option>
-          <option value="Jairo Silveira">Jairo Silveira</option>
-          <option value="Conceição Palmares">Conceição Palmares</option>
-          <option value="Josephine Walker">Josephine Walker</option>
-          <option value="Raymond Coltrane">Raymond Coltrane</option>
-          <option value="Amina Coulibaly">Amina Coulibaly</option>
-          <option value="Ruth Evangelista">Ruth Evangelista</option>
-          <option value="Pastor Elias Voz">Pastor Elias Voz</option>
-          <option value="Rosinha do Vale">Rosinha do Vale</option>
-          <option value="Seu Maneco Aboio">Seu Maneco Aboio</option>
-          <option value="Siobhán Ní Faoláin">Siobhán Ní Faoláin</option>
-          <option value="Dmitri Balalaika">Dmitri Balalaika</option>
-          <option value="Luana Star">Luana Star</option>
-          <option value="Kevin Soul">Kevin Soul</option>
-          <option value="Adaeze Piano">Adaeze Piano</option>
-          <option value="Alexei Volkov">Alexei Volkov</option>
-          <option value="Yoko Mitsui">Yoko Mitsui</option>
-          <option value="Pablo Casado">Pablo Casado</option>
-          <option value="Asel Flautista">Asel Flautista</option>
-          <option value="Jean-Pierre Hautbois">Jean-Pierre Hautbois</option>
-          <option value="Carlos Sax">Carlos Sax</option>
-          <option value="Leila Oud">Leila Oud</option>
-          <option value="Ravi Sitar">Ravi Sitar</option>
-          <option value="Tomás Viola">Tomás Viola</option>
-          <option value="Ibrahim Kora">Ibrahim Kora</option>
-          <option value="Keiko Shamisen">Keiko Shamisen</option>
-          <option value="Percival Drums">Percival Drums</option>
-          <option value="Luisa Harpa">Luisa Harpa</option>
-          <option value="Ahmed Bendir">Ahmed Bendir</option>
-          <option value="Olga Acordeão">Olga Acordeão</option>
-          <option value="Santiago Guitarra">Santiago Guitarra</option>
-          <option value="Mingus Contrabaixo">Mingus Contrabaixo</option>
-          <option value="Zhen Erhu">Zhen Erhu</option>
-          <option value="Felix Contratenor">Felix Contratenor</option>
-          <option value="Tadashi Falsete">Tadashi Falsete</option>
-          <option value="Elena Fado">Elena Fado</option>
-          <option value="Carmen Flamenca">Carmen Flamenca</option>
-          <option value="Nino Georgiano">Nino Georgiano</option>
-          <option value="Miriam Klezmer">Miriam Klezmer</option>
-          <option value="Duo Lua & Mar">Duo Lua & Mar</option>
-          <option value="Trio Árido">Trio Árido</option>
-          <option value="Duo Sakura">Duo Sakura</option>
-          <option value="Trio Jazz Marginal">Trio Jazz Marginal</option>
-          <option value="Diana Synthesis">Diana Synthesis</option>
-          <option value="Eio Experimental">Eio Experimental</option>
-          <option value="Tariq Electronic">Tariq Electronic</option>
-          <option value="Renata Bolero">Renata Bolero</option>
-          <option value="Cléo Lunna">Cléo Lunna</option>
-          <option value="Abebe Girma">Abebe Girma</option>
-          <option value="Rovilson Reigns Bautista">Rovilson Reigns Bautista</option>
-        </optgroup>
-        <optgroup label="— ORQUESTRA —">
-          <option value="Orquestra Filarmônica do Celeiro">Orquestra Filarmônica do Celeiro</option>
-        </optgroup>
       </select>
     </div>
     <div class="fg">
@@ -408,81 +334,21 @@ body { background: var(--preto); color: var(--creme); font-family: 'Crimson Pro'
 
 <script>
 // ===================== DADOS =====================
-const ELENCO = [
-  // BANDAS
-  {nome:'Ferro & Chuva', tipo:'Banda', genero:'Rock / MPB', instrumento:'Banda completa'},
-  {nome:'Noite de Sal', tipo:'Banda', genero:'MPB / Samba', instrumento:'Banda completa'},
-  {nome:'Forró do Fim do Mundo', tipo:'Banda', genero:'Forró / Baião', instrumento:'Banda completa'},
-  {nome:'Diáspora Sound System', tipo:'Banda', genero:'World Music / Eletrônico', instrumento:'Banda completa'},
-  {nome:'Câmara Negra', tipo:'Banda', genero:'Jazz / Experimental', instrumento:'Câmara'},
-  {nome:'Tango Bruto', tipo:'Banda', genero:'Tango', instrumento:'Banda completa'},
-  {nome:'Big Band do Celeiro', tipo:'Banda', genero:'Jazz / Big Band', instrumento:'Big Band'},
-  {nome:'Al-Andalus', tipo:'Banda', genero:'Música Árabe / Mediterrânea', instrumento:'Conjunto'},
-  {nome:'Ângelus Prime', tipo:'Banda', genero:'Gospel / Clássico', instrumento:'Coral'},
-  // SOLISTAS
-  {nome:'Isadora Vellini', tipo:'Solista', genero:'MPB / Lírica', instrumento:'Voz soprano'},
-  {nome:'Valentina Osei-Bonsu', tipo:'Solista', genero:'Afrobeat / Soul', instrumento:'Voz'},
-  {nome:'Camille Dufresne', tipo:'Solista', genero:'Chanson / Jazz', instrumento:'Voz / Piano'},
-  {nome:'Fatimah Al-Rashid', tipo:'Solista', genero:'Música Árabe', instrumento:'Voz / Oud'},
-  {nome:'Marco Ferretti', tipo:'Solista', genero:'Ópera / Lírico', instrumento:'Voz tenor'},
-  {nome:'Kwabena Asante', tipo:'Solista', genero:'Highlife / Afrojazz', instrumento:'Percussão / Voz'},
-  {nome:'Hiroshi Tanaka', tipo:'Solista', genero:'J-Pop / Tradicional japonês', instrumento:'Voz / Koto'},
-  {nome:'Viktor Melnyk', tipo:'Solista', genero:'Folk eslavo / Clássico', instrumento:'Violino / Voz'},
-  {nome:'Samuel Okafor', tipo:'Solista', genero:'Gospel afro', instrumento:'Voz barítono'},
-  {nome:'Maristela Braga', tipo:'Solista', genero:'MPB / Bossa Nova', instrumento:'Voz / Violão'},
-  {nome:'Sebastião Neto', tipo:'Solista', genero:'Samba / Pagode', instrumento:'Voz'},
-  {nome:'Dandara Quilombo', tipo:'Solista', genero:'Afrobeat / MPB', instrumento:'Voz / Percussão'},
-  {nome:'Jairo Silveira', tipo:'Solista', genero:'Sertanejo / Country', instrumento:'Voz / Viola'},
-  {nome:'Conceição Palmares', tipo:'Solista', genero:'Axé / Ijexá', instrumento:'Voz'},
-  {nome:'Josephine Walker', tipo:'Solista', genero:'Blues / Soul', instrumento:'Voz'},
-  {nome:'Raymond Coltrane', tipo:'Solista', genero:'Jazz', instrumento:'Saxofone'},
-  {nome:'Amina Coulibaly', tipo:'Solista', genero:'World Music africana', instrumento:'Voz / Kora'},
-  {nome:'Ruth Evangelista', tipo:'Solista', genero:'Gospel / Contemporâneo', instrumento:'Voz'},
-  {nome:'Pastor Elias Voz', tipo:'Solista', genero:'Gospel / Pregação musical', instrumento:'Voz'},
-  {nome:'Rosinha do Vale', tipo:'Solista', genero:'Forró / Baião', instrumento:'Voz'},
-  {nome:'Seu Maneco Aboio', tipo:'Solista', genero:'Repente / Aboio', instrumento:'Voz'},
-  {nome:'Siobhán Ní Faoláin', tipo:'Solista', genero:'Celtic / Folk irlandês', instrumento:'Voz / Harpa'},
-  {nome:'Dmitri Balalaika', tipo:'Solista', genero:'Folk russo / Clássico', instrumento:'Balalaika'},
-  {nome:'Luana Star', tipo:'Solista', genero:'Pop / R&B', instrumento:'Voz'},
-  {nome:'Kevin Soul', tipo:'Solista', genero:'Soul / R&B', instrumento:'Voz'},
-  {nome:'Adaeze Piano', tipo:'Solista', genero:'Afrojazz / Clássico', instrumento:'Piano'},
-  {nome:'Alexei Volkov', tipo:'Solista', genero:'Clássico / Câmara', instrumento:'Violoncelo'},
-  {nome:'Yoko Mitsui', tipo:'Solista', genero:'Tradicional japonês / Fusion', instrumento:'Shamisen / Koto'},
-  {nome:'Pablo Casado', tipo:'Solista', genero:'Flamenco / Español', instrumento:'Voz / Guitarra'},
-  {nome:'Asel Flautista', tipo:'Solista', genero:'Clássico / Erudito', instrumento:'Flauta transversal'},
-  {nome:'Jean-Pierre Hautbois', tipo:'Solista', genero:'Clássico / Barroco', instrumento:'Oboé'},
-  {nome:'Carlos Sax', tipo:'Solista', genero:'Jazz / Bossa', instrumento:'Saxofone'},
-  {nome:'Leila Oud', tipo:'Solista', genero:'Música Árabe / Maqam', instrumento:'Oud'},
-  {nome:'Ravi Sitar', tipo:'Solista', genero:'Música Clássica Indiana', instrumento:'Sitar'},
-  {nome:'Tomás Viola', tipo:'Solista', genero:'Câmara / Clássico', instrumento:'Viola'},
-  {nome:'Ibrahim Kora', tipo:'Solista', genero:'Griot / West African', instrumento:'Kora'},
-  {nome:'Keiko Shamisen', tipo:'Solista', genero:'Tradicional japonês', instrumento:'Shamisen'},
-  {nome:'Percival Drums', tipo:'Solista', genero:'Jazz / Fusion', instrumento:'Bateria / Percussão'},
-  {nome:'Luisa Harpa', tipo:'Solista', genero:'Clássico / Celtic', instrumento:'Harpa'},
-  {nome:'Ahmed Bendir', tipo:'Solista', genero:'Música Árabe / Sufi', instrumento:'Bendir / Percussão'},
-  {nome:'Olga Acordeão', tipo:'Solista', genero:'Folk / Tango', instrumento:'Acordeão'},
-  {nome:'Santiago Guitarra', tipo:'Solista', genero:'Clássico / Flamenc', instrumento:'Guitarra clássica'},
-  {nome:'Mingus Contrabaixo', tipo:'Solista', genero:'Jazz / Fusion', instrumento:'Contrabaixo'},
-  {nome:'Zhen Erhu', tipo:'Solista', genero:'Tradicional chinês', instrumento:'Erhu'},
-  {nome:'Felix Contratenor', tipo:'Solista', genero:'Barroco / Ópera', instrumento:'Voz contratenor'},
-  {nome:'Tadashi Falsete', tipo:'Solista', genero:'J-Pop / Soul', instrumento:'Voz falsete'},
-  {nome:'Elena Fado', tipo:'Solista', genero:'Fado', instrumento:'Voz / Guitarra portuguesa'},
-  {nome:'Carmen Flamenca', tipo:'Solista', genero:'Flamenco', instrumento:'Voz / Palmas'},
-  {nome:'Nino Georgiano', tipo:'Solista', genero:'Polifonia georgiana', instrumento:'Voz'},
-  {nome:'Miriam Klezmer', tipo:'Solista', genero:'Klezmer / Judaico', instrumento:'Clarinete / Voz'},
-  {nome:'Duo Lua & Mar', tipo:'Duo', genero:'MPB / Bossa', instrumento:'Voz / Violão'},
-  {nome:'Trio Árido', tipo:'Trio', genero:'Sertanejo / Folk nordestino', instrumento:'Viola / Zabumba / Voz'},
-  {nome:'Duo Sakura', tipo:'Duo', genero:'Fusion japonesa', instrumento:'Koto / Flauta'},
-  {nome:'Trio Jazz Marginal', tipo:'Trio', genero:'Jazz / Experimental', instrumento:'Piano / Baixo / Bateria'},
-  {nome:'Diana Synthesis', tipo:'Solista', genero:'Eletrônico / Synthpop', instrumento:'Síntese eletrônica / Voz'},
-  {nome:'Eio Experimental', tipo:'Solista', genero:'Música experimental', instrumento:'Eletrônica / Objetos'},
-  {nome:'Tariq Electronic', tipo:'Solista', genero:'Electronic / World', instrumento:'Eletrônica / Percussão'},
-  {nome:'Renata Bolero', tipo:'Solista', genero:'Bolero / Romantic', instrumento:'Voz'},
-  {nome:'Cléo Lunna', tipo:'Solista', genero:'Pop / Indie', instrumento:'Voz / Teclado'},
-  {nome:'Abebe Girma', tipo:'Solista', genero:'Música etíope / Afrojazz', instrumento:'Voz / Krar'},
-  {nome:'Rovilson Reigns Bautista', tipo:'Solista', genero:'Rap / Hip-Hop', instrumento:'Voz / Beat'},
-  {nome:'Orquestra Filarmônica do Celeiro', tipo:'Orquestra', genero:'Erudito / Clássico', instrumento:'Orquestra completa'},
-];
+// ELENCO derivado do banco real (elenco_musical.js / TODOS) — nunca mais
+// diverge do que está publicado, e corrige nomes/estilos que a cópia manual
+// antiga tinha errado (ex: "Rovilson" -> "Rovonilson", Raymond Coltrane
+// listado como saxofonista quando na verdade é a voz/barítono de jazz).
+function _tipoElenco(cat) {
+  if (cat === 'banda') return 'Banda';
+  if (cat === 'orquestra') return 'Orquestra';
+  return 'Solista';
+}
+const ELENCO = (typeof TODOS !== 'undefined' ? TODOS : []).map(a => ({
+  nome: a.nome,
+  tipo: _tipoElenco(a.cat),
+  genero: a.estilo || '',
+  instrumento: a.inst || ''
+}));
 
 let obras = JSON.parse(localStorage.getItem('sigmal_obras') || '[]');
 let _resolveAprovacao = null;
@@ -583,6 +449,24 @@ async function iniciarProducao() {
   log('🎵 Condor Andino compondo a letra...');
   barra(30);
 
+  // Quando um intérprete real foi escolhido, puxa o perfil dele do banco —
+  // bio/sabor (elenco_musical.js) + tessitura/timbre (perfil_vocal.js) — em
+  // vez de só passar o nome solto. Sem intérprete escolhido, mostra o resumo
+  // do elenco pra o Condor Andino sugerir alguém.
+  let blocoInterprete = '';
+  if (interprete) {
+    const artista = (typeof getArtistaMusicalPorNome === 'function') ? getArtistaMusicalPorNome(interprete) : null;
+    const perfilVocal = (typeof getPerfilVocalPorNome === 'function') ? getPerfilVocalPorNome(interprete) : null;
+    blocoInterprete = `\n\nINTÉRPRETE ESCALADO: ${interprete}`;
+    if (artista) blocoInterprete += `\nOrigem: ${artista.orig} · Estilo: ${artista.estilo}${artista.sabor ? '\nSabor vocal: ' + artista.sabor : ''}`;
+    if (perfilVocal) blocoInterprete += `\nPerfil Vocal: ${perfilVocal.arquetipoVocal} (tessitura: ${perfilVocal.tessitura})`;
+    blocoInterprete += '\nEscreva a letra pensando NESSA voz específica — vocabulário, imagens e cadência que combinem com o timbre e o estilo dela/dele.';
+  }
+  const blocoElenco = interprete ? '' : `\n\nELENCO DISPONÍVEL (resumo):
+Bandas: Ferro & Chuva, Noite de Sal, Forró do Fim do Mundo, Diáspora Sound System, Câmara Negra, Tango Bruto, Big Band do Celeiro, Al-Andalus, Ângelus Prime
+Solistas: Isadora Vellini (soprano MPB), Maristela Braga (voz/violão), Dandara Quilombo (afrobeat), Ruth Evangelista (gospel), Pastor Elias Voz (gospel), Rosinha do Vale (forró), Elena Fado (fado), Carmen Flamenca (flamenco), Rovonilson Reigns Bautista (rap), e mais 50 heteromusicais.`;
+  const blocoAntiIA = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
+
   const promptLetra = `Você é Condor Andino, compositor e letrista da SIGMAL Music, responsável pela criação de letras musicais para heteromusicais virtuais.
 
 CONTEXTO / TEMA:
@@ -591,12 +475,7 @@ ${contexto}
 CONFIGURAÇÃO:
 - Gênero musical: ${genero || 'a definir conforme o tema'}
 - Tom / Sentimento: ${tom || 'a definir conforme o tema'}
-- Estrutura: ${estrutura}
-- Intérprete: ${interprete || 'a ser escolhido pelo Maestro Aaron conforme o sabor de voz adequado'}
-
-ELENCO DISPONÍVEL (resumo):
-Bandas: Ferro & Chuva, Noite de Sal, Forró do Fim do Mundo, Diáspora Sound System, Câmara Negra, Tango Bruto, Big Band do Celeiro, Al-Andalus, Ângelus Prime
-Solistas: Isadora Vellini (soprano MPB), Maristela Braga (voz/violão), Dandara Quilombo (afrobeat), Ruth Evangelista (gospel), Pastor Elias Voz (gospel), Rosinha do Vale (forró), Elena Fado (fado), Carmen Flamenca (flamenco), Rovilson Reigns Bautista (rap), e mais 50 heteromusicais.
+- Estrutura: ${estrutura}${blocoInterprete}${blocoElenco}${blocoAntiIA}
 
 MISSÃO:
 1. Crie a letra completa seguindo a estrutura solicitada
@@ -820,7 +699,40 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-retomar-musica').style.display = 'block';
     notif('PRODUÇÃO PAUSADA', `"${pausada.titulo}" interrompida. Clique em RETOMAR.`, 'info');
   }
+
+  popularInterpretes();
+
+  // Deep-link vindo da Sala de Ensaio (sala_ensaio.html) já com o intérprete escolhido
+  const params = new URLSearchParams(location.search);
+  const interpreteParam = params.get('interprete');
+  if (interpreteParam) {
+    const sel = document.getElementById('interprete-selecionado');
+    sel.value = decodeURIComponent(interpreteParam);
+  }
 });
+
+// Popula o select de intérprete a partir do banco real (TODOS), agrupado
+// igual antes (Bandas / Solistas / Orquestra) — nunca mais diverge do
+// elenco_musical.js.
+function popularInterpretes() {
+  const sel = document.getElementById('interprete-selecionado');
+  if (!sel || typeof TODOS === 'undefined') return;
+  const grupos = { banda: [], voz: [], inst: [], orquestra: [] };
+  TODOS.forEach(a => { if (grupos[a.cat]) grupos[a.cat].push(a); });
+
+  const criarOptgroup = (label, artistas) => {
+    if (!artistas.length) return '';
+    const opts = artistas
+      .slice().sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
+      .map(a => `<option value="${a.nome}">${a.nome}</option>`).join('');
+    return `<optgroup label="${label}">${opts}</optgroup>`;
+  };
+
+  sel.innerHTML = '<option value="">Maestro Aaron escolhe pelo sabor de voz</option>'
+    + criarOptgroup('— BANDAS —', grupos.banda)
+    + criarOptgroup('— SOLISTAS —', [...grupos.voz, ...grupos.inst])
+    + criarOptgroup('— ORQUESTRA —', grupos.orquestra);
+}
 
 function salvarObra() {
   if (!window._producaoAtual) return;
@@ -884,7 +796,7 @@ function renderObras() {
   }
   el.innerHTML = obras.map((o, i) => `
     <div class="obra-card" style="${o.nopaiol ? 'border-color:rgba(245,127,23,0.4);' : ''}">
-      <div class="obra-titulo">${o.titulo}${o.nopaiol ? ' <span style=\"font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:#f57f17;letter-spacing:0.1em;\">🏹 NO PAIOL</span>' : ''}</div>
+      <div class="obra-titulo">${o.titulo}${o.nopaiol ? " <span style=\"font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:#f57f17;letter-spacing:0.1em;\">🏹 NO PAIOL</span>" : ''}</div>
       <div class="obra-meta">${o.interprete} · ${o.genero || 'Gênero livre'} · ${o.data}</div>
       <div class="obra-acoes">
         <button class="fa-btn" onclick="verLetra(${i})">📝 LETRA</button>

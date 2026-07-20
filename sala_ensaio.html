@@ -203,7 +203,7 @@ Isto é uma CONVERSA DE BASTIDOR com Wagner, o produtor — não é a escrita de
 
 Isto é uma CONVERSA DE BASTIDOR com Wagner — não é a composição de uma letra. Responda em primeira pessoa, curto (1 a 4 frases), no seu jeito de ser, como quem está conhecendo o produtor antes de gravar algo novo.`;
     const fichaHtml = `<strong>${m.nome}</strong> — ${m.estilo} · ${m.orig}<p>${m.sabor || ''}</p>${perfil ? '<p>🔊 ' + perfil.tessitura + '</p>' : ''}`;
-    const deepLinkHtml = `<a class="btn-acao" href="sigmal_music_studio.html" target="_blank">✦ Abrir Sigmal Music Studio (cole "${m.nome}" como intérprete) →</a>`;
+    const deepLinkHtml = `<a class="btn-acao" href="sigmal_music_studio.html?interprete=${encodeURIComponent(nome)}" target="_blank">✦ Compor com ${m.nome} no Sigmal Music Studio →</a>`;
     return { systemPrompt, fichaHtml, deepLinkHtml };
   }
 
