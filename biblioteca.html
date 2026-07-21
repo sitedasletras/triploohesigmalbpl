@@ -579,13 +579,27 @@ function baixarTXT(id) {
   toast('↓ TXT baixado');
 }
 
+function corpoParaImpressao(obra, estiloVerso) {
+  if (obra.eixo !== 'poesia') {
+    return obra.texto.split('\n').filter(p => p.trim()).map(p =>
+      `<p style="${estiloVerso};text-indent:1.25cm">${p}</p>`
+    ).join('');
+  }
+  const estrofes = obra.texto.split(/\n\n+/).filter(e => e.trim());
+  return estrofes.map(est =>
+    est.split('\n').filter(v => v.trim()).map(v =>
+      `<p style="${estiloVerso};text-indent:0;text-align:left">${v.trim()}</p>`
+    ).join('')
+  ).join('<p style="margin:0 0 14pt 0">&nbsp;</p>');
+}
+
 function baixarDOC(id) {
   const obra = todasObras.find(o => o.id === id);
   if (!obra) return;
-  const paragrafos = obra.texto.split('\n').filter(p => p.trim()).map(p =>
-    `<p style="font-size:12pt;line-height:1.5;text-indent:1.25cm;margin:0 0 3pt 0">${p}</p>`
-  ).join('');
-  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="UTF-8"><style>@page{margin:3cm 2.5cm 2.5cm 3cm;size:A4}body{font-family:"Times New Roman",serif;font-size:12pt}h1{font-size:18pt;font-weight:bold;text-align:center;margin-bottom:6pt}.autor{text-align:center;margin-bottom:32pt}</style></head><body><h1>${obra.titulo}</h1><p class="autor">${obra.autor}</p><br>${paragrafos}</body></html>`;
+  const poesia = obra.eixo === 'poesia';
+  const paragrafos = corpoParaImpressao(obra, 'font-size:12pt;line-height:1.5;margin:0 0 3pt 0');
+  const autorEstilo = poesia ? 'text-align:right;font-style:italic' : 'text-align:center';
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="UTF-8"><style>@page{margin:3cm 2.5cm 2.5cm 3cm;size:A4}body{font-family:"Times New Roman",serif;font-size:12pt}h1{font-size:18pt;font-weight:bold;text-align:center;margin-bottom:6pt}.autor{text-align:center;margin-bottom:32pt}</style></head><body><h1>${obra.titulo}</h1><p class="autor" style="${autorEstilo}">${obra.autor}</p><br>${paragrafos}</body></html>`;
   dl('\ufeff' + html, `${slug(obra.titulo)}.doc`, 'application/msword;charset=utf-8');
   toast('↓ DOC baixado');
 }
@@ -593,8 +607,10 @@ function baixarDOC(id) {
 function baixarPDF(id) {
   const obra = todasObras.find(o => o.id === id);
   if (!obra) return;
-  const paragrafos = obra.texto.split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
-  const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${obra.titulo}</title><style>@page{margin:3cm 2.5cm 2.5cm 3cm;size:A4}body{font-family:"Times New Roman",Georgia,serif;font-size:12pt;line-height:1.5;color:#111}h1{font-size:18pt;text-align:center;margin-bottom:6pt}.autor{text-align:center;margin-bottom:32pt;font-size:12pt}p{margin:0 0 3pt;text-indent:1.25cm}</style></head><body><h1>${obra.titulo}</h1><p class="autor">${obra.autor}</p><br>${paragrafos}</body></html>`;
+  const poesia = obra.eixo === 'poesia';
+  const paragrafos = corpoParaImpressao(obra, 'margin:0 0 3pt');
+  const autorEstilo = poesia ? 'text-align:right;font-style:italic' : 'text-align:center';
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${obra.titulo}</title><style>@page{margin:3cm 2.5cm 2.5cm 3cm;size:A4}body{font-family:"Times New Roman",Georgia,serif;font-size:12pt;line-height:1.5;color:#111}h1{font-size:18pt;text-align:center;margin-bottom:6pt}.autor{text-align:center;margin-bottom:32pt;font-size:12pt}</style></head><body><h1>${obra.titulo}</h1><p class="autor" style="${autorEstilo}">${obra.autor}</p><br>${paragrafos}</body></html>`;
   const w = window.open('','_blank');
   w.document.write(html);
   w.document.close();

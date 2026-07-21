@@ -268,14 +268,26 @@
   .obra-txt p { margin-bottom: 1.1em; text-indent: 1.5em; }
   .obra-txt p:first-child { text-indent: 0; }
 
-  /* Poesia: sem indent, centralizada */
+  /* Poesia: sem indent, alinhada à esquerda (margem direita irregular) */
   .obra-txt.modo-poesia p {
     text-indent: 0;
-    text-align: center;
-    margin-bottom: 0.4em;
+    text-align: left;
+    margin-bottom: 0.3em;
   }
   .obra-txt.modo-poesia p.estrofe-break {
-    margin-bottom: 1.4em;
+    margin-bottom: 1.2em;
+  }
+
+  /* Poesia: título em negrito (sans-serif) + autor em itálico alinhado à direita, abaixo do título */
+  #res-obra-titulo.modo-poesia {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 700;
+    text-align: center;
+  }
+  #res-obra-autor.modo-poesia {
+    font-family: 'Times New Roman', Georgia, serif;
+    font-style: italic;
+    text-align: right;
   }
 
   .acoes {
@@ -876,8 +888,10 @@ Responda EXATAMENTE neste formato:
     document.getElementById('res-het-apres').textContent = apres ? '"' + apres + '"' : '';
     document.getElementById('res-obra-titulo').textContent = titulo;
     document.getElementById('res-obra-autor').textContent = 'Autor: ' + het;
+    document.getElementById('res-obra-titulo').className = _modoAtual === 'poesia' ? 'modo-poesia' : '';
+    document.getElementById('res-obra-autor').className = _modoAtual === 'poesia' ? 'modo-poesia' : '';
 
-    // Renderizar — prosa = parágrafos com indent / poesia = versos centrados
+    // Renderizar — prosa = parágrafos com indent / poesia = versos alinhados à esquerda, por estrofe
     const obraTxt = document.getElementById('res-obra-txt');
     if (_modoAtual === 'poesia') {
       obraTxt.className = 'obra-txt modo-poesia';
