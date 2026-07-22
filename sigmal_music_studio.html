@@ -252,6 +252,10 @@ body { background: var(--preto); color: var(--creme); font-family: 'Crimson Pro'
       </select>
     </div>
     <div class="fg">
+      <label class="fl">Instrumentistas em destaque (opcional — segure Ctrl/Cmd pra escolher mais de um)</label>
+      <select class="fs" id="instrumentistas-selecionados" multiple size="4"></select>
+    </div>
+    <div class="fg">
       <label class="fl">Estrutura da música</label>
       <select class="fs" id="estrutura-musical">
         <option value="Intro + Verso + Refrão + Verso + Refrão + Ponte + Refrão final">Padrão (Intro-Verso-Refrão-Ponte-Final)</option>
@@ -418,6 +422,7 @@ async function iniciarProducao() {
   const tom = document.getElementById('tom-musical').value;
   const interprete = document.getElementById('interprete-selecionado').value;
   const estrutura = document.getElementById('estrutura-musical').value;
+  const instrumentistas = [...document.getElementById('instrumentistas-selecionados').selectedOptions].map(o => o.value);
 
   let contexto = '';
   let tituloObra = '';
@@ -529,7 +534,7 @@ FORMATO DE RESPOSTA:
     log('✓ Letra aprovada!');
 
     // Salvar estado após letra aprovada
-    salvarEstadoMusica({ fase: 'arranjo', titulo: tituloObra, interprete: interpreteEscolhido, genero, tom, letra });
+    salvarEstadoMusica({ fase: 'arranjo', titulo: tituloObra, interprete: interpreteEscolhido, genero, tom, letra, instrumentistas });
 
   } catch(e) {
     notif('ERRO', 'Falha na geração da letra: ' + e.message, 'erro');
@@ -548,7 +553,7 @@ ${letra}
 
 INTÉRPRETE: ${interpreteEscolhido}
 GÊNERO: ${genero || 'conforme a letra'}
-TOM: ${tom || 'conforme a letra'}
+TOM: ${tom || 'conforme a letra'}${_blocoInstrumentistas(instrumentistas)}
 
 MISSÃO:
 1. Crie o arranjo completo especificando instrumentação por seção
@@ -620,7 +625,7 @@ Compasso: [4/4, 3/4, etc.]
   document.getElementById('producao-resultado').style.display = 'block';
 
   // Salvar temporariamente
-  window._producaoAtual = { titulo: tituloObra, interprete: interpreteEscolhido, genero, tom, letra, arranjo, data: new Date().toLocaleDateString('pt-BR') };
+  window._producaoAtual = { titulo: tituloObra, interprete: interpreteEscolhido, instrumentistas, genero, tom, letra, arranjo, data: new Date().toLocaleDateString('pt-BR') };
   limparEstadoMusica();
   document.getElementById('btn-retomar-musica').style.display = 'none';
 
@@ -644,7 +649,7 @@ ${estado.letra}
 
 INTÉRPRETE: ${estado.interprete}
 GÊNERO: ${estado.genero || 'conforme a letra'}
-TOM: ${estado.tom || 'conforme a letra'}
+TOM: ${estado.tom || 'conforme a letra'}${_blocoInstrumentistas(estado.instrumentistas)}
 
 MISSÃO: Crie o arranjo completo com instrumentação, BPM, tonalidade, dinâmicas e referências.
 
@@ -682,7 +687,7 @@ FORMATO:
       document.getElementById('res-letra').textContent = estado.letra;
       document.getElementById('res-arranjo').textContent = arranjo;
       document.getElementById('producao-resultado').style.display = 'block';
-      window._producaoAtual = { titulo: estado.titulo, interprete: estado.interprete, genero: estado.genero, tom: estado.tom, letra: estado.letra, arranjo, data: new Date().toLocaleDateString('pt-BR') };
+      window._producaoAtual = { titulo: estado.titulo, interprete: estado.interprete, instrumentistas: estado.instrumentistas, genero: estado.genero, tom: estado.tom, letra: estado.letra, arranjo, data: new Date().toLocaleDateString('pt-BR') };
       limparEstadoMusica();
       document.getElementById('btn-retomar-musica').style.display = 'none';
       notif('PRODUÇÃO CONCLUÍDA', `"${estado.titulo}" concluída!`, 'sucesso');
@@ -701,6 +706,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   popularInterpretes();
+  popularInstrumentistas();
 
   // Deep-link vindo da Sala de Ensaio (sala_ensaio.html) já com o intérprete escolhido
   const params = new URLSearchParams(location.search);
@@ -732,6 +738,31 @@ function popularInterpretes() {
     + criarOptgroup('— BANDAS —', grupos.banda)
     + criarOptgroup('— SOLISTAS —', [...grupos.voz, ...grupos.inst])
     + criarOptgroup('— ORQUESTRA —', grupos.orquestra);
+}
+
+// Popula o select múltiplo de instrumentistas (cat:'inst' — pianistas,
+// violonistas, percussionistas etc.) direto do banco real, pra poder
+// escalar um ou mais pro arranjo com o estilo de execução de cada um.
+function popularInstrumentistas() {
+  const sel = document.getElementById('instrumentistas-selecionados');
+  if (!sel || typeof TODOS === 'undefined') return;
+  const instrumentistas = TODOS.filter(a => a.cat === 'inst').slice().sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+  sel.innerHTML = instrumentistas.map(a => `<option value="${a.nome}">${a.nome} — ${a.inst || ''}</option>`).join('');
+}
+
+// Monta o texto com nome + instrumento + sabor/estilo de cada instrumentista
+// escalado, pra injetar no prompt do Maestro Aaron — é assim que a
+// instrumentação passa a diferenciar o jeito de tocar de cada um (ex: Pablo
+// Casado não toca igual Santiago Guitarra), em vez de instrumentação
+// genérica sem personagem nenhum por trás.
+function _blocoInstrumentistas(nomes) {
+  if (!nomes || !nomes.length) return '';
+  const linhas = nomes.map(nome => {
+    const a = (typeof getArtistaMusicalPorNome === 'function') ? getArtistaMusicalPorNome(nome) : null;
+    if (!a) return `- ${nome}`;
+    return `- ${a.nome} (${a.inst || 'instrumento não especificado'})${a.sabor ? ': ' + a.sabor : ''}`;
+  }).join('\n');
+  return `\n\nINSTRUMENTISTAS ESCALADOS (escreva a parte de cada um refletindo o estilo de execução descrito, diferenciando claramente um do outro):\n${linhas}`;
 }
 
 function salvarObra() {
@@ -891,7 +922,8 @@ async function exportarParaGitHub() {
   const data = new Date().toISOString().split('T')[0];
   const caminho = `${destino}/${interpSlug}/${data}-${slug}.md`;
 
-  const conteudo = `# ${obra.titulo}\n\n**Intérprete:** ${obra.interprete}\n**Gênero:** ${obra.genero || '—'}\n**Tom:** ${obra.tom || '—'}\n**Data:** ${obra.data}\n\n---\n\n## LETRA\n\n${obra.letra}\n\n---\n\n## ARRANJO & INSTRUMENTAÇÃO\n\n${obra.arranjo}`;
+  const linhaInstrumentistas = (obra.instrumentistas && obra.instrumentistas.length) ? `\n**Instrumentistas:** ${obra.instrumentistas.join(', ')}` : '';
+  const conteudo = `# ${obra.titulo}\n\n**Intérprete:** ${obra.interprete}${linhaInstrumentistas}\n**Gênero:** ${obra.genero || '—'}\n**Tom:** ${obra.tom || '—'}\n**Data:** ${obra.data}\n\n---\n\n## LETRA\n\n${obra.letra}\n\n---\n\n## ARRANJO & INSTRUMENTAÇÃO\n\n${obra.arranjo}`;
   const base64 = btoa(unescape(encodeURIComponent(conteudo)));
 
   logEl.innerHTML = `▶ Exportando para /${caminho}...`;
