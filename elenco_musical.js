@@ -674,6 +674,26 @@ const TODOS =
    bio:'Julien Vasseur escreve baladas europeias dos anos 80 com aquele brilho synth-pop levemente melancólico — teclados brilhantes, guitarra discreta, o tipo de música que trilhava toda pista de rádio europeia da época. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
    sabor:'Teclado/guitarra AOR europeu — baladas synth-pop românticas dos anos 80. Referência: Century ("Lover Why").'},
 
+  {id:'MUS-136',nome:'Werner Falkenrath',ic:'🎹',orig:'Alemanha',cat:'inst',estilo:'classico',
+   inst:'Composição orquestral para cinema — trilhas épicas e minimalismo hipnótico',
+   bio:'Werner Falkenrath compõe música pensando em imagens que ainda nem existem — trilhas orquestrais épicas, motivos rítmicos hipnóticos e uma escala de grandiosidade que faz qualquer cena parecer maior. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Composição orquestral para cinema — épica, hipnótica e cinematográfica. Referência: Hans Zimmer.'},
+
+  {id:'MUS-137',nome:'Alexandros Kyrou',ic:'🎹',orig:'Grécia',cat:'inst',estilo:'eletrônico',
+   inst:'Sintetizador orquestral — trilhas eletrônicas épicas',
+   bio:'Alexandros Kyrou funde sintetizador e orquestra numa coisa só — texturas eletrônicas grandiosas que soam tão antigas quanto o mar Mediterrâneo e tão futuristas quanto uma nave espacial. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Sintetizador orquestral — trilhas eletrônicas épicas, entre o antigo e o futurista. Referência: Vangelis.'},
+
+  {id:'MUS-138',nome:'Aisling Devereux',ic:'🎹',orig:'Irlanda',cat:'inst',estilo:'world',
+   inst:'Teclado/produção celta em camadas — vozes multiplicadas e atmosfera etérea',
+   bio:'Aisling Devereux constrói música em camadas, gravando o próprio teclado e vozes dezenas de vezes até formar uma névoa sonora — atmosfera celta etérea que parece vir de um lugar fora do tempo. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Teclado/produção celta em camadas — atmosfera etérea e vozes multiplicadas. Referência: Enya.'},
+
+  {id:'MUS-139',nome:'Baptiste Lorrain',ic:'🎹',orig:'França',cat:'inst',estilo:'classico',
+   inst:'Coro épico eletrônico — canto gregoriano fundido a batida moderna',
+   bio:'Baptiste Lorrain funde coro em latim, orquestra e batida eletrônica moderna numa única parede de som — épico o bastante pra abertura de filme, hipnótico o bastante pra tocar numa boate. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Coro épico eletrônico — canto gregoriano fundido a batida moderna. Referência: ERA ("Ameno").'},
+
   {id:'MUS-058',nome:'Renata Bolero',ic:'🎤',orig:'México',cat:'voz',estilo:'world',
    inst:'Voz de bolero / balada latina',
    bio:'Natural da Cidade do México, Renata Bolero é a voz do bolero latino-americano — aquela música que faz o coração doer de forma agradável, que conta histórias de amor e perda com elegância inigualável. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
