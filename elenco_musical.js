@@ -339,6 +339,16 @@ const TODOS =
    bio:'Nascida em Bristol, Nova Prisma constrói paisagens sonoras com pedais de efeito, feedback controlado e bends longos e expressivos — guitarra que não toca notas, pinta texturas. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
    sabor:'Guitarra psicodélica — texturas de efeito e bends expressivos. Referência: David Gilmour.'},
 
+  {id:'MUS-069',nome:'Anders Nordqvist',ic:'🎹',orig:'Suécia — Estocolmo',cat:'inst',estilo:'rock',
+   inst:'Teclado rock de arena — sintetizadores dramáticos e power ballads',
+   bio:'Nascido em Estocolmo, Anders Nordqvist aprendeu órgão de igreja antes de descobrir o sintetizador — e uniu as duas coisas num teclado que soa grandioso o bastante pra encher um estádio: camadas de synth-pad, arpejos brilhantes e aquele acorde de abertura que já anuncia que a balada vai ser enorme. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Teclado de rock de arena — camadas de sintetizador dramáticas pra power ballads. Referência: Mic Michaeli (Europe).'},
+
+  {id:'MUS-070',nome:'Erik Stormheim',ic:'🎸',orig:'Suécia — Gotemburgo',cat:'inst',estilo:'rock',
+   inst:'Guitarra de rock melódico de arena — solos memoráveis com raiz blues-rock',
+   bio:'Nascido em Gotemburgo, Erik Stormheim cresceu entre o blues-rock britânico e o rock escandinavo de estádio — sua marca é o solo que qualquer pessoa consegue cantarolar depois de ouvir uma vez, melodia antes de velocidade, emoção antes de exibicionismo técnico. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra de rock melódico de arena — solos memoráveis, melodia antes de velocidade. Referência: John Norum (Europe).'},
+
   {id:'MUS-058',nome:'Renata Bolero',ic:'🎤',orig:'México',cat:'voz',estilo:'world',
    inst:'Voz de bolero / balada latina',
    bio:'Natural da Cidade do México, Renata Bolero é a voz do bolero latino-americano — aquela música que faz o coração doer de forma agradável, que conta histórias de amor e perda com elegância inigualável. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
