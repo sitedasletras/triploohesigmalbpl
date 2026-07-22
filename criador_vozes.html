@@ -288,7 +288,7 @@ async function avaliarVozComGemini(arquivo) {
   const mimeType = arquivo.type || 'audio/ogg';
   const prompt = `Ouça este áudio com atenção e descreva objetivamente a voz, em português, em um parágrafo curto: gênero aparente, faixa etária aparente, tom/timbre (grave, médio, agudo), energia (calma, enérgica, contida, rouca), e qualquer sotaque ou traço regional perceptível. Não invente nada que não dê pra perceber pelo áudio — se a nota for muito curta ou pouco clara, diga isso explicitamente.`;
 
-  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -333,7 +333,7 @@ ${lista}
 Sugira os 3 personagens dessa lista cuja personalidade e aparência combinariam melhor com essa voz, do mais pro menos indicado. Responda SOMENTE em JSON válido, sem cercas de código, no formato:
 [{"nome":"Nome Exato Da Lista","justificativa":"uma frase curta explicando por quê"}, ...]`;
 
-  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })

@@ -2,7 +2,9 @@
  * IA GRATUITA — triploohesigmalbpl
  * ---------------------------------
  * Chamada de texto via Google Gemini (tier gratuito, sem cartão de crédito,
- * modelo gemini-2.5-flash), com fallback automático pro OpenRouter (também
+ * modelo gemini-flash-latest — alias que a Google mantém apontando pro
+ * flash mais atual, evitando quebrar quando um modelo específico é
+ * descontinuado), com fallback automático pro OpenRouter (também
  * gratuito, sem cartão) rodando um modelo Llama, caso o Gemini falhe ou não
  * esteja configurado. Usada só para funções de bastidor que não precisam da
  * qualidade literária do Claude: biografias de heterônimos e perfis
@@ -48,7 +50,7 @@ async function chamarIAGratuita(systemPrompt, userPrompt, maxTokens = 2000) {
 }
 
 async function _chamarGemini(apiKey, systemPrompt, userPrompt, maxTokens) {
-  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
