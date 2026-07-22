@@ -82,7 +82,7 @@
 
   .separador { text-align:center; color: var(--muted); font-family:'Share Tech Mono',monospace; font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; margin:26px 0 18px; }
 </style>
-<script src="config.js"></script>
+<script src="config.js?v=20260722"></script>
 <script src="elenco_bpl.js"></script>
 <script src="elenco_musical.js"></script>
 <script src="perfil_vocal.js"></script>
@@ -471,11 +471,17 @@ function _popularListaGeral() {
 }
 _popularListaGeral();
 
-function _mostrarStatusGeral(tipo, texto) {
+function _mostrarStatusGeral(tipo, html) {
   const el = document.getElementById('geral-status');
   el.className = tipo;
-  el.textContent = texto;
+  el.innerHTML = html;
 }
+
+// Guarda a última voz já clonada no Fish Audio que ainda não conseguiu
+// ser salva no GitHub — assim um novo clique tenta só salvar de novo,
+// em vez de clonar tudo outra vez (evita gastar clonagens à toa quando
+// só a etapa de salvar falhou, ex.: token do GitHub expirado).
+let _geralCandidatoPendente = null;
 
 async function uploadGeralDeVoz() {
   const nome = document.getElementById('geral-nome').value.trim();
@@ -492,19 +498,37 @@ async function uploadGeralDeVoz() {
   try {
     _mostrarStatusGeral('carregando', `🔊 Clonando a voz de ${perfil.nome}...`);
     const candidato = await criarVozPorAudio(perfil.nome, arquivo, transcricao);
+    _geralCandidatoPendente = { nome: perfil.nome, referenceId: candidato.id };
 
+    await _finalizarSalvamentoGeral();
+  } catch (e) {
+    _mostrarStatusGeral('erro', 'Erro ao clonar a voz: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function _finalizarSalvamentoGeral() {
+  if (!_geralCandidatoPendente) return;
+  const { nome, referenceId } = _geralCandidatoPendente;
+  try {
     _mostrarStatusGeral('carregando', '💾 Salvando permanentemente...');
-    salvarVozPremium(perfil.nome, candidato.id);
-    await _salvarVozPremiumNoGitHub(perfil.nome, candidato.id);
+    salvarVozPremium(nome, referenceId);
+    await _salvarVozPremiumNoGitHub(nome, referenceId);
 
+    _geralCandidatoPendente = null;
     document.getElementById('geral-nome').value = '';
     document.getElementById('geral-arquivo').value = '';
     document.getElementById('geral-transcricao').value = '';
-    _mostrarStatusGeral('ok', `✓ Voz salva para ${perfil.nome}! Formulário limpo — pode subir a próxima.`);
+    _mostrarStatusGeral('ok', `✓ Voz salva para ${nome}! Formulário limpo — pode subir a próxima.`);
   } catch (e) {
-    _mostrarStatusGeral('erro', 'Erro: ' + e.message);
-  } finally {
-    btn.disabled = false;
+    // A clonagem já aconteceu (referenceId existe no Fish Audio) — só a
+    // gravação no GitHub falhou, então oferece tentar salvar de novo sem
+    // clonar tudo outra vez.
+    _mostrarStatusGeral('erro',
+      `Voz já clonada, mas não consegui salvar permanentemente: ${e.message}` +
+      `<button class="btn" style="margin-top:10px" onclick="_finalizarSalvamentoGeral()">🔁 Tentar salvar de novo</button>`
+    );
   }
 }
 
