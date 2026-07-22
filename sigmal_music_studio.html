@@ -145,9 +145,21 @@ body { background: var(--preto); color: var(--creme); font-family: 'Crimson Pro'
       <label class="fl">Tipo de entrada</label>
       <select class="fs" id="tipo-entrada" onchange="atualizarEntrada()">
         <option value="manual">✍️ Ideia Manual — você descreve</option>
+        <option value="pronta">📝 Já tenho a letra pronta</option>
         <option value="edital">📋 Edital / Festival Musical</option>
         <option value="silo">📚 Obra do Silo Multimídia</option>
       </select>
+    </div>
+
+    <div id="entrada-pronta" style="display:none;">
+      <div class="fg">
+        <label class="fl">Título da música</label>
+        <input class="fi" id="pronta-titulo" placeholder="Título da música">
+      </div>
+      <div class="fg">
+        <label class="fl">Cole a letra completa</label>
+        <textarea class="fta" id="pronta-letra" placeholder="Cole aqui a letra já pronta — pode marcar as seções se quiser: [INTRO], [VERSO 1], [REFRÃO]..."></textarea>
+      </div>
     </div>
 
     <div id="entrada-manual">
@@ -410,6 +422,7 @@ function irAba(id, el) {
 // ===================== ENTRADA =====================
 function atualizarEntrada() {
   const tipo = document.getElementById('tipo-entrada').value;
+  document.getElementById('entrada-pronta').style.display = tipo === 'pronta' ? 'block' : 'none';
   document.getElementById('entrada-manual').style.display = tipo === 'manual' ? 'block' : 'none';
   document.getElementById('entrada-edital').style.display = tipo === 'edital' ? 'block' : 'none';
   document.getElementById('entrada-silo').style.display = tipo === 'silo' ? 'block' : 'none';
@@ -426,8 +439,13 @@ async function iniciarProducao() {
 
   let contexto = '';
   let tituloObra = '';
+  let letraPronta = null;
 
-  if (tipo === 'manual') {
+  if (tipo === 'pronta') {
+    tituloObra = document.getElementById('pronta-titulo').value.trim();
+    letraPronta = document.getElementById('pronta-letra').value.trim();
+    if (!tituloObra || !letraPronta) { notif('CAMPO OBRIGATÓRIO', 'Preencha o título e cole a letra completa.', 'erro'); return; }
+  } else if (tipo === 'manual') {
     contexto = document.getElementById('ideia-manual').value.trim();
     if (!contexto) { notif('CAMPO OBRIGATÓRIO', 'Descreva a ideia da música.', 'erro'); return; }
     tituloObra = contexto.substring(0, 60);
@@ -504,42 +522,52 @@ FORMATO DE RESPOSTA:
   let letra = '';
   let interpreteEscolhido = '';
 
-  try {
-    const resp1 = await fetchComRetry('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4096, messages: [{ role: 'user', content: promptLetra }] })
-    }, 3, 2000);
-    if (!resp1.ok) throw new Error(`Erro ${resp1.status}`);
-    const data1 = await resp1.json();
-    const textoLetra = data1.content[0].text;
-
-    // Extrair intérprete e letra
-    const matchInterp = textoLetra.match(/---INTÉRPRETE ESCOLHIDO---\s*([\s\S]*?)(?:---JUSTIFICATIVA---|---LETRA---|$)/);
-    const matchLetra = textoLetra.match(/---LETRA---\s*([\s\S]*?)$/);
-    interpreteEscolhido = matchInterp ? matchInterp[1].trim() : (interprete || 'A definir');
-    letra = matchLetra ? matchLetra[1].trim() : textoLetra;
-
-    log(`✓ Letra composta por Condor Andino para: ${interpreteEscolhido}`);
+  if (tipo === 'pronta') {
+    // Letra já veio pronta do Wagner — pula o Condor Andino inteiro e vai
+    // direto pro Maestro Aaron arranjar em cima do que já foi escrito.
+    letra = letraPronta;
+    interpreteEscolhido = interprete || 'A definir';
+    log('✓ Letra pronta carregada — pulando a composição do Condor Andino.');
     barra(60);
+    salvarEstadoMusica({ fase: 'arranjo', titulo: tituloObra, interprete: interpreteEscolhido, genero, tom, letra, instrumentistas });
+  } else {
+    try {
+      const resp1 = await fetchComRetry('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4096, messages: [{ role: 'user', content: promptLetra }] })
+      }, 3, 2000);
+      if (!resp1.ok) throw new Error(`Erro ${resp1.status}`);
+      const data1 = await resp1.json();
+      const textoLetra = data1.content[0].text;
 
-    // Aprovação da letra
-    log('⏸ Aguardando sua aprovação da letra...');
-    const aprovouLetra = await mostrarModal(`CONDOR ANDINO · LETRA`, letra);
-    if (!aprovouLetra) {
-      log('✗ Letra rejeitada. Reinicie a produção para refazer.');
+      // Extrair intérprete e letra
+      const matchInterp = textoLetra.match(/---INTÉRPRETE ESCOLHIDO---\s*([\s\S]*?)(?:---JUSTIFICATIVA---|---LETRA---|$)/);
+      const matchLetra = textoLetra.match(/---LETRA---\s*([\s\S]*?)$/);
+      interpreteEscolhido = matchInterp ? matchInterp[1].trim() : (interprete || 'A definir');
+      letra = matchLetra ? matchLetra[1].trim() : textoLetra;
+
+      log(`✓ Letra composta por Condor Andino para: ${interpreteEscolhido}`);
+      barra(60);
+
+      // Aprovação da letra
+      log('⏸ Aguardando sua aprovação da letra...');
+      const aprovouLetra = await mostrarModal(`CONDOR ANDINO · LETRA`, letra);
+      if (!aprovouLetra) {
+        log('✗ Letra rejeitada. Reinicie a produção para refazer.');
+        barra(0);
+        return;
+      }
+      log('✓ Letra aprovada!');
+
+      // Salvar estado após letra aprovada
+      salvarEstadoMusica({ fase: 'arranjo', titulo: tituloObra, interprete: interpreteEscolhido, genero, tom, letra, instrumentistas });
+
+    } catch(e) {
+      notif('ERRO', 'Falha na geração da letra: ' + e.message, 'erro');
       barra(0);
       return;
     }
-    log('✓ Letra aprovada!');
-
-    // Salvar estado após letra aprovada
-    salvarEstadoMusica({ fase: 'arranjo', titulo: tituloObra, interprete: interpreteEscolhido, genero, tom, letra, instrumentistas });
-
-  } catch(e) {
-    notif('ERRO', 'Falha na geração da letra: ' + e.message, 'erro');
-    barra(0);
-    return;
   }
 
   // ETAPA 2 — MAESTRO AARON cria o arranjo
