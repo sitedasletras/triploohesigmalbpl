@@ -72,7 +72,7 @@ const PERFIS_VOCAIS = [
   {nome:'Vasile Ionescu-Doran',tipo:'ator',genero:'M',tessitura:'média',arquetipoVocal:'Voz média — timbre de tragedia, o herói que cai por escolha própria',vozSintese:{vozId:'pt-BR-JulioNeural',pitch:0.99,rate:0.99}},
   {nome:'Sunita Karmakar',tipo:'ator',genero:'F',tessitura:'aguda',arquetipoVocal:'Voz aguda — timbre de drama, resiliência como estética',vozSintese:{vozId:'pt-BR-FranciscaNeural',pitch:1.04,rate:1.02}},
   {nome:'Marcus Elroy Thorne',tipo:'ator',genero:'M',tessitura:'grave',arquetipoVocal:'Voz grave — timbre de drama, ritmo caribenho na fala, peso africano no olhar',vozSintese:{vozId:'pt-BR-HumbertoNeural',pitch:1.09,rate:1.1}},
-  {nome:'Florentina Oprea Vlad',tipo:'ator',genero:'F',tessitura:'aguda',arquetipoVocal:'Voz aguda — timbre de comedia, ironia que não fere',vozSintese:{vozId:'pt-BR-FranciscaNeural',pitch:0.98,rate:0.88}},
+  {nome:'Florentina Oprea Vlad',tipo:'ator',genero:'F',tessitura:'aguda',arquetipoVocal:'Voz aguda — timbre de comedia, ironia que não fere',vozSintese:{vozId:'pt-BR-FranciscaNeural',pitch:0.98,rate:0.88},vozPremiumId:'8f2abb7dd7644e26abea20d301a03ff6'},
   {nome:'Ibrahim Al-Rashid',tipo:'ator',genero:'M',tessitura:'grave',arquetipoVocal:'Voz grave — timbre de drama, dignidade árabe clássica',vozSintese:{vozId:'pt-BR-DonatoNeural',pitch:1.12,rate:0.97}},
   {nome:'Esperanza Villarreal',tipo:'ator',genero:'F',tessitura:'aguda',arquetipoVocal:'Voz aguda — timbre de drama, terra, raiz e fúria suave',vozSintese:{vozId:'pt-BR-BrendaNeural',pitch:1.01,rate:0.97}},
   {nome:'Nnamdi Achebe Osei',tipo:'ator',genero:'M',tessitura:'média',arquetipoVocal:'Voz média — timbre de acao, nobreza física e moral',vozSintese:{vozId:'pt-BR-DonatoNeural',pitch:0.91,rate:1.1}},
