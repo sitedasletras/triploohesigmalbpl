@@ -71,6 +71,16 @@
   .sugestao-texto { flex:1; }
   .sugestao-texto strong { color: var(--accent2); }
   .sugestao-texto span { display:block; font-size:.78rem; color: var(--muted); margin-top:2px; }
+
+  .geral-wrap { background: var(--surface); border:1.5px solid var(--accent); border-radius:12px; padding:18px; margin-bottom:22px; }
+  .geral-titulo { font-family:'Bebas Neue', sans-serif; letter-spacing:.05em; font-size:1.15rem; color: var(--accent); margin-bottom:6px; }
+  .geral-sub { font-size:.85rem; color:#c0bdb4; line-height:1.5; margin-bottom:16px; }
+  #geral-status { margin-top:14px; padding:10px 12px; border-radius:8px; font-family:'Share Tech Mono',monospace; font-size:.75rem; display:none; }
+  #geral-status.ok { display:block; background: rgba(122,158,138,.1); color: var(--accent2); }
+  #geral-status.erro { display:block; background: rgba(181,106,90,.1); color: var(--danger); }
+  #geral-status.carregando { display:block; background: var(--bg); color: var(--muted); font-style:italic; }
+
+  .separador { text-align:center; color: var(--muted); font-family:'Share Tech Mono',monospace; font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; margin:26px 0 18px; }
 </style>
 <script src="config.js"></script>
 <script src="elenco_bpl.js"></script>
@@ -93,6 +103,27 @@
     direito de usar (gravação própria, dublê contratado — nunca voz de terceiro sem permissão). Precisa da
     <code>FISH_AUDIO_API_KEY</code> configurada no <code>config.js</code>.
   </div>
+
+  <div class="geral-wrap">
+    <div class="geral-titulo">📤 Upload Geral de Voz</div>
+    <p class="geral-sub">Suba um áudio, diga pra qual ator ou cantor ele vai, e clique em enviar — clona a voz,
+      salva permanentemente no personagem e limpa o formulário sozinho, pronto pro próximo upload.</p>
+
+    <label>Personagem (ator do BPL ou cantor Sigmal Music)</label>
+    <input type="text" id="geral-nome" list="geral-lista-nomes" placeholder="Digite o nome...">
+    <datalist id="geral-lista-nomes"></datalist>
+
+    <label style="margin-top:12px">Áudio de referência (mp3, wav ou m4a — só sua ou com permissão)</label>
+    <input type="file" id="geral-arquivo" accept="audio/*">
+
+    <label style="margin-top:12px">Transcrição (opcional, melhora a precisão)</label>
+    <textarea id="geral-transcricao" placeholder="O que a pessoa fala no áudio, se souber..."></textarea>
+
+    <button class="btn" id="geral-btn-enviar" onclick="uploadGeralDeVoz()">✦ Enviar e salvar no personagem</button>
+    <div id="geral-status"></div>
+  </div>
+
+  <div class="separador">ou use o fluxo detalhado abaixo — comparar candidatos antes de salvar, descrever a voz por texto, avaliar com IA</div>
 
   <div class="tipos">
     <div class="tipo-btn" id="tipo-ator" onclick="selecionarTipo('ator')">🎭 Ator do BPL</div>
@@ -383,41 +414,97 @@ function usarCandidato(referenceId) {
 // entrada já existente em vez de criar arquivo novo.
 async function salvarPermanentemente() {
   if (!estado.nome || !estado.candidatoAtual) return;
-  const token = window.GITHUB_TOKEN || '';
-  const owner = window.GITHUB_OWNER || '';
-  const repo = window.GITHUB_REPO || '';
-  if (!token) { mostrarStatus('erro', 'Configure GITHUB_TOKEN em config.js pra salvar permanentemente.'); return; }
-
   mostrarStatus('carregando', '💾 Salvando no GitHub...');
   try {
-    const caminho = 'perfil_vocal.js';
-    const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${caminho}`, {
-      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
-    });
-    if (!r.ok) throw new Error(`Não consegui ler ${caminho} do GitHub (HTTP ${r.status})`);
-    const d = await r.json();
-    const sha = d.sha;
-    const conteudoAtual = decodeURIComponent(escape(atob(d.content)));
-
-    const conteudoNovo = _atualizarVozPremiumNoTexto(conteudoAtual, estado.nome, estado.candidatoAtual);
-    if (conteudoNovo === conteudoAtual) throw new Error(`Não encontrei a entrada de "${estado.nome}" no arquivo pra atualizar.`);
-
-    const body = {
-      message: `[Criador de Vozes] Voz premium pra ${estado.nome}`,
-      content: btoa(unescape(encodeURIComponent(conteudoNovo))),
-      branch: 'main',
-      sha
-    };
-    const pub = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${caminho}`, {
-      method: 'PUT',
-      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    if (!pub.ok) { const t = await pub.text(); throw new Error(`Falha ao gravar (HTTP ${pub.status}): ${t.substring(0, 200)}`); }
-
+    await _salvarVozPremiumNoGitHub(estado.nome, estado.candidatoAtual);
     mostrarStatus('ok', `✓ Voz de ${estado.nome} salva permanentemente no perfil_vocal.js!`);
   } catch (e) {
     mostrarStatus('erro', 'Erro ao salvar: ' + e.message);
+  }
+}
+
+async function _salvarVozPremiumNoGitHub(nome, referenceId) {
+  const token = window.GITHUB_TOKEN || '';
+  const owner = window.GITHUB_OWNER || '';
+  const repo = window.GITHUB_REPO || '';
+  if (!token) throw new Error('Configure GITHUB_TOKEN em config.js pra salvar permanentemente.');
+
+  const caminho = 'perfil_vocal.js';
+  const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${caminho}`, {
+    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+  });
+  if (!r.ok) throw new Error(`Não consegui ler ${caminho} do GitHub (HTTP ${r.status})`);
+  const d = await r.json();
+  const sha = d.sha;
+  const conteudoAtual = decodeURIComponent(escape(atob(d.content)));
+
+  const conteudoNovo = _atualizarVozPremiumNoTexto(conteudoAtual, nome, referenceId);
+  if (conteudoNovo === conteudoAtual) throw new Error(`Não encontrei a entrada de "${nome}" no arquivo pra atualizar.`);
+
+  const body = {
+    message: `[Criador de Vozes] Voz premium pra ${nome}`,
+    content: btoa(unescape(encodeURIComponent(conteudoNovo))),
+    branch: 'main',
+    sha
+  };
+  const pub = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${caminho}`, {
+    method: 'PUT',
+    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!pub.ok) { const t = await pub.text(); throw new Error(`Falha ao gravar (HTTP ${pub.status}): ${t.substring(0, 200)}`); }
+}
+
+// Fluxo de upload geral: um único botão que clona a voz a partir do
+// áudio, salva permanentemente no GitHub e limpa o formulário sozinho —
+// sem precisar passar pelas etapas de tipo/modo/candidatos do fluxo
+// detalhado acima.
+function _popularListaGeral() {
+  const dl = document.getElementById('geral-lista-nomes');
+  if (!dl || typeof PERFIS_VOCAIS === 'undefined') return;
+  dl.innerHTML = '';
+  PERFIS_VOCAIS.map(p => p.nome).sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(n => {
+    const opt = document.createElement('option');
+    opt.value = n;
+    dl.appendChild(opt);
+  });
+}
+_popularListaGeral();
+
+function _mostrarStatusGeral(tipo, texto) {
+  const el = document.getElementById('geral-status');
+  el.className = tipo;
+  el.textContent = texto;
+}
+
+async function uploadGeralDeVoz() {
+  const nome = document.getElementById('geral-nome').value.trim();
+  const arquivo = document.getElementById('geral-arquivo').files[0];
+  const transcricao = document.getElementById('geral-transcricao').value.trim();
+
+  if (!nome) { _mostrarStatusGeral('erro', 'Digite o nome do ator ou cantor.'); return; }
+  const perfil = getPerfilVocalPorNome(nome);
+  if (!perfil) { _mostrarStatusGeral('erro', `"${nome}" não encontrado no Perfil Vocal — confira a grafia.`); return; }
+  if (!arquivo) { _mostrarStatusGeral('erro', 'Selecione um arquivo de áudio.'); return; }
+
+  const btn = document.getElementById('geral-btn-enviar');
+  btn.disabled = true;
+  try {
+    _mostrarStatusGeral('carregando', `🔊 Clonando a voz de ${perfil.nome}...`);
+    const candidato = await criarVozPorAudio(perfil.nome, arquivo, transcricao);
+
+    _mostrarStatusGeral('carregando', '💾 Salvando permanentemente...');
+    salvarVozPremium(perfil.nome, candidato.id);
+    await _salvarVozPremiumNoGitHub(perfil.nome, candidato.id);
+
+    document.getElementById('geral-nome').value = '';
+    document.getElementById('geral-arquivo').value = '';
+    document.getElementById('geral-transcricao').value = '';
+    _mostrarStatusGeral('ok', `✓ Voz salva para ${perfil.nome}! Formulário limpo — pode subir a próxima.`);
+  } catch (e) {
+    _mostrarStatusGeral('erro', 'Erro: ' + e.message);
+  } finally {
+    btn.disabled = false;
   }
 }
 
