@@ -379,6 +379,136 @@ const TODOS =
    bio:'Nascida em Ohio, Nadia Cordell toca baixo como se o instrumento fosse também percussão — thumb pesado, dedilhado rápido e aquele groove que faz o corpo se mexer antes da cabeça entender por quê. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
    sabor:'Baixo funk — slap e groove percussivo irresistível. Referência: Larry Graham.'},
 
+  {id:'MUS-077',nome:'Alistair Thorne',ic:'🎸',orig:'Reino Unido',cat:'inst',estilo:'rock',
+   inst:'Guitarra hard rock/blues — riffs monumentais e afinações alternativas',
+   bio:'Nascido no interior da Inglaterra, Alistair Thorne constrói riffs que viram hinos — afinações alternativas, arranjos quase orquestrais dentro de uma banda de quatro integrantes, e um jeito de tocar que mistura folk inglês, blues americano e mística oriental. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra hard rock/blues monumental — riffs que viram hino, afinações alternativas. Referência: Jimmy Page (Led Zeppelin).'},
+
+  {id:'MUS-078',nome:'Desmond Ashgrove',ic:'🎸',orig:'Reino Unido',cat:'inst',estilo:'rock',
+   inst:'Baixo e arranjos — versatilidade multi-instrumental',
+   bio:'Multi-instrumentista discreto que prefere deixar o holofote pros outros, Desmond Ashgrove é o tipo de baixista que também arranja cordas, toca teclado e mandolin quando a música pede — o alicerce invisível que segura a banda inteira de pé. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Baixo e arranjos multi-instrumentais — o alicerce invisível da banda. Referência: John Paul Jones (Led Zeppelin).'},
+
+  {id:'MUS-079',nome:'Callum Reeve',ic:'🎸',orig:'Reino Unido',cat:'inst',estilo:'rock',
+   inst:'Guitarra fingerstyle — tom limpo e narrativo, sem palheta',
+   bio:'Callum Reeve toca sem palheta, só com os dedos — um jeito de tocar limpo, econômico e narrativo, cada nota escolhida como se fosse uma palavra de uma história sendo contada. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra fingerstyle — tom limpo, econômico e narrativo. Referência: Mark Knopfler (Dire Straits).'},
+
+  {id:'MUS-080',nome:'Warrick Sunderland',ic:'🥁',orig:'Reino Unido',cat:'inst',estilo:'pop',
+   inst:'Bateria pop-rock — reverb portentoso e groove contido',
+   bio:'Warrick Sunderland ficou famoso por um som de bateria que parece explodir dentro de uma sala vazia — reverb portentoso, groove contido que explode só no momento certo, e um instinto de produtor que sabe exatamente quando deixar o silêncio fazer o trabalho. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Bateria pop-rock — reverb portentoso e groove que explode no momento certo. Referência: Phil Collins.'},
+
+  {id:'MUS-081',nome:'Nathaniel Cross',ic:'🎸',orig:'Reino Unido',cat:'inst',estilo:'blues',
+   inst:'Guitarra blues-rock britânica — vibrato lento e fraseado contido',
+   bio:'Nathaniel Cross aprendeu blues americano através de discos importados e devolveu ao mundo com um vibrato lento e um fraseado tão contido quanto expressivo — cada bend parece pesar uma vida inteira. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra blues-rock britânica — vibrato lento, fraseado contido e expressivo. Referência: Eric Clapton.'},
+
+  {id:'MUS-082',nome:'Solomon Vale',ic:'🎸',orig:'Estados Unidos — Minnesota',cat:'inst',estilo:'funk',
+   inst:'Guitarra funk-rock — virtuosismo genre-blending',
+   bio:'Solomon Vale não escolhe entre funk, rock, pop e soul — toca tudo ao mesmo tempo, com uma técnica que parece brincar com a guitarra em vez de só tocá-la, sempre com um pé no palco e outro numa dimensão musical só dele. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra funk-rock genre-blending — virtuosismo teatral e imprevisível. Referência: Prince.'},
+
+  {id:'MUS-083',nome:'Diego Marchetti',ic:'🎸',orig:'Estados Unidos — Los Angeles',cat:'inst',estilo:'rock',
+   inst:'Guitarra hard rock melódica — solos bluesy de chapéu alto',
+   bio:'Diego Marchetti nunca tira o chapéu, nem literal nem musicalmente — solos bluesy, melódicos e longos o bastante pra virar assinatura, tocados com uma guitarra que parece chorar e sorrir ao mesmo tempo. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra hard rock melódica — solos bluesy longos e inconfundíveis. Referência: Slash (Guns N\'Roses).'},
+
+  {id:'MUS-084',nome:'Trent Halloway',ic:'🎸',orig:'Estados Unidos — Nova Jersey',cat:'inst',estilo:'rock',
+   inst:'Guitarra pop-metal de arena — talk box e riffs de refrão',
+   bio:'Trent Halloway escreve riffs pensando no refrão que o estádio inteiro vai cantar junto — talk box, hooks impossíveis de esquecer, e a certeza de que rock de arena também pode ser sobre esperança. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra pop-metal de arena — talk box e riffs feitos pra cantar junto. Referência: Richie Sambora (Bon Jovi).'},
+
+  {id:'MUS-085',nome:'Lachlan Moore',ic:'🎹',orig:'Austrália',cat:'inst',estilo:'pop',
+   inst:'Teclado/violão de soft rock — baladas AOR lacrimosas',
+   bio:'Lachlan Moore escreve baladas que parecem feitas pra tocar no rádio às três da manhã — arranjos aveludados, harmonias vocais imaginárias entre os acordes, e uma sinceridade quase ingênua que nunca sai de moda. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Teclado/violão de soft rock AOR — baladas aveludadas e sinceras. Referência: Air Supply.'},
+
+  {id:'MUS-086',nome:'Hank Calloway',ic:'🎸',orig:'Estados Unidos — Memphis',cat:'inst',estilo:'rock',
+   inst:'Guitarra rockabilly — slapback echo e swing dos anos 50',
+   bio:'Nascido em Memphis, Hank Calloway toca guitarra com aquele eco de slapback que definiu o rock and roll antes de ele ter esse nome — swing de country, mordida de blues, tudo isso num único acorde. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra rockabilly — slapback echo, swing e as raízes do rock and roll. Referência: Scotty Moore (banda de Elvis Presley).'},
+
+  {id:'MUS-087',nome:'Marvin Delacroix',ic:'🎷',orig:'Estados Unidos — Nova Orleans',cat:'inst',estilo:'soul',
+   inst:'Trompete/naipe de metais — soul revue e big band de Vegas',
+   bio:'Nascido em Nova Orleans, Marvin Delacroix lidera um naipe de metais que aprendeu a tocar junto, respirando junto, como se fossem um instrumento só — o tipo de trompete que dá o toque de show business em qualquer gravação. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Trompete/naipe de metais — soul revue e brilho de big band de Vegas. Referência: banda de metais de Elvis Presley.'},
+
+  {id:'MUS-088',nome:'Freya Lindqvist',ic:'🎹',orig:'Finlândia',cat:'inst',estilo:'metal',
+   inst:'Teclado metal sinfônico — orquestração e composição épica',
+   bio:'Nascida na Finlândia, terra que produz mais bandas de metal per capita que qualquer outro lugar do mundo, Freya Lindqvist compõe teclado como quem escreve trilha de filme épico — cordas sintetizadas, coros fantasmagóricos, metal que soa como ópera. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Teclado de metal sinfônico — orquestração épica dentro do metal. Referência: Tuomas Holopainen (Nightwish).'},
+
+  {id:'MUS-089',nome:'Joonas Kivimäki',ic:'🎸',orig:'Finlândia',cat:'inst',estilo:'metal',
+   inst:'Guitarra power/metal sinfônico',
+   bio:'Companheiro de banda finlandês de Freya, Joonas Kivimäki toca guitarra pesada o bastante pra segurar uma orquestra inteira atrás dele — riffs de power metal que servem a melodia, nunca competem com ela. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra de power/metal sinfônico — riffs que servem a melodia orquestral. Referência: Emppu Vuorinen (Nightwish).'},
+
+  {id:'MUS-090',nome:'Selene Thornbury',ic:'🎹',orig:'Estados Unidos — Arkansas',cat:'inst',estilo:'metal',
+   inst:'Piano/teclado gótico-sinfônico — atmosfera e melodrama',
+   bio:'Selene Thornbury toca piano como quem escreve poesia gótica — acordes menores, cordas sintetizadas chorosas, e uma melancolia bonita o bastante pra soar bela em vez de só triste, tudo dentro de arranjos de metal sinfônico. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Piano/teclado gótico-sinfônico — melancolia bela dentro do metal. Referência: Evanescence.'},
+
+  {id:'MUS-091',nome:'Dashiell Kwan',ic:'🎹',orig:'Estados Unidos — Califórnia',cat:'inst',estilo:'eletrônico',
+   inst:'Turntables e programação — scratch e texturas eletrônicas dentro do rock',
+   bio:'Dashiell Kwan trata o toca-discos como um instrumento de banda de rock — scratches que cortam entre os riffs de guitarra, samples e texturas eletrônicas que dão a um nu metal a sensação de hip-hop clandestino. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Turntables e programação — scratch e textura eletrônica dentro do rock pesado. Referência: Mr. Hahn (Linkin Park).'},
+
+  {id:'MUS-092',nome:'Wyatt Callahan',ic:'🎻',orig:'Estados Unidos — Geórgia',cat:'inst',estilo:'country',
+   inst:'Rabeca/fiddle country — swing tradicional honky-tonk',
+   bio:'Wyatt Callahan aprendeu fiddle antes de aprender a andar de bicicleta — puro honky-tonk tradicional, o tipo de rabeca que faz qualquer pista de dança de rodeio se mexer sem pensar duas vezes. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Rabeca/fiddle country tradicional — swing puro de honky-tonk. Referência: banda de Alan Jackson.'},
+
+  {id:'MUS-093',nome:'Boone Fairweather',ic:'🎸',orig:'Estados Unidos — Oklahoma',cat:'inst',estilo:'country',
+   inst:'Pedal steel guitar — bends chorosos e textura country moderna',
+   bio:'Boone Fairweather faz a pedal steel chorar exatamente na hora certa — aquele bend arrastado que é a assinatura sonora do country americano, tão em casa numa balada triste quanto num hino de estádio country. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Pedal steel guitar — bends chorosos, assinatura sonora do country. Referência: banda de Garth Brooks.'},
+
+  {id:'MUS-094',nome:'Julian Ashworth',ic:'🎸',orig:'Reino Unido',cat:'inst',estilo:'pop',
+   inst:'Violão/teclado disco — groove de quatro por quatro',
+   bio:'Julian Ashworth escreve grooves que fazem qualquer pista de dança se mexer sozinha — violão percussivo, teclado brilhante, e aquele quatro-por-quatro inconfundível que virou sinônimo de disco nos anos 70. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Violão/teclado disco — groove de quatro por quatro irresistível. Referência: Bee Gees.'},
+
+  {id:'MUS-095',nome:'Perpétuo Vance',ic:'🎷',orig:'Estados Unidos — Nova Jersey',cat:'inst',estilo:'soul',
+   inst:'Saxofone rock — solos grandiosos e presença de arena',
+   bio:'Perpétuo Vance toca saxofone como se estivesse gritando pra torcida do fundo do estádio — solos grandes, dramáticos, feitos pra parar a música inteira por dez segundos só pra deixar o sax falar. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Saxofone de rock de estádio — solos grandiosos e dramáticos. Referência: Clarence Clemons (E Street Band).'},
+
+  {id:'MUS-096',nome:'Emory Vandergrift',ic:'🎹',orig:'Estados Unidos — Nova York',cat:'inst',estilo:'rock',
+   inst:'Piano de rock — arpejos que empurram a música pra frente',
+   bio:'Emory Vandergrift toca piano como um motor por baixo da banda inteira — arpejos que empurram cada música pra frente, o tipo de piano que você só percebe quando some, porque é o que segura tudo de pé. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Piano de rock — arpejos que empurram a música, base invisível da banda. Referência: Roy Bittan (E Street Band).'},
+
+  {id:'MUS-097',nome:'Reginald Ashby',ic:'🎹',orig:'Reino Unido',cat:'inst',estilo:'pop',
+   inst:'Piano de rock/pop flamboyante — showman de palco',
+   bio:'Reginald Ashby transforma o piano de estádio numa extensão do próprio corpo — acordes grandiosos, melodias que grudam na cabeça em duas audições, e uma teatralidade de palco que faz até uma balada parecer um espetáculo. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Piano de rock/pop flamboyante — grandiosidade e teatralidade de palco. Referência: Elton John.'},
+
+  {id:'MUS-098',nome:'Peregrine Ashcombe',ic:'🎸',orig:'Reino Unido',cat:'inst',estilo:'rock',
+   inst:'Guitarra rock orquestral — harmonias multi-gravadas',
+   bio:'Peregrine Ashcombe constrói guitarras inteiras a partir de uma só — gravando camada sobre camada de harmonia até soar como uma orquestra de cordas elétricas, num tom quente e inconfundível que ele mesmo ajudou a inventar. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra rock orquestral — harmonias multi-gravadas, som de orquestra elétrica. Referência: Brian May (Queen).'},
+
+  {id:'MUS-099',nome:'Gideon Marrow',ic:'🎸',orig:'Reino Unido — Birmingham',cat:'inst',estilo:'metal',
+   inst:'Guitarra doom/heavy metal — riffs pesados e afinação baixa',
+   bio:'Nascido em Birmingham, Gideon Marrow toca riffs tão pesados e tão baixos que parecem ter inventado um gênero musical inteiro sozinhos — o peso sombrio que viria a se chamar heavy metal, décadas antes do nome existir. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra doom/heavy metal — riffs pesados em afinação baixa, o peso que inventou o metal. Referência: Tony Iommi (Black Sabbath).'},
+
+  {id:'MUS-100',nome:'Cassius Reyes',ic:'🎸',orig:'Estados Unidos — São Francisco',cat:'inst',estilo:'metal',
+   inst:'Guitarra thrash metal — palhetada abafada e solos velozes',
+   bio:'Cassius Reyes alterna entre riffs de palhetada abafada, rápidos e agressivos, e solos que abrem espaço pra melodia no meio da fúria — a receita que definiu o thrash metal como gênero de peso e técnica ao mesmo tempo. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra thrash metal — palhetada abafada e solos velozes. Referência: guitarristas do Metallica.'},
+
+  {id:'MUS-101',nome:'Rufus Kane',ic:'🎸',orig:'Reino Unido',cat:'inst',estilo:'rock',
+   inst:'Guitarra rock and roll — afinação aberta e riffs sujos',
+   bio:'Rufus Kane toca em afinação aberta, com uma sujeira intencional no tom que faz o riff soar perigoso mesmo quando é simples — cinco cordas, groove sujo, e a prova de que rock and roll não precisa de mais que isso pra ser eterno. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra rock and roll — afinação aberta, riffs sujos e eternos. Referência: Keith Richards (Rolling Stones).'},
+
+  {id:'MUS-102',nome:'Dutch Marchand',ic:'🎸',orig:'Estados Unidos — Boston',cat:'inst',estilo:'blues',
+   inst:'Guitarra hard rock bluesy — swagger de Boston',
+   bio:'Nascido em Boston, Dutch Marchand toca guitarra com um swagger sujo de blues e uma atitude de rock and roll que nunca precisou pedir desculpa — riffs grudentos, solos suados, rock pesado com alma de bar de bairro. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra hard rock bluesy — swagger de Boston, riffs grudentos. Referência: Joe Perry (Aerosmith).'},
+
   {id:'MUS-058',nome:'Renata Bolero',ic:'🎤',orig:'México',cat:'voz',estilo:'world',
    inst:'Voz de bolero / balada latina',
    bio:'Natural da Cidade do México, Renata Bolero é a voz do bolero latino-americano — aquela música que faz o coração doer de forma agradável, que conta histórias de amor e perda com elegância inigualável. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
