@@ -349,6 +349,36 @@ const TODOS =
    bio:'Nascido em Gotemburgo, Erik Stormheim cresceu entre o blues-rock britânico e o rock escandinavo de estádio — sua marca é o solo que qualquer pessoa consegue cantarolar depois de ouvir uma vez, melodia antes de velocidade, emoção antes de exibicionismo técnico. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
    sabor:'Guitarra de rock melódico de arena — solos memoráveis, melodia antes de velocidade. Referência: John Norum (Europe).'},
 
+  {id:'MUS-071',nome:'Roscoe Blackfire',ic:'🎸',orig:'Estados Unidos — Nova York',cat:'inst',estilo:'rock',
+   inst:'Baixo de glam/shock rock — linha agressiva e teatral',
+   bio:'Nascido no Queens, Nova York, Roscoe Blackfire toca baixo como quem cospe fogo no palco — linhas graves agressivas, groove pesado e uma presença cênica tão grande quanto o som do instrumento. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Baixo de glam/shock rock — groove pesado e presença de palco descomunal. Referência: Gene Simmons (KISS).'},
+
+  {id:'MUS-072',nome:'Leona Kroll',ic:'🥁',orig:'Estados Unidos — Nova York',cat:'inst',estilo:'rock',
+   inst:'Bateria de glam/hard rock — groove suingado e teatral',
+   bio:'Também de Nova York, Leona Kroll bate a bateria com um suingue que vem do soul e do R&B antes de virar hard rock — menos sobre velocidade, mais sobre o groove que faz o público bater palma no tempo certo. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Bateria de glam/hard rock — suingue de soul aplicado ao rock pesado. Referência: Peter Criss (KISS).'},
+
+  {id:'MUS-073',nome:'Marcus Ironvein',ic:'🎸',orig:'Reino Unido — Londres',cat:'inst',estilo:'metal',
+   inst:'Baixo metal — linhas galopantes em oitavas',
+   bio:'Londrino, Marcus Ironvein toca baixo com aquela cavalgada característica do metal britânico — linhas rápidas em oitavas que correm paralelas à guitarra em vez de só sustentar o grave, dando à música uma urgência quase física. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Baixo metal — linhas galopantes que correm junto com a guitarra. Referência: Steve Harris (Iron Maiden).'},
+
+  {id:'MUS-074',nome:'Katarzyna Voss',ic:'🥁',orig:'Polônia — Varsóvia',cat:'inst',estilo:'metal',
+   inst:'Bateria metal — blast beats e pedal duplo de precisão',
+   bio:'Nascida em Varsóvia, Katarzyna Voss domina o pedal duplo e o blast beat com uma precisão quase metronômica — bateria que soa como uma metralhadora afinada, base de qualquer faixa de metal que precise de peso e velocidade ao mesmo tempo. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Bateria metal — blast beats e pedal duplo de precisão cirúrgica. Referência: Mikkey Dee.'},
+
+  {id:'MUS-075',nome:'Otis Redmoor',ic:'🥁',orig:'Estados Unidos — Chicago',cat:'inst',estilo:'blues',
+   inst:'Bateria blues/rock — suingue e backbeat pesado',
+   bio:'Criado em Chicago, cidade que respira blues elétrico, Otis Redmoor bate uma bateria suingada e pesada ao mesmo tempo — o tipo de groove que faz uma sala inteira balançar a cabeça sem perceber. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Bateria blues/rock — suingue de Chicago com peso de estádio. Referência: John Bonham.'},
+
+  {id:'MUS-076',nome:'Nadia Cordell',ic:'🎸',orig:'Estados Unidos — Ohio',cat:'inst',estilo:'funk',
+   inst:'Baixo funk — slap e groove percussivo',
+   bio:'Nascida em Ohio, Nadia Cordell toca baixo como se o instrumento fosse também percussão — thumb pesado, dedilhado rápido e aquele groove que faz o corpo se mexer antes da cabeça entender por quê. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Baixo funk — slap e groove percussivo irresistível. Referência: Larry Graham.'},
+
   {id:'MUS-058',nome:'Renata Bolero',ic:'🎤',orig:'México',cat:'voz',estilo:'world',
    inst:'Voz de bolero / balada latina',
    bio:'Natural da Cidade do México, Renata Bolero é a voz do bolero latino-americano — aquela música que faz o coração doer de forma agradável, que conta histórias de amor e perda com elegância inigualável. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
