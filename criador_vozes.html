@@ -63,6 +63,14 @@
   #status.ok { display:block; background: rgba(122,158,138,.1); color: var(--accent2); }
   #status.erro { display:block; background: rgba(181,106,90,.1); color: var(--danger); }
   #status.carregando { display:block; background: var(--surface); color: var(--muted); font-style:italic; }
+
+  #avaliacao-voz { margin-top:14px; padding:14px; border-radius:10px; background: var(--surface); border:1px solid var(--border); font-size:.88rem; line-height:1.55; }
+  #avaliacao-voz h4 { font-family:'Share Tech Mono',monospace; font-size:.72rem; color: var(--accent); text-transform:uppercase; letter-spacing:.06em; margin:12px 0 6px; }
+  #avaliacao-voz h4:first-child { margin-top:0; }
+  .sugestao { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 10px; border:1px solid var(--border); border-radius:8px; margin-top:6px; }
+  .sugestao-texto { flex:1; }
+  .sugestao-texto strong { color: var(--accent2); }
+  .sugestao-texto span { display:block; font-size:.78rem; color: var(--muted); margin-top:2px; }
 </style>
 <script src="config.js"></script>
 <script src="elenco_bpl.js"></script>
@@ -115,7 +123,9 @@
       <input type="file" id="arquivo-audio" accept="audio/*">
       <label style="margin-top:10px">Transcrição do áudio (opcional, melhora a precisão)</label>
       <textarea id="transcricao-audio" placeholder="O que a pessoa fala no áudio, se souber..."></textarea>
+      <button class="btn btn-secundario" onclick="avaliarEsugerirPersonagem()">🔍 Avaliar voz e sugerir personagem</button>
       <button class="btn" onclick="clonarPorAudio()">✦ Clonar a partir do áudio</button>
+      <div id="avaliacao-voz" style="display:none"></div>
     </div>
 
     <div id="candidatos"></div>
@@ -218,6 +228,109 @@ async function clonarPorAudio() {
     renderizarCandidatos([resultado]);
   } catch (e) {
     mostrarStatus('erro', 'Erro: ' + e.message);
+  }
+}
+
+function _blobParaBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+// Ouve o áudio de verdade via Gemini (entende áudio nativamente, não só
+// texto) e descreve a voz objetivamente — sem inventar o que não dá pra
+// perceber. Não decide sozinho qual personagem usar, só descreve.
+async function avaliarVozComGemini(arquivo) {
+  const apiKey = window.GEMINI_API_KEY || '';
+  if (!apiKey) throw new Error('Configure GEMINI_API_KEY em config.js');
+  const base64 = await _blobParaBase64(arquivo);
+  const mimeType = arquivo.type || 'audio/ogg';
+  const prompt = `Ouça este áudio com atenção e descreva objetivamente a voz, em português, em um parágrafo curto: gênero aparente, faixa etária aparente, tom/timbre (grave, médio, agudo), energia (calma, enérgica, contida, rouca), e qualquer sotaque ou traço regional perceptível. Não invente nada que não dê pra perceber pelo áudio — se a nota for muito curta ou pouco clara, diga isso explicitamente.`;
+
+  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { mime_type: mimeType, data: base64 } }] }]
+    })
+  });
+  if (!resp.ok) {
+    const errBody = await resp.text();
+    throw new Error(`Gemini HTTP ${resp.status}: ${errBody.substring(0, 200)}`);
+  }
+  const data = await resp.json();
+  const texto = ((data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [])
+    .map(p => p.text || '').join('').trim();
+  if (!texto) throw new Error('Gemini não retornou descrição (pode ter sido cortado por safety filter)');
+  return texto;
+}
+
+// A partir da descrição objetiva da voz, pede pro Gemini comparar com as
+// fichas do banco (personalidade/físico dos atores, ou bio/sabor dos
+// cantores) e sugerir os que combinam melhor — com justificativa. A
+// decisão final continua sendo sua, isto é só uma sugestão.
+async function sugerirPersonagemPelaVoz(descricaoVoz, tipo) {
+  const apiKey = window.GEMINI_API_KEY || '';
+  if (!apiKey) throw new Error('Configure GEMINI_API_KEY em config.js');
+
+  let lista = '';
+  if (tipo === 'ator' && typeof ARTISTAS !== 'undefined') {
+    lista = ARTISTAS.map(a => `- ${a.nome}: ${a.personalidade} Físico: ${a.fisico}`).join('\n');
+  } else if (tipo === 'cantor' && typeof TODOS !== 'undefined') {
+    lista = TODOS.filter(t => t.cat === 'voz').map(t => `- ${t.nome}: ${t.sabor || t.bio || ''}`).join('\n');
+  }
+
+  const prompt = `Esta é a descrição objetiva de uma voz real, ouvida num áudio:
+"${descricaoVoz}"
+
+Abaixo está a lista de personagens do nosso banco, com personalidade e características físicas/vocais:
+${lista}
+
+Sugira os 3 personagens dessa lista cuja personalidade e aparência combinariam melhor com essa voz, do mais pro menos indicado. Responda SOMENTE em JSON válido, sem cercas de código, no formato:
+[{"nome":"Nome Exato Da Lista","justificativa":"uma frase curta explicando por quê"}, ...]`;
+
+  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
+  });
+  if (!resp.ok) {
+    const errBody = await resp.text();
+    throw new Error(`Gemini HTTP ${resp.status}: ${errBody.substring(0, 200)}`);
+  }
+  const data = await resp.json();
+  const texto = ((data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [])
+    .map(p => p.text || '').join('').trim();
+  const limpo = texto.replace(/```json|```/g, '').trim();
+  return JSON.parse(limpo);
+}
+
+async function avaliarEsugerirPersonagem() {
+  const arquivo = document.getElementById('arquivo-audio').files[0];
+  if (!arquivo) { alert('Selecione um arquivo de áudio primeiro.'); return; }
+  if (!estado.tipo) { alert('Escolha primeiro se é Ator do BPL ou Cantor Sigmal Music.'); return; }
+
+  const bloco = document.getElementById('avaliacao-voz');
+  bloco.style.display = 'block';
+  bloco.innerHTML = '<h4>Ouvindo o áudio...</h4>';
+
+  try {
+    const descricao = await avaliarVozComGemini(arquivo);
+    bloco.innerHTML = `<h4>O que o Gemini ouviu</h4><p>${descricao}</p><h4>Comparando com o banco...</h4>`;
+
+    const sugestoes = await sugerirPersonagemPelaVoz(descricao, estado.tipo);
+    bloco.innerHTML = `<h4>O que o Gemini ouviu</h4><p>${descricao}</p><h4>Personagens sugeridos</h4>` +
+      sugestoes.map(s => `
+        <div class="sugestao">
+          <div class="sugestao-texto"><strong>${s.nome}</strong><span>${s.justificativa}</span></div>
+          <button class="btn" style="margin:0" onclick="document.getElementById('nome-input').value='${s.nome.replace(/'/g, "\\'")}';selecionarNome()">Usar</button>
+        </div>
+      `).join('');
+  } catch (e) {
+    bloco.innerHTML = `<h4>Erro</h4><p>${e.message}</p>`;
   }
 }
 
