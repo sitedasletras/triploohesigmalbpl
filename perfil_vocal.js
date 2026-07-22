@@ -46,7 +46,7 @@ const PERFIS_VOCAIS = [
   {nome:'Darius Mehrabani',tipo:'ator',genero:'M',tessitura:'barítono',arquetipoVocal:'Voz barítono — timbre de drama, olhar que atravessa a câmera',vozSintese:{vozId:'pt-BR-JulioNeural',pitch:1.09,rate:0.99}},
   {nome:'Amara Diallo Keïta',tipo:'ator',genero:'F',tessitura:'mezzo',arquetipoVocal:'Voz mezzo — timbre de drama, energia teatral natural',vozSintese:{vozId:'pt-BR-BrendaNeural',pitch:0.97,rate:0.93}},
   {nome:'Mirela Szabo',tipo:'ator',genero:'F',tessitura:'aguda',arquetipoVocal:'Voz aguda — timbre de tragedia, especialista em ruína elegante',vozSintese:{vozId:'pt-BR-BrendaNeural',pitch:1.1,rate:0.98}},
-  {nome:'Tomás Induni Leal',tipo:'ator',genero:'M',tessitura:'barítono',arquetipoVocal:'Voz barítono — timbre de drama, carisma silencioso',vozSintese:{vozId:'pt-BR-JulioNeural',pitch:0.96,rate:0.91}},
+  {nome:'Tomás Induni Leal',tipo:'ator',genero:'M',tessitura:'barítono',arquetipoVocal:'Voz barítono — timbre de drama, carisma silencioso',vozSintese:{vozId:'pt-BR-JulioNeural',pitch:0.96,rate:0.91},vozPremiumId:'bb7c8a61fd23467390302c8272e14cb3'},
   {nome:'Bridget Afolabi',tipo:'ator',genero:'F',tessitura:'média',arquetipoVocal:'Voz média — timbre de comedia, timing perfeito',vozSintese:{vozId:'pt-BR-BrendaNeural',pitch:1.12,rate:1.09}},
   {nome:'Serafino Conti Neri',tipo:'ator',genero:'M',tessitura:'média nasalada',arquetipoVocal:'Voz média nasalada — timbre de comedia, exagero calculado',vozSintese:{vozId:'pt-BR-HumbertoNeural',pitch:1.06,rate:0.94}},
   {nome:'Park Jiwon',tipo:'ator',genero:'M',tessitura:'média',arquetipoVocal:'Voz média — timbre de comedia, ironia seca',vozSintese:{vozId:'pt-BR-DonatoNeural',pitch:0.85,rate:0.95}},
