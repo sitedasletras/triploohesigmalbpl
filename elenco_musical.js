@@ -614,6 +614,66 @@ const TODOS =
    bio:'Femi Adegoke lidera um naipe de metais que conversa em polirritmo com a percussão — saxofone e trompete que não tocam melodia, tocam groove, exatamente como o afrobeat exige. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
    sabor:'Naipe de metais afrobeat — groove poliritmico com sax e trompete. Referência: Fela Kuti.'},
 
+  {id:'MUS-124',nome:'Maximilian Vogl',ic:'🎹',orig:'Áustria — Viena',cat:'inst',estilo:'eletrônico',
+   inst:'Sintetizadores e rap-cantado — new wave austríaco',
+   bio:'Nascido em Viena, Maximilian Vogl mistura rap falado com sintetizadores new wave e uma teatralidade europeia toda própria — pop eletrônico que soa histórico e futurista ao mesmo tempo. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Sintetizadores e rap-cantado — new wave austríaco teatral e histórico. Referência: Falco.'},
+
+  {id:'MUS-125',nome:'Elliot Grange',ic:'🎸',orig:'Reino Unido',cat:'inst',estilo:'rock',
+   inst:'Guitarra/teclado de arena rock — riffs melódicos e power ballads',
+   bio:'Elliot Grange escreve riffs de arena rock feitos pra rádio — melódicos, diretos, com aquele teclado de fundo que também virou marca registrada do gênero nos anos 80. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra/teclado de arena rock — riffs melódicos de rádio. Referência: Foreigner.'},
+
+  {id:'MUS-126',nome:'Desmond Kessler',ic:'🎹',orig:'Estados Unidos — Los Angeles',cat:'inst',estilo:'rock',
+   inst:'Teclado/guitarra de session — sofisticação de estúdio de LA',
+   bio:'Desmond Kessler é o tipo de músico de estúdio que toca tudo com perfeição técnica quase invisível — harmonias sofisticadas, groove impecável, o som polido de Los Angeles que definiu o rock adulto dos anos 80. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Teclado/guitarra de session — sofisticação e groove impecável de estúdio. Referência: Toto.'},
+
+  {id:'MUS-127',nome:'Rhys Fairbrook',ic:'🎸',orig:'Nova Zelândia',cat:'inst',estilo:'rock',
+   inst:'Guitarra jangle pop — melodias solares e harmonias vocais imaginadas',
+   bio:'Rhys Fairbrook toca um violão/guitarra que soa como se o sol tivesse um som — jangle pop melódico, acordes abertos e uma simplicidade que esconde uma sofisticação de composição rara. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra jangle pop — melodias solares e composição sofisticada. Referência: Crowded House.'},
+
+  {id:'MUS-128',nome:'Marcellus Boone',ic:'🎹',orig:'Estados Unidos — Oakland',cat:'inst',estilo:'rap',
+   inst:'Produção/sampler — dance-rap dos anos 90 com samples de funk',
+   bio:'Marcellus Boone constrói batidas de dança a partir de samples de funk setentista — grooves irresistíveis, coreografia embutida no próprio ritmo, pop-rap feito pra encher qualquer pista. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Produção/sampler dance-rap — grooves de funk setentista remixados pra pista. Referência: MC Hammer.'},
+
+  {id:'MUS-129',nome:'Robbie Chase',ic:'🎹',orig:'Estados Unidos — Miami',cat:'inst',estilo:'rap',
+   inst:'Produção/sampler — pop-rap dos anos 90 com riffs de baixo marcantes',
+   bio:'Robbie Chase constrói pop-rap em cima de riffs de baixo emprestados e batidas que grudam na cabeça na primeira audição — o tipo de produção feita pra rádio, sem pedir desculpa por isso. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Produção/sampler pop-rap — riffs de baixo marcantes e batida de rádio. Referência: Vanilla Ice.'},
+
+  {id:'MUS-130',nome:'Desmond Hargrove',ic:'🎺',orig:'Estados Unidos — Chicago',cat:'inst',estilo:'jazz',
+   inst:'Naipe de metais jazz-rock — trompete e trombone em fusão com rock',
+   bio:'Desmond Hargrove lidera um naipe de metais que não soa como banda de rock comum — trompete e trombone arranjados com sofisticação de big band, encaixados dentro de canções de rock melódico. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Naipe de metais jazz-rock — trompete e trombone em fusão sofisticada com o rock. Referência: banda Chicago (banda de Peter Cetera).'},
+
+  {id:'MUS-131',nome:'Maceo Winsome',ic:'🎷',orig:'Estados Unidos',cat:'inst',estilo:'soul',
+   inst:'Naipe de metais funk/soul — groove dos anos 70',
+   bio:'Maceo Winsome lidera um naipe de metais que faz o corpo se mexer antes da cabeça perceber — funk e soul dos anos 70, groove denso, arranjos que colocam metais no centro do ritmo, não só na decoração. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Naipe de metais funk/soul dos anos 70 — groove denso e arranjos vibrantes. Referência: Earth, Wind & Fire.'},
+
+  {id:'MUS-132',nome:'Simone Delacourt',ic:'🎹',orig:'Estados Unidos',cat:'inst',estilo:'soul',
+   inst:'Teclado R&B suave — "quiet storm" dos anos 80',
+   bio:'Simone Delacourt toca teclado com uma suavidade aveludada — harmonias de jazz aplicadas ao R&B romântico dos anos 80, o tipo de som feito pra tocar baixinho depois da meia-noite. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Teclado R&B suave — harmonias aveludadas do "quiet storm" dos anos 80. Referência: R&B americano dos anos 80.'},
+
+  {id:'MUS-133',nome:'Tyrell Combs',ic:'🎹',orig:'Estados Unidos',cat:'inst',estilo:'soul',
+   inst:'Programação/teclado new jack swing — groove eletrônico dos anos 90',
+   bio:'Tyrell Combs funde bateria eletrônica programada com groove de R&B tradicional — o "new jack swing" que definiu o som das rádios americanas nos anos 90, entre o soul e o hip-hop. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Programação/teclado new jack swing — groove eletrônico de R&B dos anos 90. Referência: produção R&B/new jack swing dos anos 90.'},
+
+  {id:'MUS-134',nome:'Silas Greenwood',ic:'🎸',orig:'Estados Unidos',cat:'inst',estilo:'folk',
+   inst:'Violão/banjo folk — tradição de revival americano',
+   bio:'Silas Greenwood toca violão e banjo com a simplicidade honesta do folk revival americano — poucos acordes, muita história, uma voz de instrumento que soa mais a verdade contada do que a técnica exibida. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Violão/banjo folk — simplicidade honesta do folk revival americano. Referência: tradição do folk revival (Dylan, Simon & Garfunkel).'},
+
+  {id:'MUS-135',nome:'Julien Vasseur',ic:'🎹',orig:'França',cat:'inst',estilo:'pop',
+   inst:'Teclado/guitarra AOR europeu — baladas synth-pop românticas dos anos 80',
+   bio:'Julien Vasseur escreve baladas europeias dos anos 80 com aquele brilho synth-pop levemente melancólico — teclados brilhantes, guitarra discreta, o tipo de música que trilhava toda pista de rádio europeia da época. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Teclado/guitarra AOR europeu — baladas synth-pop românticas dos anos 80. Referência: Century ("Lover Why").'},
+
   {id:'MUS-058',nome:'Renata Bolero',ic:'🎤',orig:'México',cat:'voz',estilo:'world',
    inst:'Voz de bolero / balada latina',
    bio:'Natural da Cidade do México, Renata Bolero é a voz do bolero latino-americano — aquela música que faz o coração doer de forma agradável, que conta histórias de amor e perda com elegância inigualável. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
