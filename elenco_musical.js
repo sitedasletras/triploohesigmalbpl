@@ -509,6 +509,111 @@ const TODOS =
    bio:'Nascido em Boston, Dutch Marchand toca guitarra com um swagger sujo de blues e uma atitude de rock and roll que nunca precisou pedir desculpa — riffs grudentos, solos suados, rock pesado com alma de bar de bairro. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
    sabor:'Guitarra hard rock bluesy — swagger de Boston, riffs grudentos. Referência: Joe Perry (Aerosmith).'},
 
+  {id:'MUS-103',nome:'Baxter Wraith',ic:'🎸',orig:'Austrália',cat:'inst',estilo:'rock',
+   inst:'Guitarra hard rock — riffs de blues elétrico e power chords diretos',
+   bio:'Baxter Wraith toca guitarra sem nenhum enfeite — riffs de blues elétrico, power chords diretos e uma energia de palco que não precisa de mais nada além de volume alto e atitude. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra hard rock australiana — riffs de blues elétrico, direto ao ponto. Referência: Angus Young (AC/DC).'},
+
+  {id:'MUS-104',nome:'Julian Frost',ic:'🎸',orig:'Reino Unido',cat:'inst',estilo:'rock',
+   inst:'Guitarra hard rock melódica — virtuosismo dos anos 80',
+   bio:'Julian Frost combina técnica de virtuose com melodia de refrão — solos longos, bends dramáticos e aquele brilho de produção que definiu o hard rock melódico dos anos 80. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra hard rock melódica — virtuosismo e solos extensos dos anos 80. Referência: guitarristas do Whitesnake.'},
+
+  {id:'MUS-105',nome:'Miranda Vellacott',ic:'🎹',orig:'Reino Unido',cat:'inst',estilo:'pop',
+   inst:'Teclado new wave — atmosfera synth-pop com ambição progressiva',
+   bio:'Miranda Vellacott escreve camadas de teclado que parecem maiores que a própria música — synth-pop com ambição de rock progressivo, melancolia britânica e uma produção que soa cinematográfica mesmo numa canção de três minutos. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Teclado new wave — synth-pop atmosférico com ambição progressiva. Referência: Tears for Fears.'},
+
+  {id:'MUS-106',nome:'Dorian Wexler',ic:'🎹',orig:'Reino Unido',cat:'inst',estilo:'eletrônico',
+   inst:'Sintetizadores analógicos — synth-pop sombrio e industrial',
+   bio:'Dorian Wexler programa sintetizadores analógicos como quem constrói uma paisagem urbana à noite — synth-pop sombrio, pulsos industriais e uma frieza elegante que nunca soa fria de verdade. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Sintetizadores analógicos — synth-pop sombrio com textura industrial. Referência: Depeche Mode.'},
+
+  {id:'MUS-107',nome:'Anselm Kroner',ic:'🎹',orig:'Alemanha',cat:'inst',estilo:'classico',
+   inst:'Órgão de catedral — canto gregoriano e arranjos corais',
+   bio:'Anselm Kroner toca órgão de catedral como quem reergue séculos de canto gregoriano dentro de arranjos corais modernos — vozes em latim, harmonias antigas, e uma reverência que atravessa o tempo sem soar datada. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Órgão de catedral — canto gregoriano reimaginado em arranjos corais contemporâneos. Referência: projeto Gregorian.'},
+
+  {id:'MUS-108',nome:'Duncan Ferry',ic:'🎸',orig:'Escócia',cat:'inst',estilo:'rock',
+   inst:'Guitarra hard rock escocesa — riffs ásperos e blues pesado',
+   bio:'Duncan Ferry toca guitarra com uma aspereza de blues britânico que nunca pediu licença pra ninguém — riffs sujos, tom cru e uma pegada de rock pesado sem nenhuma pretensão de sofisticação. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra hard rock escocesa — riffs ásperos e blues pesado sem frescura. Referência: guitarristas do Nazareth.'},
+
+  {id:'MUS-109',nome:'Klaus Reinholt',ic:'🎸',orig:'Alemanha',cat:'inst',estilo:'rock',
+   inst:'Guitarra hard rock melódica alemã — power ballads e riffs de arena',
+   bio:'Klaus Reinholt escreve riffs que cabem tanto num hino de estádio quanto numa power ballad chorosa — precisão alemã aplicada ao hard rock melódico, com solos que sabem exatamente quando parar de brilhar. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra hard rock melódica — power ballads e riffs de arena alemães. Referência: Matthias Jabs (Scorpions).'},
+
+  {id:'MUS-110',nome:'Beauregard Tillman',ic:'🎸',orig:'Estados Unidos — Jacksonville',cat:'inst',estilo:'rock',
+   inst:'Guitarra southern rock — slide e solos longos de improviso',
+   bio:'Nascido em Jacksonville, Beauregard Tillman carrega a tradição do southern rock nas mãos — slide guitar arrastada, solos longos que parecem improvisados na hora, e aquele orgulho sulista que vira som antes de virar palavra. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra southern rock — slide guitar e solos longos, tradição sulista americana. Referência: guitarristas do Lynyrd Skynyrd.'},
+
+  {id:'MUS-111',nome:'Cooper Bayless',ic:'🎸',orig:'Estados Unidos — Louisiana',cat:'inst',estilo:'rock',
+   inst:'Guitarra swamp rock — riffs pantanosos e rock and roll de raiz',
+   bio:'Cooper Bayless toca guitarra com a lama do pântano da Louisiana ainda grudada nas cordas — riffs simples, roots rock and roll, e uma economia de notas que prova que menos é mais quando o groove já está certo. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra swamp rock — riffs pantanosos e rock and roll de raiz americana. Referência: John Fogerty (Creedence Clearwater Revival).'},
+
+  {id:'MUS-112',nome:'Saara Kallio',ic:'🎻',orig:'Finlândia',cat:'inst',estilo:'metal',
+   inst:'Violoncelo metal — riffs pesados tocados em cordas de orquestra',
+   bio:'Saara Kallio toca violoncelo com pedal de distorção — riffs de metal pesados demais pra soar clássicos, mas tocados com um instrumento erudito demais pra soar comum. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Violoncelo metal — riffs pesados de metal tocados em cordas de orquestra. Referência: Apocalyptica.'},
+
+  {id:'MUS-113',nome:'Aurélio Bandeira',ic:'🎺',orig:'Brasil — Brasília',cat:'inst',estilo:'classico',
+   inst:'Banda marcial — trompete e percussão cerimonial',
+   bio:'Aurélio Bandeira toca trompete com a precisão milimétrica de quem cresceu em banda marcial — cada nota, cada passo, cada gesto ensaiado até virar cerimônia. Nada de improviso: aqui, disciplina também é música. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Banda marcial — trompete e percussão cerimonial de precisão absoluta. Referência: Banda de Música do Batalhão da Guarda Presidencial.'},
+
+  {id:'MUS-114',nome:'Fiona MacAllister',ic:'🎷',orig:'Escócia',cat:'inst',estilo:'folk',
+   inst:'Gaita de fole escocesa — drones e melodias celtas',
+   bio:'Fiona MacAllister toca gaita de fole nas Terras Altas escocesas como quem conversa com o vento — drones contínuos, melodias celtas que parecem ecoar de um vale pro outro, tradição que atravessa séculos sem precisar de tradução. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Gaita de fole escocesa — drones hipnóticos e melodias celtas tradicionais. Referência: tradição das Terras Altas escocesas.'},
+
+  {id:'MUS-115',nome:'Wayra Quispe',ic:'🎷',orig:'Peru — Cusco',cat:'inst',estilo:'world',
+   inst:'Flauta andina — quena e zampoña',
+   bio:'Nascida nas montanhas perto de Cusco, Wayra Quispe toca quena e zampoña como quem imita o vento que passa entre os picos dos Andes — melodias que soam antigas mesmo quando são compostas na hora. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Flauta andina (quena/zampoña) — melodias que soam como vento nas montanhas. Referência: música tradicional andina.'},
+
+  {id:'MUS-116',nome:'Zeca Pontieri',ic:'🎸',orig:'Brasil — Rio de Janeiro',cat:'inst',estilo:'samba',
+   inst:'Cavaquinho — samba e pagode',
+   bio:'Carioca de nascença, Zeca Pontieri toca cavaquinho como o motor rítmico que segura qualquer roda de samba de pé — batida que não para, brilho no dedilhado, e a leveza que só quem cresceu ouvindo samba de fundo de quintal consegue tocar. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Cavaquinho — batida de samba e pagode, o motor rítmico do gênero. Referência: Waldir Azevedo.'},
+
+  {id:'MUS-117',nome:'Cida Malandra',ic:'🥁',orig:'Brasil — Rio de Janeiro',cat:'inst',estilo:'samba',
+   inst:'Pandeiro — samba e choro',
+   bio:'Cida Malandra toca pandeiro com uma variação de timbre que faz um instrumento parecer uma bateria inteira — grave, agudo, tapinha seco, tudo na mesma mão, no mesmo compasso, sustentando samba e choro com igual naturalidade. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Pandeiro — virtuosismo rítmico de samba e choro. Referência: Jorginho do Pandeiro.'},
+
+  {id:'MUS-118',nome:'Raimundo Cordas',ic:'🎸',orig:'Brasil — Rio de Janeiro',cat:'inst',estilo:'mpb',
+   inst:'Violão de 7 cordas — baixaria de choro',
+   bio:'Raimundo Cordas toca a sétima corda como ninguém mais no time — a baixaria que caminha por baixo da melodia do choro, contrapontos que conversam com a flauta e o cavaquinho sem nunca atropelar ninguém. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Violão de 7 cordas — baixaria melódica que sustenta o choro por baixo. Referência: Dino Sete Cordas.'},
+
+  {id:'MUS-119',nome:'Chico Ventania',ic:'🪗',orig:'Brasil — Nordeste',cat:'inst',estilo:'forro',
+   inst:'Sanfona — forró pé-de-serra',
+   bio:'Chico Ventania toca sanfona como quem carrega o sertão inteiro debaixo do braço — forró pé-de-serra tradicional, fole que respira fundo e uma alegria que não separa a festa da saudade. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Sanfona (acordeon) — forró pé-de-serra tradicional do sertão nordestino. Referência: Luiz Gonzaga.'},
+
+  {id:'MUS-120',nome:'Winston Trench',ic:'🎸',orig:'Jamaica — Kingston',cat:'inst',estilo:'reggae',
+   inst:'Guitarra reggae — skank e contratempo',
+   bio:'Nascido em Kingston, Winston Trench toca aquele acorde curto e cortado no contratempo que é a assinatura do reggae — o "skank" que faz a música balançar sem nunca acelerar. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra reggae — o contratempo (skank) que define o gênero. Referência: guitarristas da banda de Bob Marley (The Wailers).'},
+
+  {id:'MUS-121',nome:'Marlon Riddim',ic:'🎸',orig:'Jamaica — Kingston',cat:'inst',estilo:'reggae',
+   inst:'Baixo reggae — riddim profundo e minimalista',
+   bio:'Marlon Riddim toca poucas notas, mas cada uma pesa uma tonelada — baixo reggae profundo, minimalista, o tipo de linha que sustenta a música inteira sem nunca chamar atenção pra si. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Baixo reggae — riddim profundo, groove minimalista e hipnótico. Referência: Aston "Family Man" Barrett (The Wailers).'},
+
+  {id:'MUS-122',nome:'Ariel Fuentes',ic:'🪗',orig:'Argentina — Buenos Aires',cat:'inst',estilo:'world',
+   inst:'Bandoneon — tango argentino',
+   bio:'Ariel Fuentes toca bandoneon como quem respira em compasso de tango — suspiros e acordes que parecem contar uma história de amor e traição só com o movimento do fole. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Bandoneon — a alma sonora do tango argentino, entre o choro e o suspiro. Referência: Astor Piazzolla.'},
+
+  {id:'MUS-123',nome:'Femi Adegoke',ic:'🎷',orig:'Nigéria — Lagos',cat:'inst',estilo:'world',
+   inst:'Naipe de metais afrobeat — saxofone e trompete',
+   bio:'Femi Adegoke lidera um naipe de metais que conversa em polirritmo com a percussão — saxofone e trompete que não tocam melodia, tocam groove, exatamente como o afrobeat exige. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Naipe de metais afrobeat — groove poliritmico com sax e trompete. Referência: Fela Kuti.'},
+
   {id:'MUS-058',nome:'Renata Bolero',ic:'🎤',orig:'México',cat:'voz',estilo:'world',
    inst:'Voz de bolero / balada latina',
    bio:'Natural da Cidade do México, Renata Bolero é a voz do bolero latino-americano — aquela música que faz o coração doer de forma agradável, que conta histórias de amor e perda com elegância inigualável. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
