@@ -76,7 +76,7 @@ const PERFIS_VOCAIS = [
   {nome:'Ibrahim Al-Rashid',tipo:'ator',genero:'M',tessitura:'grave',arquetipoVocal:'Voz grave — timbre de drama, dignidade árabe clássica',vozSintese:{vozId:'pt-BR-DonatoNeural',pitch:1.12,rate:0.97}},
   {nome:'Esperanza Villarreal',tipo:'ator',genero:'F',tessitura:'aguda',arquetipoVocal:'Voz aguda — timbre de drama, terra, raiz e fúria suave',vozSintese:{vozId:'pt-BR-BrendaNeural',pitch:1.01,rate:0.97}},
   {nome:'Nnamdi Achebe Osei',tipo:'ator',genero:'M',tessitura:'média',arquetipoVocal:'Voz média — timbre de acao, nobreza física e moral',vozSintese:{vozId:'pt-BR-DonatoNeural',pitch:0.91,rate:1.1}},
-  {nome:'Valentina Russo Ferretti',tipo:'ator',genero:'F',tessitura:'contralto',arquetipoVocal:'Voz contralto — timbre de romance, paixão com método',vozSintese:{vozId:'pt-BR-BrendaNeural',pitch:0.99,rate:1.09}},
+  {nome:'Valentina Russo Ferretti',tipo:'ator',genero:'F',tessitura:'contralto',arquetipoVocal:'Voz contralto — timbre de romance, paixão com método',vozSintese:{vozId:'pt-BR-BrendaNeural',pitch:0.99,rate:1.09},vozPremiumId:'d706f2d068ab470bb43bdae3c0a0625c'},
   {nome:'Taavi Mäkinen',tipo:'ator',genero:'M',tessitura:'média',arquetipoVocal:'Voz média — timbre de suspense, frio nórdico que guarda brasas',vozSintese:{vozId:'pt-BR-DonatoNeural',pitch:1.06,rate:1.13}},
   {nome:'Chidinma Ezeh',tipo:'ator',genero:'F',tessitura:'aguda',arquetipoVocal:'Voz aguda — timbre de comedia, alegria que nasce do chão',vozSintese:{vozId:'pt-BR-BrendaNeural',pitch:0.9,rate:0.96}},
   {nome:'Aleksandr Voronov',tipo:'ator',genero:'M',tessitura:'média',arquetipoVocal:'Voz média — timbre de tragedia, peso histórico nos ombros',vozSintese:{vozId:'pt-BR-AntonioNeural',pitch:1,rate:0.96}},
