@@ -29,7 +29,7 @@ const CONFIG = {
   // Perfil Vocal. NÃO é gratuita pra uso comercial em volume — veja o plano
   // certo em fish.audio/pricing antes de gerar muitas vozes.
   // Crie a sua em https://fish.audio/app/api-keys/ e cole aqui.
-  FISH_AUDIO_API_KEY: ""
+  FISH_AUDIO_API_KEY: "55f45b93fe794f6a8c0e2a5de81ee482"
 };
 
 window.ANTHROPIC_API_KEY    = CONFIG.ANTHROPIC_API_KEY;
