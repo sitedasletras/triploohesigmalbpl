@@ -124,7 +124,7 @@ const PERFIS_VOCAIS = [
   {nome:'Renata Bolero',tipo:'cantor',genero:'F',tessitura:'popular — voz de bolero / balada latina',arquetipoVocal:'Voz de bolero mexicana — amor, perda e elegância latina inigualável.',vozSintese:{vozId:'pt-BR-FranciscaNeural',pitch:0.97,rate:1.08}},
   {nome:'Cléo Lunna',tipo:'cantor',genero:'F',tessitura:'popular — voz mpb / manguebeat',arquetipoVocal:'Voz Manguebeat recifense — maracatu, rock e o futuro do Nordeste.',vozSintese:{vozId:'pt-BR-BrendaNeural',pitch:0.98,rate:1.04}},
   {nome:'Abebe Girma',tipo:'cantor',genero:'M',tessitura:'popular — voz etíope / ethio-jazz',arquetipoVocal:'Voz Ethio-jazz de Adis Abeba — escalas etíopes e jazz americano em fusão única.',vozSintese:{vozId:'pt-BR-DonatoNeural',pitch:1.08,rate:1.12}},
-  {nome:'Rovonilson Reigns Bautista',tipo:'cantor',genero:'M',tessitura:'popular — rapper / letrista',arquetipoVocal:'Rapper da Grande São Paulo — marquises, rua, verdade e redenção pelo verso.',vozSintese:{vozId:'pt-BR-HumbertoNeural',pitch:1.05,rate:0.95}}];
+  {nome:'Rovonilson Reigns Bautista',tipo:'cantor',genero:'M',tessitura:'popular — rapper / letrista',arquetipoVocal:'Rapper da Grande São Paulo — marquises, rua, verdade e redenção pelo verso.',vozSintese:{vozId:'pt-BR-HumbertoNeural',pitch:1.05,rate:0.95},vozPremiumId:'bcd4fde15c3d46da95d5342727f41474'}];
 
 function _normalizarNomePerfilVocal(nome) {
   return (nome || '')
