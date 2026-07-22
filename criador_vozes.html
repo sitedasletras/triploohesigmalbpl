@@ -89,6 +89,7 @@
 <script src="elenco_musical.js"></script>
 <script src="perfil_vocal.js"></script>
 <script src="fish_audio.js"></script>
+<script src="ia_gratuita.js"></script>
 </head>
 <body>
 
@@ -278,9 +279,21 @@ function _blobParaBase64(blob) {
   });
 }
 
+// Mensagem mais clara pro caso comum de limite de cota gratuita batido
+// (HTTP 429) — sem isso, o erro cru do Gemini (JSON técnico) confunde
+// quem não é programador.
+function _mensagemErroIA(status, errBody) {
+  if (status === 429) {
+    return 'Você atingiu o limite gratuito de uso da IA por agora. Espere alguns minutos e tente de novo — se continuar, pode ser o limite diário, aí só volta amanhã. Enquanto isso, dá pra digitar o nome do personagem direto no campo, sem precisar da sugestão.';
+  }
+  return `Gemini HTTP ${status}: ${errBody.substring(0, 200)}`;
+}
+
 // Ouve o áudio de verdade via Gemini (entende áudio nativamente, não só
 // texto) e descreve a voz objetivamente — sem inventar o que não dá pra
-// perceber. Não decide sozinho qual personagem usar, só descreve.
+// perceber. Não decide sozinho qual personagem usar, só descreve. Não tem
+// fallback gratuito pro OpenRouter aqui porque o Llama gratuito não ouve
+// áudio — só o Gemini faz isso nesse tier.
 async function avaliarVozComGemini(arquivo) {
   const apiKey = window.GEMINI_API_KEY || '';
   if (!apiKey) throw new Error('Configure GEMINI_API_KEY em config.js');
@@ -297,7 +310,7 @@ async function avaliarVozComGemini(arquivo) {
   });
   if (!resp.ok) {
     const errBody = await resp.text();
-    throw new Error(`Gemini HTTP ${resp.status}: ${errBody.substring(0, 200)}`);
+    throw new Error(_mensagemErroIA(resp.status, errBody));
   }
   const data = await resp.json();
   const texto = ((data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [])
@@ -315,17 +328,17 @@ function _semVozPremium(nome) {
   return !p || !p.vozPremiumId;
 }
 
-// A partir da descrição objetiva da voz, pede pro Gemini comparar com as
+// A partir da descrição objetiva da voz, pede pra IA comparar com as
 // fichas do banco (personalidade/físico dos atores, ou bio/sabor dos
 // cantores) e sugerir os que combinam melhor — com justificativa. A
 // decisão final continua sendo sua, isto é só uma sugestão. Se `tipo` vier
 // vazio, compara com os dois elencos juntos (usado pelo Upload Geral,
 // quando ainda não se sabe se é ator ou cantor). Só considera quem ainda
-// não tem voz premium salva.
+// não tem voz premium salva. Usa chamarIAGratuita() (ia_gratuita.js), que
+// já cai pro OpenRouter/Llama sozinho se o Gemini estiver sem cota — essa
+// etapa é só texto, então o fallback gratuito funciona em cheio (diferente
+// da escuta do áudio em si, que só o Gemini faz).
 async function sugerirPersonagemPelaVoz(descricaoVoz, tipo) {
-  const apiKey = window.GEMINI_API_KEY || '';
-  if (!apiKey) throw new Error('Configure GEMINI_API_KEY em config.js');
-
   let lista = '';
   if ((tipo === 'ator' || !tipo) && typeof ARTISTAS !== 'undefined') {
     lista += ARTISTAS.filter(a => _semVozPremium(a.nome)).map(a => `- ${a.nome} (ator): ${a.personalidade} Físico: ${a.fisico}`).join('\n') + '\n';
@@ -336,7 +349,7 @@ async function sugerirPersonagemPelaVoz(descricaoVoz, tipo) {
 
   if (!lista.trim()) return [];
 
-  const prompt = `Esta é a descrição objetiva de uma voz real, ouvida num áudio:
+  const userPrompt = `Esta é a descrição objetiva de uma voz real, ouvida num áudio:
 "${descricaoVoz}"
 
 Abaixo está a lista de personagens do nosso banco, com personalidade e características físicas/vocais:
@@ -345,20 +358,12 @@ ${lista}
 Sugira os 3 personagens dessa lista cuja personalidade e aparência combinariam melhor com essa voz, do mais pro menos indicado. Responda SOMENTE em JSON válido, sem cercas de código, no formato:
 [{"nome":"Nome Exato Da Lista","justificativa":"uma frase curta explicando por quê"}, ...]`;
 
-  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
-  });
-  if (!resp.ok) {
-    const errBody = await resp.text();
-    throw new Error(`Gemini HTTP ${resp.status}: ${errBody.substring(0, 200)}`);
-  }
-  const data = await resp.json();
-  const texto = ((data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [])
-    .map(p => p.text || '').join('').trim();
-  const limpo = texto.replace(/```json|```/g, '').trim();
-  return JSON.parse(limpo);
+  const texto = await chamarIAGratuita(
+    'Você compara descrições objetivas de voz com fichas de personagens e sugere os que mais combinam.',
+    userPrompt,
+    800
+  );
+  return parseJSONGratuito(texto);
 }
 
 async function avaliarEsugerirPersonagem() {
