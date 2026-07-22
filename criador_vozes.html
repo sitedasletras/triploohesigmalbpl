@@ -306,23 +306,35 @@ async function avaliarVozComGemini(arquivo) {
   return texto;
 }
 
+// Verdadeiro só se o personagem AINDA NÃO tem voz premium salva — usado
+// pra tirar quem já está pronto tanto do autocomplete quanto das
+// sugestões da IA, senão o mesmo punhado de nomes já resolvidos fica
+// voltando pra roda toda hora.
+function _semVozPremium(nome) {
+  const p = (typeof getPerfilVocalPorNome === 'function') ? getPerfilVocalPorNome(nome) : null;
+  return !p || !p.vozPremiumId;
+}
+
 // A partir da descrição objetiva da voz, pede pro Gemini comparar com as
 // fichas do banco (personalidade/físico dos atores, ou bio/sabor dos
 // cantores) e sugerir os que combinam melhor — com justificativa. A
 // decisão final continua sendo sua, isto é só uma sugestão. Se `tipo` vier
 // vazio, compara com os dois elencos juntos (usado pelo Upload Geral,
-// quando ainda não se sabe se é ator ou cantor).
+// quando ainda não se sabe se é ator ou cantor). Só considera quem ainda
+// não tem voz premium salva.
 async function sugerirPersonagemPelaVoz(descricaoVoz, tipo) {
   const apiKey = window.GEMINI_API_KEY || '';
   if (!apiKey) throw new Error('Configure GEMINI_API_KEY em config.js');
 
   let lista = '';
   if ((tipo === 'ator' || !tipo) && typeof ARTISTAS !== 'undefined') {
-    lista += ARTISTAS.map(a => `- ${a.nome} (ator): ${a.personalidade} Físico: ${a.fisico}`).join('\n') + '\n';
+    lista += ARTISTAS.filter(a => _semVozPremium(a.nome)).map(a => `- ${a.nome} (ator): ${a.personalidade} Físico: ${a.fisico}`).join('\n') + '\n';
   }
   if ((tipo === 'cantor' || !tipo) && typeof TODOS !== 'undefined') {
-    lista += TODOS.filter(t => t.cat === 'voz').map(t => `- ${t.nome} (cantor): ${t.sabor || t.bio || ''}`).join('\n');
+    lista += TODOS.filter(t => t.cat === 'voz').filter(t => _semVozPremium(t.nome)).map(t => `- ${t.nome} (cantor): ${t.sabor || t.bio || ''}`).join('\n');
   }
+
+  if (!lista.trim()) return [];
 
   const prompt = `Esta é a descrição objetiva de uma voz real, ouvida num áudio:
 "${descricaoVoz}"
@@ -468,12 +480,13 @@ async function _salvarVozPremiumNoGitHub(nome, referenceId) {
 // Fluxo de upload geral: um único botão que clona a voz a partir do
 // áudio, salva permanentemente no GitHub e limpa o formulário sozinho —
 // sem precisar passar pelas etapas de tipo/modo/candidatos do fluxo
-// detalhado acima.
+// detalhado acima. O autocomplete só mostra quem AINDA NÃO tem voz —
+// depois de salvo, o nome some da lista sozinho.
 function _popularListaGeral() {
   const dl = document.getElementById('geral-lista-nomes');
   if (!dl || typeof PERFIS_VOCAIS === 'undefined') return;
   dl.innerHTML = '';
-  PERFIS_VOCAIS.map(p => p.nome).sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(n => {
+  PERFIS_VOCAIS.filter(p => !p.vozPremiumId).map(p => p.nome).sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(n => {
     const opt = document.createElement('option');
     opt.value = n;
     dl.appendChild(opt);
@@ -501,8 +514,13 @@ async function sugerirPersonagemGeral() {
     _mostrarStatusGeral('carregando', '👂 Ouvindo o áudio...');
     const descricao = await avaliarVozComGemini(arquivo);
 
-    _mostrarStatusGeral('carregando', '🔍 Comparando com os 85 personagens...');
+    _mostrarStatusGeral('carregando', '🔍 Comparando com quem ainda não tem voz...');
     const sugestoes = await sugerirPersonagemPelaVoz(descricao, null);
+
+    if (!sugestoes.length) {
+      _mostrarStatusGeral('ok', '✓ Todos os personagens já têm voz salva — nada pra classificar. Se quiser substituir algum, digite o nome manualmente.');
+      return;
+    }
 
     const bloco = document.getElementById('geral-sugestoes');
     bloco.style.display = 'block';
@@ -542,6 +560,10 @@ async function uploadGeralDeVoz() {
   const perfil = getPerfilVocalPorNome(nome);
   if (!perfil) { _mostrarStatusGeral('erro', `"${nome}" não encontrado no Perfil Vocal — confira a grafia.`); return; }
   if (!arquivo) { _mostrarStatusGeral('erro', 'Selecione um arquivo de áudio.'); return; }
+  if (perfil.vozPremiumId && !confirm(`${perfil.nome} já tem uma voz salva. Substituir mesmo assim?`)) {
+    _mostrarStatusGeral('erro', 'Envio cancelado — a voz atual foi mantida.');
+    return;
+  }
 
   const btn = document.getElementById('geral-btn-enviar');
   btn.disabled = true;
@@ -570,6 +592,7 @@ async function _finalizarSalvamentoGeral() {
     document.getElementById('geral-nome').value = '';
     document.getElementById('geral-arquivo').value = '';
     document.getElementById('geral-transcricao').value = '';
+    _popularListaGeral();
     _mostrarStatusGeral('ok', `✓ Voz salva para ${nome}! Formulário limpo — pode subir a próxima.`);
   } catch (e) {
     // A clonagem já aconteceu (referenceId existe no Fish Audio) — só a
