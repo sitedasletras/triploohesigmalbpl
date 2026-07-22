@@ -154,7 +154,23 @@ function montarBlocoPerfilVocal(nome) {
 }
 
 // Config pronta pra usar com speechSynthesis — usado por silo_sonoro.html.
+// Se o personagem já tem uma voz premium salva (Fish Audio, ver
+// fish_audio.js), ela tem prioridade sobre as 6 vozes gratuitas do
+// navegador — quem consome isso decide o que fazer com `premium:true`
+// (chamar sintetizarComVozPremium em vez de speechSynthesis).
 function configVozSintese(nome) {
   const p = getPerfilVocalPorNome(nome);
-  return p ? p.vozSintese : null;
+  if (!p) return null;
+  if (p.vozPremiumId) return { premium: true, referenceId: p.vozPremiumId };
+  return Object.assign({ premium: false }, p.vozSintese);
+}
+
+// Anexa permanentemente (em memória — quem chama decide se persiste no
+// GitHub, ver criador_vozes.html) uma voz premium do Fish Audio a um
+// personagem já existente no Perfil Vocal.
+function salvarVozPremium(nome, referenceId) {
+  const p = getPerfilVocalPorNome(nome);
+  if (!p || !referenceId) return false;
+  p.vozPremiumId = referenceId;
+  return true;
 }

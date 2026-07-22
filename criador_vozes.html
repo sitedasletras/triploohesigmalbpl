@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Criador de Vozes · Fish Audio · OHE-Peçanha</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Bebas+Neue&display=swap');
+
+  :root {
+    --bg: #0a0a0c;
+    --surface: #111114;
+    --border: #2a2a32;
+    --accent: #c8a96e;
+    --accent2: #7a9e8a;
+    --muted: #6a6a72;
+    --texto: #e4e2dc;
+    --danger: #b56a5a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--bg); color: var(--texto); font-family: 'Crimson Pro', Georgia, serif; min-height: 100vh; }
+  .topo {
+    background: rgba(10,10,12,.97); border-bottom: 1px solid var(--border); padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10;
+  }
+  .topo a { color: var(--accent); text-decoration: none; font-family:'Share Tech Mono',monospace; font-size:.8rem; }
+  .topo h1 { font-family:'Bebas Neue', sans-serif; letter-spacing:.08em; font-size:1.3rem; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 18px 60px; }
+
+  .aviso { background: rgba(200,169,110,.08); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:8px; padding:12px 14px; font-size:.82rem; line-height:1.55; color:#c0bdb4; margin-bottom:20px; }
+
+  .tipos { display:flex; gap:8px; margin-bottom: 18px; }
+  .tipo-btn { flex:1; padding:12px; border-radius:10px; border:1.5px solid var(--border); background: var(--surface); color: var(--muted); cursor:pointer; text-align:center; font-family:'Share Tech Mono',monospace; font-size:.75rem; }
+  .tipo-btn:hover { border-color: var(--accent2); }
+  .tipo-btn.ativo { border-color: var(--accent); color: var(--accent); background: rgba(200,169,110,.08); }
+
+  label { display:block; font-family:'Share Tech Mono',monospace; font-size:.7rem; color: var(--muted); letter-spacing:.06em; margin-bottom:6px; text-transform:uppercase; }
+  input[type="text"], textarea { width:100%; padding:11px 12px; border-radius:8px; border:1.5px solid var(--border); background: var(--surface); color: var(--texto); font-family:'Crimson Pro',serif; font-size:1rem; }
+  textarea { min-height:80px; resize:vertical; }
+  input[type="text"]:focus, textarea:focus { outline:none; border-color: var(--accent); }
+  .btn { padding:10px 16px; border-radius:8px; border:1.5px solid var(--accent); background:transparent; color: var(--accent); font-family:'Share Tech Mono',monospace; font-size:.75rem; cursor:pointer; margin-top:10px; }
+  .btn:hover { background: rgba(200,169,110,.1); }
+  .btn:disabled { opacity:.4; cursor:not-allowed; }
+  .btn-secundario { border-color: var(--accent2); color: var(--accent2); }
+
+  #bloco-nome { display:none; margin-bottom:18px; }
+  #ficha-preview { margin-top:14px; padding:14px; border-radius:10px; background: var(--surface); border:1px solid var(--border); font-size:.92rem; line-height:1.55; }
+  #ficha-preview strong { color: var(--accent); }
+  #voz-atual { margin-top:8px; padding:8px 10px; border-radius:6px; font-family:'Share Tech Mono',monospace; font-size:.72rem; }
+  #voz-atual.tem { background: rgba(122,158,138,.1); color: var(--accent2); }
+  #voz-atual.sem { background: rgba(181,106,90,.08); color: var(--danger); }
+
+  .modos { display:flex; gap:8px; margin:18px 0 12px; }
+  .modo-btn { flex:1; padding:10px; border-radius:8px; border:1.5px solid var(--border); background:transparent; color: var(--muted); cursor:pointer; font-family:'Share Tech Mono',monospace; font-size:.72rem; }
+  .modo-btn.ativo { border-color: var(--accent2); color: var(--accent2); }
+
+  .bloco-modo { display:none; margin-bottom:16px; }
+  .bloco-modo.ativo { display:block; }
+
+  .candidato { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border:1px solid var(--border); border-radius:8px; margin-top:8px; font-family:'Share Tech Mono',monospace; font-size:.75rem; }
+
+  #status { margin-top:14px; padding:10px 12px; border-radius:8px; font-family:'Share Tech Mono',monospace; font-size:.75rem; display:none; }
+  #status.ok { display:block; background: rgba(122,158,138,.1); color: var(--accent2); }
+  #status.erro { display:block; background: rgba(181,106,90,.1); color: var(--danger); }
+  #status.carregando { display:block; background: var(--surface); color: var(--muted); font-style:italic; }
+</style>
+<script src="config.js"></script>
+<script src="elenco_bpl.js"></script>
+<script src="elenco_musical.js"></script>
+<script src="perfil_vocal.js"></script>
+<script src="fish_audio.js"></script>
+</head>
+<body>
+
+<div class="topo">
+  <a href="espinha_dorsal.html">← Espinha Dorsal</a>
+  <h1>CRIADOR DE VOZES</h1>
+  <div></div>
+</div>
+
+<div class="wrap">
+  <div class="aviso">
+    Cria timbres ORIGINAIS pros atores do BPL e cantores do Sigmal Music, via Fish Audio — nunca clonando
+    celebridade real. Duas formas: descrever a voz em texto, ou subir um áudio de referência que você tenha o
+    direito de usar (gravação própria, dublê contratado — nunca voz de terceiro sem permissão). Precisa da
+    <code>FISH_AUDIO_API_KEY</code> configurada no <code>config.js</code>.
+  </div>
+
+  <div class="tipos">
+    <div class="tipo-btn" id="tipo-ator" onclick="selecionarTipo('ator')">🎭 Ator do BPL</div>
+    <div class="tipo-btn" id="tipo-cantor" onclick="selecionarTipo('cantor')">🎤 Cantor Sigmal Music</div>
+  </div>
+
+  <div id="bloco-nome">
+    <label>Nome</label>
+    <input type="text" id="nome-input" list="lista-nomes" placeholder="Digite ou escolha um nome..." onchange="selecionarNome()">
+    <datalist id="lista-nomes"></datalist>
+    <button class="btn" onclick="selecionarNome()">Carregar ficha</button>
+
+    <div id="ficha-preview" style="display:none"></div>
+
+    <div class="modos" id="modos" style="display:none">
+      <div class="modo-btn ativo" id="modo-descricao" onclick="selecionarModo('descricao')">✎ Descrever a voz</div>
+      <div class="modo-btn" id="modo-upload" onclick="selecionarModo('upload')">📤 Subir um áudio</div>
+    </div>
+
+    <div class="bloco-modo ativo" id="bloco-descricao">
+      <label>Descrição da voz (pré-preenchida com o Perfil Vocal atual — ajuste se quiser)</label>
+      <textarea id="descricao-voz"></textarea>
+      <button class="btn" onclick="gerarPorDescricao()">✦ Gerar voz por descrição</button>
+    </div>
+
+    <div class="bloco-modo" id="bloco-upload">
+      <label>Áudio de referência (mp3, wav ou m4a — só sua ou com permissão)</label>
+      <input type="file" id="arquivo-audio" accept="audio/*">
+      <label style="margin-top:10px">Transcrição do áudio (opcional, melhora a precisão)</label>
+      <textarea id="transcricao-audio" placeholder="O que a pessoa fala no áudio, se souber..."></textarea>
+      <button class="btn" onclick="clonarPorAudio()">✦ Clonar a partir do áudio</button>
+    </div>
+
+    <div id="candidatos"></div>
+    <div id="status"></div>
+  </div>
+</div>
+
+<script>
+let estado = { tipo: null, nome: null, candidatoAtual: null };
+
+function selecionarTipo(tipo) {
+  estado.tipo = tipo;
+  estado.nome = null;
+  document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('ativo'));
+  document.getElementById('tipo-' + tipo).classList.add('ativo');
+  popularNomes(tipo);
+  document.getElementById('bloco-nome').style.display = 'block';
+  document.getElementById('ficha-preview').style.display = 'none';
+  document.getElementById('modos').style.display = 'none';
+  document.getElementById('candidatos').innerHTML = '';
+  document.getElementById('status').className = '';
+  document.getElementById('nome-input').value = '';
+}
+
+function popularNomes(tipo) {
+  const dl = document.getElementById('lista-nomes');
+  dl.innerHTML = '';
+  let nomes = [];
+  if (tipo === 'ator' && typeof ARTISTAS !== 'undefined') nomes = ARTISTAS.map(a => a.nome);
+  if (tipo === 'cantor' && typeof TODOS !== 'undefined') nomes = TODOS.filter(t => t.cat === 'voz').map(t => t.nome);
+  nomes.sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(n => {
+    const opt = document.createElement('option');
+    opt.value = n;
+    dl.appendChild(opt);
+  });
+}
+
+function selecionarModo(modo) {
+  document.querySelectorAll('.modo-btn').forEach(b => b.classList.remove('ativo'));
+  document.getElementById('modo-' + modo).classList.add('ativo');
+  document.getElementById('bloco-descricao').classList.toggle('ativo', modo === 'descricao');
+  document.getElementById('bloco-upload').classList.toggle('ativo', modo === 'upload');
+}
+
+function selecionarNome() {
+  const nome = document.getElementById('nome-input').value.trim();
+  if (!nome || !estado.tipo) return;
+
+  const perfil = getPerfilVocalPorNome(nome);
+  if (!perfil) {
+    alert('Nome não encontrado no Perfil Vocal — verifique a grafia.');
+    return;
+  }
+
+  estado.nome = nome;
+  estado.candidatoAtual = null;
+
+  const preview = document.getElementById('ficha-preview');
+  const vozTxt = perfil.vozPremiumId
+    ? `<div id="voz-atual" class="tem">🔊 Já tem voz premium salva: ${perfil.vozPremiumId}</div>`
+    : `<div id="voz-atual" class="sem">Ainda sem voz premium — usando as 6 vozes gratuitas do navegador</div>`;
+  preview.innerHTML = `<strong>${perfil.nome}</strong> — tessitura: ${perfil.tessitura}<p>${perfil.arquetipoVocal}</p>${vozTxt}`;
+  preview.style.display = 'block';
+
+  document.getElementById('descricao-voz').value = perfil.arquetipoVocal;
+  document.getElementById('modos').style.display = 'flex';
+  document.getElementById('candidatos').innerHTML = '';
+  document.getElementById('status').className = '';
+}
+
+function mostrarStatus(tipo, texto) {
+  const el = document.getElementById('status');
+  el.className = tipo;
+  el.textContent = texto;
+}
+
+async function gerarPorDescricao() {
+  const descricao = document.getElementById('descricao-voz').value.trim();
+  if (!descricao || !estado.nome) return;
+  mostrarStatus('carregando', '🔊 Gerando candidatos de voz...');
+  document.getElementById('candidatos').innerHTML = '';
+  try {
+    const candidatos = await criarVozPorDescricao(descricao);
+    mostrarStatus('ok', `${candidatos.length} candidato(s) gerado(s) — escolha um pra usar.`);
+    renderizarCandidatos(candidatos);
+  } catch (e) {
+    mostrarStatus('erro', 'Erro: ' + e.message);
+  }
+}
+
+async function clonarPorAudio() {
+  const arquivo = document.getElementById('arquivo-audio').files[0];
+  const transcricao = document.getElementById('transcricao-audio').value.trim();
+  if (!arquivo || !estado.nome) { alert('Selecione um arquivo de áudio primeiro.'); return; }
+  mostrarStatus('carregando', '🔊 Clonando a partir do áudio...');
+  document.getElementById('candidatos').innerHTML = '';
+  try {
+    const resultado = await criarVozPorAudio(estado.nome, arquivo, transcricao);
+    mostrarStatus('ok', 'Voz clonada com sucesso — confirme pra usar.');
+    renderizarCandidatos([resultado]);
+  } catch (e) {
+    mostrarStatus('erro', 'Erro: ' + e.message);
+  }
+}
+
+function renderizarCandidatos(candidatos) {
+  const el = document.getElementById('candidatos');
+  el.innerHTML = candidatos.map((c, i) => `
+    <div class="candidato">
+      <span>Voz ${i + 1} — ${c.id}</span>
+      <span>
+        <button class="btn btn-secundario" style="margin:0" onclick="testarCandidato('${c.id}')">▶ Ouvir</button>
+        <button class="btn" style="margin:0" onclick="usarCandidato('${c.id}')">✓ Usar esta</button>
+      </span>
+    </div>
+  `).join('');
+}
+
+async function testarCandidato(referenceId) {
+  mostrarStatus('carregando', '🔊 Sintetizando prévia...');
+  try {
+    const blob = await sintetizarComVozPremium(referenceId, `Olá, aqui é a voz de teste de ${estado.nome}.`);
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audio.play();
+    mostrarStatus('ok', '▶ Tocando prévia...');
+  } catch (e) {
+    mostrarStatus('erro', 'Erro ao testar: ' + e.message);
+  }
+}
+
+function usarCandidato(referenceId) {
+  estado.candidatoAtual = referenceId;
+  salvarVozPremium(estado.nome, referenceId);
+  const el = document.getElementById('voz-atual');
+  el.className = 'tem';
+  el.textContent = `🔊 Voz selecionada (ainda não salva permanentemente): ${referenceId}`;
+  mostrarStatus('ok', `Voz "${referenceId}" escolhida pra ${estado.nome}. Clique em "Salvar permanentemente" pra gravar no GitHub.`);
+
+  if (!document.getElementById('btn-salvar-permanente')) {
+    const btn = document.createElement('button');
+    btn.id = 'btn-salvar-permanente';
+    btn.className = 'btn';
+    btn.textContent = '💾 Salvar permanentemente no GitHub';
+    btn.onclick = salvarPermanentemente;
+    document.getElementById('candidatos').appendChild(btn);
+  }
+}
+
+// Persiste vozPremiumId no perfil_vocal.js de verdade (GitHub) — mesmo
+// padrão de publicarBiografiaGitHub em gerador_obra.html, mas editando uma
+// entrada já existente em vez de criar arquivo novo.
+async function salvarPermanentemente() {
+  if (!estado.nome || !estado.candidatoAtual) return;
+  const token = window.GITHUB_TOKEN || '';
+  const owner = window.GITHUB_OWNER || '';
+  const repo = window.GITHUB_REPO || '';
+  if (!token) { mostrarStatus('erro', 'Configure GITHUB_TOKEN em config.js pra salvar permanentemente.'); return; }
+
+  mostrarStatus('carregando', '💾 Salvando no GitHub...');
+  try {
+    const caminho = 'perfil_vocal.js';
+    const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${caminho}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!r.ok) throw new Error(`Não consegui ler ${caminho} do GitHub (HTTP ${r.status})`);
+    const d = await r.json();
+    const sha = d.sha;
+    const conteudoAtual = decodeURIComponent(escape(atob(d.content)));
+
+    const conteudoNovo = _atualizarVozPremiumNoTexto(conteudoAtual, estado.nome, estado.candidatoAtual);
+    if (conteudoNovo === conteudoAtual) throw new Error(`Não encontrei a entrada de "${estado.nome}" no arquivo pra atualizar.`);
+
+    const body = {
+      message: `[Criador de Vozes] Voz premium pra ${estado.nome}`,
+      content: btoa(unescape(encodeURIComponent(conteudoNovo))),
+      branch: 'main',
+      sha
+    };
+    const pub = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${caminho}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!pub.ok) { const t = await pub.text(); throw new Error(`Falha ao gravar (HTTP ${pub.status}): ${t.substring(0, 200)}`); }
+
+    mostrarStatus('ok', `✓ Voz de ${estado.nome} salva permanentemente no perfil_vocal.js!`);
+  } catch (e) {
+    mostrarStatus('erro', 'Erro ao salvar: ' + e.message);
+  }
+}
+
+// Acha a linha `{nome:'X',...}` daquele personagem e insere/atualiza
+// vozPremiumId nela, sem tocar no resto do arquivo.
+function _atualizarVozPremiumNoTexto(texto, nome, referenceId) {
+  const nomeEscapado = nome.replace(/'/g, "\\'");
+  const linhas = texto.split('\n');
+  for (let i = 0; i < linhas.length; i++) {
+    if (linhas[i].includes(`nome:'${nomeEscapado}'`)) {
+      if (/vozPremiumId:'[^']*'/.test(linhas[i])) {
+        linhas[i] = linhas[i].replace(/vozPremiumId:'[^']*'/, `vozPremiumId:'${referenceId}'`);
+      } else {
+        // Insere logo antes do último `}` da linha (o fechamento do objeto
+        // do personagem — pode vir seguido de "," ou de "];" se for o
+        // último item do array, por isso não dá pra ancorar no fim da linha)
+        const idx = linhas[i].lastIndexOf('}');
+        linhas[i] = linhas[i].slice(0, idx) + `,vozPremiumId:'${referenceId}'` + linhas[i].slice(idx);
+      }
+      return linhas.join('\n');
+    }
+  }
+  return texto;
+}
+</script>
+</body>
+</html>
