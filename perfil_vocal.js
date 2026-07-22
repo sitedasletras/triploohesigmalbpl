@@ -41,7 +41,7 @@
 
 const PERFIS_VOCAIS = [
   {nome:'Isolde Vael Carrim',tipo:'ator',genero:'F',tessitura:'aguda',arquetipoVocal:'Voz aguda — timbre de drama, presença magnética e contida',vozSintese:{vozId:'pt-BR-FranciscaNeural',pitch:1.05,rate:1.11}},
-  {nome:'Esteban Morales Vega',tipo:'ator',genero:'M',tessitura:'grave',arquetipoVocal:'Voz grave — timbre de drama, voz grave e rouca que carrega décadas',vozSintese:{vozId:'pt-BR-AntonioNeural',pitch:1.11,rate:1.02}},
+  {nome:'Esteban Morales Vega',tipo:'ator',genero:'M',tessitura:'grave',arquetipoVocal:'Voz grave — timbre de drama, voz grave e rouca que carrega décadas',vozSintese:{vozId:'pt-BR-AntonioNeural',pitch:1.11,rate:1.02},vozPremiumId:'0bc75396edd6468398583e8d860a9cc2'},
   {nome:'Yuki Tanegawa',tipo:'ator',genero:'F',tessitura:'contralto',arquetipoVocal:'Voz contralto — timbre de drama, precisão milimétrica nos movimentos',vozSintese:{vozId:'pt-BR-FranciscaNeural',pitch:1.03,rate:0.97}},
   {nome:'Darius Mehrabani',tipo:'ator',genero:'M',tessitura:'barítono',arquetipoVocal:'Voz barítono — timbre de drama, olhar que atravessa a câmera',vozSintese:{vozId:'pt-BR-JulioNeural',pitch:1.09,rate:0.99}},
   {nome:'Amara Diallo Keïta',tipo:'ator',genero:'F',tessitura:'mezzo',arquetipoVocal:'Voz mezzo — timbre de drama, energia teatral natural',vozSintese:{vozId:'pt-BR-BrendaNeural',pitch:0.97,rate:0.93}},
