@@ -299,6 +299,46 @@ const TODOS =
    bio:'Natural de Tunis, Tariq Electronic transita entre a música árabe tradicional e a eletrônica contemporânea — seus sets são pontes entre o Mediterrâneo antigo e os clubes do século XXI. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
    sabor:'DJ e produtor tunisiano — ponte entre o Mediterrâneo antigo e os clubes do século XXI. Referência: Deena Abdelwahed.'},
 
+  {id:'MUS-061',nome:'Dean Wolfhardt',ic:'🎸',orig:'Reino Unido — Londres',cat:'inst',estilo:'rock',
+   inst:'Guitarra hard rock — riffs pesados e power chords',
+   bio:'Nascido em Londres, Dean Wolfhardt cresceu ouvindo os clássicos do hard rock britânico e forjou um estilo de riffs pesados, power chords e solos diretos ao ponto — sem frescura, só volume e atitude. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra hard rock — riffs pesados e solos diretos, sem rodeios. Referência: Angus Young com um pé no punk.'},
+
+  {id:'MUS-062',nome:'Delmar Kingfish',ic:'🎸',orig:'Estados Unidos — Mississippi',cat:'inst',estilo:'blues',
+   inst:'Guitarra blues do Delta — slide e fingerpicking',
+   bio:'Criado às margens do rio Mississippi, Delmar Kingfish herdou o blues do Delta como quem herda uma língua materna — slide guitar chorosa, fingerpicking hipnótico e uma guitarra que parece contar histórias de décadas de estrada. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra blues do Delta — slide chorosa e fingerpicking hipnótico. Referência: B.B. King encontra Muddy Waters.'},
+
+  {id:'MUS-063',nome:'Rafael Duende',ic:'🎸',orig:'Espanha — Jerez de la Frontera',cat:'inst',estilo:'world',
+   inst:'Guitarra flamenca — toque de Jerez',
+   bio:'Nascido em Jerez de la Frontera, berço do flamenco mais bravio, Rafael Duende toca guitarra com o "duende" que dá nome a ele — aquela emoção crua e incontrolável que os andaluzes dizem que não se aprende, só se tem. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra flamenca de Jerez — técnica virtuosística e emoção crua. Referência: Paco de Lucía.'},
+
+  {id:'MUS-064',nome:'Miles Cordier',ic:'🎸',orig:'França — Paris',cat:'inst',estilo:'jazz',
+   inst:'Guitarra de jazz cigano — swing manouche',
+   bio:'Parisiense de origem cigana, Miles Cordier carrega a tradição do jazz manouche nas mãos — cordas de aço, swing acelerado e uma técnica de mão direita que parece impossível de acompanhar. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra de jazz cigano — swing manouche velocíssimo. Referência: Django Reinhardt.'},
+
+  {id:'MUS-065',nome:'Sven Thornheart',ic:'🎸',orig:'Suécia — Gotemburgo',cat:'inst',estilo:'metal',
+   inst:'Guitarra metal neoclássica — shred técnico',
+   bio:'Nascido em Gotemburgo, Sven Thornheart fundiu a técnica da música clássica europeia com a velocidade e a distorção do metal — escalas neoclássicas em velocidade vertiginosa, um shredder que estudou Bach antes de estudar Marshall. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra metal neoclássica — shred técnico em velocidade vertiginosa. Referência: Yngwie Malmsteen.'},
+
+  {id:'MUS-066',nome:'Vinícius Marear',ic:'🎸',orig:'Brasil — Rio de Janeiro',cat:'inst',estilo:'mpb',
+   inst:'Violão de bossa nova — batida sincopada',
+   bio:'Carioca da gema, Vinícius Marear toca violão com a batida sincopada e o volume baixinho que definiram a bossa nova — cada acorde soa como se fosse sussurrado de propósito, pra caber na sala de qualquer apartamento de Copacabana. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Violão de bossa nova — batida sincopada e volume sussurrado. Referência: João Gilberto.'},
+
+  {id:'MUS-067',nome:'Tucker Lonestar',ic:'🎸',orig:'Estados Unidos — Nashville',cat:'inst',estilo:'country',
+   inst:'Guitarra country — fingerstyle e Telecaster',
+   bio:'Criado nos arredores de Nashville, Tucker Lonestar domina o fingerstyle country e o twang inconfundível da Telecaster — guitarra que conta histórias de estrada, uísque e coração partido em cada bend. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra country — fingerstyle e twang de Telecaster. Referência: Chet Atkins.'},
+
+  {id:'MUS-068',nome:'Nova Prisma',ic:'🎸',orig:'Reino Unido — Bristol',cat:'inst',estilo:'rock',
+   inst:'Guitarra psicodélica — efeitos e bends expressivos',
+   bio:'Nascida em Bristol, Nova Prisma constrói paisagens sonoras com pedais de efeito, feedback controlado e bends longos e expressivos — guitarra que não toca notas, pinta texturas. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
+   sabor:'Guitarra psicodélica — texturas de efeito e bends expressivos. Referência: David Gilmour.'},
+
   {id:'MUS-058',nome:'Renata Bolero',ic:'🎤',orig:'México',cat:'voz',estilo:'world',
    inst:'Voz de bolero / balada latina',
    bio:'Natural da Cidade do México, Renata Bolero é a voz do bolero latino-americano — aquela música que faz o coração doer de forma agradável, que conta histórias de amor e perda com elegância inigualável. Artista da SIGMAL Music — Site das Letras Edições Literárias & Multimídia.',
