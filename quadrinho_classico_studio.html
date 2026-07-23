@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quadrinho Clássico Studio · Diagramador Ocidental</title>
+<script src="config.js"></script>
+<script src="elenco_bpl.js"></script>
+<script src="elenco_musical.js"></script>
+<script src="fonte_imagem.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Share+Tech+Mono&family=Bangers&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --azul: #0a1628;
+  --ouro: #c9a84c;
+  --ouro-claro: #e8cc7a;
+  --creme: #f0e8d0;
+  --prata: #6a7d90;
+  --verde: #00c853;
+  --vermelho: #d32f2f;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--preto); color: var(--creme); font-family: 'Crimson Pro', serif; min-height: 100vh; }
+
+.header { background: linear-gradient(180deg, #000 0%, var(--preto-mid) 100%); border-bottom: 1px solid rgba(201,168,76,0.2); padding: 1rem 1.5rem; }
+.header-logo { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--ouro); letter-spacing: 0.15em; }
+.header-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; color: var(--prata); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.2rem; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--verde); display: inline-block; margin-right: 0.4rem; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.wrap { max-width: 780px; margin: 0 auto; padding: 1.5rem; }
+
+.card { background: rgba(201,168,76,0.04); border: 1px solid rgba(201,168,76,0.12); border-radius: 6px; padding: 1.2rem; margin-bottom: 1rem; }
+.card-label { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; letter-spacing: 0.15em; color: var(--ouro); text-transform: uppercase; margin-bottom: 0.5rem; }
+
+.fg { margin-bottom: 1rem; }
+.fl { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; letter-spacing: 0.1em; color: var(--prata); text-transform: uppercase; display: block; margin-bottom: 0.4rem; }
+.fta { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.2); color: var(--creme); font-family: 'Crimson Pro', serif; font-size: 0.85rem; padding: 0.6rem 0.8rem; border-radius: 4px; min-height: 160px; resize: vertical; }
+.fi, .fs { width: 100%; background: #0a1628; border: 1px solid rgba(201,168,76,0.2); color: var(--creme); font-family: 'Crimson Pro', serif; font-size: 0.9rem; padding: 0.6rem 0.8rem; border-radius: 4px; }
+.fg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.btn-p { background: var(--ouro); color: #000; border: none; font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.8rem 1.5rem; cursor: pointer; border-radius: 4px; width: 100%; margin-bottom: 0.5rem; }
+.btn-p:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.aviso { background: rgba(201,168,76,0.06); border-left: 3px solid var(--ouro); padding: 0.8rem 1rem; font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; color: var(--prata); line-height: 1.8; margin-bottom: 1rem; border-radius: 4px; }
+
+.log-box { background: rgba(0,0,0,0.4); border: 1px solid rgba(201,168,76,0.1); padding: 0.8rem; font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; color: var(--prata); line-height: 2; max-height: 220px; overflow-y: auto; border-radius: 4px; margin-bottom: 1rem; }
+
+.custo-box { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; color: var(--prata); padding: 0.5rem 0; border-top: 1px solid rgba(201,168,76,0.1); }
+.custo-box b { color: var(--ouro); }
+
+.paginas { display: flex; flex-direction: column; gap: 1.2rem; margin-top: 1rem; }
+.pagina-item { background: var(--preto-mid); border: 1px solid rgba(201,168,76,0.15); border-radius: 6px; padding: 0.8rem; }
+.pagina-item canvas { width: 100%; height: auto; display: block; border-radius: 4px; background: #fff; margin-bottom: 0.5rem; }
+.pagina-titulo { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--ouro-claro); margin-bottom: 0.4rem; }
+.pagina-download { display: inline-block; font-family: 'Share Tech Mono', monospace; font-size: 0.42rem; color: var(--ouro); text-decoration: none; border: 1px solid rgba(201,168,76,0.3); padding: 0.3rem 0.6rem; border-radius: 3px; }
+
+.notif-container { position: fixed; bottom: 1rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
+.notif { background: #0d1825; border-left: 3px solid var(--ouro); padding: 0.8rem 1rem; font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; letter-spacing: 0.08em; max-width: 280px; animation: slideIn 0.3s ease; }
+.notif.sucesso { border-color: var(--verde); }
+.notif.erro { border-color: var(--vermelho); }
+.notif-titulo { color: var(--ouro); margin-bottom: 0.2rem; }
+.notif.sucesso .notif-titulo { color: var(--verde); }
+.notif.erro .notif-titulo { color: var(--vermelho); }
+@keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+</style>
+</head>
+<body>
+
+<div class="notif-container" id="notif-container"></div>
+
+<div class="header">
+  <div class="header-logo">QUADRINHO CLÁSSICO STUDIO</div>
+  <div class="header-sub"><span class="status-dot"></span>Diagramador Ocidental · Página + Painéis + Balão</div>
+</div>
+
+<div class="wrap">
+
+  <div class="aviso">
+    💡 Formato ocidental clássico (comic americano): páginas com grade de painéis, leitura esquerda→direita,
+    balão de fala escrito dentro da própria imagem. Cola a história com diálogos → sai um conjunto de páginas
+    prontas pra ler, uma imagem por página.
+  </div>
+
+  <div class="card">
+    <div class="fg">
+      <label class="fl">Cole a história/roteiro completo (com diálogos)</label>
+      <textarea class="fta" id="hq-historia" placeholder="Cole aqui a história inteira, com as falas dos personagens."></textarea>
+    </div>
+    <div class="fg-grid">
+      <div class="fg">
+        <label class="fl">Estilo visual</label>
+        <select class="fs" id="hq-estilo">
+          <option value="retro comic book art from 1966, bold thick black ink outlines, flat cel-shaded colors, Ben-Day halftone dots, Silver Age comic panel" selected>Retrô Marvel 1966</option>
+          <option value="modern comic book art, dynamic linework, vibrant colors, digital inking">Comic Moderno</option>
+          <option value="ilustração noir em preto e branco, alto contraste, sombras dramáticas">Noir P&B</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Quantidade de painéis</label>
+        <select class="fs" id="hq-paineis">
+          <option value="12">12 painéis</option>
+          <option value="20" selected>20 painéis</option>
+          <option value="30">30 painéis</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">// Produção</div>
+    <div class="log-box" id="log-producao" style="display:none;"></div>
+    <button class="btn-p" onclick="gerarQuadrinho()" id="btn-gerar-hq">📖 GERAR QUADRINHO</button>
+    <div class="custo-box"><span>Custo real (imagens, fonte mais barata)</span><b id="custo-real-hq">—</b></div>
+    <div class="paginas" id="paginas-resultado"></div>
+  </div>
+
+</div>
+
+<div id="modal-confirmacao" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;padding:1.5rem;">
+  <div style="background:#0a1628;border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:1.4rem;max-width:420px;width:100%;">
+    <div class="card-label">// Confirmar geração</div>
+    <p id="modal-confirmacao-texto" style="font-size:0.9rem;line-height:1.6;margin-bottom:1.2rem;"></p>
+    <button class="btn-p" id="modal-confirmacao-ok" style="margin-bottom:0.6rem;">✓ CONFIRMAR E GERAR</button>
+    <button class="btn-p" id="modal-confirmacao-cancelar" style="background:transparent;color:var(--prata);border:1px solid rgba(201,168,76,0.2);">CANCELAR</button>
+  </div>
+</div>
+
+<script>
+let _gerandoHq = false;
+
+function log(msg) {
+  const el = document.getElementById('log-producao');
+  el.style.display = 'block';
+  el.innerHTML += msg + '<br>';
+  el.scrollTop = el.scrollHeight;
+}
+
+function notif(titulo, msg, tipo = 'info') {
+  const el = document.createElement('div');
+  el.className = `notif ${tipo}`;
+  el.innerHTML = `<div class="notif-titulo">${titulo}</div><div>${msg}</div>`;
+  document.getElementById('notif-container').appendChild(el);
+  setTimeout(() => el.remove(), 6000);
+}
+
+function confirmarNaTela(mensagem) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('modal-confirmacao');
+    document.getElementById('modal-confirmacao-texto').textContent = mensagem;
+    modal.style.display = 'flex';
+    const btnOk = document.getElementById('modal-confirmacao-ok');
+    const btnCancelar = document.getElementById('modal-confirmacao-cancelar');
+    function limpar(resultado) {
+      modal.style.display = 'none';
+      btnOk.removeEventListener('click', aoConfirmar);
+      btnCancelar.removeEventListener('click', aoCancelar);
+      resolve(resultado);
+    }
+    function aoConfirmar() { limpar(true); }
+    function aoCancelar() { limpar(false); }
+    btnOk.addEventListener('click', aoConfirmar);
+    btnCancelar.addEventListener('click', aoCancelar);
+  });
+}
+
+// ===================== DESCRIÇÃO VISUAL DO PERSONAGEM (consistência) =====================
+function _normalizarNome(s) {
+  return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+}
+
+function buscarDescricaoVisualPersonagem(nome) {
+  const alvo = _normalizarNome(nome);
+  if (!alvo) return '';
+  if (typeof ARTISTAS !== 'undefined') {
+    const a = ARTISTAS.find(x => _normalizarNome(x.nome) === alvo || alvo.includes(_normalizarNome(x.nome)));
+    if (a && a.fisico) return a.fisico;
+  }
+  if (typeof TODOS !== 'undefined') {
+    const m = TODOS.find(x => _normalizarNome(x.nome) === alvo || alvo.includes(_normalizarNome(x.nome)));
+    if (m && m.bio) return m.bio.split('.')[0];
+  }
+  return '';
+}
+
+// ===================== LAYOUTS DE PÁGINA (retângulos fracionários 0-1) =====================
+const LAYOUTS_PAGINA = [
+  // 4 painéis, grade 2x2
+  [{x:0.03,y:0.03,w:0.45,h:0.45},{x:0.52,y:0.03,w:0.45,h:0.45},{x:0.03,y:0.52,w:0.45,h:0.45},{x:0.52,y:0.52,w:0.45,h:0.45}],
+  // 3 painéis, 1 largo em cima + 2 embaixo
+  [{x:0.03,y:0.03,w:0.94,h:0.45},{x:0.03,y:0.52,w:0.45,h:0.45},{x:0.52,y:0.52,w:0.45,h:0.45}],
+  // 2 painéis empilhados
+  [{x:0.03,y:0.03,w:0.94,h:0.45},{x:0.03,y:0.52,w:0.94,h:0.45}],
+  // 3 painéis, 2 em cima + 1 largo embaixo
+  [{x:0.03,y:0.03,w:0.45,h:0.45},{x:0.52,y:0.03,w:0.45,h:0.45},{x:0.03,y:0.52,w:0.94,h:0.45}]
+];
+
+// Agrupa N painéis em páginas, ciclando pelos layouts pra variar o ritmo visual.
+function distribuirEmPaginas(numPaineis) {
+  const paginas = [];
+  let restantes = numPaineis;
+  let cicloIdx = 0;
+  while (restantes > 0) {
+    const layout = LAYOUTS_PAGINA[cicloIdx % LAYOUTS_PAGINA.length];
+    const tamanho = Math.min(layout.length, restantes);
+    paginas.push(tamanho);
+    restantes -= tamanho;
+    cicloIdx++;
+  }
+  return paginas;
+}
+
+// ===================== DESENHO DA PÁGINA (canvas) =====================
+function _quebrarTexto(ctx, texto, larguraMax) {
+  const palavras = texto.split(' ');
+  const linhas = [];
+  let linhaAtual = '';
+  for (const p of palavras) {
+    const teste = linhaAtual ? linhaAtual + ' ' + p : p;
+    if (ctx.measureText(teste).width > larguraMax && linhaAtual) {
+      linhas.push(linhaAtual);
+      linhaAtual = p;
+    } else {
+      linhaAtual = teste;
+    }
+  }
+  if (linhaAtual) linhas.push(linhaAtual);
+  return linhas;
+}
+
+function _desenharImagemCover(ctx, img, dx, dy, dw, dh) {
+  const escala = Math.max(dw / img.naturalWidth, dh / img.naturalHeight);
+  const w = img.naturalWidth * escala, h = img.naturalHeight * escala;
+  const sx = (w - dw) / 2 / escala, sy = (h - dh) / 2 / escala;
+  ctx.drawImage(img, sx, sy, dw / escala, dh / escala, dx, dy, dw, dh);
+}
+
+function _desenharBalaoFala(ctx, personagem, fala, px, py, pw, ph) {
+  const larguraBalao = pw * 0.86;
+  const fontSize = Math.max(13, pw * 0.032);
+  ctx.font = `${fontSize}px 'Crimson Pro', serif`;
+  const linhas = _quebrarTexto(ctx, fala, larguraBalao - 24).slice(0, 4);
+  const alturaLinha = fontSize * 1.25;
+  const alturaBalao = linhas.length * alturaLinha + 22;
+  const bx = px + pw * 0.07;
+  const by = py + ph * 0.06;
+
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 2.5;
+  const raio = 12;
+  ctx.beginPath();
+  ctx.roundRect(bx, by, larguraBalao, alturaBalao, raio);
+  ctx.fill();
+  ctx.stroke();
+
+  // Rabinho do balão apontando pra baixo (personagem falando na cena)
+  ctx.beginPath();
+  ctx.moveTo(bx + larguraBalao * 0.22, by + alturaBalao);
+  ctx.lineTo(bx + larguraBalao * 0.14, by + alturaBalao + 16);
+  ctx.lineTo(bx + larguraBalao * 0.34, by + alturaBalao);
+  ctx.closePath();
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.strokeStyle = '#000000';
+  ctx.stroke();
+
+  ctx.fillStyle = '#111111';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  linhas.forEach((l, i) => ctx.fillText(l, bx + 12, by + 11 + i * alturaLinha));
+}
+
+function _desenharCaptionNarracao(ctx, texto, px, py, pw, ph) {
+  const fontSize = Math.max(11, pw * 0.026);
+  ctx.font = `italic ${fontSize}px 'Crimson Pro', serif`;
+  const larguraCaixa = pw * 0.9;
+  const linhas = _quebrarTexto(ctx, texto, larguraCaixa - 16).slice(0, 3);
+  const alturaLinha = fontSize * 1.3;
+  const alturaCaixa = linhas.length * alturaLinha + 14;
+  const cx = px + pw * 0.05;
+  const cy = py + ph * 0.05;
+  ctx.fillStyle = 'rgba(255, 240, 190, 0.95)';
+  ctx.fillRect(cx, cy, larguraCaixa, alturaCaixa);
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(cx, cy, larguraCaixa, alturaCaixa);
+  ctx.fillStyle = '#111';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  linhas.forEach((l, i) => ctx.fillText(l, cx + 8, cy + 7 + i * alturaLinha));
+}
+
+function desenharPagina(canvas, layout, paineisDaPagina) {
+  const ctx = canvas.getContext('2d');
+  canvas.width = 1000;
+  canvas.height = 1400;
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  layout.forEach((rect, i) => {
+    if (!paineisDaPagina[i]) return;
+    const p = paineisDaPagina[i];
+    const px = rect.x * canvas.width, py = rect.y * canvas.height;
+    const pw = rect.w * canvas.width, ph = rect.h * canvas.height;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(px, py, pw, ph);
+    ctx.clip();
+    _desenharImagemCover(ctx, p.img, px, py, pw, ph);
+    ctx.restore();
+
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(px, py, pw, ph);
+
+    if (p.personagem && p.fala) {
+      _desenharBalaoFala(ctx, p.personagem, p.fala, px, py, pw, ph);
+    } else if (p.fala) {
+      _desenharCaptionNarracao(ctx, p.fala, px, py, pw, ph);
+    }
+  });
+}
+
+// ===================== GERAÇÃO DE IMAGEM DO PAINEL =====================
+async function _gerarImagemPainelQuadrinho(descricaoVisual, estilo, pistaFisica) {
+  const complemento = pistaFisica ? `, character appearance: ${pistaFisica}` : '';
+  const prompt = `${descricaoVisual}${complemento}, ${estilo}, comic book panel, no text, no typography, no words or letters, no speech bubbles in the image`;
+  const negativePrompt = 'text, typography, words, letters, title, caption, subtitle, logo, watermark, signature, speech bubble, gibberish text, illegible text, deformed, ugly, blurry, low quality';
+  return await gerarImagemMaisBarata(prompt, negativePrompt);
+}
+
+// ===================== FLUXO PRINCIPAL =====================
+async function gerarQuadrinho() {
+  if (_gerandoHq) return;
+  _gerandoHq = true;
+  const btn = document.getElementById('btn-gerar-hq');
+  btn.disabled = true;
+  try {
+    await _gerarQuadrinhoInterna();
+  } finally {
+    _gerandoHq = false;
+    btn.disabled = false;
+  }
+}
+
+async function _gerarQuadrinhoInterna() {
+  const historia = document.getElementById('hq-historia').value.trim();
+  if (!historia) { notif('ERRO', 'Cole a história com os diálogos primeiro.', 'erro'); return; }
+  if (!window.STABILITY_API_KEY && !window.GEMINI_API_KEY && !window.OPENAI_API_KEY) {
+    notif('ERRO', 'Nenhuma fonte de imagem configurada (Stability, Gemini ou OpenAI).', 'erro'); return;
+  }
+
+  const estilo = document.getElementById('hq-estilo').value;
+  const numPaineis = parseInt(document.getElementById('hq-paineis').value, 10);
+
+  document.getElementById('log-producao').innerHTML = '';
+  document.getElementById('paginas-resultado').innerHTML = '';
+
+  const confirmou = await confirmarNaTela(`Isso vai gerar ${numPaineis} imagens (fonte mais barata disponível) e montar as páginas do quadrinho. Confirmar?`);
+  if (!confirmou) { notif('CANCELADO', 'Geração cancelada — nenhum custo gerado.', 'erro'); return; }
+
+  try {
+    log('⏳ Roteirizando painéis com Claude...');
+    const maxTokens = Math.min(8192, 400 + numPaineis * 140);
+    const promptRoteiro = `Você é um roteirista de quadrinho ocidental clássico (estilo comic americano, leitura esquerda→direita). Baseado na história abaixo, quebre-a em exatamente ${numPaineis} painéis, mantendo a ordem da narrativa e os diálogos originais dos personagens quando existirem.
+
+Pra cada painel, identifique:
+- "descricaoVisual": descrição em inglês, cena visual pura e concreta, sem texto/tipografia, focada na ação/emoção daquele momento.
+- "personagem": o NOME EXATO do personagem que fala nesse painel, ou null se não houver fala de personagem.
+- "fala": o texto da fala em português (curto, direto, no máximo 20 palavras — precisa caber num balão de quadrinho), ou uma frase de NARRAÇÃO curta se não houver personagem falando, ou null se o painel for mudo.
+
+Devolva APENAS um JSON válido, sem markdown, neste formato:
+{"paineis":[{"numero":1,"descricaoVisual":"...","personagem":"Nome ou null","fala":"texto ou null"}]}
+
+HISTÓRIA:
+${historia.slice(0,12000)}`;
+
+    const respRoteiro = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: maxTokens, messages: [{ role: 'user', content: promptRoteiro }] })
+    });
+    if (!respRoteiro.ok) throw new Error(`Erro ${respRoteiro.status} ao roteirizar`);
+    const dataRoteiro = await respRoteiro.json();
+    const raw = dataRoteiro.content?.[0]?.text || '{}';
+    const roteiro = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    const paineis = roteiro.paineis || [];
+    if (!paineis.length) throw new Error('Claude não devolveu painéis válidos.');
+    log(`✓ ${paineis.length} painéis roteirizados.`);
+
+    let custoTotalUsd = 0;
+    const paineisProntos = [];
+    for (let i = 0; i < paineis.length; i++) {
+      const p = paineis[i];
+      log(`⏳ Gerando imagem do painel ${i + 1}/${paineis.length}...`);
+      const pistaFisica = buscarDescricaoVisualPersonagem(p.personagem);
+      const resultado = await _gerarImagemPainelQuadrinho(p.descricaoVisual, estilo, pistaFisica);
+      custoTotalUsd += resultado.custoUsd;
+      paineisProntos.push({ img: resultado.img, personagem: p.personagem, fala: p.fala });
+      log(`✓ Painel ${i + 1}/${paineis.length} pronto — fonte: ${resultado.fonte}`);
+    }
+
+    document.getElementById('custo-real-hq').textContent = `~US$${custoTotalUsd.toFixed(3)} (${paineis.length} imagens)`;
+
+    log('📖 Diagramando páginas...');
+    const distribuicao = distribuirEmPaginas(paineisProntos.length);
+    let cursor = 0;
+    const galeria = document.getElementById('paginas-resultado');
+    distribuicao.forEach((tamanhoPagina, idxPagina) => {
+      const layout = LAYOUTS_PAGINA[idxPagina % LAYOUTS_PAGINA.length];
+      const paineisDaPagina = paineisProntos.slice(cursor, cursor + tamanhoPagina);
+      cursor += tamanhoPagina;
+
+      const item = document.createElement('div');
+      item.className = 'pagina-item';
+      const canvas = document.createElement('canvas');
+      item.innerHTML = `<div class="pagina-titulo">Página ${idxPagina + 1}</div>`;
+      item.appendChild(canvas);
+      galeria.appendChild(item);
+
+      desenharPagina(canvas, layout, paineisDaPagina);
+
+      const link = document.createElement('a');
+      link.className = 'pagina-download';
+      link.textContent = '⬇ baixar página';
+      link.download = `pagina-${idxPagina + 1}.png`;
+      link.href = canvas.toDataURL('image/png');
+      item.appendChild(link);
+    });
+
+    log(`✓ ${distribuicao.length} páginas montadas!`);
+    notif('QUADRINHO PRONTO', `${distribuicao.length} páginas, ${paineis.length} painéis, custo real ~US$${custoTotalUsd.toFixed(3)}.`, 'sucesso');
+  } catch (e) {
+    notif('ERRO', 'Falha ao gerar o quadrinho: ' + e.message, 'erro');
+  }
+}
+</script>
+</body>
+</html>
