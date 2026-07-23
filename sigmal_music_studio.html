@@ -302,6 +302,7 @@ body { background: var(--preto); color: var(--creme); font-family: 'Crimson Pro'
     </div>
     <div class="fg-grid" style="margin-top:1rem;">
       <button class="btn-s" onclick="gerarAudioProducao()">🎧 GERAR ÁUDIO (TESTE ELEVENLABS)</button>
+      <button class="btn-s" onclick="gerarCapaProducao()">🖼️ GERAR CAPA (BRINDE)</button>
       <button class="btn-p" onclick="salvarObra()">💾 SALVAR NO SILO</button>
       <button class="btn-s" onclick="novaProducao()">+ NOVA PRODUÇÃO</button>
     </div>
@@ -310,6 +311,12 @@ body { background: var(--preto); color: var(--creme); font-family: 'Crimson Pro'
       <div id="audio-status" style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:var(--prata);margin-bottom:0.5rem;"></div>
       <audio id="player-musica" controls style="width:100%;"></audio>
       <a id="link-download-musica" class="btn-s" style="display:block;text-align:center;margin-top:0.5rem;text-decoration:none;" download>⬇ BAIXAR ÁUDIO</a>
+    </div>
+    <div id="capa-resultado" style="display:none;margin-top:1rem;">
+      <div class="resultado-label">// CAPA DO ÁLBUM · BRINDE (STABILITY AI)</div>
+      <div id="capa-status" style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:var(--prata);margin-bottom:0.5rem;"></div>
+      <img id="img-capa" style="width:100%;max-width:400px;display:block;margin:0 auto;border-radius:4px;" alt="Capa do álbum">
+      <a id="link-download-capa" class="btn-s" style="display:block;text-align:center;margin-top:0.5rem;text-decoration:none;" download>⬇ BAIXAR CAPA</a>
     </div>
   </div>
 </div>
@@ -843,6 +850,67 @@ async function gerarAudioProducao() {
   } catch (e) {
     document.getElementById('audio-resultado').style.display = 'none';
     notif('ERRO', 'Falha ao gerar áudio: ' + e.message, 'erro');
+  }
+}
+
+// Gera a capa de álbum (imagem-brinde que acompanha cada música vendida) via
+// Stability AI, reaproveitando exatamente o mesmo padrão de chamada já usado
+// em gerarRosto() (bpl_banco_personagens_literarios.html) — só troca o prompt
+// de "retrato de personagem" pra "arte de capa de álbum". Custo bem mais
+// baixo que o áudio (poucos centavos por imagem), por isso não bloqueia com
+// modal de confirmação — só avisa o custo no status, sem fricção, já que é
+// um brinde.
+async function gerarCapaProducao() {
+  const prod = window._producaoAtual;
+  if (!prod || !prod.titulo) {
+    notif('ERRO', 'Gere e aprove uma produção primeiro (antes de salvar no Silo).', 'erro');
+    return;
+  }
+  if (!window.STABILITY_API_KEY) {
+    notif('ERRO', 'Chave da Stability AI não configurada no config.js', 'erro');
+    return;
+  }
+
+  const statusEl = document.getElementById('capa-status');
+  document.getElementById('capa-resultado').style.display = 'block';
+  statusEl.textContent = '⏳ Gerando capa do álbum na Stability AI...';
+
+  const prompt = `Album cover art for a ${prod.genero || 'música'} song titled "${prod.titulo}", mood: ${prod.tom || 'conforme a letra'}, professional album artwork, high detail, artistic, cinematic lighting, no text, no logo, no watermark`;
+  const negativePrompt = 'cartoon, deformed, ugly, blurry, watermark, text, logo, low quality';
+
+  try {
+    const resp = await fetch('https://api.stability.ai/v2beta/stable-image/generate/core', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${window.STABILITY_API_KEY}`,
+        'Accept': 'image/*'
+      },
+      body: (() => {
+        const fd = new FormData();
+        fd.append('prompt', prompt);
+        fd.append('negative_prompt', negativePrompt);
+        fd.append('aspect_ratio', '1:1');
+        fd.append('output_format', 'jpeg');
+        return fd;
+      })()
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.message || `Erro ${resp.status}`);
+    }
+
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    document.getElementById('img-capa').src = url;
+    const link = document.getElementById('link-download-capa');
+    link.href = url;
+    link.download = `${(prod.titulo || 'capa').replace(/[^a-z0-9]+/gi, '_')}_capa.jpg`;
+    statusEl.textContent = '✓ Capa gerada! Custo real: ~US$0,03-0,04 (poucos centavos).';
+    notif('CAPA GERADA', `Capa de "${prod.titulo}" pronta.`, 'sucesso');
+  } catch (e) {
+    document.getElementById('capa-resultado').style.display = 'none';
+    notif('ERRO', 'Falha ao gerar capa: ' + e.message, 'erro');
   }
 }
 
