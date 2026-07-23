@@ -172,9 +172,89 @@ function popularListaElenco() {
     el.innerHTML = 'Nenhum personagem com voz premium ainda — crie no Criador de Vozes antes de usar diálogo com voz aqui.';
     return;
   }
-  el.innerHTML = com.map(p => `<b>${p.nome}</b> — ${p.arquetipoVocal || p.tipo}`).join('<br>');
+  el.innerHTML = com.map(p => `<b>${p.nome}</b> — ${p.arquetipoVocal || p.tipo}`).join('<br>')
+    + '<br><br>Personagem da história que não bater com nenhum desses nomes recebe automaticamente um destes atores/atrizes por escalação (dublagem), respeitando gênero quando possível.';
 }
 popularListaElenco();
+
+// ===================== ESCALAÇÃO AUTOMÁTICA DE VOZ (DUBLAGEM) =====================
+// Personagem da história que já É um nome real do banco usa a própria voz dele.
+// Personagem novo (inventado na história) recebe, por gênero, um dos atores/atrizes
+// com voz premium já pronta — indo pro que foi menos usado até agora, pra não
+// repetir sempre o mesmo quando a história tem vários personagens.
+function escalarElencoDaHistoria(paineis) {
+  const pool = listarElencoComVozPremium();
+  const usoContagem = new Map(pool.map(p => [p.nome, 0]));
+  const generoPorPersonagem = new Map();
+  paineis.forEach(p => {
+    if (!p.personagem) return;
+    const chave = _normalizarNome(p.personagem);
+    if (p.generoPersonagem && !generoPorPersonagem.has(chave)) {
+      generoPorPersonagem.set(chave, p.generoPersonagem);
+    }
+  });
+
+  const personagensUnicos = [...new Set(paineis.filter(p => p.personagem).map(p => p.personagem))];
+  const mapeamento = new Map();
+
+  personagensUnicos.forEach(nomeHistoria => {
+    const chave = _normalizarNome(nomeHistoria);
+    const perfilReal = (typeof getPerfilVocalPorNome === 'function') ? getPerfilVocalPorNome(nomeHistoria) : null;
+    if (perfilReal && perfilReal.vozPremiumId) {
+      mapeamento.set(chave, { perfil: perfilReal, escalado: false, nomeHistoria });
+      usoContagem.set(perfilReal.nome, (usoContagem.get(perfilReal.nome) || 0) + 1);
+      return;
+    }
+
+    if (!pool.length) { mapeamento.set(chave, null); return; }
+    const generoAlvo = generoPorPersonagem.get(chave);
+    let candidatos = generoAlvo ? pool.filter(p => p.genero === generoAlvo) : pool;
+    if (!candidatos.length) candidatos = pool;
+    candidatos = candidatos.slice().sort((a, b) => (usoContagem.get(a.nome) || 0) - (usoContagem.get(b.nome) || 0));
+    const escolhido = candidatos[0];
+    usoContagem.set(escolhido.nome, (usoContagem.get(escolhido.nome) || 0) + 1);
+    mapeamento.set(chave, { perfil: escolhido, escalado: true, nomeHistoria });
+  });
+
+  return mapeamento;
+}
+
+// ===================== PAINEL DE CRÉDITOS (gerado localmente, sem custo de API) =====================
+function _criarImagemCreditos(mapeamento) {
+  return new Promise((resolve) => {
+    const entradas = [...mapeamento.entries()].filter(([, info]) => info && info.perfil);
+    const altura = Math.max(1000, 300 + entradas.length * 82 + 120);
+    const c = document.createElement('canvas');
+    c.width = 1000; c.height = altura;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#04080f';
+    ctx.fillRect(0, 0, 1000, altura);
+    ctx.fillStyle = '#c9a84c';
+    ctx.font = "600 46px Georgia, serif";
+    ctx.textAlign = 'center';
+    ctx.fillText('ELENCO DE VOZES', 500, 160);
+    ctx.strokeStyle = 'rgba(201,168,76,0.4)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(260, 195); ctx.lineTo(740, 195); ctx.stroke();
+
+    ctx.font = '30px Georgia, serif';
+    let y = 270;
+    entradas.forEach(([, info]) => {
+      const nomeHistoria = info.nomeHistoria || '';
+      ctx.fillStyle = '#f0e8d0';
+      ctx.fillText(nomeHistoria, 500, y);
+      ctx.fillStyle = '#8a97a8';
+      ctx.font = '22px Georgia, serif';
+      ctx.fillText(`voz de ${info.perfil.nome}`, 500, y + 34);
+      ctx.font = '30px Georgia, serif';
+      y += 82;
+    });
+
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.src = c.toDataURL('image/png');
+  });
+}
 
 // ===================== BUSCA DE DESCRIÇÃO VISUAL DO PERSONAGEM =====================
 function _normalizarNome(s) {
@@ -223,6 +303,15 @@ function _desenharFramePainel(ctx, img, progresso, legenda) {
     ctx.textAlign = 'center';
     _quebrarTextoCentralizado(ctx, legenda, ctx.canvas.width / 2, ctx.canvas.height - alturaFaixa * 0.55, ctx.canvas.width * 0.88, ctx.canvas.width * 0.038);
   }
+}
+
+function _desenharFrameCreditos(ctx, img) {
+  ctx.fillStyle = '#04080f';
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  const escala = Math.min(ctx.canvas.width / img.naturalWidth, ctx.canvas.height / img.naturalHeight);
+  const w = img.naturalWidth * escala, h = img.naturalHeight * escala;
+  const dx = (ctx.canvas.width - w) / 2, dy = (ctx.canvas.height - h) / 2;
+  ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, dx, dy, w, h);
 }
 
 function _quebrarTextoCentralizado(ctx, texto, cx, cyBase, larguraMax, alturaLinha) {
@@ -279,12 +368,12 @@ async function _gerarImagemPainel(descricaoVisual, estilo, pistaFisica) {
 
 // ===================== ÁUDIO DE UM PAINEL =====================
 // Retorna { audioBuffer, duracaoSeg } ou null se o personagem não tem voz premium.
-async function _gerarAudioPainel(audioCtx, personagem, fala) {
+async function _gerarAudioPainel(audioCtx, mapeamentoElenco, personagem, fala) {
   if (!personagem || !fala) return null;
-  const perfil = (typeof getPerfilVocalPorNome === 'function') ? getPerfilVocalPorNome(personagem) : null;
-  if (!perfil || !perfil.vozPremiumId) return null;
+  const entrada = mapeamentoElenco.get(_normalizarNome(personagem));
+  if (!entrada || !entrada.perfil || !entrada.perfil.vozPremiumId) return null;
 
-  const blob = await sintetizarComVozPremium(perfil.vozPremiumId, fala);
+  const blob = await sintetizarComVozPremium(entrada.perfil.vozPremiumId, fala);
   const arrayBuffer = await blob.arrayBuffer();
   const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
   return { audioBuffer, duracaoSeg: audioBuffer.duration };
@@ -328,9 +417,10 @@ Pra cada painel, identifique:
 - "descricaoVisual": descrição em inglês, cena visual pura e concreta, sem texto/tipografia, focada na ação/emoção daquele momento.
 - "personagem": o NOME EXATO do personagem que fala nesse painel (copie o nome como aparece na história), ou null se o painel não tem fala (narração pura ou só ação).
 - "fala": o texto da fala em português desse painel (curto, direto, no máximo 2 frases), ou null se não houver.
+- "generoPersonagem": "M" ou "F" — seu melhor palpite do gênero desse personagem pelo nome/contexto da história (só quando "personagem" não for null). Isso é usado pra escalar automaticamente uma voz compatível pra ele.
 
 Devolva APENAS um JSON válido, sem markdown, neste formato:
-{"paineis":[{"numero":1,"descricaoVisual":"...","personagem":"Nome ou null","fala":"texto ou null"}]}
+{"paineis":[{"numero":1,"descricaoVisual":"...","personagem":"Nome ou null","fala":"texto ou null","generoPersonagem":"M ou F ou null"}]}
 
 HISTÓRIA:
 ${historia.slice(0,12000)}`;
@@ -348,6 +438,16 @@ ${historia.slice(0,12000)}`;
     if (!paineis.length) throw new Error('Claude não devolveu painéis válidos.');
     log(`✓ ${paineis.length} painéis roteirizados.`);
 
+    const mapeamentoElenco = escalarElencoDaHistoria(paineis);
+    if (mapeamentoElenco.size) {
+      log('🎭 Escalando vozes:');
+      mapeamentoElenco.forEach((info) => {
+        if (!info) return;
+        const tag = info.escalado ? 'escalado' : 'voz própria';
+        log(`&nbsp;&nbsp;${info.nomeHistoria} → ${info.perfil.nome} (${tag})`);
+      });
+    }
+
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     // Gera imagem + áudio (quando aplicável) de cada painel
@@ -362,15 +462,15 @@ ${historia.slice(0,12000)}`;
       let legenda = null;
       if (p.personagem && p.fala) {
         try {
-          audio = await _gerarAudioPainel(audioCtx, p.personagem, p.fala);
+          audio = await _gerarAudioPainel(audioCtx, mapeamentoElenco, p.personagem, p.fala);
         } catch (e) {
           log(`⚠ Falha ao gerar voz de "${p.personagem}" no painel ${i + 1}: ${e.message}`, 'semvoz');
         }
         if (audio) {
-          log(`✓ Painel ${i + 1}: imagem + voz de ${p.personagem} prontas.`, 'comvoz');
+          log(`✓ Painel ${i + 1}: imagem + voz pronta.`, 'comvoz');
         } else {
           legenda = `${p.personagem.toUpperCase()}: ${p.fala}`;
-          log(`✓ Painel ${i + 1}: imagem pronta — "${p.personagem}" sem voz premium, usando legenda.`, 'semvoz');
+          log(`✓ Painel ${i + 1}: imagem pronta — sem elenco disponível pra "${p.personagem}", usando legenda.`, 'semvoz');
         }
       } else {
         log(`✓ Painel ${i + 1}/${paineis.length} pronto (sem fala).`);
@@ -379,12 +479,21 @@ ${historia.slice(0,12000)}`;
       painelPronto.push({ img, audio, legenda });
     }
 
+    // Painel de créditos final (gerado localmente, sem custo de API)
+    if (mapeamentoElenco.size) {
+      const imgCreditos = await _criarImagemCreditos(mapeamentoElenco);
+      painelPronto.push({ img: imgCreditos, audio: null, legenda: null, ehCreditos: true });
+    }
+
     log('🎬 Montando timeline e gravando vídeo final...');
     const DURACAO_PADRAO_SEG = 3.0;
+    const DURACAO_CREDITOS_SEG = Math.min(9, 3 + mapeamentoElenco.size * 1.1);
     const BUFFER_APOS_FALA_SEG = 0.4;
     let acumuladoSeg = 0;
     const timeline = painelPronto.map(p => {
-      const duracaoSeg = p.audio ? (p.audio.duracaoSeg + BUFFER_APOS_FALA_SEG) : DURACAO_PADRAO_SEG;
+      let duracaoSeg = DURACAO_PADRAO_SEG;
+      if (p.audio) duracaoSeg = p.audio.duracaoSeg + BUFFER_APOS_FALA_SEG;
+      else if (p.ehCreditos) duracaoSeg = DURACAO_CREDITOS_SEG;
       const item = { ...p, inicioSeg: acumuladoSeg, duracaoSeg };
       acumuladoSeg += duracaoSeg;
       return item;
@@ -424,7 +533,8 @@ ${historia.slice(0,12000)}`;
         if (idx === -1) idx = timeline.length - 1;
         const item = timeline[idx];
         const tLocal = (decorridoSeg - item.inicioSeg) / item.duracaoSeg;
-        _desenharFramePainel(ctx, item.img, tLocal, item.legenda);
+        if (item.ehCreditos) _desenharFrameCreditos(ctx, item.img);
+        else _desenharFramePainel(ctx, item.img, tLocal, item.legenda);
         if (decorridoSeg < duracaoTotalSeg) requestAnimationFrame(passo);
         else resolve();
       }
