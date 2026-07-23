@@ -35,7 +35,13 @@ const CONFIG = {
   // Music Studio, a partir da letra/arranjo já aprovados. Chave sem
   // restrição de endpoint (cobre Music, TTS, Voices etc. do Silo Multimídia).
   // Crie a sua em https://elevenlabs.io/app/settings/api-keys e cole aqui.
-  ELEVENLABS_API_KEY: "sk_4286e202822b82373be7160eb9b91b6d63d17df50d386196"
+  ELEVENLABS_API_KEY: "sk_4286e202822b82373be7160eb9b91b6d63d17df50d386196",
+  // Chave da OpenAI (platform.openai.com) — usada por fonte_imagem.js pra
+  // gerar imagem via GPT Image 2 (capa em qualidade alta, e imagem "mais
+  // barata possível" em qualidade baixa assim que essa chave existir).
+  // PRECISA de cartão cadastrado lá — não tem tier gratuito de imagem.
+  // Crie a sua em https://platform.openai.com/api-keys e cole aqui.
+  OPENAI_API_KEY: ""
 };
 
 window.ANTHROPIC_API_KEY    = CONFIG.ANTHROPIC_API_KEY;
@@ -49,6 +55,7 @@ window.GEMINI_API_KEY       = CONFIG.GEMINI_API_KEY;
 window.OPENROUTER_API_KEY   = CONFIG.OPENROUTER_API_KEY;
 window.FISH_AUDIO_API_KEY   = CONFIG.FISH_AUDIO_API_KEY;
 window.ELEVENLABS_API_KEY   = CONFIG.ELEVENLABS_API_KEY;
+window.OPENAI_API_KEY       = CONFIG.OPENAI_API_KEY;
 
 // FETCH INTERCEPTOR — injeta chave em todas as chamadas Anthropic
 (function() {
