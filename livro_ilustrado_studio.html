@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Livro Ilustrado Studio · Capa, Orelhas e Internas</title>
+<script src="config.js"></script>
+<script src="fonte_imagem.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --azul: #0a1628;
+  --ouro: #c9a84c;
+  --ouro-claro: #e8cc7a;
+  --creme: #f0e8d0;
+  --prata: #6a7d90;
+  --verde: #00c853;
+  --vermelho: #d32f2f;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--preto); color: var(--creme); font-family: 'Crimson Pro', serif; min-height: 100vh; }
+
+.header { background: linear-gradient(180deg, #000 0%, var(--preto-mid) 100%); border-bottom: 1px solid rgba(201,168,76,0.2); padding: 1rem 1.5rem; }
+.header-logo { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--ouro); letter-spacing: 0.15em; }
+.header-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; color: var(--prata); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.2rem; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--verde); display: inline-block; margin-right: 0.4rem; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.wrap { max-width: 780px; margin: 0 auto; padding: 1.5rem; }
+
+.card { background: rgba(201,168,76,0.04); border: 1px solid rgba(201,168,76,0.12); border-radius: 6px; padding: 1.2rem; margin-bottom: 1rem; }
+.card-label { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; letter-spacing: 0.15em; color: var(--ouro); text-transform: uppercase; margin-bottom: 0.5rem; }
+
+.fg { margin-bottom: 1rem; }
+.fl { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; letter-spacing: 0.1em; color: var(--prata); text-transform: uppercase; display: block; margin-bottom: 0.4rem; }
+.fta { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.2); color: var(--creme); font-family: 'Crimson Pro', serif; font-size: 0.85rem; padding: 0.6rem 0.8rem; border-radius: 4px; min-height: 130px; resize: vertical; }
+.fi, .fs { width: 100%; background: #0a1628; border: 1px solid rgba(201,168,76,0.2); color: var(--creme); font-family: 'Crimson Pro', serif; font-size: 0.9rem; padding: 0.6rem 0.8rem; border-radius: 4px; }
+.fg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.btn-p { background: var(--ouro); color: #000; border: none; font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.8rem 1.5rem; cursor: pointer; border-radius: 4px; width: 100%; margin-bottom: 0.5rem; }
+.btn-p:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.aviso { background: rgba(201,168,76,0.06); border-left: 3px solid var(--ouro); padding: 0.8rem 1rem; font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; color: var(--prata); line-height: 1.8; margin-bottom: 1rem; border-radius: 4px; }
+
+.log-box { background: rgba(0,0,0,0.4); border: 1px solid rgba(201,168,76,0.1); padding: 0.8rem; font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; color: var(--prata); line-height: 2; max-height: 220px; overflow-y: auto; border-radius: 4px; margin-bottom: 1rem; }
+
+.tabela-preco { width: 100%; border-collapse: collapse; font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; margin-bottom: 1rem; }
+.tabela-preco th, .tabela-preco td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid rgba(201,168,76,0.1); }
+.tabela-preco th { color: var(--ouro); text-transform: uppercase; letter-spacing: 0.06em; }
+.tabela-preco td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.galeria { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+@media (max-width: 480px) { .galeria { grid-template-columns: 1fr; } }
+.item-galeria { background: var(--preto-mid); border: 1px solid rgba(201,168,76,0.15); border-radius: 6px; padding: 0.8rem; }
+.item-galeria img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 4px; background: #000; display: block; margin-bottom: 0.5rem; }
+.item-titulo { font-family: 'Cinzel', serif; font-size: 0.82rem; color: var(--ouro-claro); margin-bottom: 0.3rem; }
+.item-info { font-family: 'Share Tech Mono', monospace; font-size: 0.44rem; color: var(--prata); line-height: 1.7; }
+.item-download { display: inline-block; margin-top: 0.4rem; font-family: 'Share Tech Mono', monospace; font-size: 0.42rem; color: var(--ouro); text-decoration: none; border: 1px solid rgba(201,168,76,0.3); padding: 0.3rem 0.6rem; border-radius: 3px; }
+
+.notif-container { position: fixed; bottom: 1rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
+.notif { background: #0d1825; border-left: 3px solid var(--ouro); padding: 0.8rem 1rem; font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; letter-spacing: 0.08em; max-width: 280px; animation: slideIn 0.3s ease; }
+.notif.sucesso { border-color: var(--verde); }
+.notif.erro { border-color: var(--vermelho); }
+.notif-titulo { color: var(--ouro); margin-bottom: 0.2rem; }
+.notif.sucesso .notif-titulo { color: var(--verde); }
+.notif.erro .notif-titulo { color: var(--vermelho); }
+@keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+</style>
+</head>
+<body>
+
+<div class="notif-container" id="notif-container"></div>
+
+<div class="header">
+  <div class="header-logo">LIVRO ILUSTRADO STUDIO</div>
+  <div class="header-sub"><span class="status-dot"></span>Capa · Contracapa · Orelhas · Internas</div>
+</div>
+
+<div class="wrap">
+
+  <div class="aviso">
+    💡 Gera o pacote completo de imagens de um livro: capa dianteira em qualidade alta (GPT Image 2), contracapa
+    + orelhas + imagens internas na fonte mais barata disponível (sem cair de padrão). Preço sugerido de venda:
+    capa R$3, contracapa/orelha/interna R$1 cada — mão de obra de diagramação já é barata, o que se cobra é a
+    imagem em si.
+  </div>
+
+  <div class="card">
+    <div class="card-label">// Obra</div>
+    <div class="fg">
+      <label class="fl">Título do livro</label>
+      <input type="text" class="fi" id="livro-titulo" placeholder="Título da obra">
+    </div>
+    <div class="fg">
+      <label class="fl">Sinopse / gancho visual do livro</label>
+      <textarea class="fta" id="livro-sinopse" placeholder="Cole aqui a sinopse — quanto mais visual/narrativa, melhor o resultado."></textarea>
+    </div>
+    <div class="fg-grid">
+      <div class="fg">
+        <label class="fl">Estilo visual</label>
+        <select class="fs" id="livro-estilo">
+          <option value="retro comic book art from 1966, bold thick black ink outlines, flat cel-shaded colors, Ben-Day halftone dots, Silver Age comic panel">Retrô Marvel 1966</option>
+          <option value="cinematic painterly digital art, dramatic lighting, professional book cover illustration" selected>Pintura Cinematográfica</option>
+          <option value="aquarela pintada à mão, texturas suaves, cores translúcidas">Aquarela</option>
+          <option value="ilustração noir em preto e branco, alto contraste, sombras dramáticas">Noir P&B</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Imagens internas</label>
+        <select class="fs" id="livro-internas">
+          <option value="4">4 imagens</option>
+          <option value="8" selected>8 imagens</option>
+          <option value="12">12 imagens</option>
+          <option value="20">20 imagens</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">// Preço sugerido (informativo — a cobrança real é feita por fora, ex. Hotmart)</div>
+    <table class="tabela-preco" id="tabela-preco-preview">
+      <tr><th>Item</th><th class="num">Preço</th></tr>
+      <tr><td>Capa dianteira</td><td class="num">R$3,00</td></tr>
+      <tr><td>Contracapa</td><td class="num">R$1,00</td></tr>
+      <tr><td>Orelha direita</td><td class="num">R$1,00</td></tr>
+      <tr><td>Orelha esquerda</td><td class="num">R$1,00</td></tr>
+      <tr><td>Imagens internas (× <span id="preview-qtd-internas">8</span>)</td><td class="num" id="preview-total-internas">R$8,00</td></tr>
+      <tr><th>Total</th><th class="num" id="preview-total-geral">R$14,00</th></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-label">// Produção</div>
+    <div class="log-box" id="log-producao" style="display:none;"></div>
+    <button class="btn-p" onclick="gerarLivroIlustrado()" id="btn-gerar-livro">🎨 GERAR PACOTE DE IMAGENS</button>
+    <div id="resumo-final" style="display:none;">
+      <table class="tabela-preco" id="tabela-resumo-final"></table>
+    </div>
+    <div class="galeria" id="galeria-resultado"></div>
+  </div>
+
+</div>
+
+<div id="modal-confirmacao" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;padding:1.5rem;">
+  <div style="background:#0a1628;border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:1.4rem;max-width:420px;width:100%;">
+    <div class="card-label">// Confirmar geração</div>
+    <p id="modal-confirmacao-texto" style="font-size:0.9rem;line-height:1.6;margin-bottom:1.2rem;"></p>
+    <button class="btn-p" id="modal-confirmacao-ok" style="margin-bottom:0.6rem;">✓ CONFIRMAR E GERAR</button>
+    <button class="btn-p" id="modal-confirmacao-cancelar" style="background:transparent;color:var(--prata);border:1px solid rgba(201,168,76,0.2);">CANCELAR</button>
+  </div>
+</div>
+
+<script>
+let _gerandoLivro = false;
+const PRECO = { capa: 3.00, contracapa: 1.00, orelha: 1.00, interna: 1.00 };
+
+function log(msg) {
+  const el = document.getElementById('log-producao');
+  el.style.display = 'block';
+  el.innerHTML += msg + '<br>';
+  el.scrollTop = el.scrollHeight;
+}
+
+function notif(titulo, msg, tipo = 'info') {
+  const el = document.createElement('div');
+  el.className = `notif ${tipo}`;
+  el.innerHTML = `<div class="notif-titulo">${titulo}</div><div>${msg}</div>`;
+  document.getElementById('notif-container').appendChild(el);
+  setTimeout(() => el.remove(), 6000);
+}
+
+function confirmarNaTela(mensagem) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('modal-confirmacao');
+    document.getElementById('modal-confirmacao-texto').textContent = mensagem;
+    modal.style.display = 'flex';
+    const btnOk = document.getElementById('modal-confirmacao-ok');
+    const btnCancelar = document.getElementById('modal-confirmacao-cancelar');
+    function limpar(resultado) {
+      modal.style.display = 'none';
+      btnOk.removeEventListener('click', aoConfirmar);
+      btnCancelar.removeEventListener('click', aoCancelar);
+      resolve(resultado);
+    }
+    function aoConfirmar() { limpar(true); }
+    function aoCancelar() { limpar(false); }
+    btnOk.addEventListener('click', aoConfirmar);
+    btnCancelar.addEventListener('click', aoCancelar);
+  });
+}
+
+function atualizarPreviewPreco() {
+  const qtd = parseInt(document.getElementById('livro-internas').value, 10);
+  const totalInternas = qtd * PRECO.interna;
+  const totalGeral = PRECO.capa + PRECO.contracapa + PRECO.orelha * 2 + totalInternas;
+  document.getElementById('preview-qtd-internas').textContent = qtd;
+  document.getElementById('preview-total-internas').textContent = `R$${totalInternas.toFixed(2)}`;
+  document.getElementById('preview-total-geral').textContent = `R$${totalGeral.toFixed(2)}`;
+}
+document.getElementById('livro-internas').addEventListener('change', atualizarPreviewPreco);
+atualizarPreviewPreco();
+
+function adicionarNaGaleria(titulo, img, fonte, custoUsd, precoR$) {
+  const el = document.createElement('div');
+  el.className = 'item-galeria';
+  const url = img.src;
+  el.innerHTML = `
+    <img src="${url}" alt="${titulo}">
+    <div class="item-titulo">${titulo}</div>
+    <div class="item-info">Fonte: ${fonte} · custo real ~US$${custoUsd.toFixed(3)}<br>Preço sugerido: R$${precoR$.toFixed(2)}</div>
+    <a class="item-download" href="${url}" download="${titulo.toLowerCase().replace(/\s+/g,'-')}.png">⬇ baixar</a>
+  `;
+  document.getElementById('galeria-resultado').appendChild(el);
+}
+
+async function gerarLivroIlustrado() {
+  if (_gerandoLivro) return;
+  _gerandoLivro = true;
+  const btn = document.getElementById('btn-gerar-livro');
+  btn.disabled = true;
+  try {
+    await _gerarLivroIlustradoInterna();
+  } finally {
+    _gerandoLivro = false;
+    btn.disabled = false;
+  }
+}
+
+async function _gerarLivroIlustradoInterna() {
+  const titulo = document.getElementById('livro-titulo').value.trim();
+  const sinopse = document.getElementById('livro-sinopse').value.trim();
+  if (!sinopse) { notif('ERRO', 'Cole a sinopse do livro primeiro.', 'erro'); return; }
+  if (!window.STABILITY_API_KEY && !window.GEMINI_API_KEY && !window.OPENAI_API_KEY) {
+    notif('ERRO', 'Nenhuma fonte de imagem configurada (Stability, Gemini ou OpenAI).', 'erro'); return;
+  }
+
+  const estilo = document.getElementById('livro-estilo').value;
+  const numInternas = parseInt(document.getElementById('livro-internas').value, 10);
+
+  document.getElementById('log-producao').innerHTML = '';
+  document.getElementById('galeria-resultado').innerHTML = '';
+  document.getElementById('resumo-final').style.display = 'none';
+
+  const precoTotal = PRECO.capa + PRECO.contracapa + PRECO.orelha * 2 + numInternas * PRECO.interna;
+  const confirmou = await confirmarNaTela(`Isso vai gerar 4 + ${numInternas} imagens (capa em qualidade alta + resto na fonte mais barata). Preço sugerido de venda do pacote: R$${precoTotal.toFixed(2)}. Confirmar?`);
+  if (!confirmou) { notif('CANCELADO', 'Geração cancelada — nenhum custo gerado.', 'erro'); return; }
+
+  try {
+    log('⏳ Roteirizando conceitos visuais com Claude...');
+    const promptRoteiro = `Você é um diretor de arte de capas de livro. Baseado no título e sinopse abaixo, crie:
+- "capa": descrição visual em inglês pra a CAPA DIANTEIRA (a cena mais impactante/icônica do livro, com espaço negativo reservado no topo ou base pra encaixar título depois).
+- "contracapa": descrição visual em inglês pra a CONTRACAPA (variação/continuação da mesma cena/atmosfera da capa, mais discreta).
+- "orelhaDireita" e "orelhaEsquerda": descrições visuais em inglês pra pequenos elementos decorativos ligados ao tema do livro (não precisam ser cenas completas, podem ser um motivo/símbolo/objeto recorrente da história).
+- "internas": um array com exatamente ${numInternas} descrições visuais em inglês, cada uma de um momento-chave diferente da narrativa, em ordem.
+
+Todas as descrições: cena visual pura e concreta, sem texto/tipografia.
+
+Devolva APENAS um JSON válido, sem markdown, neste formato:
+{"capa":"...","contracapa":"...","orelhaDireita":"...","orelhaEsquerda":"...","internas":["...","..."]}
+
+TÍTULO: ${titulo || '(sem título definido)'}
+SINOPSE:
+${sinopse.slice(0,4000)}`;
+
+    const respRoteiro = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: Math.min(8192, 600 + numInternas * 90), messages: [{ role: 'user', content: promptRoteiro }] })
+    });
+    if (!respRoteiro.ok) throw new Error(`Erro ${respRoteiro.status} ao roteirizar`);
+    const dataRoteiro = await respRoteiro.json();
+    const raw = dataRoteiro.content?.[0]?.text || '{}';
+    const roteiro = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    log('✓ Conceitos roteirizados.');
+
+    const negativePrompt = 'text, typography, words, letters, title, caption, subtitle, logo, watermark, signature, deformed, ugly, blurry, low quality';
+    const sufixoEstilo = `, ${estilo}, professional book illustration, no text, no title, no typography, no words or letters, no logos`;
+
+    let custoTotalUsd = 0;
+    const resumoLinhas = [];
+
+    // Capa dianteira — qualidade alta
+    log('⏳ Gerando capa dianteira (qualidade alta)...');
+    const capaResult = await gerarImagemMelhorQualidade(roteiro.capa + sufixoEstilo, negativePrompt);
+    custoTotalUsd += capaResult.custoUsd;
+    adicionarNaGaleria('Capa dianteira', capaResult.img, capaResult.fonte, capaResult.custoUsd, PRECO.capa);
+    resumoLinhas.push(['Capa dianteira', capaResult.fonte, capaResult.custoUsd, PRECO.capa]);
+    log(`✓ Capa pronta — fonte: ${capaResult.fonte}${capaResult.aviso ? ' (' + capaResult.aviso + ')' : ''}`);
+
+    // Contracapa + orelhas + internas — fonte mais barata
+    const itens = [
+      { titulo: 'Contracapa', prompt: roteiro.contracapa, preco: PRECO.contracapa },
+      { titulo: 'Orelha direita', prompt: roteiro.orelhaDireita, preco: PRECO.orelha },
+      { titulo: 'Orelha esquerda', prompt: roteiro.orelhaEsquerda, preco: PRECO.orelha }
+    ];
+    (roteiro.internas || []).forEach((desc, i) => itens.push({ titulo: `Interna ${i + 1}`, prompt: desc, preco: PRECO.interna }));
+
+    for (let i = 0; i < itens.length; i++) {
+      const item = itens[i];
+      log(`⏳ Gerando ${item.titulo} (${i + 1}/${itens.length})...`);
+      const resultado = await gerarImagemMaisBarata(item.prompt + sufixoEstilo, negativePrompt);
+      custoTotalUsd += resultado.custoUsd;
+      adicionarNaGaleria(item.titulo, resultado.img, resultado.fonte, resultado.custoUsd, item.preco);
+      resumoLinhas.push([item.titulo, resultado.fonte, resultado.custoUsd, item.preco]);
+      log(`✓ ${item.titulo} pronta — fonte: ${resultado.fonte}`);
+    }
+
+    const precoTotalReal = resumoLinhas.reduce((s, l) => s + l[3], 0);
+    const cotacao = 5.50;
+    const custoTotalBrl = custoTotalUsd * cotacao;
+    const margemBrl = precoTotalReal - custoTotalBrl;
+
+    let tabelaHtml = '<tr><th>Item</th><th>Fonte</th><th class="num">Custo</th><th class="num">Preço</th></tr>';
+    resumoLinhas.forEach(([nome, fonte, custoUsd, preco]) => {
+      tabelaHtml += `<tr><td>${nome}</td><td>${fonte}</td><td class="num">R$${(custoUsd * cotacao).toFixed(2)}</td><td class="num">R$${preco.toFixed(2)}</td></tr>`;
+    });
+    tabelaHtml += `<tr><th>Total</th><th></th><th class="num">R$${custoTotalBrl.toFixed(2)}</th><th class="num">R$${precoTotalReal.toFixed(2)}</th></tr>`;
+    tabelaHtml += `<tr><td colspan="3">Margem bruta (antes da Hotmart)</td><td class="num">R$${margemBrl.toFixed(2)}</td></tr>`;
+    document.getElementById('tabela-resumo-final').innerHTML = tabelaHtml;
+    document.getElementById('resumo-final').style.display = 'block';
+
+    log('✓ Pacote completo!');
+    notif('PACOTE PRONTO', `${itens.length + 1} imagens geradas — custo real ~R$${custoTotalBrl.toFixed(2)}, preço sugerido R$${precoTotalReal.toFixed(2)}.`, 'sucesso');
+  } catch (e) {
+    notif('ERRO', 'Falha ao gerar o pacote: ' + e.message, 'erro');
+  }
+}
+</script>
+</body>
+</html>
