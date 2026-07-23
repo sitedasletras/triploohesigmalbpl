@@ -8,6 +8,7 @@
 <script src="elenco_musical.js"></script>
 <script src="perfil_vocal.js"></script>
 <script src="checklist_antiia.js"></script>
+<script src="elevenlabs_music.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -300,8 +301,15 @@ body { background: var(--preto); color: var(--creme); font-family: 'Crimson Pro'
       <pre class="resultado-texto" id="res-arranjo"></pre>
     </div>
     <div class="fg-grid" style="margin-top:1rem;">
+      <button class="btn-s" onclick="gerarAudioProducao()">🎧 GERAR ÁUDIO (TESTE ELEVENLABS)</button>
       <button class="btn-p" onclick="salvarObra()">💾 SALVAR NO SILO</button>
       <button class="btn-s" onclick="novaProducao()">+ NOVA PRODUÇÃO</button>
+    </div>
+    <div id="audio-resultado" style="display:none;margin-top:1rem;">
+      <div class="resultado-label">// ÁUDIO GERADO · ELEVENLABS MUSIC</div>
+      <div id="audio-status" style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:var(--prata);margin-bottom:0.5rem;"></div>
+      <audio id="player-musica" controls style="width:100%;"></audio>
+      <a id="link-download-musica" class="btn-s" style="display:block;text-align:center;margin-top:0.5rem;text-decoration:none;" download>⬇ BAIXAR ÁUDIO</a>
     </div>
   </div>
 </div>
@@ -791,6 +799,51 @@ function _blocoInstrumentistas(nomes) {
     return `- ${a.nome} (${a.inst || 'instrumento não especificado'})${a.sabor ? ': ' + a.sabor : ''}`;
   }).join('\n');
   return `\n\nINSTRUMENTISTAS ESCALADOS (escreva a parte de cada um refletindo o estilo de execução descrito, diferenciando claramente um do outro):\n${linhas}`;
+}
+
+// Gera o áudio de verdade (voz + instrumentação) da produção atual via
+// ElevenLabs Music, usando o arranjo do Maestro Aaron (estilo/instrumentação)
+// + a letra do Condor Andino como prompt. Gasta dinheiro real por clique —
+// por isso sempre confirma custo estimado antes de chamar a API (reaproveita
+// o mesmo modal de aprovação já usado pra letra/arranjo).
+async function gerarAudioProducao() {
+  const prod = window._producaoAtual;
+  if (!prod || !prod.letra || !prod.arranjo) {
+    notif('ERRO', 'Gere e aprove uma produção primeiro (antes de salvar no Silo).', 'erro');
+    return;
+  }
+
+  const duracaoSegundos = 150; // 2:30 — duração de teste, ajustável depois
+  const custoUsd = (duracaoSegundos / 60 * 0.15);
+  const custoBrl = custoUsd * 5.50;
+  const promptMusica = `${prod.arranjo}\n\n---LETRA (usar como letra cantada, seção por seção)---\n${prod.letra}`;
+
+  const confirmou = await mostrarModal(
+    '🎧 GERAR ÁUDIO · ELEVENLABS (custo real)',
+    `Isso vai gastar dinheiro de verdade na conta da ElevenLabs.\n\n` +
+    `Duração: ~${(duracaoSegundos / 60).toFixed(1)} min\n` +
+    `Custo estimado: ~US$${custoUsd.toFixed(2)} (~R$${custoBrl.toFixed(2)})\n\n` +
+    `PROMPT QUE SERÁ ENVIADO (arranjo + letra):\n\n${promptMusica}`
+  );
+  if (!confirmou) { notif('CANCELADO', 'Geração de áudio cancelada — nenhum custo gerado.', 'erro'); return; }
+
+  const statusEl = document.getElementById('audio-status');
+  document.getElementById('audio-resultado').style.display = 'block';
+  statusEl.textContent = '⏳ Gerando áudio na ElevenLabs (pode levar 1-2 minutos)...';
+
+  try {
+    const blob = await gerarMusica(promptMusica, duracaoSegundos);
+    const url = URL.createObjectURL(blob);
+    document.getElementById('player-musica').src = url;
+    const link = document.getElementById('link-download-musica');
+    link.href = url;
+    link.download = `${(prod.titulo || 'musica').replace(/[^a-z0-9]+/gi, '_')}.mp3`;
+    statusEl.textContent = `✓ Áudio gerado! Custo real: ~US$${custoUsd.toFixed(2)} (~R$${custoBrl.toFixed(2)}).`;
+    notif('ÁUDIO GERADO', `"${prod.titulo}" — pronto pra ouvir e baixar.`, 'sucesso');
+  } catch (e) {
+    document.getElementById('audio-resultado').style.display = 'none';
+    notif('ERRO', 'Falha ao gerar áudio: ' + e.message, 'erro');
+  }
 }
 
 function salvarObra() {

@@ -29,7 +29,13 @@ const CONFIG = {
   // Perfil Vocal. NÃO é gratuita pra uso comercial em volume — veja o plano
   // certo em fish.audio/pricing antes de gerar muitas vozes.
   // Crie a sua em https://fish.audio/app/api-keys/ e cole aqui.
-  FISH_AUDIO_API_KEY: "55f45b93fe794f6a8c0e2a5de81ee482"
+  FISH_AUDIO_API_KEY: "55f45b93fe794f6a8c0e2a5de81ee482",
+  // Chave da ElevenLabs (elevenlabs.io) — usada por elevenlabs_music.js pra
+  // gerar o áudio de verdade (voz + instrumentação) das músicas do Sigmal
+  // Music Studio, a partir da letra/arranjo já aprovados. Chave sem
+  // restrição de endpoint (cobre Music, TTS, Voices etc. do Silo Multimídia).
+  // Crie a sua em https://elevenlabs.io/app/settings/api-keys e cole aqui.
+  ELEVENLABS_API_KEY: "sk_4286e202822b82373be7160eb9b91b6d63d17df50d386196"
 };
 
 window.ANTHROPIC_API_KEY    = CONFIG.ANTHROPIC_API_KEY;
@@ -42,6 +48,7 @@ window.STABILITY_API_KEY    = CONFIG.STABILITY_API_KEY;
 window.GEMINI_API_KEY       = CONFIG.GEMINI_API_KEY;
 window.OPENROUTER_API_KEY   = CONFIG.OPENROUTER_API_KEY;
 window.FISH_AUDIO_API_KEY   = CONFIG.FISH_AUDIO_API_KEY;
+window.ELEVENLABS_API_KEY   = CONFIG.ELEVENLABS_API_KEY;
 
 // FETCH INTERCEPTOR — injeta chave em todas as chamadas Anthropic
 (function() {
