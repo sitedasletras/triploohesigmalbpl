@@ -444,7 +444,26 @@ function atualizarEntrada() {
 }
 
 // ===================== PRODUÇÃO =====================
+// Trava de reentrância: em celular é fácil tocar duas vezes num botão que
+// não dá feedback instantâneo (a chamada é assíncrona), disparando duas
+// produções concorrentes — cada uma terminando e sendo salva separadamente,
+// o que apareceria como "a mesma obra duplicada" no Silo. O guard abaixo
+// ignora um segundo toque enquanto uma produção já está rodando.
+let _produzindoMusica = false;
 async function iniciarProducao() {
+  if (_produzindoMusica) return;
+  _produzindoMusica = true;
+  const btnIniciar = document.querySelector('button[onclick="iniciarProducao()"]');
+  if (btnIniciar) btnIniciar.disabled = true;
+  try {
+    await _iniciarProducaoInterna();
+  } finally {
+    _produzindoMusica = false;
+    if (btnIniciar) btnIniciar.disabled = false;
+  }
+}
+
+async function _iniciarProducaoInterna() {
   const tipo = document.getElementById('tipo-entrada').value;
   const genero = document.getElementById('genero-musical').value;
   const tom = document.getElementById('tom-musical').value;
@@ -831,7 +850,20 @@ function _montarPromptMusica(prod) {
 // + a letra do Condor Andino como prompt. Gasta dinheiro real por clique —
 // por isso sempre confirma custo estimado antes de chamar a API (reaproveita
 // o mesmo modal de aprovação já usado pra letra/arranjo).
+// Trava de reentrância — clique duplo aqui significaria cobrança dupla real
+// na ElevenLabs, então um segundo toque enquanto já está rodando é ignorado.
+let _gerandoAudio = false;
 async function gerarAudioProducao() {
+  if (_gerandoAudio) return;
+  _gerandoAudio = true;
+  try {
+    await _gerarAudioProducaoInterna();
+  } finally {
+    _gerandoAudio = false;
+  }
+}
+
+async function _gerarAudioProducaoInterna() {
   const prod = window._producaoAtual;
   if (!prod || !prod.letra || !prod.arranjo) {
     notif('ERRO', 'Gere e aprove uma produção primeiro (antes de salvar no Silo).', 'erro');
@@ -878,7 +910,18 @@ async function gerarAudioProducao() {
 // baixo que o áudio (poucos centavos por imagem), por isso não bloqueia com
 // modal de confirmação — só avisa o custo no status, sem fricção, já que é
 // um brinde.
+let _gerandoCapa = false;
 async function gerarCapaProducao() {
+  if (_gerandoCapa) return;
+  _gerandoCapa = true;
+  try {
+    await _gerarCapaProducaoInterna();
+  } finally {
+    _gerandoCapa = false;
+  }
+}
+
+async function _gerarCapaProducaoInterna() {
   const prod = window._producaoAtual;
   if (!prod || !prod.titulo) {
     notif('ERRO', 'Gere e aprove uma produção primeiro (antes de salvar no Silo).', 'erro');
@@ -938,13 +981,16 @@ async function gerarCapaProducao() {
   }
 }
 
+let _salvandoObra = false;
 function salvarObra() {
-  if (!window._producaoAtual) return;
+  if (_salvandoObra || !window._producaoAtual) return;
+  _salvandoObra = true;
   obras.push({ id: Date.now(), ...window._producaoAtual });
   localStorage.setItem('sigmal_obras', JSON.stringify(obras));
   notif('SALVO NO SILO', `"${window._producaoAtual.titulo}" salvo com sucesso!`, 'sucesso');
   window._producaoAtual = null;
   novaProducao();
+  _salvandoObra = false;
 }
 
 function novaProducao() {
