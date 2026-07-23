@@ -9,6 +9,7 @@
 <script src="elenco_musical.js"></script>
 <script src="perfil_vocal.js"></script>
 <script src="fish_audio.js"></script>
+<script src="fonte_imagem.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -135,7 +136,7 @@ video#videoResultado { width: 100%; border-radius: 6px; margin-bottom: 1rem; bac
     <button class="btn-p" onclick="gerarHqAnimada()" id="btn-gerar-hq">🎬 GERAR HQ ANIMADA</button>
     <a id="link-download-hq" class="btn-p" style="display:none;text-align:center;text-decoration:none;" download>⬇ BAIXAR VÍDEO (.webm)</a>
 
-    <div class="custo-box"><span>Custo estimado (imagens Stability)</span><b id="custo-estimado-hq">—</b></div>
+    <div class="custo-box"><span>Custo estimado (fonte mais barata disponível)</span><b id="custo-estimado-hq">—</b></div>
     <div class="custo-box"><span>Custo de voz (Fish Audio)</span><b>não confirmado — checar fish.audio/pricing</b></div>
   </div>
 
@@ -366,37 +367,25 @@ function _quebrarTextoCentralizado(ctx, texto, cx, cyBase, larguraMax, alturaLin
   linhasLimitadas.forEach((l, i) => ctx.fillText(l, cx, yInicial + i * alturaLinha));
 }
 
-// ===================== GERAÇÃO DE IMAGEM (Stability) =====================
+// ===================== GERAÇÃO DE IMAGEM (fonte mais barata disponível) =====================
+// Painel de HQ usa sempre a fonte de menor custo (ver fonte_imagem.js) — hoje
+// resolve pra Stability; passa a usar GPT Image 2 baixa sozinho assim que
+// window.OPENAI_API_KEY existir, sem precisar mexer aqui.
 async function _gerarImagemPainel(descricaoVisual, estilo, pistaFisica) {
   const complemento = pistaFisica ? `, character appearance: ${pistaFisica}` : '';
   const prompt = `${descricaoVisual}${complemento}, ${estilo}, comic book panel, no text, no typography, no words or letters, no speech bubbles in the image`;
   const negativePrompt = 'text, typography, words, letters, title, caption, subtitle, logo, watermark, signature, speech bubble, gibberish text, illegible text, deformed, ugly, blurry, low quality';
 
-  const resp = await fetch('https://api.stability.ai/v2beta/stable-image/generate/core', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${window.STABILITY_API_KEY}`,
-      'Accept': 'image/*'
-    },
-    body: (() => {
-      const fd = new FormData();
-      fd.append('prompt', prompt);
-      fd.append('negative_prompt', negativePrompt);
-      fd.append('aspect_ratio', '1:1');
-      fd.append('output_format', 'jpeg');
-      return fd;
-    })()
-  });
-  if (!resp.ok) {
-    const err = await resp.json();
-    throw new Error(err.message || `Erro ${resp.status}`);
-  }
-  const blob = await resp.blob();
-  const url = URL.createObjectURL(blob);
-  const img = new Image();
-  img.crossOrigin = 'anonymous';
-  await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; img.src = url; });
-  return img;
+  return await gerarImagemMaisBarata(prompt, negativePrompt);
+}
+
+function _custoFonteMaisBarataDisponivel() {
+  if (typeof CUSTO_POR_IMAGEM === 'undefined') return 0.035;
+  const custos = [];
+  if (window.STABILITY_API_KEY) custos.push(CUSTO_POR_IMAGEM.stability);
+  if (window.GEMINI_API_KEY) custos.push(CUSTO_POR_IMAGEM.gemini);
+  if (window.OPENAI_API_KEY) custos.push(CUSTO_POR_IMAGEM.gptBaixa);
+  return custos.length ? Math.min(...custos) : 0.035;
 }
 
 // ===================== ÁUDIO DE UM PAINEL =====================
@@ -429,16 +418,16 @@ async function gerarHqAnimada() {
 async function _gerarHqAnimadaInterna() {
   const historia = document.getElementById('hq-historia').value.trim();
   if (!historia) { notif('ERRO', 'Cole a história com os diálogos primeiro.', 'erro'); return; }
-  if (!window.STABILITY_API_KEY) { notif('ERRO', 'Chave da Stability AI não configurada no config.js', 'erro'); return; }
+  if (!window.STABILITY_API_KEY && !window.GEMINI_API_KEY && !window.OPENAI_API_KEY) { notif('ERRO', 'Nenhuma fonte de imagem configurada (Stability, Gemini ou OpenAI) no config.js', 'erro'); return; }
 
   const estilo = document.getElementById('hq-estilo').value;
   const numPaineis = parseInt(document.getElementById('hq-paineis').value, 10);
-  const custoEstimado = numPaineis * 0.035;
+  const custoEstimado = numPaineis * _custoFonteMaisBarataDisponivel();
 
   document.getElementById('custo-estimado-hq').textContent = `~US$${custoEstimado.toFixed(2)} (${numPaineis} imagens)`;
   document.getElementById('log-producao').innerHTML = '';
 
-  const confirmou = await confirmarNaTela(`Isso vai gerar ${numPaineis} imagens na Stability AI (custo real de imagem: ~US$${custoEstimado.toFixed(2)}) + a fala de quem já tem voz premium no Fish Audio. Confirmar?`);
+  const confirmou = await confirmarNaTela(`Isso vai gerar ${numPaineis} imagens (fonte mais barata disponível — custo estimado: ~US$${custoEstimado.toFixed(2)}) + a fala de quem já tem voz premium no Fish Audio. Confirmar?`);
   if (!confirmou) { notif('CANCELADO', 'Geração cancelada — nenhum custo gerado.', 'erro'); return; }
 
   try {
@@ -485,11 +474,15 @@ ${historia.slice(0,12000)}`;
 
     // Gera imagem + áudio (quando aplicável) de cada painel
     const painelPronto = [];
+    let custoRealImagensUsd = 0;
     for (let i = 0; i < paineis.length; i++) {
       const p = paineis[i];
       log(`⏳ Gerando imagem do painel ${i + 1}/${paineis.length}...`);
       const pistaFisica = buscarDescricaoVisualPersonagem(p.personagem);
-      const img = await _gerarImagemPainel(p.descricaoVisual, estilo, pistaFisica);
+      const resultadoImg = await _gerarImagemPainel(p.descricaoVisual, estilo, pistaFisica);
+      const img = resultadoImg.img;
+      custoRealImagensUsd += resultadoImg.custoUsd;
+      log(`&nbsp;&nbsp;fonte: ${resultadoImg.fonte} (~US$${resultadoImg.custoUsd.toFixed(3)})`);
 
       let audio = null;
       let legenda = null;
@@ -588,7 +581,7 @@ ${historia.slice(0,12000)}`;
     link.style.display = 'block';
 
     log('✓ Vídeo pronto e gravado!');
-    notif('HQ PRONTA', `Vídeo de ~${Math.round(duracaoTotalSeg)}s com ${paineis.length} painéis, custo real de imagem ~US$${custoEstimado.toFixed(2)}.`, 'sucesso');
+    notif('HQ PRONTA', `Vídeo de ~${Math.round(duracaoTotalSeg)}s com ${paineis.length} painéis, custo real de imagem: US$${custoRealImagensUsd.toFixed(3)}.`, 'sucesso');
   } catch (e) {
     notif('ERRO', 'Falha ao gerar a HQ animada: ' + e.message, 'erro');
   }
