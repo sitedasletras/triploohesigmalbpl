@@ -117,6 +117,12 @@ body { background: var(--preto); color: var(--creme); font-family: 'Crimson Pro'
     <div class="paginas" id="paginas-resultado"></div>
   </div>
 
+  <div class="card" id="card-imposicao" style="display:none;">
+    <div class="card-label">// Esquema de impressão (imposição — pronto pra cortar e grampear)</div>
+    <p style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:var(--prata);line-height:1.8;margin-bottom:1rem;" id="texto-imposicao"></p>
+    <div class="paginas" id="imposicao-resultado"></div>
+  </div>
+
 </div>
 
 <div id="modal-confirmacao" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;padding:1.5rem;">
@@ -325,6 +331,119 @@ function desenharPagina(canvas, layout, paineisDaPagina) {
   });
 }
 
+// ===================== IMPOSIÇÃO DE IMPRESSÃO (miolo grampeado) =====================
+// Esquema clássico de caderno grampeado (saddle stitch): pra N páginas
+// (múltiplo de 4), a folha i (0-indexada) de um total de N/4 folhas tem:
+//   frente: [pág N-2i, pág 1+2i]   verso: [pág 2+2i, pág N-1-2i]
+// Empilhando as folhas impressas nessa ordem, dobrando tudo junto ao meio
+// e grampeando na dobra, a leitura sai correta da página 1 até N.
+function _criarPaginaEmBranco(largura, altura) {
+  const c = document.createElement('canvas');
+  c.width = largura;
+  c.height = altura;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, largura, altura);
+  ctx.fillStyle = '#ccc';
+  ctx.font = '28px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('(página em branco)', largura / 2, altura / 2);
+  return c;
+}
+
+function _desenharFolhaImposta(canvasA, canvasB, rotuloA, rotuloB) {
+  const largura = canvasA.width, altura = canvasA.height;
+  const c = document.createElement('canvas');
+  c.width = largura * 2 + 20;
+  c.height = altura + 40;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#e8e4d8';
+  ctx.fillRect(0, 0, c.width, c.height);
+
+  ctx.drawImage(canvasA, 0, 20);
+  ctx.drawImage(canvasB, largura + 20, 20);
+
+  // Linha de dobra/corte no meio
+  ctx.strokeStyle = '#999';
+  ctx.setLineDash([8, 6]);
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(largura + 10, 0);
+  ctx.lineTo(largura + 10, c.height);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Marcas de corte nos cantos
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 1.5;
+  const marca = 12;
+  [0, largura + 20].forEach((x0) => {
+    [20, c.height - 20].forEach((y0) => {
+      ctx.beginPath();
+      ctx.moveTo(x0 - marca, y0); ctx.lineTo(x0, y0);
+      ctx.moveTo(x0 + largura, y0); ctx.lineTo(x0 + largura + marca, y0);
+      ctx.stroke();
+    });
+  });
+
+  ctx.fillStyle = '#555';
+  ctx.font = '20px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(rotuloA, 10, 16);
+  ctx.textAlign = 'right';
+  ctx.fillText(rotuloB, c.width - 10, 16);
+
+  return c;
+}
+
+function montarImposicao(canvasPorPagina) {
+  const largura = canvasPorPagina[0].width, altura = canvasPorPagina[0].height;
+  const paginas = canvasPorPagina.slice();
+  const totalOriginal = paginas.length;
+
+  // Completa até múltiplo de 4 com páginas em branco (exigência do caderno grampeado)
+  while (paginas.length % 4 !== 0) {
+    paginas.push(_criarPaginaEmBranco(largura, altura));
+  }
+  const N = paginas.length;
+  const numFolhas = N / 4;
+  const brancasAdicionadas = N - totalOriginal;
+
+  document.getElementById('texto-imposicao').innerHTML =
+    `${totalOriginal} páginas de conteúdo` +
+    (brancasAdicionadas ? ` + ${brancasAdicionadas} página(s) em branco pra fechar o caderno (miolo grampeado precisa ser múltiplo de 4)` : '') +
+    ` = ${N} páginas → ${numFolhas} folha(s) impressa(s) frente e verso.<br>` +
+    `Imprime cada folha dos dois lados (frente e verso), empilha na ordem 1, 2, 3..., dobra tudo junto ao meio e grampeia na dobra — a leitura sai certa da página 1 até a ${totalOriginal}.`;
+
+  const container = document.getElementById('imposicao-resultado');
+  container.innerHTML = '';
+  document.getElementById('card-imposicao').style.display = 'block';
+
+  for (let i = 0; i < numFolhas; i++) {
+    const pFrenteEsq = N - 2 * i;
+    const pFrenteDir = 1 + 2 * i;
+    const pVersoEsq = 2 + 2 * i;
+    const pVersoDir = N - 1 - 2 * i;
+
+    const frente = _desenharFolhaImposta(paginas[pFrenteEsq - 1], paginas[pFrenteDir - 1], `pág ${pFrenteEsq}`, `pág ${pFrenteDir}`);
+    const verso = _desenharFolhaImposta(paginas[pVersoEsq - 1], paginas[pVersoDir - 1], `pág ${pVersoEsq}`, `pág ${pVersoDir}`);
+
+    [['Frente', frente, pFrenteEsq, pFrenteDir], ['Verso', verso, pVersoEsq, pVersoDir]].forEach(([lado, canvasFolha, pe, pd]) => {
+      const item = document.createElement('div');
+      item.className = 'pagina-item';
+      item.innerHTML = `<div class="pagina-titulo">Folha ${i + 1} — ${lado} (págs ${pe} e ${pd})</div>`;
+      item.appendChild(canvasFolha);
+      const link = document.createElement('a');
+      link.className = 'pagina-download';
+      link.textContent = '⬇ baixar folha';
+      link.download = `folha-${i + 1}-${lado.toLowerCase()}.png`;
+      link.href = canvasFolha.toDataURL('image/png');
+      item.appendChild(link);
+      container.appendChild(item);
+    });
+  }
+}
+
 // ===================== GERAÇÃO DE IMAGEM DO PAINEL =====================
 async function _gerarImagemPainelQuadrinho(descricaoVisual, estilo, pistaFisica) {
   const complemento = pistaFisica ? `, character appearance: ${pistaFisica}` : '';
@@ -410,6 +529,7 @@ ${historia.slice(0,12000)}`;
     const distribuicao = distribuirEmPaginas(paineisProntos.length);
     let cursor = 0;
     const galeria = document.getElementById('paginas-resultado');
+    const canvasPorPagina = [];
     distribuicao.forEach((tamanhoPagina, idxPagina) => {
       const layout = LAYOUTS_PAGINA[idxPagina % LAYOUTS_PAGINA.length];
       const paineisDaPagina = paineisProntos.slice(cursor, cursor + tamanhoPagina);
@@ -423,6 +543,7 @@ ${historia.slice(0,12000)}`;
       galeria.appendChild(item);
 
       desenharPagina(canvas, layout, paineisDaPagina);
+      canvasPorPagina.push(canvas);
 
       const link = document.createElement('a');
       link.className = 'pagina-download';
@@ -433,6 +554,11 @@ ${historia.slice(0,12000)}`;
     });
 
     log(`✓ ${distribuicao.length} páginas montadas!`);
+
+    log('🖨 Montando esquema de impressão (imposição)...');
+    montarImposicao(canvasPorPagina);
+    log('✓ Esquema de impressão pronto.');
+
     notif('QUADRINHO PRONTO', `${distribuicao.length} páginas, ${paineis.length} painéis, custo real ~US$${custoTotalUsd.toFixed(3)}.`, 'sucesso');
   } catch (e) {
     notif('ERRO', 'Falha ao gerar o quadrinho: ' + e.message, 'erro');
