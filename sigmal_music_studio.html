@@ -808,6 +808,24 @@ function _blocoInstrumentistas(nomes) {
   return `\n\nINSTRUMENTISTAS ESCALADOS (escreva a parte de cada um refletindo o estilo de execução descrito, diferenciando claramente um do outro):\n${linhas}`;
 }
 
+// Monta o prompt enviado à ElevenLabs Music. O campo `prompt` da API tem um
+// limite rígido de 4.100 caracteres (confirmado por erro real HTTP 422
+// "string_too_long" em teste) — arranjo completo + letra completa facilmente
+// estoura isso, já que o arranjo do Maestro Aaron inclui seções longas de
+// mixagem/produção que não ajudam em nada a geração do áudio em si. Por isso
+// aqui usamos só um resumo do arranjo (gênero/tom/intérprete + um trecho
+// inicial, onde normalmente fica a ficha técnica e a instrumentação) e a
+// letra completa (a parte que realmente precisa vir inteira), com
+// truncamento final de segurança pra nunca estourar o limite da API.
+function _montarPromptMusica(prod) {
+  const estilo = `Estilo: ${prod.genero || 'a definir'}. Tom/sentimento: ${prod.tom || 'a definir'}. Intérprete: ${prod.interprete || 'a definir'}.`;
+  const trechoArranjo = (prod.arranjo || '').substring(0, 1000);
+  const letra = prod.letra || '';
+  let prompt = `${estilo}\n\nOrientação de instrumentação e arranjo:\n${trechoArranjo}\n\n---LETRA (cantar seção por seção)---\n${letra}`;
+  if (prompt.length > 4000) prompt = prompt.substring(0, 4000);
+  return prompt;
+}
+
 // Gera o áudio de verdade (voz + instrumentação) da produção atual via
 // ElevenLabs Music, usando o arranjo do Maestro Aaron (estilo/instrumentação)
 // + a letra do Condor Andino como prompt. Gasta dinheiro real por clique —
@@ -823,7 +841,7 @@ async function gerarAudioProducao() {
   const duracaoSegundos = 150; // 2:30 — duração de teste, ajustável depois
   const custoUsd = (duracaoSegundos / 60 * 0.15);
   const custoBrl = custoUsd * 5.50;
-  const promptMusica = `${prod.arranjo}\n\n---LETRA (usar como letra cantada, seção por seção)---\n${prod.letra}`;
+  const promptMusica = _montarPromptMusica(prod);
 
   const confirmou = await mostrarModal(
     '🎧 GERAR ÁUDIO · ELEVENLABS (custo real)',
@@ -875,8 +893,14 @@ async function gerarCapaProducao() {
   document.getElementById('capa-resultado').style.display = 'block';
   statusEl.textContent = '⏳ Gerando capa do álbum na Stability AI...';
 
-  const prompt = `Album cover art for a ${prod.genero || 'música'} song titled "${prod.titulo}", mood: ${prod.tom || 'conforme a letra'}, professional album artwork, high detail, artistic, cinematic lighting, no text, no logo, no watermark`;
-  const negativePrompt = 'cartoon, deformed, ugly, blurry, watermark, text, logo, low quality';
+  // Modelos de imagem por difusão tentam "desenhar" o título quando o prompt
+  // menciona um nome de música — e como eles não sabem escrever de verdade,
+  // o resultado sai como texto embaralhado/ilegível (confirmado em teste
+  // real). Por isso o título NÃO entra no prompt visual, e reforçamos tanto
+  // o prompt positivo quanto o negativo pra evitar qualquer tentativa de
+  // tipografia — a capa fica só com a cena/atmosfera, sem palavra nenhuma.
+  const prompt = `Album cover art, ${prod.genero || 'música'} music mood, feeling: ${prod.tom || 'conforme a letra'}, professional artwork, abstract or scenic composition, high detail, cinematic lighting, artistic photography, textless design, no words or letters anywhere in the image`;
+  const negativePrompt = 'text, typography, words, letters, title, caption, subtitle, band name, song name, logo, watermark, signature, gibberish text, illegible text, cartoon, deformed, ugly, blurry, low quality';
 
   try {
     const resp = await fetch('https://api.stability.ai/v2beta/stable-image/generate/core', {
