@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chamada de Livro Studio · Book Trailer Animado</title>
+<script src="config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --azul: #0a1628;
+  --ouro: #c9a84c;
+  --ouro-claro: #e8cc7a;
+  --creme: #f0e8d0;
+  --prata: #6a7d90;
+  --verde: #00c853;
+  --vermelho: #d32f2f;
+  --roxo: #9c27b0;
+  --roxo-claro: #ce93d8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--preto); color: var(--creme); font-family: 'Crimson Pro', serif; min-height: 100vh; }
+
+.header { background: linear-gradient(180deg, #000 0%, var(--preto-mid) 100%); border-bottom: 1px solid rgba(201,168,76,0.2); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+.header-logo { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--ouro); letter-spacing: 0.15em; }
+.header-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; color: var(--prata); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.2rem; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--verde); display: inline-block; margin-right: 0.4rem; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.wrap { max-width: 720px; margin: 0 auto; padding: 1.5rem; }
+
+.card { background: rgba(201,168,76,0.04); border: 1px solid rgba(201,168,76,0.12); border-radius: 6px; padding: 1.2rem; margin-bottom: 1rem; }
+.card-label { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; letter-spacing: 0.15em; color: var(--ouro); text-transform: uppercase; margin-bottom: 0.5rem; }
+
+.fg { margin-bottom: 1rem; }
+.fl { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; letter-spacing: 0.1em; color: var(--prata); text-transform: uppercase; display: block; margin-bottom: 0.4rem; }
+.fta { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.2); color: var(--creme); font-family: 'Crimson Pro', serif; font-size: 0.85rem; padding: 0.6rem 0.8rem; border-radius: 4px; min-height: 100px; resize: vertical; }
+.fs { width: 100%; background: #0a1628; border: 1px solid rgba(201,168,76,0.2); color: var(--creme); font-family: 'Crimson Pro', serif; font-size: 0.9rem; padding: 0.6rem 0.8rem; border-radius: 4px; }
+.fg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.btn-p { background: var(--ouro); color: #000; border: none; font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.8rem 1.5rem; cursor: pointer; border-radius: 4px; width: 100%; margin-bottom: 0.5rem; }
+.btn-p:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.aviso { background: rgba(201,168,76,0.06); border-left: 3px solid var(--ouro); padding: 0.8rem 1rem; font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; color: var(--prata); line-height: 1.8; margin-bottom: 1rem; border-radius: 4px; }
+
+.log-box { background: rgba(0,0,0,0.4); border: 1px solid rgba(201,168,76,0.1); padding: 0.8rem; font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; color: var(--prata); line-height: 2; max-height: 180px; overflow-y: auto; border-radius: 4px; margin-bottom: 1rem; }
+
+canvas#canvasGravacao { display: none; }
+video#videoResultado { width: 100%; border-radius: 6px; margin-bottom: 1rem; background: #000; display: none; }
+
+.custo-box { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; color: var(--prata); padding: 0.5rem 0; border-top: 1px solid rgba(201,168,76,0.1); }
+.custo-box b { color: var(--ouro); }
+
+.notif-container { position: fixed; bottom: 1rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
+.notif { background: #0d1825; border-left: 3px solid var(--ouro); padding: 0.8rem 1rem; font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; letter-spacing: 0.08em; max-width: 280px; animation: slideIn 0.3s ease; }
+.notif.sucesso { border-color: var(--verde); }
+.notif.erro { border-color: var(--vermelho); }
+.notif-titulo { color: var(--ouro); margin-bottom: 0.2rem; }
+.notif.sucesso .notif-titulo { color: var(--verde); }
+.notif.erro .notif-titulo { color: var(--vermelho); }
+@keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+</style>
+</head>
+<body>
+
+<div class="notif-container" id="notif-container"></div>
+
+<div class="header">
+  <div>
+    <div class="header-logo">CHAMADA DE LIVRO STUDIO</div>
+    <div class="header-sub"><span class="status-dot"></span>Book Trailer Animado · Silo HQ/Cinematográfico</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="aviso">
+    💡 Gera um vídeo de "chamada" (book trailer) curto e barato: quebra a sinopse em várias cenas, cria 1 imagem por cena (Stability AI) e grava tudo encadeado num único vídeo com pan/zoom — sem usar vídeo de IA de verdade (Runway), então custa poucos centavos no total em vez de dólares por segundo.
+  </div>
+
+  <div class="card">
+    <div class="card-label">// Sinopse</div>
+    <div class="fg">
+      <label class="fl">Sinopse / gancho do livro</label>
+      <textarea class="fta" id="livro-sinopse" placeholder="Cole aqui a sinopse ou o gancho principal do livro — quanto mais visual/narrativo, melhor o resultado."></textarea>
+    </div>
+    <div class="fg-grid">
+      <div class="fg">
+        <label class="fl">Estilo visual</label>
+        <select class="fs" id="livro-estilo">
+          <option value="desenho animado editorial, traços limpos, cores vibrantes, estilo quadrinho">Desenho / Cartoon Editorial</option>
+          <option value="aquarela pintada à mão, texturas suaves, cores translúcidas">Aquarela</option>
+          <option value="ilustração noir em preto e branco, alto contraste, sombras dramáticas">Noir P&B</option>
+          <option value="pintura a óleo clássica, pinceladas visíveis, estilo renascentista">Pintura a Óleo</option>
+          <option value="fotografia realista, cinematográfica, iluminação natural">Realista (comparação)</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Duração total da chamada</label>
+        <select class="fs" id="livro-duracao">
+          <option value="30">30 segundos</option>
+          <option value="45" selected>45 segundos</option>
+          <option value="60">60 segundos</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">// Produção</div>
+    <div class="log-box" id="log-producao" style="display:none;"></div>
+    <video id="videoResultado" controls></video>
+    <canvas id="canvasGravacao" width="720" height="720"></canvas>
+
+    <button class="btn-p" onclick="gerarChamadaLivro()" id="btn-gerar-chamada">🎬 GERAR CHAMADA DE LIVRO</button>
+    <a id="link-download-chamada" class="btn-p" style="display:none;text-align:center;text-decoration:none;" download>⬇ BAIXAR VÍDEO (.webm)</a>
+
+    <div class="custo-box"><span>Custo estimado (imagens Stability)</span><b id="custo-estimado">—</b></div>
+  </div>
+
+</div>
+
+<script>
+let _gerandoChamada = false;
+
+function log(msg) {
+  const el = document.getElementById('log-producao');
+  el.style.display = 'block';
+  el.innerHTML += msg + '<br>';
+  el.scrollTop = el.scrollHeight;
+}
+
+function notif(titulo, msg, tipo = 'info') {
+  const el = document.createElement('div');
+  el.className = `notif ${tipo}`;
+  el.innerHTML = `<div class="notif-titulo">${titulo}</div><div>${msg}</div>`;
+  document.getElementById('notif-container').appendChild(el);
+  setTimeout(() => el.remove(), 6000);
+}
+
+async function gerarChamadaLivro() {
+  if (_gerandoChamada) return;
+  _gerandoChamada = true;
+  const btn = document.getElementById('btn-gerar-chamada');
+  btn.disabled = true;
+  try {
+    await _gerarChamadaLivroInterna();
+  } finally {
+    _gerandoChamada = false;
+    btn.disabled = false;
+  }
+}
+
+// Easing suave — mesma lógica já validada no Quadro Animado Studio.
+function _easeInOutQuad(t) {
+  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+}
+
+function _desenharFrame(ctx, img, progresso) {
+  const t = _easeInOutQuad(Math.min(1, Math.max(0, progresso)));
+  const zoom = 1 + 0.18 * t;
+  const imgW = img.naturalWidth, imgH = img.naturalHeight;
+  const ladoMinimo = Math.min(imgW, imgH);
+  const tamanhoJanela = ladoMinimo / zoom;
+  const centroX = (0.42 + 0.16 * t) * imgW;
+  const centroY = (0.42 + 0.16 * t) * imgH;
+  let sx = centroX - tamanhoJanela / 2;
+  let sy = centroY - tamanhoJanela / 2;
+  sx = Math.max(0, Math.min(imgW - tamanhoJanela, sx));
+  sy = Math.max(0, Math.min(imgH - tamanhoJanela, sy));
+  ctx.drawImage(img, sx, sy, tamanhoJanela, tamanhoJanela, 0, 0, ctx.canvas.width, ctx.canvas.height);
+}
+
+async function _gerarImagemCena(descricaoVisual, estilo) {
+  const prompt = `${descricaoVisual}, ${estilo}, cinematic book trailer scene, no text, no typography, no words or letters in the image`;
+  const negativePrompt = 'text, typography, words, letters, title, caption, subtitle, logo, watermark, signature, gibberish text, illegible text, deformed, ugly, blurry, low quality';
+
+  const resp = await fetch('https://api.stability.ai/v2beta/stable-image/generate/core', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${window.STABILITY_API_KEY}`,
+      'Accept': 'image/*'
+    },
+    body: (() => {
+      const fd = new FormData();
+      fd.append('prompt', prompt);
+      fd.append('negative_prompt', negativePrompt);
+      fd.append('aspect_ratio', '1:1');
+      fd.append('output_format', 'jpeg');
+      return fd;
+    })()
+  });
+  if (!resp.ok) {
+    const err = await resp.json();
+    throw new Error(err.message || `Erro ${resp.status}`);
+  }
+  const blob = await resp.blob();
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; img.src = url; });
+  return img;
+}
+
+async function _gerarChamadaLivroInterna() {
+  const sinopse = document.getElementById('livro-sinopse').value.trim();
+  if (!sinopse) { notif('ERRO', 'Cole a sinopse do livro primeiro.', 'erro'); return; }
+  if (!window.STABILITY_API_KEY) { notif('ERRO', 'Chave da Stability AI não configurada no config.js', 'erro'); return; }
+
+  const estilo = document.getElementById('livro-estilo').value;
+  const duracaoTotal = parseInt(document.getElementById('livro-duracao').value, 10);
+  const duracaoPorCenaAlvo = 7;
+  const numCenas = Math.max(3, Math.round(duracaoTotal / duracaoPorCenaAlvo));
+  const custoEstimado = numCenas * 0.035;
+
+  document.getElementById('custo-estimado').textContent = `~US$${custoEstimado.toFixed(2)} (${numCenas} imagens)`;
+  document.getElementById('log-producao').innerHTML = '';
+
+  const confirmou = confirm(`Isso vai gerar ${numCenas} imagens na Stability AI (custo real: ~US$${custoEstimado.toFixed(2)} no total) e montar 1 vídeo de ${duracaoTotal}s. Confirmar?`);
+  if (!confirmou) { notif('CANCELADO', 'Geração cancelada — nenhum custo gerado.', 'erro'); return; }
+
+  try {
+    log('⏳ Roteirizando cenas com Claude...');
+    const promptRoteiro = `Você é um diretor de arte especializado em "chamadas de livro" (book trailers) em estilo quadrinho animado — imagem parada com efeito de pan/zoom, sem vídeo de IA de verdade. Baseado na sinopse abaixo, crie exatamente ${numCenas} cenas visuais que contem o gancho da história de forma envolvente, uma sequência com começo, meio e fim (ou um clímax de suspense, se for mais adequado).
+
+Devolva APENAS um JSON válido, sem markdown, neste formato:
+{"cenas":[{"numero":1,"descricaoVisual":"descrição em inglês, cena visual pura e concreta, sem texto/tipografia, com foco no gancho emocional/narrativo desse momento da história"}]}
+
+SINOPSE:
+${sinopse.slice(0,3000)}`;
+
+    const respRoteiro = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 2000, messages: [{ role: 'user', content: promptRoteiro }] })
+    });
+    if (!respRoteiro.ok) throw new Error(`Erro ${respRoteiro.status} ao roteirizar`);
+    const dataRoteiro = await respRoteiro.json();
+    const raw = dataRoteiro.content?.[0]?.text || '{}';
+    const roteiro = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    const cenas = roteiro.cenas || [];
+    if (!cenas.length) throw new Error('Claude não devolveu cenas válidas.');
+    log(`✓ ${cenas.length} cenas roteirizadas.`);
+
+    const imagens = [];
+    for (let i = 0; i < cenas.length; i++) {
+      log(`⏳ Gerando imagem da cena ${i + 1}/${cenas.length}...`);
+      const img = await _gerarImagemCena(cenas[i].descricaoVisual, estilo);
+      imagens.push(img);
+      log(`✓ Cena ${i + 1}/${cenas.length} pronta.`);
+    }
+
+    log('🎬 Gravando vídeo final...');
+    const canvas = document.getElementById('canvasGravacao');
+    const ctx = canvas.getContext('2d');
+    const fps = 30;
+    const totalMs = duracaoTotal * 1000;
+    const duracaoPorCenaMs = totalMs / imagens.length;
+
+    const stream = canvas.captureStream(fps);
+    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+    const recorder = new MediaRecorder(stream, { mimeType });
+    const chunks = [];
+    recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+    const gravacaoPronta = new Promise((resolve) => { recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType })); });
+
+    recorder.start();
+    const inicio = performance.now();
+    await new Promise((resolve) => {
+      function passo() {
+        const decorrido = performance.now() - inicio;
+        const idxCena = Math.min(imagens.length - 1, Math.floor(decorrido / duracaoPorCenaMs));
+        const tLocal = (decorrido - idxCena * duracaoPorCenaMs) / duracaoPorCenaMs;
+        _desenharFrame(ctx, imagens[idxCena], tLocal);
+        if (decorrido < totalMs) requestAnimationFrame(passo);
+        else resolve();
+      }
+      requestAnimationFrame(passo);
+    });
+    recorder.stop();
+    const blob = await gravacaoPronta;
+    const url = URL.createObjectURL(blob);
+
+    const video = document.getElementById('videoResultado');
+    video.src = url;
+    video.style.display = 'block';
+    video.play().catch(() => {});
+
+    const link = document.getElementById('link-download-chamada');
+    link.href = url;
+    link.download = 'chamada-de-livro-' + Date.now() + '.webm';
+    link.style.display = 'block';
+
+    log('✓ Vídeo pronto e gravado!');
+    notif('CHAMADA PRONTA', `Vídeo de ${duracaoTotal}s com ${imagens.length} cenas, custo real ~US$${custoEstimado.toFixed(2)}.`, 'sucesso');
+  } catch (e) {
+    notif('ERRO', 'Falha ao gerar a chamada: ' + e.message, 'erro');
+  }
+}
+</script>
+</body>
+</html>
