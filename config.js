@@ -32,13 +32,11 @@ const CONFIG = {
   // ⚠ LEMBRETE: chave criada em 20/07/2026, vence em 20/07/2027 (1 ano).
   // Renovar até 05/07/2027 (11,5 meses a partir da criação).
   OPENROUTER_API_KEY: "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",
-  // Chave do Fish Audio (fish.audio) — usada por fish_audio.js pra criar
-  // timbres de voz ORIGINAIS (Voice Design por descrição, ou clonagem a
-  // partir de áudio de referência que você mesmo suba) pros personagens do
-  // Perfil Vocal. NÃO é gratuita pra uso comercial em volume — veja o plano
-  // certo em fish.audio/pricing antes de gerar muitas vozes.
-  // Crie a sua em https://fish.audio/app/api-keys/ e cole aqui.
-  FISH_AUDIO_API_KEY: "55f45b93fe794f6a8c0e2a5de81ee482",
+  // Chave do Fish Audio (fish.audio) — MIGRADA (2026-07-24): não fica mais
+  // aqui, agora é FISH_AUDIO_API_KEY na Vercel (variável de ambiente), lida
+  // pelos proxies api/fishaudio-voice-design.js, api/fishaudio-model.js e
+  // api/fishaudio-tts.js. fish_audio.js chama esses proxies em vez da API
+  // direta — a chave nunca mais passa pelo navegador.
   // Chave da ElevenLabs (elevenlabs.io) — usada por elevenlabs_music.js pra
   // gerar o áudio de verdade (voz + instrumentação) das músicas do Sigmal
   // Music Studio, a partir da letra/arranjo já aprovados. Chave sem
@@ -61,7 +59,6 @@ window.GITHUB_REPO          = CONFIG.GITHUB_REPO;
 window.STABILITY_API_KEY    = CONFIG.STABILITY_API_KEY;
 window.GEMINI_API_KEY       = CONFIG.GEMINI_API_KEY;
 window.OPENROUTER_API_KEY   = CONFIG.OPENROUTER_API_KEY;
-window.FISH_AUDIO_API_KEY   = CONFIG.FISH_AUDIO_API_KEY;
 window.ELEVENLABS_API_KEY   = CONFIG.ELEVENLABS_API_KEY;
 window.OPENAI_API_KEY       = CONFIG.OPENAI_API_KEY;
 
