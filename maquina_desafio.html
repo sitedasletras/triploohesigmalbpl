@@ -329,15 +329,6 @@
   <a href="/" style="font-family:monospace;font-size:0.5rem;letter-spacing:0.15em;color:#6a7d90;text-decoration:none;text-transform:uppercase;margin-top:0.5rem;display:none;">← Voltar ao SIGMAL HQ</a>
 </div>
 
-<!-- API KEY -->
-<div class="bloco" id="bloco-apikey">
-  <span class="label">API Key Anthropic</span>
-  <input type="password" id="api-key" placeholder="sk-ant-..."
-    style="width:100%;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.2);border-radius:4px;color:#f0e8d0;font-family:monospace;font-size:0.75rem;padding:0.65rem 0.9rem;outline:none;"
-    oninput="localStorage.setItem('hub_apikey',this.value);verificarKey()">
-  <div style="font-family:monospace;font-size:0.48rem;color:#6a7d90;margin-top:0.4rem;">Salva automaticamente</div>
-</div>
-
 <!-- SELETOR PROSA / POESIA -->
 <div class="bloco">
   <span class="label">Modo de Criação</span>
@@ -620,18 +611,8 @@ const HETERONIMOS_OHE = [
 ];
 
 // ── API KEY ───────────────────────────────────────────────────────────────────
-function getApiKey() {
-  if (window.ANTHROPIC_API_KEY) return window.ANTHROPIC_API_KEY;
-  const campo = document.getElementById('api-key');
-  if (campo && campo.value.trim()) return campo.value.trim();
-  return localStorage.getItem('hub_apikey') || '';
-}
-
-function verificarKey() {
-  const k = getApiKey();
-  const bloco = document.getElementById('bloco-apikey');
-  if (bloco) bloco.style.opacity = k.startsWith('sk-') ? '0.4' : '1';
-}
+// A chave não passa mais pelo navegador — fica só no servidor
+// (api/claude.js). O config.js reescreve a chamada automaticamente.
 
 // ── SELETOR MODO ─────────────────────────────────────────────────────────────
 function selecionarModo(modo) {
@@ -699,9 +680,6 @@ function log(msg, erro) {
 
 // ── LANÇAR ────────────────────────────────────────────────────────────────────
 async function lancar() {
-  const apiKey = getApiKey();
-  if (!apiKey) { log('⚠ API Key não encontrada. Verifique o config.js.', true); return; }
-
   const universo = document.getElementById('universo').value.trim();
   if (!_epoca || !universo) return;
 
@@ -957,9 +935,6 @@ async function salvarBiografiaGitHub(s) {
 // ── EXTRAIR PERSONAGENS (apenas modo prosa) ───────────────────────────────────
 async function extrairESalvarPersonagens(s) {
   try {
-    const apiKey = getApiKey();
-    if (!apiKey) return;
-
     log('Extraindo personagens da obra...');
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -1105,9 +1080,6 @@ function resetar() {
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
-  const k = localStorage.getItem('hub_apikey');
-  const campo = document.getElementById('api-key');
-  if (k && campo) { campo.value = k; verificarKey(); }
   // Garantir estado inicial correto
   selecionarModo('prosa');
   selForma('pecanha_decide');

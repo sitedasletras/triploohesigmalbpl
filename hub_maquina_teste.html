@@ -37,24 +37,12 @@
   .log { font-family: monospace; font-size: 0.6rem; color: #4caf50; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 0.6rem; margin-top: 0.8rem; min-height: 40px; white-space: pre-wrap; display: none; }
   .log.erro { color: #ff6b6b; }
 
-  .api-key-wrap { margin-bottom: 1rem; }
-  .api-input { width: 100%; background: rgba(201,168,76,0.05); border: 1px solid rgba(201,168,76,0.2); color: #f0e8d0; font-family: monospace; font-size: 0.7rem; padding: 0.6rem 0.8rem; border-radius: 4px; outline: none; }
-  .api-input:focus { border-color: #c9a84c; }
 </style>
+<script src="config.js"></script>
 </head>
 <body>
 
 <h1>// HUB TESTE · MÁQUINA LIVRE · FERNANDO PEÇANHA</h1>
-
-<!-- API KEY -->
-<div class="bloco api-key-wrap">
-  <span class="label">API Key Anthropic</span>
-  <input class="api-input" id="api-key" type="password" placeholder="sk-ant-..." 
-    oninput="localStorage.setItem('hub_apikey', this.value)">
-  <div style="font-size:.65rem;color:#6a7d90;margin-top:.4rem;font-family:monospace;">
-    Salva automaticamente no localStorage
-  </div>
-</div>
 
 <!-- TIPO -->
 <div class="bloco">
@@ -98,12 +86,6 @@
 // ── Estado ──
 let _tipo = '', _dest = '', _semente = null;
 
-// ── Carregar API key salva ──
-window.addEventListener('DOMContentLoaded', () => {
-  const k = localStorage.getItem('hub_apikey');
-  if (k) document.getElementById('api-key').value = k;
-});
-
 function log(msg, erro) {
   const el = document.getElementById('log');
   el.style.display = 'block';
@@ -137,8 +119,6 @@ function checar() {
 }
 
 async function gerar() {
-  const apiKey = document.getElementById('api-key').value.trim();
-  if (!apiKey) { log('⚠ Informe a API Key antes de gerar.', true); return; }
   if (!_tipo || !_dest) { log('⚠ Selecione tipo e destino.', true); return; }
 
   const btn = document.getElementById('btn-gerar');
@@ -184,12 +164,7 @@ FORMATO DE RESPOSTA (siga exatamente):
     log('Aguardando resposta da API...');
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 4096,
