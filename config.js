@@ -39,12 +39,8 @@ const CONFIG = {
   // api/fishaudio-tts.js. fish_audio.js chama esses proxies em vez da API
   // direta — a chave nunca mais passa pelo navegador.
   //
-  // Chave da ElevenLabs (elevenlabs.io) — usada por elevenlabs_music.js pra
-  // gerar o áudio de verdade (voz + instrumentação) das músicas do Sigmal
-  // Music Studio, a partir da letra/arranjo já aprovados. Chave sem
-  // restrição de endpoint (cobre Music, TTS, Voices etc. do Silo Multimídia).
-  // Crie a sua em https://elevenlabs.io/app/settings/api-keys e cole aqui.
-  ELEVENLABS_API_KEY: "sk_4286e202822b82373be7160eb9b91b6d63d17df50d386196"
+  // Chave da ElevenLabs — MIGRADA (2026-07-24): não fica mais aqui, agora é
+  // ELEVENLABS_API_KEY na Vercel, lida por api/elevenlabs-music.js.
   //
   // Chave da OpenAI (platform.openai.com) — não é mais lida daqui: quando
   // configurada, é OPENAI_API_KEY na Vercel, lida por api/gerar-imagem.js
@@ -56,7 +52,6 @@ window.ANTHROPIC_MAX_TOKENS = CONFIG.MAX_TOKENS;
 window.GITHUB_TOKEN         = CONFIG.GITHUB_TOKEN;
 window.GITHUB_OWNER         = CONFIG.GITHUB_OWNER;
 window.GITHUB_REPO          = CONFIG.GITHUB_REPO;
-window.ELEVENLABS_API_KEY   = CONFIG.ELEVENLABS_API_KEY;
 
 // FETCH INTERCEPTOR — reescreve chamadas à Anthropic pro proxy seguro
 // (api/claude.js), que injeta a chave no servidor. Nenhuma chave passa
