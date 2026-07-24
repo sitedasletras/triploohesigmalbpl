@@ -12,14 +12,18 @@
  *      própria, dublê contratado, etc. — nunca voz de celebridade sem
  *      permissão) e o Fish Audio treina um modelo reutilizável a partir dele.
  *
- * Endpoints confirmados direto no código-fonte do SDK oficial
+ * A chamada de verdade pro Fish Audio acontece no servidor (api/claude.js do
+ * Fish Audio, por assim dizer): api/fishaudio-voice-design.js,
+ * api/fishaudio-model.js e api/fishaudio-tts.js. A chave (FISH_AUDIO_API_KEY)
+ * só existe como variável de ambiente na Vercel — nunca chega no navegador.
+ *
+ * Endpoints reais confirmados direto no código-fonte do SDK oficial
  * (github.com/fishaudio/fish-audio-python/blob/main/src/fish_audio_sdk/apis.py
  * e schemas.py), já que a documentação em docs.fish.audio bloqueia acesso
  * automatizado:
  *   - POST /v1/voice-design  → cria voz a partir de descrição em texto
  *   - POST /model            → clona voz a partir de áudio (multipart)
  *   - POST /v1/tts           → sintetiza fala usando uma voz salva (JSON)
- * Base: https://api.fish.audio · Autenticação: header Authorization: Bearer <chave>
  *
  * NOTA: o schema exato da resposta de /v1/voice-design (como confirmar um
  * dos dois candidatos gerados como voz definitiva) não pôde ser confirmado
@@ -29,28 +33,13 @@
  * `criarVozPorDescricao()` — o resto da ponte não muda.
  */
 
-const FISH_AUDIO_BASE = 'https://api.fish.audio';
-
-// Não lança erro se a chave não existir no navegador — isso é o esperado
-// no Celeiro Literário (site público), onde config.js redireciona a chamada
-// pro proxy server-side (/api/fishaudio-tts) e é ELE quem injeta a chave
-// real, guardada como variável de ambiente na Vercel, nunca no cliente. Só
-// no triploohesigmalbpl (uso interno) a chave mesmo fica no navegador — e
-// se estiver faltando ali, o próprio Fish Audio devolve 401, que os
-// chamadores abaixo já tratam como erro HTTP normal.
-function _fishAudioHeaders(extra) {
-  const chave = window.FISH_AUDIO_API_KEY || '';
-  const base = chave ? { 'Authorization': `Bearer ${chave}` } : {};
-  return Object.assign(base, extra || {});
-}
-
 // Cria uma voz original a partir de uma descrição em texto (Voice Design) —
 // nunca clona ninguém real, é sempre uma voz nova. Retorna os candidatos
 // gerados pra ouvir antes de escolher qual salvar.
 async function criarVozPorDescricao(descricao) {
-  const resp = await fetch(`${FISH_AUDIO_BASE}/v1/voice-design`, {
+  const resp = await fetch('/api/fishaudio-voice-design', {
     method: 'POST',
-    headers: _fishAudioHeaders({ 'Content-Type': 'application/json' }),
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ description: descricao })
   });
   if (!resp.ok) {
@@ -74,9 +63,8 @@ async function criarVozPorAudio(titulo, audioBlob, transcricao) {
   form.append('voices', audioBlob, 'referencia.audio');
   if (transcricao) form.append('texts', transcricao);
 
-  const resp = await fetch(`${FISH_AUDIO_BASE}/model`, {
+  const resp = await fetch('/api/fishaudio-model', {
     method: 'POST',
-    headers: _fishAudioHeaders(),
     body: form
   });
   if (!resp.ok) {
@@ -91,9 +79,9 @@ async function criarVozPorAudio(titulo, audioBlob, transcricao) {
 // devolvido por criarVozPorDescricao/criarVozPorAudio). Retorna um Blob de
 // áudio (mp3) pronto pra tocar ou baixar.
 async function sintetizarComVozPremium(referenceId, texto) {
-  const resp = await fetch(`${FISH_AUDIO_BASE}/v1/tts`, {
+  const resp = await fetch('/api/fishaudio-tts', {
     method: 'POST',
-    headers: _fishAudioHeaders({ 'Content-Type': 'application/json' }),
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: texto, reference_id: referenceId, format: 'mp3' })
   });
   if (!resp.ok) {
