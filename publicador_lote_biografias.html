@@ -235,27 +235,9 @@ body {
   <div class="topo-sub">Fernando Peçanha · OHE · SIGMAL HQ · 49 Autores</div>
 </div>
 
-<!-- CONFIG -->
-<div class="config">
-  <div class="fg">
-    <label class="fl">Token GitHub</label>
-    <input type="password" class="fi" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
-  </div>
-  <div class="fg">
-    <label class="fl">Repositório</label>
-    <input type="text" class="fi" id="gh-repo" value="sitedasletras/CeleiroLiterario">
-  </div>
-  <div class="fg">
-    <label class="fl">Branch</label>
-    <input type="text" class="fi" id="gh-branch" value="main">
-  </div>
-</div>
-
 <!-- AÇÕES -->
 <div class="acoes">
   <button class="btn-p" id="btn-publicar" onclick="publicarTodas()">📤 PUBLICAR TODAS AS 49 BIOGRAFIAS</button>
-  <button class="btn-s" onclick="salvarConfig()">SALVAR CONFIG</button>
-  <button class="btn-s" onclick="testarConexao()">TESTAR CONEXÃO</button>
 </div>
 
 <!-- PROGRESSO -->
@@ -738,38 +720,6 @@ let cntOk = 0, cntErro = 0;
 const total = BIOGRAFIAS.length;
 let publicando = false;
 
-// ===== CONFIG =====
-function salvarConfig() {
-  localStorage.setItem('gh_token', document.getElementById('gh-token').value);
-  localStorage.setItem('gh_repo', document.getElementById('gh-repo').value);
-  localStorage.setItem('gh_branch', document.getElementById('gh-branch').value);
-  log('Configuração salva.', 'info');
-}
-
-function carregarConfig() {
-  const t = localStorage.getItem('gh_token');
-  const r = localStorage.getItem('gh_repo');
-  const b = localStorage.getItem('gh_branch');
-  if (t) document.getElementById('gh-token').value = t;
-  if (r) document.getElementById('gh-repo').value = r;
-  if (b) document.getElementById('gh-branch').value = b;
-}
-
-async function testarConexao() {
-  const token = document.getElementById('gh-token').value;
-  const repo = document.getElementById('gh-repo').value;
-  if (!token || !repo) { log('Preencha token e repositório.', 'erro'); return; }
-  try {
-    const res = await fetch(`https://api.github.com/repos/${repo}`, {
-      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
-    });
-    if (res.ok) log(`✓ Conexão OK — ${repo} acessível.`, 'ok');
-    else log(`✗ Erro ${res.status} — Verifique o token.`, 'erro');
-  } catch(e) {
-    log('✗ Falha na conexão.', 'erro');
-  }
-}
-
 // ===== LOG =====
 function log(msg, tipo='info') {
   const el = document.getElementById('log');
@@ -796,23 +746,21 @@ function setStatusAutor(id, status, result) {
   if (res) { res.textContent = result; res.className = `autor-result result-${result === 'OK' ? 'ok' : result === 'ERRO' ? 'erro' : result === 'PUBLICANDO' ? 'publicando' : 'aguardando'}`; }
 }
 
-// ===== GITHUB API =====
-async function getSHA(token, repo, branch, caminho) {
+// ===== GITHUB API (via proxy seguro do servidor) =====
+async function getSHA(caminho) {
   try {
-    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}?ref=${branch}`, {
-      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
-    });
+    const res = await fetch(`/api/github-contents?repo=CeleiroLiterario&path=${encodeURIComponent(caminho)}`);
     if (res.ok) { const d = await res.json(); return d.sha; }
     return null;
   } catch { return null; }
 }
 
-async function publicarArquivo(token, repo, branch, caminho, conteudo, sha, mensagem) {
-  const body = { message: mensagem, content: btoa(unescape(encodeURIComponent(conteudo))), branch };
+async function publicarArquivo(caminho, conteudo, sha, mensagem) {
+  const body = { repo: 'CeleiroLiterario', path: caminho, content: conteudo, message: mensagem };
   if (sha) body.sha = sha;
-  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}`, {
+  const res = await fetch('/api/github-contents', {
     method: 'PUT',
-    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   });
   if (!res.ok) { const err = await res.json(); throw new Error(err.message || `Erro ${res.status}`); }
@@ -1000,11 +948,6 @@ function filtrar(){
 // ===== PUBLICAR TODAS =====
 async function publicarTodas() {
   if (publicando) return;
-  const token = document.getElementById('gh-token').value || localStorage.getItem('gh_token');
-  const repo = document.getElementById('gh-repo').value || localStorage.getItem('gh_repo');
-  const branch = document.getElementById('gh-branch').value || localStorage.getItem('gh_branch') || 'main';
-
-  if (!token) { log('⚠ Configure o Token GitHub antes de publicar.', 'erro'); return; }
 
   publicando = true;
   cntOk = 0; cntErro = 0;
@@ -1012,7 +955,6 @@ async function publicarTodas() {
   document.getElementById('btn-publicar').textContent = '⏳ PUBLICANDO...';
 
   log(`Iniciando publicação de ${total} biografias...`, 'info');
-  log(`Repositório: ${repo} | Branch: ${branch}`, 'info');
 
   for (let i = 0; i < BIOGRAFIAS.length; i++) {
     const a = BIOGRAFIAS[i];
@@ -1022,8 +964,8 @@ async function publicarTodas() {
     try {
       const caminho = `biografia_${a.id}.html`;
       const html = gerarHtmlIndividual(a);
-      const sha = await getSHA(token, repo, branch, caminho);
-      await publicarArquivo(token, repo, branch, caminho, html, sha, `Biografia: ${a.nome}`);
+      const sha = await getSHA(caminho);
+      await publicarArquivo(caminho, html, sha, `Biografia: ${a.nome}`);
       cntOk++;
       setStatusAutor(a.id, '✓', 'OK');
       log(`✓ ${a.nome} publicado com sucesso.`, 'ok');
@@ -1041,8 +983,8 @@ async function publicarTodas() {
   log('Publicando índice geral de biografias...', 'info');
   try {
     const htmlIndice = gerarHtmlIndice();
-    const sha = await getSHA(token, repo, branch, 'site_editorial_biografias.html');
-    await publicarArquivo(token, repo, branch, 'site_editorial_biografias.html', htmlIndice, sha, 'Atualiza índice de biografias');
+    const sha = await getSHA('site_editorial_biografias.html');
+    await publicarArquivo('site_editorial_biografias.html', htmlIndice, sha, 'Atualiza índice de biografias');
     log('✓ Índice geral publicado com sucesso.', 'ok');
   } catch(e) {
     log(`✗ Erro no índice: ${e.message}`, 'erro');
@@ -1067,7 +1009,6 @@ function renderizarLista() {
 }
 
 // ===== INIT =====
-carregarConfig();
 renderizarLista();
 document.getElementById('cnt-total').textContent = total;
 </script>

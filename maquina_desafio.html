@@ -897,10 +897,6 @@ Responda EXATAMENTE neste formato:
 // ── SALVAR BIOGRAFIA NO GITHUB ────────────────────────────────────────────────
 async function salvarBiografiaGitHub(s) {
   try {
-    const token = window.GITHUB_TOKEN || localStorage.getItem('gh_token');
-    const owner = window.GITHUB_OWNER || 'sitedasletras';
-    if (!token) { log('⚠ GitHub token não encontrado — biografia não salva remotamente'); return; }
-
     const slug = s.het.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
     const nomeArq = 'biografias/' + slug + '.json';
     const bio = {
@@ -916,16 +912,15 @@ async function salvarBiografiaGitHub(s) {
 
     let sha = null;
     try {
-      const chk = await fetch(`https://api.github.com/repos/${owner}/CeleiroLiterario/contents/${nomeArq}`,
-        { headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' } });
+      const chk = await fetch(`/api/github-contents?repo=CeleiroLiterario&path=${encodeURIComponent(nomeArq)}`);
       if (chk.ok) { const ex = await chk.json(); sha = ex.sha; }
     } catch(_) {}
 
-    const body = { message: '[BIO] ' + s.het + ' — Máquina Desafio', content: btoa(unescape(encodeURIComponent(JSON.stringify(bio, null, 2)))), branch: 'main' };
+    const body = { repo: 'CeleiroLiterario', path: nomeArq, content: JSON.stringify(bio, null, 2), message: '[BIO] ' + s.het + ' — Máquina Desafio' };
     if (sha) body.sha = sha;
 
-    const res = await fetch(`https://api.github.com/repos/${owner}/CeleiroLiterario/contents/${nomeArq}`,
-      { method: 'PUT', headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const res = await fetch('/api/github-contents',
+      { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 
     if (res.ok) log('✓ Biografia de ' + s.het + ' salva no Celeiro.');
     else log('⚠ Biografia gerada mas não salva remotamente.');
@@ -970,14 +965,12 @@ ${s.corpo.substring(0, 3000)}`
     if (vitrine.length > 200) vitrine.splice(200);
     localStorage.setItem('vitrine_personagens', JSON.stringify(vitrine));
 
-    const token = window.GITHUB_TOKEN || localStorage.getItem('gh_token');
-    const owner = window.GITHUB_OWNER || 'sitedasletras';
-    if (token) {
+    {
       const slug = s.titulo.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').substring(0,50);
       const nomeArq = 'personagens/' + slug + '.json';
-      const body = { message: '[PERSONAGENS] ' + s.titulo, content: btoa(unescape(encodeURIComponent(JSON.stringify(personagens, null, 2)))), branch: 'main' };
-      await fetch(`https://api.github.com/repos/${owner}/CeleiroLiterario/contents/${nomeArq}`,
-        { method: 'PUT', headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const body = { repo: 'CeleiroLiterario', path: nomeArq, content: JSON.stringify(personagens, null, 2), message: '[PERSONAGENS] ' + s.titulo };
+      await fetch('/api/github-contents',
+        { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     }
 
     log('✓ Personagens de "' + s.titulo + '" salvos na Vitrine.');

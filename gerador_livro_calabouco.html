@@ -1778,22 +1778,20 @@ Escreva ~${Math.round(pagsPorVol * 250)} palavras. Comece diretamente.`;
 
 async function gerarLivroUnico(titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase) {
   try {
-    if (!window.GITHUB_TOKEN) { log('⚠ GitHub token não configurado'); return; }
     const autorNome = heteronimoEscolhido || heteronimo || 'ohe';
     const autorSlug = autorNome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const tituloSlug = titulo.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 60);
     const data = new Date().toISOString().split('T')[0];
     const pasta = destino === 'calabouco' ? `calabouco/heteronimos/${autorSlug}` : `masmorra/heteronimos/${autorSlug}`;
     const nomeArquivo = `${pasta}/${data}-${tituloSlug}.md`;
-    const conteudoBase64 = btoa(unescape(encodeURIComponent(conteudo)));
     let sha = null;
     try {
-      const check = await fetch(`https://api.github.com/repos/${window.GITHUB_OWNER}/${window.GITHUB_REPO}/contents/${nomeArquivo}`, { headers: { 'Authorization': `token ${window.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+      const check = await fetch(`/api/github-contents?repo=triploohesigmalbpl&path=${encodeURIComponent(nomeArquivo)}`);
       if (check.ok) { const ex = await check.json(); sha = ex.sha; }
     } catch(e) {}
-    const body = { message: `[LIVRO] ${autor} — ${titulo}`, content: conteudoBase64, branch: 'main' };
+    const body = { repo: 'triploohesigmalbpl', path: nomeArquivo, content: conteudo, message: `[LIVRO] ${autor} — ${titulo}` };
     if (sha) body.sha = sha;
-    const resp = await fetch(`https://api.github.com/repos/${window.GITHUB_OWNER}/${window.GITHUB_REPO}/contents/${nomeArquivo}`, { method: 'PUT', headers: { 'Authorization': `token ${window.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const resp = await fetch('/api/github-contents', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     if (resp.ok) { log('✓ Livro salvo no GitHub: /' + pasta + '/'); }
     else { const err = await resp.json(); log('⚠ Erro GitHub: ' + (err.message || 'desconhecido')); }
   } catch(e) { log('⚠ Erro ao salvar no GitHub: ' + e.message); }

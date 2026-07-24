@@ -1159,35 +1159,25 @@ Escreva em terceira pessoa, tom literário elevado, entre 250 e 350 palavras.`;
 async function publicarBiografiaGitHub(autor, textoBio) {
   const htmlBio = gerarHtmlBiografia(autor, textoBio);
 
-  const token = localStorage.getItem('gh_token')||'';
-  const repo = 'sitedasletras/CeleiroLiterario';
-  const branch = 'main';
-  if(!token){ toast('// Configure o Token GitHub para publicar a biografia'); return; }
-
   const caminho = `biografia_${autor.id}.html`;
   // Verificar se já existe (pegar SHA)
   let sha = null;
   try {
-    const r = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}?ref=${branch}`,{
-      headers:{'Authorization':`token ${token}`,'Accept':'application/vnd.github.v3+json'}
-    });
+    const r = await fetch(`/api/github-contents?repo=CeleiroLiterario&path=${encodeURIComponent(caminho)}`);
     if(r.ok){ const d=await r.json(); sha=d.sha; }
   } catch(_){}
 
   const body = {
-    message:`[OHE] Nova biografia: ${autor.nome}`,
-    content: btoa(unescape(encodeURIComponent(htmlBio))),
-    branch
+    repo: 'CeleiroLiterario',
+    path: caminho,
+    content: htmlBio,
+    message:`[OHE] Nova biografia: ${autor.nome}`
   };
   if(sha) body.sha = sha;
 
-  const pub = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}`,{
+  const pub = await fetch('/api/github-contents',{
     method:'PUT',
-    headers:{
-      'Authorization':`token ${token}`,
-      'Accept':'application/vnd.github.v3+json',
-      'Content-Type':'application/json'
-    },
+    headers:{ 'Content-Type':'application/json' },
     body: JSON.stringify(body)
   });
 

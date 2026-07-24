@@ -16,9 +16,12 @@
 const CONFIG = {
   MODEL: "claude-sonnet-4-6",
   MAX_TOKENS: 4096,
-  GITHUB_TOKEN: "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",
-  GITHUB_OWNER: "sitedasletras",
-  GITHUB_REPO: "triploohesigmalbpl",
+  // Chave do GitHub (GITHUB_TOKEN) — MIGRADA (2026-07-24): não fica mais
+  // aqui, agora é GITHUB_TOKEN na Vercel, lida por api/github-contents.js
+  // (proxy único, com repositórios permitidos fixos: triploohesigmalbpl,
+  // CeleiroLiterario e OHE-PECANHA). Todas as páginas que escreviam direto
+  // na API do GitHub agora chamam esse proxy.
+  //
   // Chave da Stability AI — MIGRADA (2026-07-24): não fica mais aqui, agora
   // é STABILITY_API_KEY na Vercel (variável de ambiente), lida pelos
   // proxies api/gerar-imagem.js e api/stability-imagem.js.
@@ -49,9 +52,6 @@ const CONFIG = {
 
 window.ANTHROPIC_MODEL      = CONFIG.MODEL;
 window.ANTHROPIC_MAX_TOKENS = CONFIG.MAX_TOKENS;
-window.GITHUB_TOKEN         = CONFIG.GITHUB_TOKEN;
-window.GITHUB_OWNER         = CONFIG.GITHUB_OWNER;
-window.GITHUB_REPO          = CONFIG.GITHUB_REPO;
 
 // FETCH INTERCEPTOR — reescreve chamadas à Anthropic pro proxy seguro
 // (api/claude.js), que injeta a chave no servidor. Nenhuma chave passa

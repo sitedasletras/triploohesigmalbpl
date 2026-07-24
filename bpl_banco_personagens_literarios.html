@@ -861,17 +861,17 @@ Este personagem é imortal. Não envelhece. Sua biografia se escreve a cada obra
     bplLog('✓ Personagem registrado: ' + nome);
 
     // Salvar no GitHub
-    if (window.GITHUB_TOKEN) {
+    {
       const slug = nome.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').substring(0,50);
       const caminho = `bpl/personagens/${slug}.md`;
-      const base64 = btoa(unescape(encodeURIComponent(`# ${nome}\n\n${ficha}`)));
       try {
-        await fetch(`https://api.github.com/repos/${window.GITHUB_OWNER}/${window.GITHUB_REPO}/contents/${caminho}`, {
+        const r = await fetch('/api/github-contents', {
           method: 'PUT',
-          headers: { 'Authorization': `token ${window.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: `[BPL] ${nome}`, content: base64, branch: 'main' })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ repo: 'triploohesigmalbpl', path: caminho, content: `# ${nome}\n\n${ficha}`, message: `[BPL] ${nome}` })
         });
-        bplLog('✓ Salvo no GitHub: /' + caminho);
+        if (r.ok) bplLog('✓ Salvo no GitHub: /' + caminho);
+        else bplLog('⚠ Não salvo no GitHub (HTTP ' + r.status + ')');
       } catch(e) { bplLog('⚠ Erro ao salvar no GitHub: ' + e.message); }
     }
 
