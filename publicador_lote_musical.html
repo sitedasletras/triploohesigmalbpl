@@ -227,25 +227,8 @@ body {
   <div class="topo-sub">Maestro Aaron Cantarelli Vox · SIGMAL Music · 70 Artistas + Bandas + Orquestra</div>
 </div>
 
-<div class="config">
-  <div class="fg">
-    <label class="fl">Token GitHub</label>
-    <input type="password" class="fi" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
-  </div>
-  <div class="fg">
-    <label class="fl">Repositório</label>
-    <input type="text" class="fi" id="gh-repo" value="sitedasletras/CeleiroLiterario">
-  </div>
-  <div class="fg">
-    <label class="fl">Branch</label>
-    <input type="text" class="fi" id="gh-branch" value="main">
-  </div>
-</div>
-
 <div class="acoes">
   <button class="btn-p" id="btn-pub" onclick="publicarTodos()">🎵 PUBLICAR TODAS AS BIOGRAFIAS MUSICAIS</button>
-  <button class="btn-s" onclick="salvarConfig()">SALVAR CONFIG</button>
-  <button class="btn-s" onclick="testarConexao()">TESTAR CONEXÃO</button>
 </div>
 
 <div class="progresso">
@@ -269,37 +252,6 @@ body {
 let cntOk = 0, cntErro = 0;
 const total = TODOS.length;
 let publicando = false;
-
-// ===== CONFIG =====
-function salvarConfig() {
-  localStorage.setItem('gh_token', document.getElementById('gh-token').value);
-  localStorage.setItem('gh_repo', document.getElementById('gh-repo').value);
-  localStorage.setItem('gh_branch', document.getElementById('gh-branch').value);
-  log('Configuração salva.', 'info');
-}
-function carregarConfig() {
-  const t = localStorage.getItem('gh_token');
-  const r = localStorage.getItem('gh_repo');
-  const b = localStorage.getItem('gh_branch');
-  if (t) document.getElementById('gh-token').value = t;
-  if (r) document.getElementById('gh-repo').value = r;
-  if (b) document.getElementById('gh-branch').value = b;
-}
-async function testarConexao() {
-  const token = getToken();
-  const repo = getRepo();
-  if (!token || !repo) { log('Preencha token e repositório.', 'erro'); return; }
-  try {
-    const res = await fetch(`https://api.github.com/repos/${repo}`, {
-      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
-    });
-    if (res.ok) log(`✓ Conexão OK — ${repo} acessível.`, 'ok');
-    else log(`✗ Erro ${res.status}`, 'erro');
-  } catch(e) { log('✗ Falha na conexão.', 'erro'); }
-}
-function getToken() { return document.getElementById('gh-token').value || localStorage.getItem('gh_token'); }
-function getRepo() { return document.getElementById('gh-repo').value || localStorage.getItem('gh_repo'); }
-function getBranch() { return document.getElementById('gh-branch').value || localStorage.getItem('gh_branch') || 'main'; }
 
 // ===== LOG =====
 function log(msg, tipo='info') {
@@ -327,22 +279,20 @@ function setStatus(id, icon, result, cls) {
   if (re) { re.textContent = result; re.className = `li-result ${cls}`; }
 }
 
-// ===== GITHUB API =====
-async function getSHA(token, repo, branch, caminho) {
+// ===== GITHUB API (via proxy seguro do servidor) =====
+async function getSHA(caminho) {
   try {
-    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}?ref=${branch}`, {
-      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
-    });
+    const res = await fetch(`/api/github-contents?repo=CeleiroLiterario&path=${encodeURIComponent(caminho)}`);
     if (res.ok) { const d = await res.json(); return d.sha; }
     return null;
   } catch { return null; }
 }
-async function publicarArquivo(token, repo, branch, caminho, conteudo, sha, msg) {
-  const body = { message: msg, content: btoa(unescape(encodeURIComponent(conteudo))), branch };
+async function publicarArquivo(caminho, conteudo, sha, msg) {
+  const body = { repo: 'CeleiroLiterario', path: caminho, content: conteudo, message: msg };
   if (sha) body.sha = sha;
-  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${caminho}`, {
+  const res = await fetch('/api/github-contents', {
     method: 'PUT',
-    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   });
   if (!res.ok) { const e = await res.json(); throw new Error(e.message || `Erro ${res.status}`); }
@@ -509,10 +459,6 @@ function filtrar(){
 // ===== PUBLICAR TODOS =====
 async function publicarTodos() {
   if (publicando) return;
-  const token = getToken();
-  const repo = getRepo();
-  const branch = getBranch();
-  if (!token) { log('⚠ Configure o Token GitHub.', 'erro'); return; }
 
   publicando = true;
   cntOk = 0; cntErro = 0;
@@ -528,8 +474,8 @@ async function publicarTodos() {
     try {
       const caminho = `bio_musical_${a.id.toLowerCase()}.html`;
       const html = gerarHTMLBio(a);
-      const sha = await getSHA(token, repo, branch, caminho);
-      await publicarArquivo(token, repo, branch, caminho, html, sha, `Bio musical: ${a.nome}`);
+      const sha = await getSHA(caminho);
+      await publicarArquivo(caminho, html, sha, `Bio musical: ${a.nome}`);
       cntOk++;
       setStatus(a.id, '✓', 'OK', 'r-ok');
       log(`✓ ${a.nome}`, 'ok');
@@ -546,8 +492,8 @@ async function publicarTodos() {
   log('Publicando índice de biografias musicais...', 'info');
   try {
     const htmlIndice = gerarIndice();
-    const sha = await getSHA(token, repo, branch, 'site_musical_biografias.html');
-    await publicarArquivo(token, repo, branch, 'site_musical_biografias.html', htmlIndice, sha, 'Atualiza índice de biografias musicais');
+    const sha = await getSHA('site_musical_biografias.html');
+    await publicarArquivo('site_musical_biografias.html', htmlIndice, sha, 'Atualiza índice de biografias musicais');
     log('✓ Índice musical publicado.', 'ok');
   } catch(e) { log(`✗ Índice: ${e.message}`, 'erro'); }
 
@@ -570,7 +516,6 @@ function renderizarLista() {
 }
 
 // ===== INIT =====
-carregarConfig();
 renderizarLista();
 document.getElementById('cnt-total').textContent = total;
 </script>

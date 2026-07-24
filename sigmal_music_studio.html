@@ -1119,8 +1119,6 @@ async function exportarParaGitHub() {
   const logEl = document.getElementById('silo-log');
   logEl.style.display = 'block';
 
-  if (!window.GITHUB_TOKEN) { logEl.innerHTML = '✗ Token GitHub não configurado.'; return; }
-
   const slug = obra.titulo.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').substring(0,50);
   const interpSlug = obra.interprete.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').substring(0,40);
   const data = new Date().toISOString().split('T')[0];
@@ -1128,23 +1126,22 @@ async function exportarParaGitHub() {
 
   const linhaInstrumentistas = (obra.instrumentistas && obra.instrumentistas.length) ? `\n**Instrumentistas:** ${obra.instrumentistas.join(', ')}` : '';
   const conteudo = `# ${obra.titulo}\n\n**Intérprete:** ${obra.interprete}${linhaInstrumentistas}\n**Gênero:** ${obra.genero || '—'}\n**Tom:** ${obra.tom || '—'}\n**Data:** ${obra.data}\n\n---\n\n## LETRA\n\n${obra.letra}\n\n---\n\n## ARRANJO & INSTRUMENTAÇÃO\n\n${obra.arranjo}`;
-  const base64 = btoa(unescape(encodeURIComponent(conteudo)));
 
   logEl.innerHTML = `▶ Exportando para /${caminho}...`;
 
   try {
     let sha = null;
     try {
-      const chk = await fetch(`https://api.github.com/repos/${window.GITHUB_OWNER}/${window.GITHUB_REPO}/contents/${caminho}`, { headers: { 'Authorization': `token ${window.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+      const chk = await fetch(`/api/github-contents?repo=triploohesigmalbpl&path=${encodeURIComponent(caminho)}`);
       if (chk.ok) { const ex = await chk.json(); sha = ex.sha; }
     } catch(e) {}
 
-    const body = { message: `[SIGMAL Music] ${obra.interprete} — ${obra.titulo}`, content: base64, branch: 'main' };
+    const body = { repo: 'triploohesigmalbpl', path: caminho, content: conteudo, message: `[SIGMAL Music] ${obra.interprete} — ${obra.titulo}` };
     if (sha) body.sha = sha;
 
-    const resp = await fetch(`https://api.github.com/repos/${window.GITHUB_OWNER}/${window.GITHUB_REPO}/contents/${caminho}`, {
+    const resp = await fetch('/api/github-contents', {
       method: 'PUT',
-      headers: { 'Authorization': `token ${window.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
 
