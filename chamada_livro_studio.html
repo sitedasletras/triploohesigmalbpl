@@ -122,6 +122,15 @@ video#videoResultado { width: 100%; border-radius: 6px; margin-bottom: 1rem; bac
 
 </div>
 
+<div id="modal-confirmacao" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;padding:1.5rem;">
+  <div style="background:#0a1628;border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:1.4rem;max-width:420px;width:100%;">
+    <div class="card-label">// Confirmar geração</div>
+    <p id="modal-confirmacao-texto" style="font-size:0.9rem;line-height:1.6;margin-bottom:1.2rem;"></p>
+    <button class="btn-p" id="modal-confirmacao-ok" style="margin-bottom:0.6rem;">✓ CONFIRMAR E GERAR</button>
+    <button class="btn-p" id="modal-confirmacao-cancelar" style="background:transparent;color:var(--prata);border:1px solid rgba(201,168,76,0.2);">CANCELAR</button>
+  </div>
+</div>
+
 <script>
 let _gerandoChamada = false;
 
@@ -130,6 +139,30 @@ function log(msg) {
   el.style.display = 'block';
   el.innerHTML += msg + '<br>';
   el.scrollTop = el.scrollHeight;
+}
+
+// Confirmação própria dentro da página — o window.confirm() nativo é
+// silenciosamente bloqueado (sempre volta cancelado) em alguns navegadores
+// mobile quando o arquivo é aberto via "Abrir com" a partir do app de
+// Arquivos, então não dá pra depender dele.
+function confirmarNaTela(mensagem) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('modal-confirmacao');
+    document.getElementById('modal-confirmacao-texto').textContent = mensagem;
+    modal.style.display = 'flex';
+    const btnOk = document.getElementById('modal-confirmacao-ok');
+    const btnCancelar = document.getElementById('modal-confirmacao-cancelar');
+    function limpar(resultado) {
+      modal.style.display = 'none';
+      btnOk.removeEventListener('click', aoConfirmar);
+      btnCancelar.removeEventListener('click', aoCancelar);
+      resolve(resultado);
+    }
+    function aoConfirmar() { limpar(true); }
+    function aoCancelar() { limpar(false); }
+    btnOk.addEventListener('click', aoConfirmar);
+    btnCancelar.addEventListener('click', aoCancelar);
+  });
 }
 
 function notif(titulo, msg, tipo = 'info') {
@@ -218,7 +251,7 @@ async function _gerarChamadaLivroInterna() {
   document.getElementById('custo-estimado').textContent = `~US$${custoEstimado.toFixed(2)} (${numCenas} imagens)`;
   document.getElementById('log-producao').innerHTML = '';
 
-  const confirmou = confirm(`Isso vai gerar ${numCenas} imagens na Stability AI (custo real: ~US$${custoEstimado.toFixed(2)} no total) e montar 1 vídeo de ${duracaoTotal}s. Confirmar?`);
+  const confirmou = await confirmarNaTela(`Isso vai gerar ${numCenas} imagens na Stability AI (custo real: ~US$${custoEstimado.toFixed(2)} no total) e montar 1 vídeo de ${duracaoTotal}s. Confirmar?`);
   if (!confirmou) { notif('CANCELADO', 'Geração cancelada — nenhum custo gerado.', 'erro'); return; }
 
   try {

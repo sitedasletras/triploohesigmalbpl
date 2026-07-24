@@ -2,9 +2,18 @@
 // ARQUIVO DE CONFIGURAÇÃO CENTRAL — USO EXCLUSIVO DE WAGNER
 // Não compartilhar. Não versionar em repositório público.
 // ============================================================
+//
+// CORREÇÃO DE SEGURANÇA (2026-07-24): a chave da Anthropic que estava
+// escrita aqui foi REMOVIDA e REGENERADA — este arquivo é commitado no
+// GitHub, então a chave ficava exposta pra qualquer pessoa com acesso
+// ao repositório. A partir de agora as chamadas à Anthropic passam por
+// um proxy no servidor (api/claude.js), que lê ANTHROPIC_API_KEY de
+// uma variável de ambiente na Vercel — a chave nunca mais aparece em
+// nenhum arquivo do navegador. Isso só funciona acessando o triplo
+// pela URL da Vercel (depois de importar este repositório lá), não
+// mais abrindo os HTML direto do disco.
 
 const CONFIG = {
-  ANTHROPIC_API_KEY: "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",
   MODEL: "claude-sonnet-4-6",
   MAX_TOKENS: 4096,
   GITHUB_TOKEN: "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",
@@ -35,10 +44,15 @@ const CONFIG = {
   // Music Studio, a partir da letra/arranjo já aprovados. Chave sem
   // restrição de endpoint (cobre Music, TTS, Voices etc. do Silo Multimídia).
   // Crie a sua em https://elevenlabs.io/app/settings/api-keys e cole aqui.
-  ELEVENLABS_API_KEY: "sk_4286e202822b82373be7160eb9b91b6d63d17df50d386196"
+  ELEVENLABS_API_KEY: "sk_4286e202822b82373be7160eb9b91b6d63d17df50d386196",
+  // Chave da OpenAI (platform.openai.com) — usada por fonte_imagem.js pra
+  // gerar imagem via GPT Image 2 (capa em qualidade alta, e imagem "mais
+  // barata possível" em qualidade baixa assim que essa chave existir).
+  // PRECISA de cartão cadastrado lá — não tem tier gratuito de imagem.
+  // Crie a sua em https://platform.openai.com/api-keys e cole aqui.
+  OPENAI_API_KEY: ""
 };
 
-window.ANTHROPIC_API_KEY    = CONFIG.ANTHROPIC_API_KEY;
 window.ANTHROPIC_MODEL      = CONFIG.MODEL;
 window.ANTHROPIC_MAX_TOKENS = CONFIG.MAX_TOKENS;
 window.GITHUB_TOKEN         = CONFIG.GITHUB_TOKEN;
@@ -49,19 +63,17 @@ window.GEMINI_API_KEY       = CONFIG.GEMINI_API_KEY;
 window.OPENROUTER_API_KEY   = CONFIG.OPENROUTER_API_KEY;
 window.FISH_AUDIO_API_KEY   = CONFIG.FISH_AUDIO_API_KEY;
 window.ELEVENLABS_API_KEY   = CONFIG.ELEVENLABS_API_KEY;
+window.OPENAI_API_KEY       = CONFIG.OPENAI_API_KEY;
 
-// FETCH INTERCEPTOR — injeta chave em todas as chamadas Anthropic
+// FETCH INTERCEPTOR — reescreve chamadas à Anthropic pro proxy seguro
+// (api/claude.js), que injeta a chave no servidor. Nenhuma chave passa
+// mais pelo navegador.
 (function() {
   const _fetch = window.fetch;
   window.fetch = function(url, options) {
-    if (typeof url === 'string' && url.includes('api.anthropic.com')) {
-      options = options || {};
-      options.headers = Object.assign({}, options.headers, {
-        'x-api-key': CONFIG.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      });
+    if (typeof url === 'string' && url.includes('api.anthropic.com/v1/messages')) {
+      url = '/api/claude';
     }
-    return _fetch.apply(this, arguments);
+    return _fetch.call(this, url, options);
   };
 })();
