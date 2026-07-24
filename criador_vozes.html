@@ -295,28 +295,17 @@ function _mensagemErroIA(status, errBody) {
 // fallback gratuito pro OpenRouter aqui porque o Llama gratuito não ouve
 // áudio — só o Gemini faz isso nesse tier.
 async function avaliarVozComGemini(arquivo) {
-  const apiKey = window.GEMINI_API_KEY || '';
-  if (!apiKey) throw new Error('Configure GEMINI_API_KEY em config.js');
   const base64 = await _blobParaBase64(arquivo);
   const mimeType = arquivo.type || 'audio/ogg';
-  const prompt = `Ouça este áudio com atenção e descreva objetivamente a voz, em português, em um parágrafo curto: gênero aparente, faixa etária aparente, tom/timbre (grave, médio, agudo), energia (calma, enérgica, contida, rouca), e qualquer sotaque ou traço regional perceptível. Não invente nada que não dê pra perceber pelo áudio — se a nota for muito curta ou pouco clara, diga isso explicitamente.`;
 
-  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
+  const resp = await fetch('/api/gemini-avaliar-voz', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { mime_type: mimeType, data: base64 } }] }]
-    })
+    body: JSON.stringify({ base64, mimeType })
   });
-  if (!resp.ok) {
-    const errBody = await resp.text();
-    throw new Error(_mensagemErroIA(resp.status, errBody));
-  }
   const data = await resp.json();
-  const texto = ((data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [])
-    .map(p => p.text || '').join('').trim();
-  if (!texto) throw new Error('Gemini não retornou descrição (pode ter sido cortado por safety filter)');
-  return texto;
+  if (!resp.ok) throw new Error(_mensagemErroIA(resp.status, data.error || ''));
+  return data.texto;
 }
 
 // Verdadeiro só se o personagem AINDA NÃO tem voz premium salva — usado
