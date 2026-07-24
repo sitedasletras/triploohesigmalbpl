@@ -233,9 +233,6 @@ async function _gerarLivroIlustradoInterna() {
   const titulo = document.getElementById('livro-titulo').value.trim();
   const sinopse = document.getElementById('livro-sinopse').value.trim();
   if (!sinopse) { notif('ERRO', 'Cole a sinopse do livro primeiro.', 'erro'); return; }
-  if (!window.STABILITY_API_KEY && !window.GEMINI_API_KEY && !window.OPENAI_API_KEY) {
-    notif('ERRO', 'Nenhuma fonte de imagem configurada (Stability, Gemini ou OpenAI).', 'erro'); return;
-  }
 
   const estilo = document.getElementById('livro-estilo').value;
   const numInternas = parseInt(document.getElementById('livro-internas').value, 10);

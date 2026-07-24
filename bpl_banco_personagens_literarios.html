@@ -899,36 +899,21 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ===================== GERAÇÃO DE ROSTO — STABILITY AI =====================
 async function gerarRosto(nomePersonagem, descricaoFisica, genero) {
-  if (!window.STABILITY_API_KEY) {
-    alert('Chave da Stability AI não configurada no config.js');
-    return null;
-  }
-
   // Montar prompt de retrato baseado na descrição
   const generoPrompt = genero === 'feminino' ? 'woman' : genero === 'masculino' ? 'man' : 'person';
   const prompt = `Portrait of a ${generoPrompt}, ${descricaoFisica}, dramatic literary character, cinematic lighting, realistic, high detail, artistic portrait photography, neutral background, expressive face`;
   const negativePrompt = 'cartoon, anime, deformed, ugly, blurry, watermark, text, logo';
 
   try {
-    const resp = await fetch('https://api.stability.ai/v2beta/stable-image/generate/core', {
+    const resp = await fetch('/api/stability-imagem', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${window.STABILITY_API_KEY}`,
-        'Accept': 'image/*'
-      },
-      body: (() => {
-        const fd = new FormData();
-        fd.append('prompt', prompt);
-        fd.append('negative_prompt', negativePrompt);
-        fd.append('aspect_ratio', '1:1');
-        fd.append('output_format', 'jpeg');
-        return fd;
-      })()
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, negativePrompt })
     });
 
     if (!resp.ok) {
       const err = await resp.json();
-      throw new Error(err.message || `Erro ${resp.status}`);
+      throw new Error(err.error || `Erro ${resp.status}`);
     }
 
     const blob = await resp.blob();

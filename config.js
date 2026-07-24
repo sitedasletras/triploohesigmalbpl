@@ -19,7 +19,9 @@ const CONFIG = {
   GITHUB_TOKEN: "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",
   GITHUB_OWNER: "sitedasletras",
   GITHUB_REPO: "triploohesigmalbpl",
-  STABILITY_API_KEY: "sk-MUyr0gAR6H9JRh8IrfNh0Ppzgz51DdUNxQHGyz7PIBq16W2r",
+  // Chave da Stability AI — MIGRADA (2026-07-24): não fica mais aqui, agora
+  // é STABILITY_API_KEY na Vercel (variável de ambiente), lida pelos
+  // proxies api/gerar-imagem.js e api/stability-imagem.js.
   // Chave GRATUITA do Google Gemini (tier free, sem cartão de crédito).
   // Pegue a sua em https://aistudio.google.com/apikey e cole aqui.
   // Usada só em biografias/perfis físico-psicológicos (ver ia_gratuita.js) —
@@ -56,7 +58,6 @@ window.ANTHROPIC_MAX_TOKENS = CONFIG.MAX_TOKENS;
 window.GITHUB_TOKEN         = CONFIG.GITHUB_TOKEN;
 window.GITHUB_OWNER         = CONFIG.GITHUB_OWNER;
 window.GITHUB_REPO          = CONFIG.GITHUB_REPO;
-window.STABILITY_API_KEY    = CONFIG.STABILITY_API_KEY;
 window.GEMINI_API_KEY       = CONFIG.GEMINI_API_KEY;
 window.OPENROUTER_API_KEY   = CONFIG.OPENROUTER_API_KEY;
 window.ELEVENLABS_API_KEY   = CONFIG.ELEVENLABS_API_KEY;

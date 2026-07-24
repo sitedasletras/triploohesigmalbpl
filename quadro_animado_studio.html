@@ -163,11 +163,6 @@ async function _gerarQuadroInterno() {
     notif('ERRO', 'Descreva a cena primeiro.', 'erro');
     return;
   }
-  if (!window.STABILITY_API_KEY) {
-    notif('ERRO', 'Chave da Stability AI não configurada no config.js', 'erro');
-    return;
-  }
-
   const estilo = document.getElementById('cena-estilo').value;
   const statusEl = document.getElementById('status-quadro');
   statusEl.textContent = '⏳ Gerando quadro na Stability AI...';
@@ -176,25 +171,15 @@ async function _gerarQuadroInterno() {
   const negativePrompt = 'text, typography, words, letters, title, caption, subtitle, logo, watermark, signature, gibberish text, illegible text, deformed, ugly, blurry, low quality';
 
   try {
-    const resp = await fetch('https://api.stability.ai/v2beta/stable-image/generate/core', {
+    const resp = await fetch('/api/stability-imagem', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${window.STABILITY_API_KEY}`,
-        'Accept': 'image/*'
-      },
-      body: (() => {
-        const fd = new FormData();
-        fd.append('prompt', prompt);
-        fd.append('negative_prompt', negativePrompt);
-        fd.append('aspect_ratio', '1:1');
-        fd.append('output_format', 'jpeg');
-        return fd;
-      })()
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, negativePrompt })
     });
 
     if (!resp.ok) {
       const err = await resp.json();
-      throw new Error(err.message || `Erro ${resp.status}`);
+      throw new Error(err.error || `Erro ${resp.status}`);
     }
 
     const blob = await resp.blob();

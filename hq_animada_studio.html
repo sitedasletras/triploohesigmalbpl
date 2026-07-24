@@ -368,9 +368,9 @@ function _quebrarTextoCentralizado(ctx, texto, cx, cyBase, larguraMax, alturaLin
 }
 
 // ===================== GERAÇÃO DE IMAGEM (fonte mais barata disponível) =====================
-// Painel de HQ usa sempre a fonte de menor custo (ver fonte_imagem.js) — hoje
-// resolve pra Stability; passa a usar GPT Image 2 baixa sozinho assim que
-// window.OPENAI_API_KEY existir, sem precisar mexer aqui.
+// Painel de HQ usa sempre a fonte de menor custo — a escolha entre
+// Stability/Gemini/GPT Image 2 agora acontece no servidor (api/gerar-imagem.js),
+// que só conhece quais chaves existem lá, não aqui no navegador.
 async function _gerarImagemPainel(descricaoVisual, estilo, pistaFisica) {
   const complemento = pistaFisica ? `, character appearance: ${pistaFisica}` : '';
   const prompt = `${descricaoVisual}${complemento}, ${estilo}, comic book panel, no text, no typography, no words or letters, no speech bubbles in the image`;
@@ -379,13 +379,11 @@ async function _gerarImagemPainel(descricaoVisual, estilo, pistaFisica) {
   return await gerarImagemMaisBarata(prompt, negativePrompt);
 }
 
+// Estimativa pré-geração (o navegador não sabe mais qual fonte o servidor
+// vai escolher) — usa o preço da Stability como referência típica. O custo
+// real e exato vem depois, no campo custoUsd da resposta de cada imagem.
 function _custoFonteMaisBarataDisponivel() {
-  if (typeof CUSTO_POR_IMAGEM === 'undefined') return 0.035;
-  const custos = [];
-  if (window.STABILITY_API_KEY) custos.push(CUSTO_POR_IMAGEM.stability);
-  if (window.GEMINI_API_KEY) custos.push(CUSTO_POR_IMAGEM.gemini);
-  if (window.OPENAI_API_KEY) custos.push(CUSTO_POR_IMAGEM.gptBaixa);
-  return custos.length ? Math.min(...custos) : 0.035;
+  return 0.035;
 }
 
 // ===================== ÁUDIO DE UM PAINEL =====================
@@ -418,7 +416,6 @@ async function gerarHqAnimada() {
 async function _gerarHqAnimadaInterna() {
   const historia = document.getElementById('hq-historia').value.trim();
   if (!historia) { notif('ERRO', 'Cole a história com os diálogos primeiro.', 'erro'); return; }
-  if (!window.STABILITY_API_KEY && !window.GEMINI_API_KEY && !window.OPENAI_API_KEY) { notif('ERRO', 'Nenhuma fonte de imagem configurada (Stability, Gemini ou OpenAI) no config.js', 'erro'); return; }
 
   const estilo = document.getElementById('hq-estilo').value;
   const numPaineis = parseInt(document.getElementById('hq-paineis').value, 10);
