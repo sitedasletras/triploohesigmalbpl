@@ -469,9 +469,6 @@ async function gerarQuadrinho() {
 async function _gerarQuadrinhoInterna() {
   const historia = document.getElementById('hq-historia').value.trim();
   if (!historia) { notif('ERRO', 'Cole a história com os diálogos primeiro.', 'erro'); return; }
-  if (!window.STABILITY_API_KEY && !window.GEMINI_API_KEY && !window.OPENAI_API_KEY) {
-    notif('ERRO', 'Nenhuma fonte de imagem configurada (Stability, Gemini ou OpenAI).', 'erro'); return;
-  }
 
   const estilo = document.getElementById('hq-estilo').value;
   const numPaineis = parseInt(document.getElementById('hq-paineis').value, 10);
