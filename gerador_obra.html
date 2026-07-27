@@ -2245,9 +2245,24 @@ setModo('auto');
 (function preencherDaURL() {
   const params = new URLSearchParams(window.location.search);
   const het     = decodeURIComponent(params.get('het') || '');
-  const tema    = decodeURIComponent(params.get('tema') || '');
+  let   tema    = decodeURIComponent(params.get('tema') || '');
   const entrada = decodeURIComponent(params.get('entrada') || '');
-  const titulo  = decodeURIComponent(params.get('titulo') || '');
+  let   titulo  = decodeURIComponent(params.get('titulo') || '');
+
+  // Edital lido por foto na Central de Comando (index.html) — o texto
+  // extraído pode ser longo demais pra caber numa URL, então vem via
+  // localStorage em vez de query param.
+  let veioDeEdital = false;
+  if (!tema) {
+    const temaEdital = localStorage.getItem('edital_pendente_tema');
+    if (temaEdital) {
+      tema = temaEdital;
+      if (!titulo) titulo = localStorage.getItem('edital_pendente_titulo') || '';
+      localStorage.removeItem('edital_pendente_tema');
+      localStorage.removeItem('edital_pendente_titulo');
+      veioDeEdital = true;
+    }
+  }
 
   if (tema)   document.getElementById('tema-obra').value = tema;
   if (titulo) document.getElementById('titulo-obra').value = titulo;
@@ -2278,10 +2293,12 @@ setModo('auto');
   }
 
   // Se vieram todos os dados essenciais, mostra aviso visual
-  if (het && tema && entrada) {
+  if ((het && tema && entrada) || veioDeEdital) {
     const header = document.querySelector('.hq-header .sub');
     if (header) {
-      header.innerHTML = `OHE · Entrada via Fernando Peçanha <span style="color:var(--accent2);margin-left:8px">✦ dados pré-carregados</span>`;
+      header.innerHTML = veioDeEdital
+        ? `OHE · Edital recebido via Central de Comando (leitura por foto) <span style="color:var(--accent2);margin-left:8px">✦ pronto pra Fernando Peçanha escolher o heterônimo</span>`
+        : `OHE · Entrada via Fernando Peçanha <span style="color:var(--accent2);margin-left:8px">✦ dados pré-carregados</span>`;
     }
   }
 })();
