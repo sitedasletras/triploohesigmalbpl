@@ -1192,6 +1192,96 @@ async function publicarBiografiaGitHub(autor, textoBio) {
   }
 }
 
+// ── ATUALIZA A BIOGRAFIA DO HETERÔNIMO COM A OBRA RECÉM-CONCLUÍDA ──
+// publicarBiografiaGitHub() só é chamado na CRIAÇÃO do heterônimo (uma
+// vez só). Sem isso, a biografia nunca acompanhava os livros seguintes
+// do mesmo heterônimo — ficava congelada na data de nascimento dele.
+// Mesma lógica de atualizarBiografiaComObra() em index.html (Catapulta):
+// busca a biografia atual no Celeiro e ACRESCENTA a obra na lista de
+// obras, nunca sobrescreve o texto já existente.
+async function atualizarBiografiaComObraGO(h, tituloObra) {
+  if (!h || !tituloObra) return;
+  const repo = 'CeleiroLiterario';
+  const autorId = slugifyNome(h.nome);
+  const caminhoHtml = `biografia_${autorId}.html`;
+
+  let htmlAtual = '';
+  let shaAtual = null;
+  try {
+    const r = await fetch(`/api/github-contents?repo=${repo}&path=${encodeURIComponent(caminhoHtml)}`);
+    if (r.ok) {
+      const d = await r.json();
+      shaAtual = d.sha;
+      htmlAtual = decodeURIComponent(escape(atob(d.content.replace(/\n/g, ''))));
+    }
+  } catch(_) {}
+
+  const dataPublicacao = new Date().toLocaleDateString('pt-BR');
+  const obraEntry = `<li style="padding:.4em 0;border-bottom:1px solid rgba(213,179,84,.1);font-size:.95rem;color:#2a1a08;">— ${tituloObra} <span style="font-family:'Space Mono',monospace;font-size:.65em;color:rgba(213,179,84,.5);">(${dataPublicacao})</span></li>`;
+
+  let htmlNovo;
+  if (htmlAtual) {
+    if (htmlAtual.includes('id="lista-obras"')) {
+      htmlNovo = htmlAtual.replace('id="lista-obras">', `id="lista-obras">\n      ${obraEntry}`);
+    } else if (htmlAtual.includes('class="obras-lista"')) {
+      htmlNovo = htmlAtual.replace('class="obras-lista">', `class="obras-lista">\n      ${obraEntry}`);
+    } else {
+      const secaoObras = `
+<div style="margin-top:2rem;">
+  <div style="font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.3em;color:rgba(213,179,84,.6);text-transform:uppercase;margin-bottom:.8rem;">// Obras</div>
+  <ul id="lista-obras" style="list-style:none;padding:0;">
+    ${obraEntry}
+  </ul>
+</div>`;
+      // Insere antes do rodapé; se o rodapé não bater com o padrão
+      // conhecido (bio publicada por outra ferramenta), acrescenta no
+      // final em vez de descartar a atualização silenciosamente.
+      htmlNovo = htmlAtual.includes('<div class="rodape">')
+        ? htmlAtual.replace('<div class="rodape">', secaoObras + '\n<div class="rodape">')
+        : htmlAtual + secaoObras;
+    }
+  } else {
+    // Biografia ainda não existe — cria uma versão básica só com a
+    // lista de obras (biografia completa fica pra quando alguém rodar
+    // a geração via Maternidade/criarHeteronimoAutomatico).
+    htmlNovo = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>${h.nome} · Biografia · Celeiro Literário</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#fff8df;color:#1a1208;font-family:'Cormorant Garamond',Georgia,serif;min-height:100vh;}.cab{background:#07182b;padding:2rem 3rem;border-bottom:3px solid #c9a84c;}.autor-nome{font-size:2.5rem;color:#c9a84c;font-weight:700;margin-bottom:.3rem;}.cab-sub{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.15em;color:rgba(201,168,76,.4);text-transform:uppercase;}.conteudo{max-width:800px;margin:0 auto;padding:3rem;}.rodape{background:#07182b;padding:2rem;text-align:center;margin-top:4rem;border-top:1px solid rgba(213,179,84,.15);font-family:'Space Mono',monospace;font-size:.45rem;color:rgba(213,179,84,.3);text-transform:uppercase;}</style>
+</head>
+<body>
+<div class="cab">
+  <div class="autor-nome">${h.nome}</div>
+  <div class="cab-sub">// OHE · SIGMAL · Celeiro Literário</div>
+</div>
+<div class="conteudo">
+  <div style="font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.3em;color:rgba(201,168,76,.6);text-transform:uppercase;margin-bottom:1rem;">// Obras</div>
+  <ul id="lista-obras" style="list-style:none;padding:0;">
+    ${obraEntry}
+  </ul>
+  <p style="margin-top:2rem;font-size:.8rem;font-family:'Space Mono',monospace;color:rgba(201,168,76,.3);">Biografia completa em atualização · Fernando Peçanha · ${dataPublicacao}</p>
+</div>
+<div class="rodape">Celeiro Literário · Instituto Cultural · celeiro-literario.vercel.app</div>
+</body>
+</html>`;
+  }
+
+  const body = { repo, path: caminhoHtml, message: `[OHE] Atualiza biografia: ${h.nome} + "${tituloObra}"`, content: htmlNovo, branch: 'main' };
+  if (shaAtual) body.sha = shaAtual;
+
+  const pub = await fetch('/api/github-contents', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (pub.ok) {
+    console.log(`✓ Biografia de ${h.nome} atualizada no Celeiro com "${tituloObra}"`);
+    toast(`✦ Biografia de ${h.nome} atualizada com "${tituloObra}"`);
+  } else {
+    const err = await pub.json();
+    console.warn('Erro ao atualizar biografia:', err.message);
+  }
+}
+
 // ── HTML DA PÁGINA DE BIOGRAFIA (padrão Celeiro) ─────────
 function gerarHtmlBiografia(autor, textoBio) {
   const cores = {
@@ -1846,6 +1936,13 @@ function finalizarObra() {
 
   const destino = document.getElementById('destino') ?
     document.getElementById('destino').value : 'calabouco';
+
+  // Atualiza a biografia do heterônimo com esta obra — sem isso, a
+  // biografia ficava congelada na data de criação dele.
+  const h = HETERONIMOS[estado.heteronimo];
+  if (h && estado.tituloObra) {
+    atualizarBiografiaComObraGO(h, estado.tituloObra).catch(e => console.warn('Bio não atualizada:', e));
+  }
 
   setTimeout(() => {
     toast(`✦ EXPEDIDA PARA O ${destino === 'calabouco' ? 'CALABOUÇO' : 'MASMORRA'}`);
