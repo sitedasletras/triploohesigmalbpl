@@ -524,31 +524,77 @@ async function iniciarAvaliacao() {
   document.getElementById('resultado').classList.remove('visivel');
   iniciarLoading();
 
-  const systemPrompt = `Você é um crítico literário e leitor sensível especialista em avaliação emocional de obras. Lê com olhos de editor, psicólogo e leitor comum ao mesmo tempo.
+  const systemPrompt = `Você é um crítico literário e leitor sensível especialista em avaliação emocional de obras. Lê com olhos de editor, psicólogo e leitor comum ao mesmo tempo.`;
 
-Responda APENAS em JSON válido, sem texto antes ou depois, sem markdown, sem backticks.
-
-Estrutura JSON exata:
-{
-  "nota_geral": 0-10,
-  "nota_descricao": "string (frase que resume a avaliação)",
-  "dimensoes": [
-    {"emoji": "string", "titulo": "string", "nota": 0-10, "comentario": "string", "cor": "azul|ouro|rosa|verde|laranja"}
-  ],
-  "termometro_emocional": [
-    {"emoji": "string", "emocao": "string", "intensidade": 0-100, "cor": "hex"}
-  ],
-  "diagnostico": [
-    {"titulo": "string", "texto": "string"}
-  ],
-  "potencial": [
-    {"emoji": "string", "titulo": "string", "valor": "string", "descricao": "string"}
-  ],
-  "alertas": [
-    {"tipo": "positivo|atencao|critico|sugestao", "titulo": "string", "texto": "string"}
-  ],
-  "resumo_editorial": "string (parágrafo longo e rico com a avaliação completa)"
-}`;
+  const SCHEMA_LEITURA_EMOCIONAL = {
+    type: 'object',
+    properties: {
+      nota_geral: { type: 'number', description: 'nota geral de 0 a 10' },
+      nota_descricao: { type: 'string', description: 'frase que resume a avaliação' },
+      dimensoes: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            emoji: { type: 'string' },
+            titulo: { type: 'string' },
+            nota: { type: 'number', description: '0-10' },
+            comentario: { type: 'string' },
+            cor: { type: 'string', enum: ['azul', 'ouro', 'rosa', 'verde', 'laranja'] }
+          },
+          required: ['emoji', 'titulo', 'nota', 'comentario', 'cor']
+        }
+      },
+      termometro_emocional: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            emoji: { type: 'string' },
+            emocao: { type: 'string' },
+            intensidade: { type: 'number', description: '0-100' },
+            cor: { type: 'string', description: 'cor em hex' }
+          },
+          required: ['emoji', 'emocao', 'intensidade', 'cor']
+        }
+      },
+      diagnostico: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: { titulo: { type: 'string' }, texto: { type: 'string' } },
+          required: ['titulo', 'texto']
+        }
+      },
+      potencial: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            emoji: { type: 'string' },
+            titulo: { type: 'string' },
+            valor: { type: 'string' },
+            descricao: { type: 'string' }
+          },
+          required: ['emoji', 'titulo', 'valor', 'descricao']
+        }
+      },
+      alertas: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            tipo: { type: 'string', enum: ['positivo', 'atencao', 'critico', 'sugestao'] },
+            titulo: { type: 'string' },
+            texto: { type: 'string' }
+          },
+          required: ['tipo', 'titulo', 'texto']
+        }
+      },
+      resumo_editorial: { type: 'string', description: 'parágrafo longo e rico com a avaliação completa' }
+    },
+    required: ['nota_geral', 'nota_descricao', 'dimensoes', 'termometro_emocional', 'diagnostico', 'potencial', 'alertas', 'resumo_editorial']
+  };
 
   const userPrompt = `Faça a Leitura Emocional desta obra:
 
@@ -572,13 +618,14 @@ Gere a avaliação emocional literária completa no formato JSON.`;
         model: 'claude-sonnet-4-6',
         max_tokens: 4000,
         system: systemPrompt,
+        output_config: { format: { type: 'json_schema', schema: SCHEMA_LEITURA_EMOCIONAL } },
         messages: [{ role: 'user', content: userPrompt }]
       })
     });
 
     const data = await resp.json();
     let txt = data.content.map(c => c.text || '').join('');
-    txt = txt.replace(/```json|```/g, '').trim();
+    txt = txt.trim();
     const avaliacao = JSON.parse(txt);
 
     avaliacaoAtual = { avaliacao, titulo, autor, genero };

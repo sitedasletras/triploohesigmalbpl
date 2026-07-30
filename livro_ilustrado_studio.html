@@ -255,22 +255,31 @@ async function _gerarLivroIlustradoInterna() {
 
 Todas as descrições: cena visual pura e concreta, sem texto/tipografia.
 
-Devolva APENAS um JSON válido, sem markdown, neste formato:
-{"capa":"...","contracapa":"...","orelhaDireita":"...","orelhaEsquerda":"...","internas":["...","..."]}
-
 TÍTULO: ${titulo || '(sem título definido)'}
 SINOPSE:
 ${sinopse.slice(0,4000)}`;
 
+    const SCHEMA_ROTEIRO_CAPAS = {
+      type: 'object',
+      properties: {
+        capa: { type: 'string', description: 'descrição visual em inglês pra a CAPA DIANTEIRA (a cena mais impactante/icônica do livro, com espaço negativo reservado no topo ou base pra encaixar título depois)' },
+        contracapa: { type: 'string', description: 'descrição visual em inglês pra a CONTRACAPA (variação/continuação da mesma cena/atmosfera da capa, mais discreta)' },
+        orelhaDireita: { type: 'string', description: 'descrição visual em inglês pra pequeno elemento decorativo ligado ao tema do livro' },
+        orelhaEsquerda: { type: 'string', description: 'descrição visual em inglês pra pequeno elemento decorativo ligado ao tema do livro' },
+        internas: { type: 'array', items: { type: 'string' }, description: `array com exatamente ${numInternas} descrições visuais em inglês, cada uma de um momento-chave diferente da narrativa, em ordem` }
+      },
+      required: ['capa', 'contracapa', 'orelhaDireita', 'orelhaEsquerda', 'internas']
+    };
+
     const respRoteiro = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: Math.min(8192, 600 + numInternas * 90), messages: [{ role: 'user', content: promptRoteiro }] })
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: Math.min(8192, 600 + numInternas * 90), output_config: { format: { type: 'json_schema', schema: SCHEMA_ROTEIRO_CAPAS } }, messages: [{ role: 'user', content: promptRoteiro }] })
     });
     if (!respRoteiro.ok) throw new Error(`Erro ${respRoteiro.status} ao roteirizar`);
     const dataRoteiro = await respRoteiro.json();
     const raw = dataRoteiro.content?.[0]?.text || '{}';
-    const roteiro = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    const roteiro = JSON.parse(raw.trim());
     log('✓ Conceitos roteirizados.');
 
     const negativePrompt = 'text, typography, words, letters, title, caption, subtitle, logo, watermark, signature, deformed, ugly, blurry, low quality';

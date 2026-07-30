@@ -928,6 +928,31 @@ async function salvarBiografiaGitHub(s) {
 }
 
 // ── EXTRAIR PERSONAGENS (apenas modo prosa) ───────────────────────────────────
+const SCHEMA_EXTRACAO_PERSONAGENS_DESAFIO = {
+  type: 'object',
+  properties: {
+    protagonista: {
+      type: 'object',
+      properties: { nome: { type: 'string' }, descricao: { type: 'string' }, papel: { type: 'string' } },
+      required: ['nome', 'descricao', 'papel']
+    },
+    antagonista: {
+      type: 'object',
+      properties: { nome: { type: 'string' }, descricao: { type: 'string' }, papel: { type: 'string' } },
+      required: ['nome', 'descricao', 'papel']
+    },
+    secundarios: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { nome: { type: 'string' }, descricao: { type: 'string' }, papel: { type: 'string' } },
+        required: ['nome', 'descricao', 'papel']
+      }
+    }
+  },
+  required: ['protagonista', 'antagonista', 'secundarios']
+};
+
 async function extrairESalvarPersonagens(s) {
   try {
     log('Extraindo personagens da obra...');
@@ -939,14 +964,9 @@ async function extrairESalvarPersonagens(s) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6', max_tokens: 800,
+        output_config: { format: { type: 'json_schema', schema: SCHEMA_EXTRACAO_PERSONAGENS_DESAFIO } },
         messages: [{ role: 'user', content:
-          `Leia esta obra e extraia os personagens. Retorne APENAS JSON, sem explicações:
-{
-  "protagonista": {"nome":"","descricao":"","papel":""},
-  "antagonista": {"nome":"","descricao":"","papel":""},
-  "secundarios": [{"nome":"","descricao":"","papel":""}]
-}
-Se não houver antagonista, deixe vazio. Máximo 3 secundários.
+          `Leia esta obra e extraia os personagens. Se não houver antagonista, deixe os campos vazios. Máximo 3 secundários.
 
 OBRA: ${s.titulo}
 ${s.corpo.substring(0, 3000)}`
@@ -955,7 +975,7 @@ ${s.corpo.substring(0, 3000)}`
     });
     const d = await r.json();
     const txt = (d.content||[]).map(b=>b.text||'').join('').trim();
-    const personagens = JSON.parse(txt.replace(/```json|```/g,'').trim());
+    const personagens = JSON.parse(txt.trim());
     personagens.obra = s.titulo;
     personagens.autor = s.het;
     personagens.data = new Date().toISOString();

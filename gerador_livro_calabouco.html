@@ -1857,37 +1857,89 @@ GÊNERO: ${genero}
 TEXTO (amostra):
 ${amostra}
 
-Identifique e liste em formato JSON:
-{
-  "personagens_com_historia_nao_contada": [
-    {"nome": "", "fissura": "", "titulo_sugerido": "", "semente": ""}
-  ],
-  "lugares_nao_explorados": [
-    {"lugar": "", "fissura": "", "titulo_sugerido": "", "semente": ""}
-  ],
-  "conflitos_em_aberto": [
-    {"conflito": "", "fissura": "", "titulo_sugerido": "", "semente": ""}
-  ],
-  "perguntas_sem_resposta": [
-    {"pergunta": "", "fissura": "", "titulo_sugerido": "", "semente": ""}
-  ],
-  "epocas_nao_visitadas": [
-    {"epoca": "", "fissura": "", "titulo_sugerido": "", "semente": ""}
-  ]
-}
+Identifique as fissuras narrativas, com no máximo 3 itens por categoria. Para cada item: "semente" é um parágrafo de 2-3 linhas descrevendo como essa fissura poderia virar uma nova obra independente.`;
 
-Para cada item: "semente" é um parágrafo de 2-3 linhas descrevendo como essa fissura poderia virar uma nova obra independente.
-Máximo 3 itens por categoria. Retorne APENAS o JSON válido, sem markdown.`;
+    const SCHEMA_FISSURAS = {
+      type: 'object',
+      properties: {
+        personagens_com_historia_nao_contada: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              nome: { type: 'string' },
+              fissura: { type: 'string' },
+              titulo_sugerido: { type: 'string' },
+              semente: { type: 'string' }
+            },
+            required: ['nome', 'fissura', 'titulo_sugerido', 'semente']
+          }
+        },
+        lugares_nao_explorados: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              lugar: { type: 'string' },
+              fissura: { type: 'string' },
+              titulo_sugerido: { type: 'string' },
+              semente: { type: 'string' }
+            },
+            required: ['lugar', 'fissura', 'titulo_sugerido', 'semente']
+          }
+        },
+        conflitos_em_aberto: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              conflito: { type: 'string' },
+              fissura: { type: 'string' },
+              titulo_sugerido: { type: 'string' },
+              semente: { type: 'string' }
+            },
+            required: ['conflito', 'fissura', 'titulo_sugerido', 'semente']
+          }
+        },
+        perguntas_sem_resposta: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              pergunta: { type: 'string' },
+              fissura: { type: 'string' },
+              titulo_sugerido: { type: 'string' },
+              semente: { type: 'string' }
+            },
+            required: ['pergunta', 'fissura', 'titulo_sugerido', 'semente']
+          }
+        },
+        epocas_nao_visitadas: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              epoca: { type: 'string' },
+              fissura: { type: 'string' },
+              titulo_sugerido: { type: 'string' },
+              semente: { type: 'string' }
+            },
+            required: ['epoca', 'fissura', 'titulo_sugerido', 'semente']
+          }
+        }
+      },
+      required: ['personagens_com_historia_nao_contada', 'lugares_nao_explorados', 'conflitos_em_aberto', 'perguntas_sem_resposta', 'epocas_nao_visitadas']
+    };
 
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] })
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1500, output_config: { format: { type: 'json_schema', schema: SCHEMA_FISSURAS } }, messages: [{ role: 'user', content: prompt }] })
     });
 
     if (!r.ok) return;
     const d = await r.json();
-    const txt = (d.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+    const txt = (d.content||[]).map(b=>b.text||'').join('').trim();
     const fissuras = JSON.parse(txt);
     fissuras.obra = titulo;
     fissuras.autor = autor;

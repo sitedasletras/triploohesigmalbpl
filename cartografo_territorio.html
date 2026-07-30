@@ -201,8 +201,36 @@ async function refinarTerritorio() {
 HETERÔNIMOS E TERRITÓRIOS:
 ${listaTerritorios}
 
-Responda APENAS em JSON válido, sem markdown, sem crases, sem texto antes ou depois, no formato:
-{"oportunidades":[{"titulo":"","resumo":"","tipo":"concurso|edital|festival|trend|outro","match":{"heteronimo":"<nome exato de um da lista, ou null>","justificativa":""},"gap":true|false,"territorioSugerido":"<preenchido apenas se gap=true>"}]}`;
+Identifique ONDE HÁ MATCH (um heterônimo cujo território cobre claramente a oportunidade) e ONDE HÁ LACUNA (nenhum heterônimo cobre aquele território).`;
+
+  const SCHEMA_CARTOGRAFO = {
+    type: 'object',
+    properties: {
+      oportunidades: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            titulo: { type: 'string' },
+            resumo: { type: 'string' },
+            tipo: { type: 'string', enum: ['concurso', 'edital', 'festival', 'trend', 'outro'] },
+            match: {
+              type: 'object',
+              properties: {
+                heteronimo: { anyOf: [{ type: 'string' }, { type: 'null' }], description: 'nome exato de um heterônimo da lista, ou null' },
+                justificativa: { type: 'string' }
+              },
+              required: ['heteronimo', 'justificativa']
+            },
+            gap: { type: 'boolean' },
+            territorioSugerido: { type: 'string', description: 'preenchido apenas se gap for true; string vazia caso contrário' }
+          },
+          required: ['titulo', 'resumo', 'tipo', 'match', 'gap', 'territorioSugerido']
+        }
+      }
+    },
+    required: ['oportunidades']
+  };
 
   const btn = document.getElementById('btn-refinar');
   btn.disabled = true;
@@ -216,12 +244,13 @@ Responda APENAS em JSON válido, sem markdown, sem crases, sem texto antes ou de
         model: 'claude-sonnet-4-6',
         max_tokens: 4000,
         system,
+        output_config: { format: { type: 'json_schema', schema: SCHEMA_CARTOGRAFO } },
         messages: [{ role: 'user', content: material }]
       })
     });
     const data = await resp.json();
     let txt = (data.content || []).map(c => c.text || '').join('');
-    txt = txt.replace(/```json|```/g, '').trim();
+    txt = txt.trim();
     const parsed = JSON.parse(txt);
 
     pendentes = { matches: [], gaps: [] };

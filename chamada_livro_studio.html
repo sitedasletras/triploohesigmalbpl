@@ -247,21 +247,36 @@ async function _gerarChamadaLivroInterna() {
     log('⏳ Roteirizando cenas com Claude...');
     const promptRoteiro = `Você é um diretor de arte especializado em "chamadas de livro" (book trailers) em estilo quadrinho animado — imagem parada com efeito de pan/zoom, sem vídeo de IA de verdade. Baseado na sinopse abaixo, crie exatamente ${numCenas} cenas visuais que contem o gancho da história de forma envolvente, uma sequência com começo, meio e fim (ou um clímax de suspense, se for mais adequado).
 
-Devolva APENAS um JSON válido, sem markdown, neste formato:
-{"cenas":[{"numero":1,"descricaoVisual":"descrição em inglês, cena visual pura e concreta, sem texto/tipografia, com foco no gancho emocional/narrativo desse momento da história"}]}
-
 SINOPSE:
 ${sinopse.slice(0,3000)}`;
+
+    const SCHEMA_ROTEIRO_CHAMADA_LIVRO = {
+      type: 'object',
+      properties: {
+        cenas: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              numero: { type: 'integer' },
+              descricaoVisual: { type: 'string', description: 'descrição em inglês, cena visual pura e concreta, sem texto/tipografia, com foco no gancho emocional/narrativo desse momento da história' }
+            },
+            required: ['numero', 'descricaoVisual']
+          }
+        }
+      },
+      required: ['cenas']
+    };
 
     const respRoteiro = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 2000, messages: [{ role: 'user', content: promptRoteiro }] })
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 2000, output_config: { format: { type: 'json_schema', schema: SCHEMA_ROTEIRO_CHAMADA_LIVRO } }, messages: [{ role: 'user', content: promptRoteiro }] })
     });
     if (!respRoteiro.ok) throw new Error(`Erro ${respRoteiro.status} ao roteirizar`);
     const dataRoteiro = await respRoteiro.json();
     const raw = dataRoteiro.content?.[0]?.text || '{}';
-    const roteiro = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    const roteiro = JSON.parse(raw.trim());
     const cenas = roteiro.cenas || [];
     if (!cenas.length) throw new Error('Claude não devolveu cenas válidas.');
     log(`✓ ${cenas.length} cenas roteirizadas.`);

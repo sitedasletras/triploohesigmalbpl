@@ -359,6 +359,18 @@ function showError(msg){
 /* ---------- Diagnóstico via API ---------- */
 diagButton.addEventListener('click', runDiagnosis);
 
+const SCHEMA_DIAGNOSTICO_VIDEO = {
+  type: 'object',
+  properties: {
+    tipo_de_conteudo: { type: 'string', description: 'string curta (ex: música, narrativa, curiosidade/documentário, situação real, publicidade, clipe abstrato)' },
+    atmosfera: { type: 'string', description: 'string descrevendo a atmosfera predominante em poucas palavras' },
+    mensagem_central: { type: 'string', description: '1 a 3 frases sobre o que o vídeo parece querer comunicar' },
+    elementos_narrativos: { type: 'array', items: { type: 'string' }, description: 'lista de 3 a 5 elementos visuais ou narrativos observados' },
+    ideia_inspiradora: { type: 'string', description: 'uma ideia criativa específica que um escritor ou criador poderia desenvolver a partir deste material' }
+  },
+  required: ['tipo_de_conteudo', 'atmosfera', 'mensagem_central', 'elementos_narrativos', 'ideia_inspiradora']
+};
+
 async function callClaudeAPI(content){
   // Ver nota de integração no topo do arquivo ao mover isso pro triplo.
   const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -367,6 +379,7 @@ async function callClaudeAPI(content){
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
       max_tokens: 1000,
+      output_config: { format: { type: 'json_schema', schema: SCHEMA_DIAGNOSTICO_VIDEO } },
       messages: [{ role: 'user', content }]
     })
   });
@@ -385,15 +398,7 @@ async function runDiagnosis(){
 
   const promptText = `Você é um analista de conteúdo audiovisual. Vai receber uma sequência de frames extraídos de um vídeo, em ordem cronológica.${captionText ? ' Também recebeu a transcrição do áudio do vídeo: "' + captionText.replace(/"/g,"'") + '"' : ''}
 
-Analise a sequência como um todo (composição, luz, cenário, movimento sugerido entre os frames, qualquer texto visível nas imagens, e a transcrição se houver) e responda ESTRITAMENTE em JSON, sem markdown, sem crases, sem texto antes ou depois, no seguinte formato:
-
-{
-  "tipo_de_conteudo": "string curta (ex: música, narrativa, curiosidade/documentário, situação real, publicidade, clipe abstrato)",
-  "atmosfera": "string descrevendo a atmosfera predominante em poucas palavras",
-  "mensagem_central": "1 a 3 frases sobre o que o vídeo parece querer comunicar",
-  "elementos_narrativos": ["lista de 3 a 5 elementos visuais ou narrativos observados"],
-  "ideia_inspiradora": "uma ideia criativa específica que um escritor ou criador poderia desenvolver a partir deste material"
-}`;
+Analise a sequência como um todo (composição, luz, cenário, movimento sugerido entre os frames, qualquer texto visível nas imagens, e a transcrição se houver).`;
 
   const content = extractedFrames.map(f => ({
     type: 'image',
@@ -405,7 +410,7 @@ Analise a sequência como um todo (composição, luz, cenário, movimento sugeri
     const data = await callClaudeAPI(content);
     const textBlock = (data.content || []).find(b => b.type === 'text');
     if(!textBlock) throw new Error('A resposta não trouxe texto de análise.');
-    let clean = textBlock.text.trim().replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
+    let clean = textBlock.text.trim();
     let parsed;
     try{ parsed = JSON.parse(clean); }
     catch(parseErr){ throw new Error('Não consegui interpretar a resposta da análise. Tenta novamente.'); }
