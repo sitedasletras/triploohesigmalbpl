@@ -320,7 +320,7 @@ window.addEventListener('load',()=>{
       if(!resultado) return;
       try{
         abrirModalDados();
-        exportarPDFRealCompleto();
+        exportarPDFRealCompleto(irParaCapa);
       }catch(e){
         console.error('Erro na diagramação automática:', e);
         $('status').textContent='Diagramação automática falhou: '+e.message;
@@ -489,7 +489,7 @@ function exportarLivroCompleto(){
 
 // PDF real (vetorial, com numeração e sumário navegável tipo Windows/CHM),
 // cobrindo o livro inteiro — pré-textuais + miolo + pós-textuais.
-function exportarPDFRealCompleto(){
+function exportarPDFRealCompleto(aoConcluir){
   if(!resultado||!window.CeleiroPretextuais||!window.CeleiroJuncao||!window.jspdf){
     alert('Motores de PDF não carregados.');return;
   }
@@ -517,6 +517,7 @@ function exportarPDFRealCompleto(){
       localStorage.setItem('lapidar_diagramacao_concluida','true');
       localStorage.setItem('lapidar_resultado_diagramacao',`Livro Técnico (PDF real) — Hércules`);
       $('status').textContent='✅ PDF real gerado com sucesso.';
+      if(typeof aoConcluir==='function') aoConcluir();
     }catch(e){$('status').textContent='Erro: '+e.message;console.error(e);}
   },100);
 }

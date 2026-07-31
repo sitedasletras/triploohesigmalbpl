@@ -292,16 +292,22 @@ window.addEventListener('load',()=>{
   detectarModo();
   if($('texto').value) render();
   // Diagramação automática — obra veio do Gerador de Livros pelo pipeline
-  // (linha de montagem): gera e baixa o PDF completo sozinho, sem exigir
-  // que alguém abra o formulário de dados manualmente. Só se aplica no modo
-  // Livro (o folheto de varal não tem pré/pós-textuais).
-  if($('texto').value && modoAtual==='livro' && localStorage.getItem('lapidar_diagramar_automatico')==='true'){
+  // (linha de montagem): gera sozinho e manda direto pro Capista, sem
+  // exigir que alguém abra formulário nenhum. No modo Livro gera o PDF
+  // completo (pré+miolo+pós); no modo Varal não existe parte técnica
+  // (sem pré/pós-textuais) — só exporta o folheto e já manda pro Capista.
+  if($('texto').value && localStorage.getItem('lapidar_diagramar_automatico')==='true'){
     localStorage.removeItem('lapidar_diagramar_automatico');
     setTimeout(()=>{
       if(!resultado) return;
       try{
-        abrirModalDados();
-        exportarPDFRealCompleto();
+        if(modoAtual==='livro'){
+          abrirModalDados();
+          exportarPDFRealCompleto(irParaCapa);
+        }else{
+          exportarCordel();
+          irParaCapa();
+        }
       }catch(e){
         console.error('Erro na diagramação automática:', e);
         $('status').textContent='Diagramação automática falhou: '+e.message;
@@ -503,7 +509,7 @@ function exportarLivroCompleto(){
 
 // PDF real (vetorial, com numeração e sumário navegável tipo Windows/CHM),
 // cobrindo o livro inteiro — pré-textuais + miolo + pós-textuais.
-function exportarPDFRealCompleto(){
+function exportarPDFRealCompleto(aoConcluir){
   if(!resultado||!window.CeleiroPretextuais||!window.CeleiroJuncao||!window.jspdf){
     alert('Motores de PDF não carregados.');return;
   }
@@ -526,6 +532,7 @@ function exportarPDFRealCompleto(){
       localStorage.setItem('lapidar_diagramacao_concluida','true');
       localStorage.setItem('lapidar_resultado_diagramacao',`Livro de Cordel (PDF real) — Quironxadá`);
       $('status').textContent='✅ PDF real gerado com sucesso.';
+      if(typeof aoConcluir==='function') aoConcluir();
     }catch(e){$('status').textContent='Erro: '+e.message;console.error(e);}
   },100);
 }
