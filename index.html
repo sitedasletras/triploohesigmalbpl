@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <script src="config.js"></script>
+<script src="motor_celeiro_v3.js"></script>
+<script src="motores_lapidar/motor_roteador_v1.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/index.umd.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIGMAL HQ · Painel Central</title>
@@ -684,6 +686,10 @@ body::before {
 .st-masmorra { border-color: rgba(211,47,47,0.4); color: #ff6b6b; }
 .st-calabouco { border-color: rgba(106,27,154,0.4); color: #ce93d8; }
 .st-pronto { border-color: rgba(21,101,192,0.4); color: #90caf9; }
+.st-concurso-critico { border-color: rgba(211,47,47,0.5); color: #ff6b6b; }
+.st-concurso-atencao { border-color: rgba(245,127,23,0.5); color: #f57f17; }
+.st-concurso-ok { border-color: rgba(0,200,83,0.4); color: var(--verde); }
+.st-concurso-enviado { border-color: rgba(21,101,192,0.4); color: #90caf9; }
 .fila-acoes { display: flex; gap: 0.4rem; }
 .fa-btn {
   font-family: 'Share Tech Mono', monospace;
@@ -1229,6 +1235,11 @@ body::before {
           <div class="dash-label">Heterônimos</div>
           <div class="dash-sub">OHE-Peçanha ativos</div>
         </div>
+        <div class="dash-card dc-corsi clicavel" onclick="irAla('ohe', document.querySelector('.ala-btn[onclick*=ohe]'))" title="Ver Concursos em Aberto">
+          <div class="dash-num" id="cnt-concursos">0</div>
+          <div class="dash-label">Concursos em Aberto</div>
+          <div class="dash-sub">editais aguardando envio</div>
+        </div>
       </div>
 
       <!-- Fluxo visual -->
@@ -1717,6 +1728,20 @@ body::before {
   </div>
 </div>
 
+      <!-- ===== CONCURSOS EM ABERTO (material de edital sai antes do Celeiro/Masmorra) ===== -->
+      <div class="sec-header" style="margin-top:2rem;">
+        <div>
+          <div class="sec-label">// OHE-PEÇANHA · ROTA DIRETA DE EDITAL</div>
+          <h2 class="sec-titulo">Concursos <em>em Aberto</em></h2>
+        </div>
+      </div>
+      <p style="font-family:'Crimson Pro',serif;font-style:italic;font-size:0.85rem;color:var(--prata);opacity:0.7;margin-bottom:1rem;line-height:1.6;">
+        Material enviado pela entrada "Edital" fica aqui, fora do Celeiro e da Masmorra, até ser enviado ou expirar.
+      </p>
+      <div id="concursos-ohe">
+        <div class="vazio"><div class="vazio-icon">📋</div><div class="vazio-txt">Nenhum concurso em aberto.<br>Use a entrada "Edital" acima para registrar um.</div></div>
+      </div>
+
       <!-- ===== FILA DE CURADORIA ===== -->
       <div class="sec-header" style="margin-top:2rem;">
         <div>
@@ -2109,6 +2134,7 @@ body::before {
             <button onclick="copiarLivro()" class="btn-p">📋 COPIAR LIVRO</button>
             <button onclick="exportarLivroWord(genLivroCompleto, document.getElementById('gen-titulo').value, document.getElementById('gen-heteronimo').value)" class="btn-p" style="background:#2b579a;border-color:#2b579a;">📄 EXPORTAR WORD</button>
             <button onclick="enviarLivroGeradoParaPaiol()" class="btn-s" style="border-color:#f57f17;color:#f57f17;">🏹 ENVIAR AO PAIOL</button>
+            <button onclick="enviarLivroGeradoParaDiagramador()" class="btn-s" style="border-color:#4caf50;color:#4caf50;">🛠️ ENVIAR AO DIAGRAMADOR</button>
             <button onclick="novoLivro()" class="btn-s">+ NOVO LIVRO</button>
             <button onclick="sairDoGerador()" class="btn-s">✕ SAIR DO GERADOR</button>
           </div>
@@ -2215,6 +2241,32 @@ body::before {
       <p style="font-family:'Crimson Pro',serif;font-style:italic;font-size:0.9rem;color:var(--prata);opacity:0.7;margin-bottom:1.5rem;line-height:1.6;">
         Obras literárias completas aguardam a Catapulta → Lapidar. Músicas prontas aguardam a Balestra → Silo Multimídia.
       </p>
+
+      <!-- LAPIDAR — ACESSO RÁPIDO AOS DIAGRAMADORES E CAPISTAS -->
+      <div class="sec-header" style="margin-bottom:1rem;">
+        <div>
+          <div class="sec-label">// LAPIDAR · DIAGRAMAÇÃO E CAPAS</div>
+          <h2 class="sec-titulo" style="font-size:1.1rem;">🛠️ Diagramadores & <em>Capistas</em></h2>
+        </div>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.15em;color:var(--ouro);opacity:0.5;text-transform:uppercase;margin-bottom:0.4rem;">// Dias Gramador — Diagramação</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.4rem;margin-bottom:1rem;">
+        <button class="btn-s" onclick="window.location.href='polux_v3.html'" style="text-align:left;font-size:0.52rem;">📜 Pólux — Prosa</button>
+        <button class="btn-s" onclick="window.location.href='apolo_v3.html'" style="text-align:left;font-size:0.52rem;">🎼 Apolo — Sonetos</button>
+        <button class="btn-s" onclick="window.location.href='castor_v3.html'" style="text-align:left;font-size:0.52rem;">🖋️ Castor — Poesia</button>
+        <button class="btn-s" onclick="window.location.href='samurai_v3.html'" style="text-align:left;font-size:0.52rem;">🎋 Samurai — Poesia Oriental</button>
+        <button class="btn-s" onclick="window.location.href='espartano_v3.html'" style="text-align:left;font-size:0.52rem;">🛡️ Espartano — Estrofista</button>
+        <button class="btn-s" onclick="window.location.href='quironxada_v3.html'" style="text-align:left;font-size:0.52rem;">🎭 Quironxadá — Cordel</button>
+        <button class="btn-s" onclick="window.location.href='centauro_v3.html'" style="text-align:left;font-size:0.52rem;">📚 Centauro — Híbrido</button>
+        <button class="btn-s" onclick="window.location.href='hercules_v3.html'" style="text-align:left;font-size:0.52rem;">🌿 Hércules — Técnico</button>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.15em;color:var(--ouro);opacity:0.5;text-transform:uppercase;margin-bottom:0.4rem;">// OKapista — Capas</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.4rem;margin-bottom:1.5rem;">
+        <button class="btn-s" onclick="window.location.href='okapista_literario.html'" style="text-align:left;font-size:0.52rem;">🖼️ OKapista Literário</button>
+        <button class="btn-s" onclick="window.location.href='okapista_cordel.html'" style="text-align:left;font-size:0.52rem;">🖼️ OKapista Cordel</button>
+        <button class="btn-s" onclick="window.location.href='okapista_polimata.html'" style="text-align:left;font-size:0.52rem;">🖼️ OKapista Polimata</button>
+        <button class="btn-s" onclick="window.location.href='barracao_polimento_imagens.html'" style="text-align:left;font-size:0.52rem;">🧰 Barracão de Polimento</button>
+      </div>
 
       <!-- PAIOL LITERÁRIO -->
       <div class="sec-header" style="margin-bottom:1rem;">
@@ -2412,6 +2464,7 @@ let estado = {
   fila: [],
   masmorra: [],
   calabouco: [],
+  concursos: [],
   paiol: { literario: [], musical: [] },
   estudios: [],
   silo: { livros:[], singles:[], lps:[], clips:[] },
@@ -2429,6 +2482,8 @@ function carregar() {
     if (!estado.paiol) estado.paiol = { literario: [], musical: [] };
     if (!estado.paiol.literario) estado.paiol.literario = [];
     if (!estado.paiol.musical) estado.paiol.musical = [];
+    // Migração: garantir que concursos existe em estados antigos
+    if (!estado.concursos) estado.concursos = [];
   }
 }
 
@@ -2483,7 +2538,7 @@ function irAla(id, el) {
     setTimeout(() => {
       if (id === 'masmorra') renderizarMasmorra();
       else if (id === 'calabouco') renderizarCalabouco();
-      else if (id === 'ohe') renderizarFila();
+      else if (id === 'ohe') { renderizarFila(); renderizarConcursos(); }
       else if (id === 'paiol') renderizarPaiol();
       else if (id === 'dashboard') atualizarContadores();
       else if (id === 'gerador') carregarItemNoGerador();
@@ -2704,23 +2759,21 @@ function enviarParaFila(tipo) {
     document.getElementById('img-upload').value = '';
   }
 
-  // Editais vão para a Masmorra com quarentena
+  // Editais/concursos saem antes de entrar no Celeiro ou na Masmorra — rota própria
   if (tipo === 'edital') {
     const prazoStr = document.getElementById('ed-prazo').value;
-    const dataEntrada = new Date();
-    const dataLiberacao = new Date(dataEntrada);
-    dataLiberacao.setDate(dataLiberacao.getDate() + 750);
-    estado.masmorra.push({
-      ...item,
-      autor: 'A definir por Fernando Peçanha',
-      dataEntrada: dataEntrada.toISOString(),
-      dataLiberacao: dataLiberacao.toISOString(),
-      diasTotal: 750,
-      prazoEdital: prazoStr
+    const tipoEdital = document.getElementById('ed-tipo').value || '—';
+    estado.concursos.push({
+      id: item.id,
+      titulo,
+      tipoEdital,
+      prazo: prazoStr || null,
+      status: 'aberto',
+      dataEntrada: new Date().toISOString()
     });
-    renderizarMasmorra();
+    renderizarConcursos();
     atualizarContadores();
-    notif('ENVIADO PARA MASMORRA', `"${titulo}" entrou em quarentena de 750 dias.`, 'info');
+    notif('CONCURSO REGISTRADO', `"${titulo}" está na lista de concursos em aberto.`, 'info');
   } else {
     estado.fila.push(item);
     renderizarFila();
@@ -2756,6 +2809,66 @@ function renderizarFila() {
     </div>
   `).join('');
   atualizarContadores();
+}
+
+// ===================== CONCURSOS (rota direta de Edital) =====================
+function diasAtePrazo(prazoStr) {
+  if (!prazoStr) return null;
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const prazo = new Date(prazoStr + 'T00:00:00');
+  if (isNaN(prazo.getTime())) return null;
+  return Math.round((prazo - hoje) / 86400000);
+}
+
+function renderizarConcursos() {
+  const el = document.getElementById('concursos-ohe');
+  if (!el) { setTimeout(renderizarConcursos, 100); return; }
+  if (!estado.concursos.length) {
+    el.innerHTML = `<div class="vazio"><div class="vazio-icon">📋</div><div class="vazio-txt">Nenhum concurso em aberto.<br>Use a entrada "Edital" acima para registrar um.</div></div>`;
+    return;
+  }
+  el.innerHTML = estado.concursos.map((c, i) => {
+    const dias = diasAtePrazo(c.prazo);
+    let statusClasse = 'st-concurso-ok', statusTexto = c.prazo ? `PRAZO: ${new Date(c.prazo+'T00:00:00').toLocaleDateString('pt-BR')}` : 'SEM PRAZO DEFINIDO';
+    if (c.status === 'enviado') { statusClasse = 'st-concurso-enviado'; statusTexto = '✓ ENVIADO'; }
+    else if (dias !== null) {
+      if (dias < 0) { statusClasse = 'st-concurso-critico'; statusTexto = `EXPIRADO HÁ ${Math.abs(dias)}D`; }
+      else if (dias <= 7) { statusClasse = 'st-concurso-critico'; statusTexto = `${dias}D RESTANTES`; }
+      else if (dias <= 30) { statusClasse = 'st-concurso-atencao'; statusTexto = `${dias}D RESTANTES`; }
+      else { statusTexto = `${dias}D RESTANTES`; }
+    }
+    return `
+    <div class="fila-item">
+      <div class="fila-idx">${String(i+1).padStart(2,'0')}</div>
+      <div class="fila-info">
+        <div class="fila-titulo">${c.titulo}</div>
+        <div class="fila-meta">${c.tipoEdital} · registrado em ${new Date(c.dataEntrada).toLocaleDateString('pt-BR')}</div>
+      </div>
+      <div class="fila-status ${statusClasse}">${statusTexto}</div>
+      <div class="fila-acoes">
+        ${c.status !== 'enviado' ? `<button class="fa-btn" onclick="marcarConcursoEnviado(${i})">✓ MARCAR ENVIADO</button>` : ''}
+        <button class="fa-btn" onclick="removerConcurso(${i})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+  atualizarContadores();
+}
+
+function marcarConcursoEnviado(i) {
+  if (!estado.concursos[i]) return;
+  estado.concursos[i].status = 'enviado';
+  salvar();
+  renderizarConcursos();
+  notif('CONCURSO ENVIADO', `"${estado.concursos[i].titulo}" marcado como enviado.`, 'sucesso');
+}
+
+function removerConcurso(i) {
+  if (!estado.concursos[i]) return;
+  const titulo = estado.concursos[i].titulo;
+  estado.concursos.splice(i, 1);
+  salvar();
+  renderizarConcursos();
+  notif('CONCURSO REMOVIDO', `"${titulo}" removido da lista.`, 'info');
 }
 
 
@@ -2875,6 +2988,34 @@ async function atualizarBiografiaComObra(item) {
   }
 }
 
+const PLATAFORMAS_POSTAGEM = [
+  { id:'uiclap', nome:'Uiclap' },
+  { id:'clubeAutores', nome:'Clube de Autores' },
+  { id:'bok2', nome:'Bok2' },
+  { id:'podEditora', nome:'POD Editora' },
+  { id:'amazonKdp', nome:'Amazon KDP' },
+  { id:'ingramSpark', nome:'IngramSpark' },
+  { id:'lulu', nome:'Lulu' },
+  { id:'draft2Digital', nome:'Draft2Digital' },
+];
+
+function toggleEpubPronto(i) {
+  const item = estado.paiol.literario[i];
+  if (!item) return;
+  item.epubPronto = !item.epubPronto;
+  salvar();
+  renderizarPaiol();
+}
+
+function togglePostagem(i, plataformaId) {
+  const item = estado.paiol.literario[i];
+  if (!item) return;
+  if (!item.postagens) item.postagens = {};
+  item.postagens[plataformaId] = !item.postagens[plataformaId];
+  salvar();
+  renderizarPaiol();
+}
+
 function renderizarPaiol() {
   // Literário
   const elLit = document.getElementById('grade-paiol-literario');
@@ -2882,17 +3023,37 @@ function renderizarPaiol() {
     if (!estado.paiol.literario.length) {
       elLit.innerHTML = '<div class="vazio" style="grid-column:1/-1;"><div class="vazio-icon">📦</div><div class="vazio-txt">Nenhuma obra literária no Paiol ainda.</div></div>';
     } else {
-      elLit.innerHTML = estado.paiol.literario.map((item, i) => `
+      elLit.innerHTML = estado.paiol.literario.map((item, i) => {
+        const postagens = item.postagens || {};
+        const totalPostado = PLATAFORMAS_POSTAGEM.filter(p => postagens[p.id]).length;
+        const statusTexto = totalPostado === 0 ? 'AGUARDANDO POSTAGEM'
+          : totalPostado === PLATAFORMAS_POSTAGEM.length ? '✓ POSTADO EM TUDO'
+          : `POSTADO EM ${totalPostado}/${PLATAFORMAS_POSTAGEM.length}`;
+        const statusCor = totalPostado === 0 ? '#f57f17' : totalPostado === PLATAFORMAS_POSTAGEM.length ? 'var(--verde)' : '#90caf9';
+        return `
         <div style="background:var(--preto-mid);border:1px solid rgba(245,127,23,0.25);padding:1.2rem;border-left:3px solid #f57f17;">
           <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.15em;color:#f57f17;text-transform:uppercase;margin-bottom:0.3rem;">${item.autor || 'Autor a definir'}</div>
           <div style="font-family:'Cinzel',serif;font-size:0.95rem;color:var(--creme);margin-bottom:0.5rem;">${item.titulo}</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:var(--prata);margin-bottom:0.8rem;">${item.tipo || 'Obra'} · ${item.dataEntrada || ''} · ${item.paginas ? item.paginas + ' pág' : ''}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:var(--prata);margin-bottom:0.5rem;">${item.tipo || 'Obra'} · ${item.dataEntrada || ''} · ${item.paginas ? item.paginas + ' pág' : ''}</div>
+          <label style="display:flex;align-items:center;gap:0.3rem;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.3rem;color:${item.epubPronto?'var(--verde)':'var(--prata)'};">
+            <input type="checkbox" ${item.epubPronto?'checked':''} onchange="toggleEpubPronto(${i})" style="cursor:pointer;">
+            📱 EPUB ${item.epubPronto?'pronto':'pendente'}
+          </label>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:${statusCor};text-transform:uppercase;margin-bottom:0.6rem;">🖨 FÍSICO — ${statusTexto}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.2rem;margin-bottom:0.8rem;font-family:'Share Tech Mono',monospace;font-size:0.42rem;color:var(--prata);">
+            ${PLATAFORMAS_POSTAGEM.map(p => `
+              <label style="display:flex;align-items:center;gap:0.3rem;cursor:pointer;${postagens[p.id]?'color:var(--verde);':''}">
+                <input type="checkbox" ${postagens[p.id]?'checked':''} onchange="togglePostagem(${i},'${p.id}')" style="cursor:pointer;">
+                ${p.nome}
+              </label>`).join('')}
+          </div>
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
             <button class="fa-btn" onclick="verConteudoPaiol('literario', ${i})">👁 VER</button>
             <button class="fa-btn" style="color:#f57f17;border-color:#f57f17;" onclick="catapultarItem(${i})">🏹 CATAPULTAR</button>
             <button class="fa-btn" style="color:var(--vermelho);border-color:var(--vermelho);" onclick="removerPaiol('literario', ${i})">✕</button>
           </div>
-        </div>`).join('');
+        </div>`;
+      }).join('');
     }
   }
   // Musical
@@ -2941,7 +3102,8 @@ function moverParaPaiol(i) {
   estado.paiol.literario.push({
     ...item,
     dataEntrada: new Date().toLocaleDateString('pt-BR'),
-    status: 'no-paiol'
+    status: 'no-paiol',
+    postagens: {}
   });
   salvar();
   renderizarCalabouco();
@@ -3821,6 +3983,7 @@ function atualizarContadores() {
   document.getElementById('cnt-fila').textContent = estado.fila.length;
   document.getElementById('cnt-masmorra').textContent = estado.masmorra.length;
   document.getElementById('cnt-calabouco').textContent = estado.calabouco.length;
+  document.getElementById('cnt-concursos').textContent = estado.concursos.filter(c => c.status !== 'enviado').length;
   const totalSingles = estado.estudios.reduce((a,e) => a + e.singles.length, 0);
   document.getElementById('cnt-singles').textContent = totalSingles;
   document.getElementById('cnt-estudios').textContent = estado.estudios.length;
@@ -4654,7 +4817,8 @@ function enviarLivroGeradoParaPaiol() {
   estado.paiol.literario.push({
     ...item,
     dataEntrada: new Date().toLocaleDateString('pt-BR'),
-    status: 'no-paiol'
+    status: 'no-paiol',
+    postagens: {}
   });
   salvar();
   renderizarCalabouco();
@@ -4663,6 +4827,29 @@ function enviarLivroGeradoParaPaiol() {
   genUltimoItemIdx = null;
   genUltimoItemOrigem = null;
   notif('PAIOL', `"${item.titulo}" enviado diretamente para o Paiol Literário.`, 'sucesso');
+}
+
+function enviarLivroGeradoParaDiagramador() {
+  if (!genLivroCompleto || !genLivroCompleto.trim()) {
+    notif('NADA PARA ENVIAR', 'Nenhum livro gerado nesta sessão ainda.', 'erro');
+    return;
+  }
+  if (!window.CeleiroRoteador) {
+    notif('MOTOR NÃO CARREGOU', 'Roteador de gênero não carregou — recarregue a página.', 'erro');
+    return;
+  }
+  const titulo = document.getElementById('gen-titulo').value || 'Obra sem título';
+  const heteronimo = document.getElementById('gen-heteronimo').value || '';
+  const resultado = window.CeleiroRoteador.encaminhar(genLivroCompleto);
+  if (!resultado.arquivo) {
+    notif('TEXTO VAZIO', 'Não foi possível classificar o texto para roteamento.', 'erro');
+    return;
+  }
+  localStorage.setItem('obra_titulo', titulo);
+  localStorage.setItem('obra_autor', heteronimo);
+  localStorage.setItem('lapidar_diagramar_automatico', 'true');
+  notif('ENVIANDO AO DIAGRAMADOR', `Detectei ${resultado.nome} — redirecionando...`, 'sucesso');
+  setTimeout(() => { window.location.href = resultado.arquivo; }, 700);
 }
 
 function sairDoGerador() {
@@ -5210,37 +5397,45 @@ TÍTULO: ${titulo || 'Sem título'}
 TEXTO:
 ${trechoAnalise}
 
-Responda APENAS em formato JSON válido, sem markdown, sem texto fora do JSON, seguindo exatamente esta estrutura:
-{
-  "nota": (número de 0 a 10, com uma casa decimal, ex: 8.5),
-  "resumo": "uma frase de avaliação geral",
-  "pontos_fortes": ["item 1", "item 2", "item 3"],
-  "pontos_fracos": ["item 1", "item 2"],
-  "recomendacao": "pronto" ou "revisar",
-  "o_que_revisar": "se recomendacao for revisar, explique objetivamente o que precisa ser corrigido. Se for pronto, deixe vazio.",
-  "sugestoes_trecho": [
-    {
-      "localizacao": "ex: Capítulo 4, terceiro parágrafo",
-      "trecho_original": "cole aqui o trecho EXATO copiado do texto original, palavra por palavra, para que possa ser localizado e substituído",
-      "trecho_sugerido": "a versão reescrita deste mesmo trecho, resolvendo o problema apontado",
-      "motivo": "explicação objetiva de por que esta troca melhora a obra — ritmo, profundidade de personagem, consistência, tensão dramática, etc",
-      "nota_estimada_apos": (número de 0 a 10 estimando a nota da obra SE esta sugestão for aplicada)
-    }
-  ]
-}
-
 Para "sugestoes_trecho": escolha no MÁXIMO 3 trechos — os que mais desvalorizam a obra. Se a obra já estiver excelente sem pontos fracos relevantes, retorne um array vazio []. O "trecho_original" precisa ser uma cópia EXATA e LITERAL de uma passagem do texto fornecido (mínimo 2 frases, máximo 1 parágrafo), para que o sistema consiga localizá-la e substituí-la automaticamente.`;
+
+  const SCHEMA_ANALISE_OBRA = {
+    type: 'object',
+    properties: {
+      nota: { type: 'number', description: 'número de 0 a 10, com uma casa decimal, ex: 8.5' },
+      resumo: { type: 'string', description: 'uma frase de avaliação geral' },
+      pontos_fortes: { type: 'array', items: { type: 'string' } },
+      pontos_fracos: { type: 'array', items: { type: 'string' } },
+      recomendacao: { type: 'string', enum: ['pronto', 'revisar'] },
+      o_que_revisar: { type: 'string', description: 'se recomendacao for revisar, explique objetivamente o que precisa ser corrigido. Se for pronto, deixe vazio.' },
+      sugestoes_trecho: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            localizacao: { type: 'string', description: 'ex: Capítulo 4, terceiro parágrafo' },
+            trecho_original: { type: 'string', description: 'cole aqui o trecho EXATO copiado do texto original, palavra por palavra, para que possa ser localizado e substituído' },
+            trecho_sugerido: { type: 'string', description: 'a versão reescrita deste mesmo trecho, resolvendo o problema apontado' },
+            motivo: { type: 'string', description: 'explicação objetiva de por que esta troca melhora a obra — ritmo, profundidade de personagem, consistência, tensão dramática, etc' },
+            nota_estimada_apos: { type: 'number', description: 'número de 0 a 10 estimando a nota da obra SE esta sugestão for aplicada' }
+          },
+          required: ['localizacao', 'trecho_original', 'trecho_sugerido', 'motivo', 'nota_estimada_apos']
+        }
+      }
+    },
+    required: ['nota', 'resumo', 'pontos_fortes', 'pontos_fracos', 'recomendacao', 'o_que_revisar', 'sugestoes_trecho']
+  };
 
   let analiseIA = null;
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] })
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4000, output_config: { format: { type: 'json_schema', schema: SCHEMA_ANALISE_OBRA } }, messages: [{ role: 'user', content: prompt }] })
     });
     if (response.ok) {
       const data = await response.json();
-      const textoResp = data.content[0].text.replace(/```json|```/g, '').trim();
+      const textoResp = data.content[0].text.trim();
       analiseIA = JSON.parse(textoResp);
     }
   } catch(e) {
@@ -5535,11 +5730,35 @@ function salvarEstadoGeracao(estado) { localStorage.setItem('geracao_pausada', J
 function limparEstadoGeracao() { localStorage.removeItem('geracao_pausada'); }
 function carregarEstadoGeracao() { const s = localStorage.getItem('geracao_pausada'); return s ? JSON.parse(s) : null; }
 
+function receberPaiolPendente() {
+  const pendenteStr = localStorage.getItem('paiol_pendente_literario');
+  if (!pendenteStr) return;
+  localStorage.removeItem('paiol_pendente_literario');
+  let pendente;
+  try { pendente = JSON.parse(pendenteStr); } catch (e) { return; }
+  if (!pendente || !pendente.titulo) return;
+  estado.paiol.literario.push({
+    titulo: pendente.titulo,
+    autor: pendente.autor || '',
+    tipo: pendente.tipo || 'Obra',
+    paginas: pendente.paginas || null,
+    epubPronto: !!pendente.epubPronto,
+    dataEntrada: new Date().toLocaleDateString('pt-BR'),
+    status: 'no-paiol',
+    postagens: {}
+  });
+  salvar();
+  notif('PAIOL', `"${pendente.titulo}" chegou do capista — diagramação e capa prontas.`, 'sucesso');
+  setTimeout(() => irAla('paiol', document.querySelector('.ala-btn[onclick*=paiol]')), 300);
+}
+
 function init() {
   carregar();
+  receberPaiolPendente();
   // Aguardar DOM completo antes de renderizar
   setTimeout(() => {
     renderizarFila();
+    renderizarConcursos();
     renderizarMasmorra();
     renderizarCalabouco();
     renderizarEstudios();

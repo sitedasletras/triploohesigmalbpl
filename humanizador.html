@@ -573,24 +573,26 @@ function toast(msg) {
 }
 
 // ── CHAMADA À API ──
-async function chamarClaude(system, user, maxTokens = 4000) {
+async function chamarClaude(system, user, maxTokens = 4000, schema = null) {
+  const body = {
+    model: 'claude-sonnet-4-6',
+    max_tokens: maxTokens,
+    system,
+    messages: [{ role: 'user', content: user }]
+  };
+  if (schema) body.output_config = { format: { type: 'json_schema', schema } };
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: maxTokens,
-      system,
-      messages: [{ role: 'user', content: user }]
-    })
+    body: JSON.stringify(body)
   });
   const data = await resp.json();
   return data.content.map(c => c.text || '').join('');
 }
 
-async function chamarClaudeJSON(system, user, maxTokens = 3000) {
-  const txt = await chamarClaude(system, user, maxTokens);
-  return JSON.parse(txt.replace(/```json|```/g,'').trim());
+async function chamarClaudeJSON(system, user, maxTokens = 3000, schema = null) {
+  const txt = await chamarClaude(system, user, maxTokens, schema);
+  return JSON.parse(txt.trim());
 }
 
 // ── PASSAGEM 1: DETECÇÃO ──
@@ -599,19 +601,31 @@ async function passagem1_deteccao(texto) {
 
   const system = `Você é um detector especializado em marcas de escrita gerada por IA. Analise o texto e identifique TODAS as marcas.
 
-Responda APENAS em JSON:
-{
-  "marcas": [
-    {"tipo": "string", "trecho": "string (até 60 chars)", "motivo": "string"}
-  ],
-  "score_ia": 0-100,
-  "principais_problemas": ["string"],
-  "texto_com_nivel": "baixo|medio|alto|critico"
-}
-
 Tipos de marcas: simetria_excessiva, palavra_gatilho_ia, ritmo_mecanico, paragrafo_uniforme, transicao_artificial, explicacao_desnecessaria, adjetivacao_generica, ausencia_imperfeicao, estrutura_previsivel, voz_neutra_demais`;
 
-  const resultado = await chamarClaudeJSON(system, `Analise este texto:\n\n${texto}`);
+  const SCHEMA_DETECCAO_IA = {
+    type: 'object',
+    properties: {
+      marcas: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            tipo: { type: 'string' },
+            trecho: { type: 'string', description: 'até 60 chars' },
+            motivo: { type: 'string' }
+          },
+          required: ['tipo', 'trecho', 'motivo']
+        }
+      },
+      score_ia: { type: 'number', description: '0 a 100' },
+      principais_problemas: { type: 'array', items: { type: 'string' } },
+      texto_com_nivel: { type: 'string', enum: ['baixo', 'medio', 'alto', 'critico'] }
+    },
+    required: ['marcas', 'score_ia', 'principais_problemas', 'texto_com_nivel']
+  };
+
+  const resultado = await chamarClaudeJSON(system, `Analise este texto:\n\n${texto}`, 3000, SCHEMA_DETECCAO_IA);
   setEtapa(1, 'concluida', `${resultado.marcas?.length || 0} marcas detectadas · Score IA: ${resultado.score_ia}%`);
   return resultado;
 }
@@ -670,27 +684,34 @@ Responda APENAS com o texto reescrito na sua voz.`;
 async function passagem4_verificacao(texto, het) {
   setEtapa(4, 'ativa', 'Claude verificando o próprio texto — procurando marcas residuais...');
 
-  const system = `Você é um avaliador especialista em detectar texto gerado por IA. Avalie este texto com máxima rigorosidade.
+  const system = `Você é um avaliador especialista em detectar texto gerado por IA. Avalie este texto com máxima rigorosidade.`;
 
-Responda APENAS em JSON:
-{
-  "score_humanidade": 0-100,
-  "indetectavel": true/false,
-  "marcas_residuais": ["string"],
-  "pontos_fortes": ["string"],
-  "avaliacao": "string (parágrafo honesto)",
-  "recomendacao": "aprovado|mais_uma_passagem|revisao_manual",
-  "metricas": {
-    "variedade_ritmica": 0-100,
-    "naturalidade_vocabular": 0-100,
-    "imperfeicoes_humanas": 0-100,
-    "voz_autoral": 0-100,
-    "ausencia_marcas_ia": 0-100
-  }
-}`;
+  const SCHEMA_VERIFICACAO_HUMANIZACAO = {
+    type: 'object',
+    properties: {
+      score_humanidade: { type: 'number', description: '0 a 100' },
+      indetectavel: { type: 'boolean' },
+      marcas_residuais: { type: 'array', items: { type: 'string' } },
+      pontos_fortes: { type: 'array', items: { type: 'string' } },
+      avaliacao: { type: 'string', description: 'parágrafo honesto' },
+      recomendacao: { type: 'string', enum: ['aprovado', 'mais_uma_passagem', 'revisao_manual'] },
+      metricas: {
+        type: 'object',
+        properties: {
+          variedade_ritmica: { type: 'number', description: '0 a 100' },
+          naturalidade_vocabular: { type: 'number', description: '0 a 100' },
+          imperfeicoes_humanas: { type: 'number', description: '0 a 100' },
+          voz_autoral: { type: 'number', description: '0 a 100' },
+          ausencia_marcas_ia: { type: 'number', description: '0 a 100' }
+        },
+        required: ['variedade_ritmica', 'naturalidade_vocabular', 'imperfeicoes_humanas', 'voz_autoral', 'ausencia_marcas_ia']
+      }
+    },
+    required: ['score_humanidade', 'indetectavel', 'marcas_residuais', 'pontos_fortes', 'avaliacao', 'recomendacao', 'metricas']
+  };
 
   const resultado = await chamarClaudeJSON(system,
-    `Avalie se este texto parece escrito por ${het.nome} (humano) ou por IA:\n\n${texto}`);
+    `Avalie se este texto parece escrito por ${het.nome} (humano) ou por IA:\n\n${texto}`, 3000, SCHEMA_VERIFICACAO_HUMANIZACAO);
 
   const nota = resultado.score_humanidade || 0;
   const status = nota >= 90 ? '✓ INDETECTÁVEL' : nota >= 75 ? '⚠ QUASE LÁ' : '✗ PRECISA MAIS';

@@ -489,21 +489,38 @@ Pra cada painel, identifique:
 - "personagem": o NOME EXATO do personagem que fala nesse painel, ou null se não houver fala de personagem.
 - "fala": o texto da fala em português (curto, direto, no máximo 20 palavras — precisa caber num balão de quadrinho), ou uma frase de NARRAÇÃO curta se não houver personagem falando, ou null se o painel for mudo.
 
-Devolva APENAS um JSON válido, sem markdown, neste formato:
-{"paineis":[{"numero":1,"descricaoVisual":"...","personagem":"Nome ou null","fala":"texto ou null"}]}
-
 HISTÓRIA:
 ${historia.slice(0,12000)}`;
+
+    const SCHEMA_ROTEIRO_QUADRINHO = {
+      type: 'object',
+      properties: {
+        paineis: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              numero: { type: 'integer' },
+              descricaoVisual: { type: 'string', description: 'descrição em inglês, cena visual pura e concreta, sem texto/tipografia, focada na ação/emoção daquele momento' },
+              personagem: { anyOf: [{ type: 'string' }, { type: 'null' }], description: 'o NOME EXATO do personagem que fala nesse painel, ou null se não houver fala de personagem' },
+              fala: { anyOf: [{ type: 'string' }, { type: 'null' }], description: 'o texto da fala em português (curto, direto, no máximo 20 palavras), ou uma frase de narração curta, ou null se o painel for mudo' }
+            },
+            required: ['numero', 'descricaoVisual', 'personagem', 'fala']
+          }
+        }
+      },
+      required: ['paineis']
+    };
 
     const respRoteiro = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: maxTokens, messages: [{ role: 'user', content: promptRoteiro }] })
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: maxTokens, output_config: { format: { type: 'json_schema', schema: SCHEMA_ROTEIRO_QUADRINHO } }, messages: [{ role: 'user', content: promptRoteiro }] })
     });
     if (!respRoteiro.ok) throw new Error(`Erro ${respRoteiro.status} ao roteirizar`);
     const dataRoteiro = await respRoteiro.json();
     const raw = dataRoteiro.content?.[0]?.text || '{}';
-    const roteiro = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    const roteiro = JSON.parse(raw.trim());
     const paineis = roteiro.paineis || [];
     if (!paineis.length) throw new Error('Claude não devolveu painéis válidos.');
     log(`✓ ${paineis.length} painéis roteirizados.`);

@@ -417,22 +417,43 @@ async function iniciarLapidacao() {
   document.getElementById('resultado').classList.remove('visivel');
   iniciarLoading();
 
-  const system = `Você é um lapidador literário psicológico — especialista em refinar obras com base na psicologia dos personagens.
+  const system = `Você é um lapidador literário psicológico — especialista em refinar obras com base na psicologia dos personagens.`;
 
-Responda APENAS em JSON válido, sem markdown, sem backticks.
-
-Estrutura JSON exata:
-{
-  "texto_lapidado": "string (texto completo após lapidação)",
-  "comparativo": [
-    {"original": "string (trecho original)", "lapidado": "string (trecho reescrito)", "motivo": "string"}
-  ],
-  "sugestoes": [
-    {"tipo": "dialogo|reacao|antagonista|emocao|worldbuilding", "titulo": "string", "texto": "string", "original": "string", "lapidado": "string"}
-  ],
-  "relatorio": "string (relatório completo da lapidação)",
-  "ganhos": ["string"]
-}`;
+  const SCHEMA_LAPIDACAO = {
+    type: 'object',
+    properties: {
+      texto_lapidado: { type: 'string', description: 'texto completo após lapidação' },
+      comparativo: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            original: { type: 'string', description: 'trecho original' },
+            lapidado: { type: 'string', description: 'trecho reescrito' },
+            motivo: { type: 'string' }
+          },
+          required: ['original', 'lapidado', 'motivo']
+        }
+      },
+      sugestoes: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            tipo: { type: 'string', enum: ['dialogo', 'reacao', 'antagonista', 'emocao', 'worldbuilding'] },
+            titulo: { type: 'string' },
+            texto: { type: 'string' },
+            original: { type: 'string' },
+            lapidado: { type: 'string' }
+          },
+          required: ['tipo', 'titulo', 'texto', 'original', 'lapidado']
+        }
+      },
+      relatorio: { type: 'string', description: 'relatório completo da lapidação' },
+      ganhos: { type: 'array', items: { type: 'string' } }
+    },
+    required: ['texto_lapidado', 'comparativo', 'sugestoes', 'relatorio', 'ganhos']
+  };
 
   const user = `Lapidar psicologicamente este texto:
 
@@ -455,11 +476,12 @@ Aplique a lapidação psicológica conforme os tipos solicitados e retorne o JSO
         model: 'claude-sonnet-4-6',
         max_tokens: 5000,
         system,
+        output_config: { format: { type: 'json_schema', schema: SCHEMA_LAPIDACAO } },
         messages: [{ role: 'user', content: user }]
       })
     });
     const data = await resp.json();
-    let txt = data.content.map(c => c.text||'').join('').replace(/```json|```/g,'').trim();
+    let txt = data.content.map(c => c.text||'').join('').trim();
     const lap = JSON.parse(txt);
     lapidacaoAtual = { lap, titulo, autor, textoOriginal: texto };
     pararLoading();

@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hércules — Diagramador Técnico</title>
+<script src="config.js"></script>
+<script src="motor_celeiro_v3.js"></script>
+<script src="motores_lapidar/finais/motor_decoracao_editorial_v1.js"></script>
+<script src="motor_pretextuais_v2.js"></script>
+<script src="motor_juncao_v1.js"></script>
+<script src="motores_lapidar/motor_upload_manuscrito_v1.js"></script>
+<script src="motores_lapidar/motor_exportacao_pdf_v1.js"></script>
+<script src="motores_lapidar/finais/motor_paginacao_real_v1.js"></script>
+<script src="motores_lapidar/finais/motor_exportacao_final_pdf_epub_v1.js"></script>
+<script src="motores_lapidar/finais/motor_decoracao_editorial_v1.js"></script>
+<script src="diagramacao/motor/adaptador_hercules.js"></script>
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{
+  --ouro:#7ac97a;--ouro2:#a8e4a8;--azul:#003a1a;
+  --paper:#f5fff5;--ink:#001a08;--muted:#3a6a3a;--line:#b0d8b0;
+  --ok:#2f7a59;--warn:#b7921e;--danger:#b13a3a;
+  --shadow:0 12px 32px rgba(0,0,0,.10);--radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100vh;background:linear-gradient(135deg,#001508,#002e14);font-family:Arial,Helvetica,sans-serif;color:var(--ink);}
+.app{width:min(1400px,calc(100vw - 12px));margin:8px auto;display:grid;grid-template-columns:290px minmax(0,1fr);gap:14px;align-items:start;}
+.panel{background:linear-gradient(180deg,#001a0a,#003a1a 60%,#005a2a);color:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px;position:sticky;top:8px;max-height:calc(100vh - 16px);overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.panel-titulo{font-size:1.6rem;color:var(--ouro);font-family:Arial,serif;font-weight:700;}
+.panel-sub{font-size:.7rem;color:rgba(122,201,122,.5);letter-spacing:.1em;text-transform:uppercase;}
+.status-box{font-size:.82rem;border-radius:10px;padding:9px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(122,201,122,.2);color:#e8ffe8;line-height:1.5;min-height:38px;}
+.motor-ok{font-size:.68rem;color:#86efac;background:rgba(47,168,106,.1);border:1px solid rgba(47,168,106,.2);border-radius:7px;padding:3px 8px;text-align:center;}
+.motor-warn{font-size:.68rem;color:#fcd34d;background:rgba(183,146,30,.1);border:1px solid rgba(183,146,30,.2);border-radius:7px;padding:3px 8px;text-align:center;}
+.card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:11px;display:flex;flex-direction:column;gap:8px;}
+.card-titulo{font-size:.68rem;font-weight:700;color:rgba(122,201,122,.6);letter-spacing:.1em;text-transform:uppercase;}
+label{display:block;font-size:.72rem;font-weight:700;color:#90c890;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px;}
+.inp,.sel{width:100%;font-family:inherit;font-size:.88rem;border-radius:9px;border:1px solid #70c870;background:#f0fff0;color:var(--ink);padding:7px 10px;outline:none;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.btn{width:100%;border:none;border-radius:10px;padding:10px 14px;font:700 .85rem Arial,sans-serif;cursor:pointer;transition:.14s;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;}
+.btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-ouro{background:var(--ouro);color:#001a08;}
+.btn-soft{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);}
+.btn-verde{background:#2f7a59;color:#fff;}
+.btn-danger{background:#b13a3a;color:#fff;}
+.alertas-box{background:rgba(183,146,30,.1);border:1px solid rgba(183,146,30,.25);border-radius:10px;padding:9px;display:none;flex-direction:column;gap:4px;}
+.alertas-box.vis{display:flex;}
+.alerta-item{font-size:.73rem;color:#f0e4b8;display:flex;gap:5px;line-height:1.4;}
+.banner-obra{background:rgba(47,168,106,.1);border:1px solid rgba(47,168,106,.25);border-radius:10px;padding:10px 12px;display:none;gap:8px;align-items:center;font-size:.78rem;}
+.banner-obra.vis{display:flex;}
+.dot{width:8px;height:8px;border-radius:50%;background:#2fa86a;animation:pulse 2s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(1.3);}}
+.main{display:flex;flex-direction:column;gap:14px;}
+.box{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);}
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:4px;}
+.stat-card{background:#f0fff0;border:1px solid #b0d8b0;border-radius:12px;padding:10px;text-align:center;}
+.stat-val{font-size:1.1rem;font-weight:700;color:var(--azul);}
+.stat-lbl{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+.pager{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.btn-pg{border:1.5px solid var(--ouro);background:transparent;color:var(--azul);border-radius:999px;padding:7px 16px;font:700 .84rem Arial,sans-serif;cursor:pointer;transition:.14s;}
+.btn-pg:hover:not(:disabled){background:var(--ouro);color:#001a08;}
+.btn-pg:disabled{opacity:.3;cursor:not-allowed;}
+.pg-info{font-size:.86rem;color:var(--azul);font-weight:700;margin:0 auto;}
+.stage{background:linear-gradient(180deg,#c8e8c8,#a8c8a8);border-radius:16px;padding:20px;min-height:500px;display:flex;align-items:flex-start;justify-content:center;overflow:auto;}
+.meta-linha{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:.75rem;color:var(--muted);margin-top:8px;}
+.textarea-obra{width:100%;min-height:180px;border:1.5px solid var(--line);border-radius:12px;padding:12px;resize:vertical;background:#fff;color:var(--ink);font-family:Arial,Helvetica,sans-serif;font-size:.95rem;line-height:1.6;outline:none;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;overflow-y:auto;padding:20px;}
+.modal-overlay.vis{display:flex;align-items:flex-start;justify-content:center;}
+.modal{background:linear-gradient(180deg,#001a0a,#003a1a);border:1px solid rgba(122,201,122,.3);border-radius:20px;padding:24px;width:min(680px,100%);color:#fff;margin:auto;}
+.modal-titulo{font-size:1.2rem;color:var(--ouro);font-family:Arial,serif;font-weight:700;margin-bottom:4px;}
+.modal-sub{font-size:.7rem;color:rgba(122,201,122,.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px;}
+.modal-secao{font-size:.68rem;font-weight:700;color:rgba(122,201,122,.5);letter-spacing:.1em;text-transform:uppercase;margin:14px 0 6px;border-bottom:1px solid rgba(122,201,122,.15);padding-bottom:4px;}
+.modal .inp,.modal .sel,.modal textarea{width:100%;font-family:inherit;font-size:.85rem;border-radius:9px;border:1px solid #70c870;background:#f0fff0;color:var(--ink);padding:7px 10px;outline:none;margin-bottom:6px;}
+.modal textarea{min-height:80px;resize:vertical;}
+.modal .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.modal .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.modal label{font-size:.7rem;font-weight:700;color:#90c890;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px;display:block;}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px;}
+@media(max-width:900px){.app{grid-template-columns:1fr;}.panel{position:relative;top:auto;max-height:none;}.stats-grid{grid-template-columns:1fr 1fr 1fr;}}
+
+/* RODAPÉ DE COMANDO — padrão de cores fixo em todos os departamentos */
+.rodape-comando{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.cmd-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-decoration:none;text-align:center;transition:.15s}
+.cmd-btn:hover{transform:translateY(-1px)}
+.cmd-verde{background:rgba(47,168,106,.12);border:1px solid rgba(47,168,106,.4);color:#4ab87a}
+.cmd-amarelo{background:rgba(217,164,65,.12);border:1px solid rgba(217,164,65,.4);color:#f0d882}
+.cmd-vermelho{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);color:#fca5a5}
+.cmd-preto{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.14);color:#c8c8d8}
+.cmd-branco{background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.92);color:#111}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="panel">
+  <div class="panel-titulo">🌿 Hércules</div>
+  <div class="panel-sub">Diagramador Técnico · Dep. 01</div>
+  <div class="status-box" id="status">Carregando obra ativa...</div>
+  <div class="motor-ok" id="motorBadge">⏳ Motor V3 carregando...</div>
+
+  <div class="banner-obra" id="bannerObra">
+    <div class="dot"></div>
+    <div style="flex:1;font-size:.75rem;">
+      <div style="color:#86efac;font-weight:700;">Obra Ativa</div>
+      <div style="color:rgba(134,239,172,.6);font-size:.68rem;" id="nomeObra">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-titulo">Identificação</div>
+    <label>Título</label><input class="inp" id="titulo" type="text" placeholder="Título da obra">
+    <label>Autor</label><input class="inp" id="autor" type="text" placeholder="Autor / Ilustrador">
+    <label>Tipo de Obra</label>
+    <select class="sel" id="tipoObra" onchange="ajustarParaTipo()">
+      <option value="infantil">Infantil</option>
+      <option value="infanto">Infanto-Juvenil</option>
+      <option value="receitas">Livro de Receitas</option>
+      <option value="didatico">Didático / Apostila</option>
+      <option value="tecnico">Técnico / Manual</option>
+      <option value="institucional">Institucional</option>
+    </select>
+    <button type="button" class="btn btn-soft" style="width:100%;margin-top:6px;font-size:.85rem;" onclick="detectarTipoAutomatico()">🔍 Detectar tipo pelo texto</button>
+  </div>
+
+  <div class="card">
+    <div class="card-titulo">Formato</div>
+    <label>Tamanho</label>
+    <select class="sel" id="formato">
+      <option value="infantil" selected>20×20 cm — Infantil quadrado</option>
+      <option value="infanto">16×22 cm — Infanto-Juvenil</option>
+      <option value="A5">A5 (14,8×21 cm)</option>
+      <option value="14x21">14×21 cm</option>
+      <option value="16x23">16×23 cm</option>
+      <option value="A4">A4 — Apostila/Técnico</option>
+    </select>
+    <div class="row2">
+      <div><label>Fonte (pt)</label><input class="inp" id="fontSize" type="number" value="12" min="10" max="18" step=".5"></div>
+      <div><label>Entrelinha</label><input class="inp" id="lineHeight" type="number" value="1.5" min="1.2" max="2.2" step=".05"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-titulo">Tipografia</div>
+    <label>Fonte do corpo</label>
+    <select class="sel" id="fontFamily">
+      <option value="Arial,Helvetica,sans-serif" selected>Arial (técnico/didático)</option>
+      <option value="Georgia,'Times New Roman',serif">Georgia (infantil/literário)</option>
+      <option value="'Comic Sans MS',cursive">Comic Sans (infantil lúdico)</option>
+      <option value="Verdana,Geneva,sans-serif">Verdana (clareza)</option>
+    </select>
+    <div class="row2">
+      <div><label>Recuo §</label>
+        <select class="sel" id="recuo">
+          <option value="0" selected>Sem recuo</option>
+          <option value="1.2">1.2 em</option>
+          <option value="2">2 em</option>
+        </select>
+      </div>
+      <div><label>Espaço §</label><input class="inp" id="paragraphGap" type="number" value="0.8" min="0" max="2" step=".1"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-titulo">Recursos</div>
+    <label>Hifenização</label>
+    <select class="sel" id="hifenizacao">
+      <option value="true" selected>Ativa</option>
+      <option value="false">Desativada</option>
+    </select>
+    <label>Numeração</label>
+    <select class="sel" id="numeracao">
+      <option value="espelho" selected>Espelho</option>
+      <option value="dir">Sempre à direita</option>
+      <option value="off">Sem numeração</option>
+    </select>
+    <label>Correção textual</label>
+    <select class="sel" id="correcao">
+      <option value="leve" selected>Leve</option>
+      <option value="media">Média</option>
+    </select>
+  </div>
+
+  <button class="btn btn-ouro" onclick="render()">🖨 Atualizar Prévia</button>
+  <button class="btn btn-verde" onclick="abrirModalDados()">📚 Exportar Livro Completo</button>
+  <button class="btn btn-soft" onclick="abrirEImprimirPDF()">🖨 Abrir e Imprimir (PDF)</button>
+  <button class="btn btn-soft" onclick="exportarEpubCompleto()">📱 Exportar EPUB (livro completo)</button>
+  <button class="btn btn-verde" onclick="irParaCapa()">🖼 Fazer a Capa</button>
+  <button class="btn btn-soft" onclick="exportarTXT()">📄 Baixar .txt</button>
+  <button class="btn btn-danger" onclick="limpar()">✕ Limpar</button>
+
+  <div class="alertas-box" id="alertasBox"></div>
+</aside>
+
+<main class="main">
+  <div class="box">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val" id="sFmt">—</div><div class="stat-lbl">Formato</div></div>
+      <div class="stat-card"><div class="stat-val" id="sPags">0</div><div class="stat-lbl">Páginas</div></div>
+      <div class="stat-card"><div class="stat-val" id="sWords">0</div><div class="stat-lbl">Palavras</div></div>
+      <div class="stat-card"><div class="stat-val" id="sCaps">0</div><div class="stat-lbl">Capítulos</div></div>
+      <div class="stat-card"><div class="stat-val" id="sCorr">0</div><div class="stat-lbl">V/O Corr.</div></div>
+    </div>
+  </div>
+
+  <div class="box" id="previaSumarioBox" style="display:none">
+    <div style="font-size:.82rem;font-weight:700;color:var(--azul);margin-bottom:10px;">📑 Prévia do Sumário <span style="font-weight:400;color:var(--muted);font-size:.72rem">— atualiza ao editar</span></div>
+    <div id="previaSumarioLista" style="font-size:.85rem;line-height:1.9"></div>
+  </div>
+
+  <div class="box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-size:.82rem;font-weight:700;color:var(--azul);">Texto da Obra</div>
+      <span style="font-size:.7rem;color:var(--muted);">Carregado da Obra Ativa</span>
+    </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+      <input type="file" id="uploadArquivo" accept=".txt,.docx,.doc" style="font-size:.8rem;flex:1;" />
+      <span id="uploadStatus" style="font-size:.75rem;color:var(--muted);"></span>
+    </div>
+<textarea class="textarea-obra" id="texto" placeholder="O texto será carregado automaticamente da Obra Ativa..." oninput="scheduleRender()"></textarea>
+  </div>
+
+  <div class="box">
+    <div class="pager">
+      <button class="btn-pg" id="btnAnt" onclick="paginaAnterior()" disabled>← Anterior</button>
+      <span class="pg-info" id="pgInfo">—</span>
+      <button class="btn-pg" id="btnProx" onclick="proximaPagina()" disabled>Próxima →</button>
+    </div>
+    <div class="stage" id="preview">
+      <div style="color:#3a6a3a;font-style:italic;font-size:.9rem;padding:40px;text-align:center;">A prévia aparecerá aqui após carregar o texto.</div>
+    </div>
+    <div class="meta-linha">
+      <span id="metaTipo">—</span>
+      <span id="metaInfo">—</span>
+      <span id="metaPag">—</span>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalDados">
+<div class="modal">
+  <div class="modal-titulo">📚 Dados do Livro</div>
+  <div class="modal-sub">Preencha para gerar o livro completo com pré e pós-textuais</div>
+  <div class="modal-secao">Identificação</div>
+  <div class="row2">
+    <div><label>Título</label><input class="inp" id="m-titulo" type="text"></div>
+    <div><label>Subtítulo</label><input class="inp" id="m-subtitulo" type="text"></div>
+  </div>
+  <div class="row2">
+    <div><label>Autor</label><input class="inp" id="m-autor" type="text"></div>
+    <div><label>Ilustrador</label><input class="inp" id="m-ilustrador" type="text" placeholder="Opcional"></div>
+  </div>
+  <div class="row3">
+    <div><label>Editora</label><input class="inp" id="m-editora" type="text" placeholder="Nome da editora"></div>
+    <div><label>Local</label><input class="inp" id="m-local" type="text" placeholder="Brasil"></div>
+    <div><label>Ano</label><input class="inp" id="m-ano" type="text"></div>
+  </div>
+  <div class="row2">
+    <div><label>ISBN</label><input class="inp" id="m-isbn" type="text"></div>
+    <div><label>Faixa etária</label><input class="inp" id="m-faixa" type="text" placeholder="Ex: 6 a 9 anos"></div>
+  </div>
+  <div class="modal-secao">Textos do Livro</div>
+  <label>Dedicatória</label><textarea id="m-dedicatoria"></textarea>
+  <label>Sobre o Autor</label><textarea id="m-sobre-autor"></textarea>
+  <div class="modal-btns">
+    <button class="btn btn-danger" onclick="fecharModal()">✕ Cancelar</button>
+    <button class="btn btn-verde" onclick="exportarLivroCompleto()">📚 Gerar Livro Completo</button>
+    <button class="btn btn-verde" onclick="exportarPDFRealCompleto()">📕 Baixar PDF Real</button>
+  </div>
+</div>
+</div>
+
+<div class="rodape-comando" style="max-width:960px;margin:0 auto;padding:16px 20px 60px">
+  <a href="index.html" class="cmd-btn cmd-preto">← Painel Central</a>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let resultado=null,pagAtual=0,_t=null;
+
+window.addEventListener('load',()=>{
+  const ok=!!window.CeleiroV3;
+  $('motorBadge').textContent=ok?'✓ Hércules · Motor V3':'⚠ Motor não encontrado';
+  $('motorBadge').className=ok?'motor-ok':'motor-warn';
+  // Adicionar formatos Hércules ao motor
+  if(ok){
+    CeleiroV3.FORMATOS['infantil']={nome:'Infantil 20×20',w:567,h:567,wCm:20,hCm:20};
+    CeleiroV3.FORMATOS['infanto']={nome:'Infanto-Jov. 16×22',w:454,h:624,wCm:16,hCm:22};
+    CeleiroV3.MARGENS['infantil']={mT:40,mB:40,mI:40,mE:40};
+  }
+});
+
+(function carregarObraAtiva(){
+  const fontes=['lapidar_obra_texto','lapidar_resultado_desbaste','lapidar_resultado_anterior','obra_ativa_texto','lapidar_texto_obra'];
+  for(const k of fontes){
+    const v=localStorage.getItem(k);
+    if(v&&v.trim().length>20){
+      $('texto').value=v;
+      $('bannerObra').classList.add('vis');
+      const nome=localStorage.getItem('obra_ativa_texto_nome')||'Texto da Central';
+      $('nomeObra').textContent=nome.replace(/^✦\s*/,'');
+      break;
+    }
+  }
+  const titulo=localStorage.getItem('obra_ativa_texto_nome')||localStorage.getItem('obra_titulo');
+  if(titulo) $('titulo').value=titulo.replace(/^✦\s*/,'');
+  const autor=localStorage.getItem('obra_autor');
+  if(autor) $('autor').value=autor;
+  if($('texto').value) render();
+  // Diagramação automática — obra veio do Gerador de Livros pelo pipeline
+  // (linha de montagem): gera e baixa o PDF completo sozinho, sem exigir
+  // que alguém abra o formulário de dados manualmente. Usa só título/autor
+  // já conhecidos — dedicatória, ISBN etc. ficam em branco/padrão.
+  if($('texto').value && localStorage.getItem('lapidar_diagramar_automatico')==='true'){
+    localStorage.removeItem('lapidar_diagramar_automatico');
+    setTimeout(()=>{
+      if(!resultado) return;
+      try{
+        abrirModalDados();
+        exportarPDFRealCompleto(irParaCapa);
+      }catch(e){
+        console.error('Erro na diagramação automática:', e);
+        $('status').textContent='Diagramação automática falhou: '+e.message;
+      }
+    }, 400);
+  }
+})();
+
+function ajustarParaTipo(){
+  const tipo=$('tipoObra').value;
+  const fmt=$('formato');
+  const font=$('fontFamily');
+  const fs=$('fontSize');
+  const lh=$('lineHeight');
+  if(tipo==='infantil'){fmt.value='infantil';font.value='Georgia,\'Times New Roman\',serif';fs.value='14';lh.value='1.8';}
+  else if(tipo==='infanto'){fmt.value='infanto';font.value='Georgia,\'Times New Roman\',serif';fs.value='12';lh.value='1.6';}
+  else if(tipo==='receitas'){fmt.value='A5';font.value='Arial,Helvetica,sans-serif';fs.value='11';lh.value='1.4';}
+  else if(tipo==='didatico'||tipo==='tecnico'){fmt.value='A4';font.value='Arial,Helvetica,sans-serif';fs.value='11';lh.value='1.4';}
+  else{fmt.value='16x23';font.value='Arial,Helvetica,sans-serif';fs.value='12';lh.value='1.5';}
+  render();
+}
+
+function getCfg(){
+  const fmt=$('formato').value;
+  const margem=(fmt==='infantil'||fmt==='infanto')?'infantil':'normal';
+  return {
+    modulo:'hercules',formato:fmt,margem,
+    tamanhoFonte:parseFloat($('fontSize').value)||12,
+    entrelinha:parseFloat($('lineHeight').value)||1.5,
+    fonte:$('fontFamily').value,
+    recuo:parseFloat($('recuo').value)||0,
+    paragraphGap:parseFloat($('paragraphGap').value)||0.8,
+    capitular:'none',hifenizacao:$('hifenizacao').value==='true',
+    decoracao:localStorage.getItem('lapidar_genero_obra')||localStorage.getItem('lapidar_tipo_obra')||'',
+    correcao:$('correcao').value,numeracao:$('numeracao').value,
+  };
+}
+
+function render(){
+  const texto=$('texto').value.trim();
+  if(!texto||!window.CeleiroV3) return;
+  try{
+    const cfg=getCfg();
+    resultado=CeleiroV3.preparar(texto,cfg);
+    pagAtual=0;
+    $('sFmt').textContent=resultado.fmt?.nome||cfg.formato;
+    $('sPags').textContent=resultado.stats.paginas;
+    $('sWords').textContent=resultado.stats.palavras.toLocaleString('pt-BR');
+    $('sCaps').textContent=resultado.stats.capitulos;
+    $('sCorr').textContent=resultado.stats.corrigidos;
+    renderPag();
+    $('status').textContent=`✓ ${resultado.stats.paginas} páginas · ${resultado.stats.palavras.toLocaleString('pt-BR')} palavras`;
+    const alertas=resultado.alertas||[];
+    const box=$('alertasBox');
+    if(alertas.length){box.classList.add('vis');box.innerHTML=alertas.slice(0,6).map(a=>`<div class="alerta-item">⚠ ${a.msg||a}</div>`).join('');}
+    else box.classList.remove('vis');
+    atualizarPreviaSumario();
+  }catch(e){$('status').textContent='Erro: '+e.message;console.error(e);}
+}
+
+function atualizarPreviaSumario(){
+  const box=$('previaSumarioBox'), lista=$('previaSumarioLista');
+  if(!box||!lista||!resultado) return;
+  if(!window.CeleiroJuncao){ box.style.display='none'; return; }
+  const capitulos=CeleiroJuncao.extrairCapitulosDoMiolo(resultado.paginas||[], 1);
+  if(!capitulos.length){ box.style.display='none'; return; }
+  lista.innerHTML=capitulos.map(c=>`
+    <div onclick="irParaPaginaSumario(${c.pagina})" title="Ir para a página ${c.pagina}" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:.1em;padding:.2em .4em;border-radius:5px;cursor:pointer;transition:background .12s;" onmouseover="this.style.background='rgba(0,0,0,.06)'" onmouseout="this.style.background='transparent'">
+      <span>${(c.titulo||'').replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]))}</span>
+      <span style="border-bottom:1px dotted #ccc;flex:1;margin:0 6px;min-width:16px"></span>
+      <span style="color:var(--muted);flex-shrink:0">${c.pagina}</span>
+    </div>`).join('');
+  box.style.display='block';
+}
+
+// Sumário clicável (estilo "índice" do Windows/CHM): clicar num item do
+// sumário leva direto pra página correspondente na prévia.
+function irParaPaginaSumario(numeroPagina){
+  if(!resultado||!resultado.paginas||!resultado.paginas[numeroPagina-1]) return;
+  pagAtual=numeroPagina;
+  renderPag();
+  const stage=document.getElementById('preview');
+  if(stage&&stage.scrollIntoView) stage.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function scheduleRender(){clearTimeout(_t);_t=setTimeout(render,800);}
+
+function renderPag(){
+  if(!resultado) return;
+  const pag=resultado.paginas[pagAtual];
+  if(!pag) return;
+  $('preview').innerHTML=CeleiroV3.renderizarPagina(pag,resultado.cfg,resultado.fmt,resultado.cfg.numeracao);
+  $('pgInfo').textContent=`Página ${pagAtual+1} / ${resultado.paginas.length}`;
+  $('metaPag').textContent=`Pág ${pagAtual+1}/${resultado.paginas.length}`;
+  $('metaInfo').textContent=`${resultado.stats.palavras.toLocaleString('pt-BR')} palavras · ${resultado.stats.corrigidos} V/O corrigidas`;
+  $('btnAnt').disabled=pagAtual===0;
+  $('btnProx').disabled=pagAtual===resultado.paginas.length-1;
+}
+
+function paginaAnterior(){if(pagAtual>0){pagAtual--;renderPag();}}
+function proximaPagina(){if(resultado&&pagAtual<resultado.paginas.length-1){pagAtual++;renderPag();}}
+function limpar(){$('texto').value='';resultado=null;pagAtual=0;$('preview').innerHTML='';$('status').textContent='Texto limpo.';}
+
+function abrirModalDados(){
+  if(!resultado){alert('Diagrame o texto primeiro.');return;}
+  $('m-titulo').value=$('titulo').value;
+  $('m-autor').value=$('autor').value;
+  $('m-ano').value=String(new Date().getFullYear());
+  $('m-editora').value='';
+  $('m-local').value='Brasil';
+  $('modalDados').classList.add('vis');
+}
+function fecharModal(){$('modalDados').classList.remove('vis');}
+
+function exportarTXT(){
+  const t=$('texto').value.trim();if(!t)return;
+  const blob=new Blob([t],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=($('titulo').value||'hercules').toLowerCase().replace(/\s+/g,'-')+'.txt';a.click();
+}
+
+function extrairEntradasSumario(){
+  // A extração de verdade já existe em CeleiroJuncao (mesma lógica que
+  // juntar() usa pra recalcular o sumário com as páginas reais depois)
+  // — só delega em vez de duplicar o algoritmo de novo aqui.
+  if(!window.CeleiroJuncao || !resultado) return [];
+  return CeleiroJuncao.extrairCapitulosDoMiolo(resultado.paginas||[], 1);
+}
+
+function exportarLivroCompleto(){
+  if(!resultado||!window.CeleiroPretextuais||!window.CeleiroJuncao) return;
+  const ilustrador=$('m-ilustrador').value.trim();
+  const faixa=$('m-faixa').value.trim();
+  const dados={
+    titulo:$('m-titulo').value.trim(),subtitulo:ilustrador?`Ilustrações: ${ilustrador}`:'',
+    autor:$('m-autor').value.trim(),editora:$('m-editora').value.trim(),
+    local:$('m-local').value.trim(),ano:$('m-ano').value.trim(),
+    isbn:$('m-isbn').value.trim(),
+    notaNatureza:faixa?`Faixa etária: ${faixa}`:'',
+    dedicatoria:$('m-dedicatoria').value.trim(),
+    sobreAutor:$('m-sobre-autor').value.trim(),
+    colofao:true,entradasSumario:extrairEntradasSumario(),
+  };
+  fecharModal();
+  $('status').textContent='⏳ Gerando livro completo...';
+  setTimeout(()=>{
+    try{
+      const cfg=resultado.cfg,fmt=resultado.fmt;
+      const pre=CeleiroPretextuais.gerarPreTextuais(dados,fmt,cfg);
+      const pos=CeleiroPretextuais.gerarPosTextuais(dados,fmt,cfg);
+      const livro=CeleiroJuncao.juntar(pre,resultado,pos,cfg,fmt);
+      const html=CeleiroJuncao.renderizarLivroCompleto(livro,cfg,fmt);
+      window.__ultimoLivroHTML=html;
+      localStorage.setItem('lapidar_ultima_contagem_paginas', String(livro.stats.totalPaginas));
+      const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+      const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+      a.download=(dados.titulo||'hercules').toLowerCase().replace(/\s+/g,'-')+'-completo.html';
+      a.click();
+      localStorage.setItem('lapidar_diagramacao_concluida','true');
+      localStorage.setItem('lapidar_resultado_diagramacao',`Livro Técnico — ${livro.stats.totalPaginas} páginas — Hércules`);
+      $('status').textContent=`✅ ${livro.stats.totalPaginas} páginas geradas.`;
+      $('sPags').textContent=livro.stats.totalPaginas;
+    }catch(e){$('status').textContent='Erro: '+e.message;console.error(e);}
+  },100);
+}
+
+// PDF real (vetorial, com numeração e sumário navegável tipo Windows/CHM),
+// cobrindo o livro inteiro — pré-textuais + miolo + pós-textuais.
+function exportarPDFRealCompleto(aoConcluir){
+  if(!resultado||!window.CeleiroPretextuais||!window.CeleiroJuncao||!window.jspdf){
+    alert('Motores de PDF não carregados.');return;
+  }
+  const ilustrador=$('m-ilustrador').value.trim();
+  const faixa=$('m-faixa').value.trim();
+  const dados={
+    titulo:$('m-titulo').value.trim(),subtitulo:ilustrador?`Ilustrações: ${ilustrador}`:'',
+    autor:$('m-autor').value.trim(),editora:$('m-editora').value.trim(),
+    local:$('m-local').value.trim(),ano:$('m-ano').value.trim(),
+    isbn:$('m-isbn').value.trim(),
+    notaNatureza:faixa?`Faixa etária: ${faixa}`:'',
+    dedicatoria:$('m-dedicatoria').value.trim(),
+    sobreAutor:$('m-sobre-autor').value.trim(),
+    colofao:true,entradasSumario:extrairEntradasSumario(),
+  };
+  fecharModal();
+  $('status').textContent='⏳ Gerando PDF real...';
+  setTimeout(()=>{
+    try{
+      const cfg=resultado.cfg,fmt=resultado.fmt;
+      const blob=CeleiroJuncao.gerarPDFRealCompleto(dados,resultado,cfg,fmt);
+      const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+      a.download=(dados.titulo||'hercules').toLowerCase().replace(/\s+/g,'-')+'-completo.pdf';
+      a.click();
+      localStorage.setItem('lapidar_diagramacao_concluida','true');
+      localStorage.setItem('lapidar_resultado_diagramacao',`Livro Técnico (PDF real) — Hércules`);
+      $('status').textContent='✅ PDF real gerado com sucesso.';
+      if(typeof aoConcluir==='function') aoConcluir();
+    }catch(e){$('status').textContent='Erro: '+e.message;console.error(e);}
+  },100);
+}
+
+['formato','fontSize','lineHeight','fontFamily','recuo','paragraphGap','hifenizacao','numeracao','correcao']
+  .forEach(id=>{$(id).addEventListener('change',()=>{render();});});
+</script>
+<script>
+if(window.CeleiroUploadManuscrito){
+  window.CeleiroUploadManuscrito.montar({
+    inputId:'uploadArquivo',
+    textareaId:'texto',
+    statusId:'uploadStatus',
+    aoCarregar:function(texto){
+      if(typeof scheduleRender==='function') scheduleRender();
+      else if(typeof render==='function') render();
+    }
+  });
+}
+function detectarTipoAutomatico(){
+  const texto = document.getElementById('texto').value || '';
+  if(!texto.trim()){ alert('Cole ou carregue o texto antes de detectar o tipo.'); return; }
+  if(!window.CeleiroAdaptadorHercules){ alert('Adaptador Hércules não carregou.'); return; }
+  const deteccao = window.CeleiroAdaptadorHercules.detectarTipoMaterial(texto);
+  const mapa = { infantil:'infantil', receita:'receitas', didatico:'didatico',
+    institucional:'institucional', fotografia:'tecnico', tecnico:'tecnico' };
+  const valor = mapa[deteccao.tipo] || 'tecnico';
+  const select = document.getElementById('tipoObra');
+  select.value = valor;
+  if(typeof ajustarParaTipo==='function') ajustarParaTipo();
+  alert('Detectei: ' + deteccao.tipo + ' — ajustei o Tipo de Obra. Revise antes de continuar.');
+}
+
+function abrirEImprimirPDF(){
+  if(!window.__ultimoLivroHTML){
+    alert('Gere o livro/coletânea completa primeiro (botão de exportação acima) antes de imprimir em PDF.');
+    return;
+  }
+  const janela=window.open('','_blank');
+  if(!janela){ alert('O navegador bloqueou a nova aba. Permita pop-ups e tente de novo.'); return; }
+  janela.document.write(window.__ultimoLivroHTML);
+  janela.document.close();
+  setTimeout(()=>{ janela.print(); }, 400);
+}
+
+// ── EXPORTAR EPUB DO LIVRO COMPLETO (motores finais, independente do fluxo principal) ──
+async function exportarEpubCompleto(){
+  if(!window.CeleiroV3 || !window.CeleiroMotorExportacaoFinalPdfEpub){
+    alert('Motores de exportação final não carregaram.');
+    return;
+  }
+  if(!window.JSZip){
+    alert('Biblioteca JSZip não carregou (verifique sua conexão) — não é possível gerar o .epub.');
+    return;
+  }
+  const texto = document.getElementById('texto').value.trim();
+  if(!texto){ alert('Escreva ou carregue o texto da obra primeiro.'); return; }
+  const titulo = (document.getElementById('titulo')||{}).value || (document.getElementById('m-titulo')||{}).value || 'Obra sem título';
+  const autor = (document.getElementById('autor')||{}).value || (document.getElementById('m-autor')||{}).value || 'Autor';
+  try{
+    const blocos = window.CeleiroV3.quebrarBlocos(texto);
+    const blob = await window.CeleiroMotorExportacaoFinalPdfEpub.montarEpubZip(
+      { titulo, autor, idioma:'pt-BR', blocos },
+      { formato: (document.getElementById('formato')||{}).value || '16x23' }
+    );
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (titulo||'obra').toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.epub';
+    a.click();
+    localStorage.setItem('lapidar_epub_concluido','true');
+  }catch(e){
+    alert('Erro ao gerar EPUB: ' + e.message);
+    console.error(e);
+  }
+}
+
+function irParaCapa(){
+  localStorage.setItem('obra_titulo', (document.getElementById('titulo')||{}).value || 'Obra sem título');
+  localStorage.setItem('obra_autor', (document.getElementById('autor')||{}).value || '');
+  window.location.href = 'okapista_polimata.html';
+}
+</script>
+</body>
+</html>

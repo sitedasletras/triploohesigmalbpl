@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Samurai — Diagramador de Poesia Oriental</title>
+<script src="config.js"></script>
+<script src="motor_celeiro_v3.js"></script>
+<script src="motores_lapidar/finais/motor_decoracao_editorial_v1.js"></script>
+<script src="motor_pretextuais_v2.js"></script>
+<script src="motor_juncao_v1.js"></script>
+<script src="motores_lapidar/motor_upload_manuscrito_v1.js"></script>
+<script src="motores_lapidar/motor_exportacao_pdf_v1.js"></script>
+<script src="motores_lapidar/finais/motor_paginacao_real_v1.js"></script>
+<script src="motores_lapidar/finais/motor_exportacao_final_pdf_epub_v1.js"></script>
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{
+  --ouro:#c97a7a;--ouro2:#e4a8a8;--azul:#1a0505;
+  --paper:#fff8f8;--ink:#1a0000;--muted:#6a3030;--line:#d8b0b0;
+  --ok:#2f7a59;--warn:#b7921e;--danger:#b13a3a;
+  --shadow:0 12px 32px rgba(0,0,0,.15);--radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100vh;background:linear-gradient(135deg,#150808,#2a1010);font-family:Georgia,'Times New Roman',serif;color:var(--ink);}
+.faixa{background:linear-gradient(90deg,rgba(201,122,122,.12),rgba(201,122,122,.05));border-bottom:1px solid rgba(201,122,122,.25);padding:10px 20px;display:flex;align-items:center;gap:12px;}
+.faixa span{font-size:.82rem;color:#c97a7a;font-style:italic;line-height:1.5;flex:1;}
+.faixa a{font-family:monospace;font-size:.65rem;color:rgba(201,122,122,.6);text-decoration:none;border:1px solid rgba(201,122,122,.2);border-radius:6px;padding:4px 10px;flex-shrink:0;}
+.app{width:min(1400px,calc(100vw - 12px));margin:8px auto;display:grid;grid-template-columns:300px minmax(0,1fr);gap:14px;align-items:start;}
+.panel{background:linear-gradient(180deg,#1a0a0a,#3a1414 60%,#5a1e1e);color:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px;position:sticky;top:8px;max-height:calc(100vh - 16px);overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.panel-titulo{font-size:1.6rem;color:var(--ouro);font-family:Georgia,serif;font-weight:700;}
+.panel-sub{font-size:.7rem;color:rgba(201,122,122,.5);letter-spacing:.1em;text-transform:uppercase;}
+.status-box{font-size:.82rem;border-radius:10px;padding:9px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(201,122,122,.2);color:#ffe8e8;line-height:1.5;min-height:38px;}
+.motor-ok{font-size:.68rem;color:#86efac;background:rgba(47,168,106,.1);border:1px solid rgba(47,168,106,.2);border-radius:7px;padding:3px 8px;text-align:center;}
+.motor-warn{font-size:.68rem;color:#fcd34d;background:rgba(183,146,30,.1);border:1px solid rgba(183,146,30,.2);border-radius:7px;padding:3px 8px;text-align:center;}
+.card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:11px;display:flex;flex-direction:column;gap:8px;}
+.card-titulo{font-size:.68rem;font-weight:700;color:rgba(201,122,122,.6);letter-spacing:.1em;text-transform:uppercase;}
+label{display:block;font-size:.72rem;font-weight:700;color:#d49090;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px;}
+.inp,.sel{width:100%;font-family:inherit;font-size:.88rem;border-radius:9px;border:1px solid #c87070;background:#fff8f8;color:var(--ink);padding:7px 10px;outline:none;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.btn{width:100%;border:none;border-radius:10px;padding:10px 14px;font:700 .85rem Georgia,serif;cursor:pointer;transition:.14s;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;}
+.btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-ouro{background:var(--ouro);color:#1a0000;}
+.btn-soft{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);}
+.btn-verde{background:#2f7a59;color:#fff;}
+.btn-danger{background:#b13a3a;color:#fff;}
+.alertas-box{background:rgba(183,146,30,.1);border:1px solid rgba(183,146,30,.25);border-radius:10px;padding:9px;display:none;flex-direction:column;gap:4px;}
+.alertas-box.vis{display:flex;}
+.alerta-item{font-size:.73rem;color:#f0e4b8;display:flex;gap:5px;line-height:1.4;}
+.banner-forma{border-radius:10px;padding:12px 14px;display:none;font-size:.78rem;line-height:1.6;}
+.banner-forma.vis{display:block;}
+.banner-forma.ok{background:rgba(47,168,106,.1);border:1px solid rgba(47,168,106,.3);color:#86efac;}
+.banner-forma.warn{background:rgba(183,146,30,.1);border:1px solid rgba(183,146,30,.3);color:#fcd34d;}
+.banner-forma.info{background:rgba(201,122,122,.08);border:1px solid rgba(201,122,122,.2);color:#e4a8a8;}
+.banner-obra{background:rgba(47,168,106,.1);border:1px solid rgba(47,168,106,.25);border-radius:10px;padding:10px 12px;display:none;gap:8px;align-items:center;font-size:.78rem;}
+.banner-obra.vis{display:flex;}
+.dot{width:8px;height:8px;border-radius:50%;background:#2fa86a;animation:pulse 2s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(1.3);}}
+/* CLASSIFICADOR */
+.classificador{background:rgba(201,122,122,.06);border:1px solid rgba(201,122,122,.2);border-radius:12px;padding:14px;display:none;}
+.classificador.vis{display:block;}
+.class-titulo{font-size:.68rem;font-weight:700;color:rgba(201,122,122,.6);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;}
+.class-form{font-size:1rem;font-weight:700;color:#e4a8a8;margin-bottom:4px;}
+.class-origem{font-size:.72rem;color:rgba(228,168,168,.6);margin-bottom:6px;}
+.class-info{font-size:.75rem;color:rgba(228,168,168,.8);line-height:1.6;}
+.class-estrutura{font-family:'DM Mono',monospace;font-size:.7rem;color:rgba(201,122,122,.7);background:rgba(201,122,122,.06);border-radius:6px;padding:6px 10px;margin-top:6px;}
+.main{display:flex;flex-direction:column;gap:14px;}
+.box{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);}
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:4px;}
+.stat-card{background:#fff8f8;border:1px solid #d8b0b0;border-radius:12px;padding:10px;text-align:center;}
+.stat-val{font-size:1.1rem;font-weight:700;color:var(--azul);}
+.stat-lbl{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+.pager{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.btn-pg{border:1.5px solid var(--ouro);background:transparent;color:var(--azul);border-radius:999px;padding:7px 16px;font:700 .84rem Georgia,serif;cursor:pointer;transition:.14s;}
+.btn-pg:hover:not(:disabled){background:var(--ouro);color:#1a0000;}
+.btn-pg:disabled{opacity:.3;cursor:not-allowed;}
+.pg-info{font-size:.86rem;color:var(--azul);font-weight:700;margin:0 auto;}
+.stage{background:linear-gradient(180deg,#e8d0d0,#d0b0b0);border-radius:16px;padding:20px;min-height:500px;display:flex;align-items:flex-start;justify-content:center;overflow:auto;}
+.meta-linha{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:.75rem;color:var(--muted);margin-top:8px;}
+.textarea-obra{width:100%;min-height:200px;border:1.5px solid var(--line);border-radius:12px;padding:12px;resize:vertical;background:#fff;color:var(--ink);font-family:Georgia,'Times New Roman',serif;font-size:.95rem;line-height:1.8;outline:none;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;overflow-y:auto;padding:20px;}
+.modal-overlay.vis{display:flex;align-items:flex-start;justify-content:center;}
+.modal{background:linear-gradient(180deg,#1a0a0a,#3a1414);border:1px solid rgba(201,122,122,.3);border-radius:20px;padding:24px;width:min(680px,100%);color:#fff;margin:auto;}
+.modal-titulo{font-size:1.2rem;color:var(--ouro);font-weight:700;margin-bottom:4px;}
+.modal-sub{font-size:.7rem;color:rgba(201,122,122,.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px;}
+.modal-secao{font-size:.68rem;font-weight:700;color:rgba(201,122,122,.5);letter-spacing:.1em;text-transform:uppercase;margin:14px 0 6px;border-bottom:1px solid rgba(201,122,122,.15);padding-bottom:4px;}
+.modal .inp,.modal .sel,.modal textarea{width:100%;font-family:inherit;font-size:.85rem;border-radius:9px;border:1px solid #c87070;background:#fff8f8;color:var(--ink);padding:7px 10px;outline:none;margin-bottom:6px;}
+.modal textarea{min-height:80px;resize:vertical;}
+.modal .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.modal .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.modal label{font-size:.7rem;font-weight:700;color:#d49090;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px;display:block;}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px;}
+@media(max-width:900px){.app{grid-template-columns:1fr;}.panel{position:relative;top:auto;max-height:none;}.stats-grid{grid-template-columns:1fr 1fr 1fr;}}
+
+/* RODAPÉ DE COMANDO — padrão de cores fixo em todos os departamentos */
+.rodape-comando{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.cmd-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-decoration:none;text-align:center;transition:.15s}
+.cmd-btn:hover{transform:translateY(-1px)}
+.cmd-verde{background:rgba(47,168,106,.12);border:1px solid rgba(47,168,106,.4);color:#4ab87a}
+.cmd-amarelo{background:rgba(217,164,65,.12);border:1px solid rgba(217,164,65,.4);color:#f0d882}
+.cmd-vermelho{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);color:#fca5a5}
+.cmd-preto{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.14);color:#c8c8d8}
+.cmd-branco{background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.92);color:#111}
+</style>
+</head>
+<body>
+
+<div class="app">
+<aside class="panel">
+  <div class="panel-titulo">⚔️ Samurai</div>
+  <div class="panel-sub">Poesia Oriental · Dep. 01</div>
+  <div class="status-box" id="status">Carregando obra ativa...</div>
+  <div class="motor-ok" id="motorBadge">⏳ Motor V3 carregando...</div>
+
+  <!-- CLASSIFICADOR -->
+  <div class="classificador" id="classificador">
+    <div class="class-titulo">✦ Forma Identificada</div>
+    <div class="class-form" id="class-form">—</div>
+    <div class="class-origem" id="class-origem">—</div>
+    <div class="class-info" id="class-info">—</div>
+    <div class="class-estrutura" id="class-estrutura"></div>
+  </div>
+
+  <!-- BANNER -->
+  <div class="banner-forma" id="bannerForma"></div>
+
+  <!-- OBRA ATIVA -->
+  <div class="banner-obra" id="bannerObra">
+    <div class="dot"></div>
+    <div style="flex:1;font-size:.75rem;">
+      <div style="color:#86efac;font-weight:700;">Obra Ativa</div>
+      <div style="color:rgba(134,239,172,.6);font-size:.68rem;" id="nomeObra">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-titulo">Identificação</div>
+    <label>Título da Coletânea</label><input class="inp" id="titulo" type="text" placeholder="Título">
+    <label>Autor / Poeta</label><input class="inp" id="autor" type="text" placeholder="Nome do poeta">
+  </div>
+
+  <div class="card">
+    <div class="card-titulo">Forma Oriental</div>
+    <label>Selecione (ou deixe Automático)</label>
+    <select class="sel" id="formaOriental" onchange="onFormaChange()">
+      <option value="auto" selected>🔍 Automático (Samurai classifica)</option>
+      <option value="haicai">Haicai — 3 versos 5/7/5 (Japão)</option>
+      <option value="senryu">Senryū — 3 versos 5/7/5 · humano (Japão)</option>
+      <option value="tanka">Tanka — 5 versos 5/7/5/7/7 (Japão)</option>
+      <option value="gogyohka">Gogyōhka — 5 versos livres (Japão)</option>
+      <option value="choka">Chōka — versos alternados 5/7 + Tanka (Japão)</option>
+      <option value="renga">Renga — poema encadeado a dois (Japão)</option>
+      <option value="renku">Renku — evolução do Renga (Japão)</option>
+      <option value="sijo">Sijo — 3 linhas longas (Coreia)</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <div class="card-titulo">Formato</div>
+    <label>Tamanho</label>
+    <select class="sel" id="formato">
+      <option value="quadrado15" selected>15×15 cm — quadrado (oriental)</option>
+      <option value="A5">A5 (14,8×21 cm)</option>
+      <option value="14x21">14×21 cm</option>
+    </select>
+    <div class="row2">
+      <div><label>Fonte (pt)</label><input class="inp" id="fontSize" type="number" value="11" min="9" max="14" step=".5"></div>
+      <div><label>Entrelinha</label><input class="inp" id="lineHeight" type="number" value="2.2" min="1.5" max="3.0" step=".1"></div>
+    </div>
+    <label>Composições por página</label>
+    <select class="sel" id="composicoesPorPagina">
+      <option value="1" selected>1 por página</option>
+      <option value="2">2 por página</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <div class="card-titulo">Tipografia</div>
+    <label>Fonte</label>
+    <select class="sel" id="fontFamily">
+      <option value="Georgia,'Times New Roman',serif" selected>Georgia</option>
+      <option value="'Times New Roman',serif">Times New Roman</option>
+      <option value="Garamond,serif">Garamond</option>
+    </select>
+    <label>Alinhamento</label>
+    <select class="sel" id="alinhPoesia">
+      <option value="center" selected>Centralizado</option>
+      <option value="left">Esquerda</option>
+    </select>
+    <label>Numeração</label>
+    <select class="sel" id="numeracao">
+      <option value="off" selected>Sem numeração</option>
+      <option value="espelho">Espelho</option>
+    </select>
+  </div>
+
+  <button class="btn btn-ouro" onclick="render()">🖨 Atualizar Prévia</button>
+  <button class="btn btn-verde" onclick="abrirModalDados()">📚 Exportar Coletânea</button>
+  <button class="btn btn-soft" onclick="abrirEImprimirPDF()">🖨 Abrir e Imprimir (PDF)</button>
+  <button class="btn btn-soft" onclick="exportarEpubCompleto()">📱 Exportar EPUB (livro completo)</button>
+  <button class="btn btn-verde" onclick="irParaCapa()">🖼 Fazer a Capa</button>
+  <button class="btn btn-danger" onclick="limpar()">✕ Limpar</button>
+
+  <div class="alertas-box" id="alertasBox"></div>
+</aside>
+
+<main class="main">
+  <div class="box">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val" id="sFmt">—</div><div class="stat-lbl">Formato</div></div>
+      <div class="stat-card"><div class="stat-val" id="sPags">0</div><div class="stat-lbl">Páginas</div></div>
+      <div class="stat-card"><div class="stat-val" id="sComp">0</div><div class="stat-lbl">Composições</div></div>
+      <div class="stat-card"><div class="stat-val" id="sWords">0</div><div class="stat-lbl">Palavras</div></div>
+      <div class="stat-card"><div class="stat-val" id="sForma">—</div><div class="stat-lbl">Forma</div></div>
+    </div>
+  </div>
+
+  <div class="box" id="previaSumarioBox" style="display:none">
+    <div style="font-size:.82rem;font-weight:700;color:var(--azul);margin-bottom:10px;">📑 Prévia do Sumário <span style="font-weight:400;color:var(--muted);font-size:.72rem">— atualiza ao editar</span></div>
+    <div id="previaSumarioLista" style="font-size:.85rem;line-height:1.9"></div>
+  </div>
+
+  <div class="box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-size:.82rem;font-weight:700;color:var(--azul);">Texto da Obra</div>
+      <span style="font-size:.7rem;color:var(--muted);">Separe composições com linha em branco</span>
+    </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+      <input type="file" id="uploadArquivo" accept=".txt,.docx,.doc" style="font-size:.8rem;flex:1;" />
+      <span id="uploadStatus" style="font-size:.75rem;color:var(--muted);"></span>
+    </div>
+<textarea class="textarea-obra" id="texto"
+      placeholder="Cole sua poesia oriental aqui.&#10;&#10;Separe cada composição com uma linha em branco.&#10;&#10;O Samurai identificará automaticamente a forma." oninput="scheduleRender()"></textarea>
+  </div>
+
+  <div class="box">
+    <div class="pager">
+      <button class="btn-pg" id="btnAnt" onclick="paginaAnterior()" disabled>← Anterior</button>
+      <span class="pg-info" id="pgInfo">—</span>
+      <button class="btn-pg" id="btnProx" onclick="proximaPagina()" disabled>Próxima →</button>
+    </div>
+    <div class="stage" id="preview">
+      <div style="color:#6a3030;font-style:italic;font-size:.9rem;padding:40px;text-align:center;">A prévia aparecerá aqui após carregar o texto.</div>
+    </div>
+    <div class="meta-linha">
+      <span id="metaForma">—</span>
+      <span id="metaInfo">—</span>
+      <span id="metaPag">—</span>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalDados">
+<div class="modal">
+  <div class="modal-titulo">📚 Dados da Coletânea Oriental</div>
+  <div class="modal-sub">Preencha para gerar o livro completo</div>
+  <div class="modal-secao">Identificação</div>
+  <div class="row2">
+    <div><label>Título</label><input class="inp" id="m-titulo" type="text"></div>
+    <div><label>Subtítulo</label><input class="inp" id="m-subtitulo" type="text"></div>
+  </div>
+  <div class="row3">
+    <div><label>Autor</label><input class="inp" id="m-autor" type="text"></div>
+    <div><label>Editora</label><input class="inp" id="m-editora" type="text" placeholder="Nome da editora"></div>
+    <div><label>Ano</label><input class="inp" id="m-ano" type="text"></div>
+  </div>
+  <div class="modal-secao">Textos</div>
+  <label>Dedicatória</label><textarea id="m-dedicatoria"></textarea>
+  <label>Epígrafe</label><textarea id="m-epigrafe"></textarea>
+  <label>Autor da epígrafe</label><input class="inp" id="m-autor-epigrafe" type="text">
+  <label>Nota do poeta / Apresentação</label><textarea id="m-prefacio" placeholder="Breve nota sobre a obra ou a forma poética..."></textarea>
+  <label>Sobre o Poeta</label><textarea id="m-sobre-autor"></textarea>
+  <div class="modal-btns">
+    <button class="btn btn-danger" onclick="fecharModal()">✕ Cancelar</button>
+    <button class="btn btn-verde" onclick="exportarLivroCompleto()">📚 Gerar Coletânea</button>
+    <button class="btn btn-verde" onclick="exportarPDFRealCompleto()">📕 Baixar PDF Real</button>
+  </div>
+</div>
+</div>
+
+<div class="rodape-comando" style="max-width:960px;margin:0 auto;padding:16px 20px 60px">
+  <a href="index.html" class="cmd-btn cmd-preto">← Painel Central</a>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let resultado=null,pagAtual=0,_t=null,formaDetectada='auto';
+
+// ── FORMAS ORIENTAIS ──────────────────────────────────────
+const FORMAS_ORIENTAIS={
+  haicai:{
+    nome:'Haicai', ico:'🌸', origem:'Japão',
+    info:'Poema de 3 versos (5/7/5 sílabas). Captura um momento da natureza com uma palavra de estação (kigo). O verso do meio é o mais longo.',
+    estrutura:'5 · 7 · 5 sílabas', versos:3, silabas:[5,7,5],
+    validar:(v)=>v.length===3,
+  },
+  senryu:{
+    nome:'Senryū', ico:'😏', origem:'Japão',
+    info:'Mesma estrutura do Haicai (3 versos 5/7/5), mas foca no comportamento humano com humor, ironia ou melancolia. Sem kigo obrigatório.',
+    estrutura:'5 · 7 · 5 sílabas · tom humano', versos:3, silabas:[5,7,5],
+    validar:(v)=>v.length===3,
+  },
+  tanka:{
+    nome:'Tanka', ico:'🌊', origem:'Japão',
+    info:'Poema de 5 versos (5/7/5/7/7 sílabas). Forma mais antiga da poesia japonesa. Os dois últimos versos ampliam ou contradizem os três primeiros.',
+    estrutura:'5 · 7 · 5 · 7 · 7 sílabas', versos:5, silabas:[5,7,5,7,7],
+    validar:(v)=>v.length===5,
+  },
+  gogyohka:{
+    nome:'Gogyōhka', ico:'🍃', origem:'Japão',
+    info:'Forma moderna criada por Enta Kusakabe. 5 versos livres sem contagem de sílabas. Cada verso expressa um único pensamento ou imagem.',
+    estrutura:'5 versos livres', versos:5, silabas:null,
+    validar:(v)=>v.length===5,
+  },
+  choka:{
+    nome:'Chōka', ico:'🏔️', origem:'Japão',
+    info:'Poema longo com versos alternados de 5 e 7 sílabas, sem limite de comprimento. Termina com uma sequência de Tanka (Envoi). Forma épica japonesa.',
+    estrutura:'Alternado 5/7 ilimitado + Tanka final', versos:null, silabas:null,
+    validar:(v)=>v.length>=4,
+  },
+  renga:{
+    nome:'Renga', ico:'🤝', origem:'Japão',
+    info:'Poema encadeado composto por dois ou mais poetas alternando estrofes. Cada poeta responde à estrofe anterior. Forma colaborativa medieval.',
+    estrutura:'Alternância de estrofes entre poetas', versos:null, silabas:null,
+    validar:(v)=>v.length>=2,
+  },
+  renku:{
+    nome:'Renku', ico:'🎋', origem:'Japão',
+    info:'Evolução moderna do Renga. Mais leve, variado e acessível. Alterna haicai e tanka entre poetas com tema livre.',
+    estrutura:'Haicai e Tanka alternados', versos:null, silabas:null,
+    validar:(v)=>v.length>=2,
+  },
+  sijo:{
+    nome:'Sijo', ico:'🌸', origem:'Coreia',
+    info:'Poema coreano de 3 linhas longas. Cada linha tem 4 grupos de sílabas (3-4-3-4). A terceira linha costuma trazer uma virada ou resolução.',
+    estrutura:'3 linhas longas · 4 grupos por linha', versos:3, silabas:null,
+    validar:(v)=>v.length===3,
+  },
+};
+
+// ── CLASSIFICADOR AUTOMÁTICO ──────────────────────────────
+function classificarOrientalAuto(texto){
+  const composicoes=texto.trim().split(/\n\s*\n/).filter(Boolean);
+  if(!composicoes.length) return null;
+  // Analisar primeira composição
+  const primeira=composicoes[0];
+  const versos=primeira.split('\n').filter(l=>l.trim());
+  const n=versos.length;
+
+  // Detecção por número de versos
+  if(n===3){
+    // Haicai ou Senryū ou Sijo
+    // Sijo: linhas muito longas (>30 chars cada)
+    if(versos.every(v=>v.trim().length>25)) return 'sijo';
+    return 'haicai'; // default 3 versos
+  }
+  if(n===5){
+    // Tanka ou Gogyōhka
+    // Gogyōhka: versos muito curtos (média < 8 chars)
+    const media=versos.reduce((s,v)=>s+v.trim().length,0)/n;
+    if(media<10) return 'gogyohka';
+    return 'tanka';
+  }
+  if(n>=6){
+    // Chōka, Renga ou Renku
+    // Chōka: padrão alternado de comprimentos
+    const lens=versos.map(v=>v.trim().length);
+    const alternado=lens.every((l,i)=>i===0||Math.abs(l-lens[i-1])>3);
+    if(alternado) return 'choka';
+    return 'renga';
+  }
+  return 'haicai'; // fallback
+}
+
+function mostrarClassificador(key){
+  const f=FORMAS_ORIENTAIS[key];
+  if(!f) return;
+  $('classificador').classList.add('vis');
+  $('class-form').textContent=`${f.ico} ${f.nome}`;
+  $('class-origem').textContent=`🗾 ${f.origem}`;
+  $('class-info').textContent=f.info;
+  $('class-estrutura').textContent=f.estrutura;
+  $('sForma').textContent=f.nome;
+  $('metaForma').textContent=`${f.ico} ${f.nome} · ${f.origem}`;
+}
+
+function onFormaChange(){
+  const sel=$('formaOriental').value;
+  if(sel==='auto'){
+    const texto=$('texto').value.trim();
+    if(texto) formaDetectada=classificarOrientalAuto(texto)||'haicai';
+    else formaDetectada='haicai';
+  } else {
+    formaDetectada=sel;
+  }
+  mostrarClassificador(formaDetectada);
+}
+
+// ── VALIDAÇÃO ─────────────────────────────────────────────
+function validarComposicoes(texto, key){
+  const forma=FORMAS_ORIENTAIS[key];
+  if(!forma||!forma.versos) return [];
+  const alertas=[];
+  const composicoes=texto.trim().split(/\n\s*\n/).filter(Boolean);
+  composicoes.forEach((c,i)=>{
+    const v=c.split('\n').filter(l=>l.trim());
+    if(!forma.validar(v)){
+      alertas.push(`Composição ${i+1}: ${v.length} verso(s) — ${forma.nome} precisa de ${forma.versos}`);
+    }
+  });
+  return alertas;
+}
+
+// ── MOTOR ────────────────────────────────────────────────
+window.addEventListener('load',()=>{
+  const ok=!!window.CeleiroV3;
+  $('motorBadge').textContent=ok?'✓ Samurai · Motor V3':'⚠ Motor não encontrado';
+  $('motorBadge').className=ok?'motor-ok':'motor-warn';
+  // Registrar formato quadrado no motor
+  if(ok&&!CeleiroV3.FORMATOS['quadrado15']){
+    CeleiroV3.FORMATOS['quadrado15']={nome:'15×15 cm',w:425,h:425,wCm:15,hCm:15};
+    CeleiroV3.MARGENS['quadrado15']={mT:70,mB:70,mI:60,mE:60};
+  }
+});
+
+// ── OBRA ATIVA ────────────────────────────────────────────
+(function carregarObraAtiva(){
+  const fontes=['lapidar_obra_texto','lapidar_resultado_desbaste','lapidar_resultado_anterior','obra_ativa_texto','lapidar_texto_obra'];
+  for(const k of fontes){
+    const v=localStorage.getItem(k);
+    if(v&&v.trim().length>20){
+      $('texto').value=v;
+      $('bannerObra').classList.add('vis');
+      const nome=localStorage.getItem('obra_ativa_texto_nome')||'Texto da Central';
+      $('nomeObra').textContent=nome.replace(/^✦\s*/,'');
+      break;
+    }
+  }
+  const titulo=localStorage.getItem('obra_ativa_texto_nome')||localStorage.getItem('obra_titulo');
+  if(titulo) $('titulo').value=titulo.replace(/^✦\s*/,'');
+  const autor=localStorage.getItem('obra_autor');
+  if(autor) $('autor').value=autor;
+  onFormaChange();
+  if($('texto').value) render();
+  // Diagramação automática — obra veio do Gerador de Livros pelo pipeline
+  // (linha de montagem): gera e baixa o PDF completo sozinho, sem exigir
+  // que alguém abra o formulário de dados manualmente. Usa só título/autor
+  // já conhecidos — dedicatória, ISBN etc. ficam em branco/padrão.
+  if($('texto').value && localStorage.getItem('lapidar_diagramar_automatico')==='true'){
+    localStorage.removeItem('lapidar_diagramar_automatico');
+    setTimeout(()=>{
+      if(!resultado) return;
+      try{
+        abrirModalDados();
+        exportarPDFRealCompleto(irParaCapa);
+      }catch(e){
+        console.error('Erro na diagramação automática:', e);
+        $('status').textContent='Diagramação automática falhou: '+e.message;
+      }
+    }, 400);
+  }
+})();
+
+function getCfg(){
+  const fmt=$('formato').value;
+  const margem=fmt==='quadrado15'?'haicai':'ampla';
+  return {
+    modulo:'samurai',formato:fmt,margem,
+    tamanhoFonte:parseFloat($('fontSize').value)||11,
+    entrelinha:parseFloat($('lineHeight').value)||2.2,
+    fonte:$('fontFamily').value,
+    recuo:0,paragraphGap:0,
+    capitular:'none',hifenizacao:false,
+    decoracao:localStorage.getItem('lapidar_genero_obra')||localStorage.getItem('lapidar_tipo_obra')||'',
+    alinhPoesia:$('alinhPoesia').value,
+    numeracao:$('numeracao').value,
+    correcao:'leve',
+    composicoesPorPagina:parseInt($('composicoesPorPagina').value)||1,
+  };
+}
+
+function render(){
+  const texto=$('texto').value.trim();
+  if(!texto||!window.CeleiroV3) return;
+  // Classificar se automático
+  if($('formaOriental').value==='auto'){
+    formaDetectada=classificarOrientalAuto(texto)||'haicai';
+    mostrarClassificador(formaDetectada);
+  }
+  try{
+    const cfg=getCfg();
+    resultado=CeleiroV3.preparar(texto,cfg);
+    pagAtual=0;
+    const composicoes=texto.split(/\n\s*\n/).filter(Boolean).length;
+    $('sFmt').textContent=resultado.fmt?.nome||cfg.formato;
+    $('sPags').textContent=resultado.stats.paginas;
+    $('sComp').textContent=composicoes;
+    $('sWords').textContent=resultado.stats.palavras.toLocaleString('pt-BR');
+    renderPag();
+    $('status').textContent=`✓ ${resultado.stats.paginas} páginas · ${composicoes} composições`;
+    $('metaInfo').textContent=`${composicoes} composições · ${resultado.stats.palavras.toLocaleString('pt-BR')} palavras`;
+    // Validar
+    const alertas=validarComposicoes(texto,formaDetectada);
+    const box=$('alertasBox');
+    if(alertas.length){
+      box.classList.add('vis');
+      box.innerHTML=alertas.slice(0,6).map(a=>`<div class="alerta-item">⚠ ${a}</div>`).join('');
+    } else box.classList.remove('vis');
+    atualizarPreviaSumario();
+  }catch(e){$('status').textContent='Erro: '+e.message;console.error(e);}
+}
+
+function atualizarPreviaSumario(){
+  const box=$('previaSumarioBox'), lista=$('previaSumarioLista');
+  if(!box||!lista||!resultado) return;
+  if(!window.CeleiroJuncao){ box.style.display='none'; return; }
+  const capitulos=CeleiroJuncao.extrairCapitulosDoMiolo(resultado.paginas||[], 1);
+  if(!capitulos.length){ box.style.display='none'; return; }
+  lista.innerHTML=capitulos.map(c=>`
+    <div onclick="irParaPaginaSumario(${c.pagina})" title="Ir para a página ${c.pagina}" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:.1em;padding:.2em .4em;border-radius:5px;cursor:pointer;transition:background .12s;" onmouseover="this.style.background='rgba(0,0,0,.06)'" onmouseout="this.style.background='transparent'">
+      <span>${(c.titulo||'').replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]))}</span>
+      <span style="border-bottom:1px dotted #ccc;flex:1;margin:0 6px;min-width:16px"></span>
+      <span style="color:var(--muted);flex-shrink:0">${c.pagina}</span>
+    </div>`).join('');
+  box.style.display='block';
+}
+
+// Sumário clicável (estilo "índice" do Windows/CHM): clicar num item do
+// sumário leva direto pra página correspondente na prévia.
+function irParaPaginaSumario(numeroPagina){
+  if(!resultado||!resultado.paginas||!resultado.paginas[numeroPagina-1]) return;
+  pagAtual=numeroPagina;
+  renderPag();
+  const stage=document.getElementById('preview');
+  if(stage&&stage.scrollIntoView) stage.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function scheduleRender(){
+  clearTimeout(_t);
+  _t=setTimeout(()=>{
+    if($('formaOriental').value==='auto'){
+      const fd=classificarOrientalAuto($('texto').value)||'haicai';
+      if(fd!==formaDetectada){formaDetectada=fd;mostrarClassificador(fd);}
+    }
+    render();
+  },800);
+}
+
+function renderPag(){
+  if(!resultado) return;
+  const pag=resultado.paginas[pagAtual];
+  if(!pag) return;
+  $('preview').innerHTML=CeleiroV3.renderizarPagina(pag,resultado.cfg,resultado.fmt,resultado.cfg.numeracao);
+  $('pgInfo').textContent=`Página ${pagAtual+1} / ${resultado.paginas.length}`;
+  $('metaPag').textContent=`Pág ${pagAtual+1}/${resultado.paginas.length}`;
+  $('btnAnt').disabled=pagAtual===0;
+  $('btnProx').disabled=pagAtual===resultado.paginas.length-1;
+}
+
+function paginaAnterior(){if(pagAtual>0){pagAtual--;renderPag();}}
+function proximaPagina(){if(resultado&&pagAtual<resultado.paginas.length-1){pagAtual++;renderPag();}}
+function limpar(){$('texto').value='';resultado=null;pagAtual=0;$('preview').innerHTML='';$('status').textContent='Texto limpo.';$('classificador').classList.remove('vis');$('alertasBox').classList.remove('vis');}
+
+function abrirModalDados(){
+  if(!resultado){alert('Diagrame o texto primeiro.');return;}
+  $('m-titulo').value=$('titulo').value;
+  $('m-autor').value=$('autor').value;
+  $('m-ano').value=String(new Date().getFullYear());
+  $('m-editora').value='';
+  $('modalDados').classList.add('vis');
+}
+function fecharModal(){$('modalDados').classList.remove('vis');}
+
+function extrairEntradasSumario(){
+  // A extração de verdade já existe em CeleiroJuncao (mesma lógica que
+  // juntar() usa pra recalcular o sumário com as páginas reais depois)
+  // — só delega em vez de duplicar o algoritmo de novo aqui.
+  if(!window.CeleiroJuncao || !resultado) return [];
+  return CeleiroJuncao.extrairCapitulosDoMiolo(resultado.paginas||[], 1);
+}
+
+function exportarLivroCompleto(){
+  if(!resultado||!window.CeleiroPretextuais||!window.CeleiroJuncao) return;
+  const forma=FORMAS_ORIENTAIS[formaDetectada];
+  const dados={
+    titulo:$('m-titulo').value.trim(),
+    subtitulo:$('m-subtitulo').value.trim()||(forma?forma.nome+' — '+forma.origem:''),
+    autor:$('m-autor').value.trim(),
+    editora:$('m-editora').value.trim(),
+    local:'Brasil',ano:$('m-ano').value.trim(),
+    assuntos:['Poesia oriental',forma?.nome||'Haicai'],
+    dedicatoria:$('m-dedicatoria').value.trim(),
+    epigrafe:$('m-epigrafe').value.trim(),
+    autorEpigrafe:$('m-autor-epigrafe').value.trim(),
+    prefacio:$('m-prefacio').value.trim(),
+    tituloPrefacio:'Nota do Poeta',
+    sobreAutor:$('m-sobre-autor').value.trim(),
+    colofao:true,entradasSumario:extrairEntradasSumario(),
+  };
+  CeleiroPretextuais?.salvarDados(dados);
+  fecharModal();
+  $('status').textContent='⏳ Gerando coletânea oriental...';
+  setTimeout(()=>{
+    try{
+      const cfg=resultado.cfg,fmt=resultado.fmt;
+      const pre=CeleiroPretextuais.gerarPreTextuais(dados,fmt,cfg);
+      const pos=CeleiroPretextuais.gerarPosTextuais(dados,fmt,cfg);
+      const livro=CeleiroJuncao.juntar(pre,resultado,pos,cfg,fmt);
+      const html=CeleiroJuncao.renderizarLivroCompleto(livro,cfg,fmt);
+      window.__ultimoLivroHTML=html;
+      localStorage.setItem('lapidar_ultima_contagem_paginas', String(livro.stats.totalPaginas));
+      const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+      const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+      a.download=(dados.titulo||'oriental').toLowerCase().replace(/\s+/g,'-')+'-samurai.html';
+      a.click();
+      localStorage.setItem('lapidar_diagramacao_concluida','true');
+      localStorage.setItem('lapidar_resultado_diagramacao',`Coletânea Oriental — ${livro.stats.totalPaginas} páginas — Samurai`);
+      $('status').textContent=`✅ ${livro.stats.totalPaginas} páginas geradas.`;
+    }catch(e){$('status').textContent='Erro: '+e.message;console.error(e);}
+  },100);
+}
+
+// PDF real (vetorial, com numeração e sumário navegável tipo Windows/CHM),
+// cobrindo o livro inteiro — pré-textuais + miolo + pós-textuais.
+function exportarPDFRealCompleto(aoConcluir){
+  if(!resultado||!window.CeleiroPretextuais||!window.CeleiroJuncao||!window.jspdf){
+    alert('Motores de PDF não carregados.');return;
+  }
+  const forma=FORMAS_ORIENTAIS[formaDetectada];
+  const dados={
+    titulo:$('m-titulo').value.trim(),
+    subtitulo:$('m-subtitulo').value.trim()||(forma?forma.nome+' — '+forma.origem:''),
+    autor:$('m-autor').value.trim(),
+    editora:$('m-editora').value.trim(),
+    local:'Brasil',ano:$('m-ano').value.trim(),
+    assuntos:['Poesia oriental',forma?.nome||'Haicai'],
+    dedicatoria:$('m-dedicatoria').value.trim(),
+    epigrafe:$('m-epigrafe').value.trim(),
+    autorEpigrafe:$('m-autor-epigrafe').value.trim(),
+    prefacio:$('m-prefacio').value.trim(),
+    tituloPrefacio:'Nota do Poeta',
+    sobreAutor:$('m-sobre-autor').value.trim(),
+    colofao:true,entradasSumario:extrairEntradasSumario(),
+  };
+  CeleiroPretextuais?.salvarDados(dados);
+  fecharModal();
+  $('status').textContent='⏳ Gerando PDF real...';
+  setTimeout(()=>{
+    try{
+      const cfg=resultado.cfg,fmt=resultado.fmt;
+      const blob=CeleiroJuncao.gerarPDFRealCompleto(dados,resultado,cfg,fmt);
+      const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+      a.download=(dados.titulo||'oriental').toLowerCase().replace(/\s+/g,'-')+'-samurai.pdf';
+      a.click();
+      localStorage.setItem('lapidar_diagramacao_concluida','true');
+      localStorage.setItem('lapidar_resultado_diagramacao',`Coletânea Oriental (PDF real) — Samurai`);
+      $('status').textContent='✅ PDF real gerado com sucesso.';
+      if(typeof aoConcluir==='function') aoConcluir();
+    }catch(e){$('status').textContent='Erro: '+e.message;console.error(e);}
+  },100);
+}
+
+['formato','fontSize','lineHeight','fontFamily','alinhPoesia','composicoesPorPagina','numeracao']
+  .forEach(id=>{$(id).addEventListener('change',render);});
+$('formaOriental').addEventListener('change',()=>{onFormaChange();render();});
+</script>
+<script>
+if(window.CeleiroUploadManuscrito){
+  window.CeleiroUploadManuscrito.montar({
+    inputId:'uploadArquivo',
+    textareaId:'texto',
+    statusId:'uploadStatus',
+    aoCarregar:function(texto){
+      if(typeof scheduleRender==='function') scheduleRender();
+      else if(typeof render==='function') render();
+    }
+  });
+}
+function abrirEImprimirPDF(){
+  if(!window.__ultimoLivroHTML){
+    alert('Gere o livro/coletânea completa primeiro (botão de exportação acima) antes de imprimir em PDF.');
+    return;
+  }
+  const janela=window.open('','_blank');
+  if(!janela){ alert('O navegador bloqueou a nova aba. Permita pop-ups e tente de novo.'); return; }
+  janela.document.write(window.__ultimoLivroHTML);
+  janela.document.close();
+  setTimeout(()=>{ janela.print(); }, 400);
+}
+
+// ── EXPORTAR EPUB DO LIVRO COMPLETO (motores finais, independente do fluxo principal) ──
+async function exportarEpubCompleto(){
+  if(!window.CeleiroV3 || !window.CeleiroMotorExportacaoFinalPdfEpub){
+    alert('Motores de exportação final não carregaram.');
+    return;
+  }
+  if(!window.JSZip){
+    alert('Biblioteca JSZip não carregou (verifique sua conexão) — não é possível gerar o .epub.');
+    return;
+  }
+  const texto = document.getElementById('texto').value.trim();
+  if(!texto){ alert('Escreva ou carregue o texto da obra primeiro.'); return; }
+  const titulo = (document.getElementById('titulo')||{}).value || (document.getElementById('m-titulo')||{}).value || 'Obra sem título';
+  const autor = (document.getElementById('autor')||{}).value || (document.getElementById('m-autor')||{}).value || 'Autor';
+  try{
+    const blocos = window.CeleiroV3.quebrarBlocos(texto);
+    const blob = await window.CeleiroMotorExportacaoFinalPdfEpub.montarEpubZip(
+      { titulo, autor, idioma:'pt-BR', blocos },
+      { formato: (document.getElementById('formato')||{}).value || '16x23' }
+    );
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (titulo||'obra').toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.epub';
+    a.click();
+    localStorage.setItem('lapidar_epub_concluido','true');
+  }catch(e){
+    alert('Erro ao gerar EPUB: ' + e.message);
+    console.error(e);
+  }
+}
+
+function irParaCapa(){
+  localStorage.setItem('obra_titulo', (document.getElementById('titulo')||{}).value || 'Obra sem título');
+  localStorage.setItem('obra_autor', (document.getElementById('autor')||{}).value || '');
+  window.location.href = 'okapista_literario.html';
+}
+</script>
+</body>
+</html>

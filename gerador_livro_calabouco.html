@@ -766,6 +766,15 @@ async function executarGeracao() {
   await gerarLivroUnico(titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase);
 }
 
+// BUG CORRIGIDO (30/07/2026): uma chave de fechamento sobrando logo acima
+// fechava executarGeracao() cedo demais, deixando toda a geração por arco/
+// fragmento abaixo solta fora de qualquer função — código nunca executado,
+// e um "await" fora de função async quebrava o parsing do <script> inteiro
+// (a página inteira ficava sem nenhum JS rodando). Isso também tinha
+// escondido uma colisão de nome: já existia outra função chamada
+// gerarLivroUnico mais abaixo (que salva no GitHub, sem relação com gerar
+// o texto) — renomeada para salvarLivroNoGithub pra não colidir com esta.
+async function gerarLivroUnico(titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase) {
   // gerarLivroUnico recebe os parâmetros direto — sem revalidar
   const jornada = JORNADAS[jornadaSelecionada];
   const planejamento = calcularFragmentos(volume);
@@ -928,6 +937,74 @@ justificativa: [motivo]
     // ARCOS — múltiplos fragmentos por arco
     // (resumoAnterior já definido acima — zerado ou recuperado do checkpoint)
 
+    // Parte fixa do prompt — idêntica em TODO fragmento desta mesma geração
+    // (só muda se trocar de livro). Vai no system com cache_control: da 2ª
+    // chamada em diante, é lida do cache da Anthropic a ~10% do preço
+    // normal em vez de reprocessada em cada um dos dezenas de fragmentos.
+    const dnaSementeFixo = contoBase ? `\nDNA DA OBRA (conto semente — preserve personagens, tom, universo):\n${contoBase.substring(0, 3000)}\n` : '';
+    const systemFragmento = `Você é ${heteronimoEscolhido}, escritor da OHE.
+Tom de voz: ${tomVozGlobal}
+Livro: ${tituloFinal}
+Gênero: ${genero || 'A definir'}
+Sinopse: ${sinopse || 'Não fornecida'}
+Jornada: ${jornada.nome}${dnaSementeFixo}
+
+REGRAS NARRATIVAS PERMANENTES — NUNCA VIOLAR:
+
+1. REGRA DA FENDA (ou qualquer portal, anomalia, passagem sobrenatural):
+   - Uma fenda/portal/anomalia é um EVENTO ÚNICO — só pode ser descrita integralmente na primeira vez.
+   - Se o personagem RETORNAR pela mesma fenda: a cena deve ser DIFERENTE da abertura — sensação invertida, perspectiva alterada, nunca cópia.
+   - Se o personagem encontrar uma NOVA passagem em arco diferente: NÃO pode ser fenda. Deve ser um elemento distinto — luz diferente, nome diferente, natureza diferente.
+   - PROIBIDO copiar ou parafrasear cenas já escritas de travessia. Cada passagem é única.
+
+2. REGRA DO QUASE-FECHAMENTO POR ARCO:
+   - Cada arco deve terminar com tensão APARENTEMENTE resolvida — o leitor respira.
+   - Mas UMA coisa permanece suspensa: uma pergunta sem resposta, um personagem com algo não dito, uma consequência ainda não chegou.
+   - Essa sombra restante é o fio que puxa o arco seguinte.
+
+3. REGRA DA REVIRAVOLTA NA TRANSIÇÃO:
+   - Ao iniciar um novo arco, o que parecia resolvido no arco anterior revela uma nova dimensão.
+   - NÃO é recomeço do zero. É o mesmo problema visto de um ângulo que muda tudo.
+   - A reviravolta deve surgir naturalmente do que foi plantado — nunca de um elemento novo sem raiz.
+
+4. REGRA ANTI-REPETIÇÃO:
+   - Nenhuma cena, descrição ou diálogo pode ser repetido ou parafraseado de fragmento anterior.
+   - Se uma cena precisa ser relembrada, use apenas uma referência interna breve — nunca a cena inteira.
+
+REGRAS OBRIGATÓRIAS DE FORMATAÇÃO:
+- Diálogos SEMPRE com travessão (—) e verbo dicendi identificado
+- NUNCA usar travessão no meio de frases narrativas — use vírgula
+- Cada parágrafo tem seu próprio espaço com linha em branco entre eles
+- Títulos de capítulos: escrever apenas o número e o nome, sem qualquer formatação especial
+- Numeração de capítulos CONSISTENTE em todo o livro — use sempre o mesmo padrão (ex: Capítulo I, Capítulo II...) — NUNCA misturar padrões entre arcos
+- PROIBIDO ABSOLUTO: <div>, <p>, <center>, <br>, align=, qualquer tag HTML
+- PROIBIDO ABSOLUTO: ## , # , **, *, __ ou qualquer markdown
+- PROIBIDO ABSOLUTO: escrever "Arco I", "Arco II", "Arco III", "Jornada do Herói", "Mundo Comum", "Provações", "Clímax" ou qualquer termo estrutural de construção narrativa dentro do texto
+- PROIBIDO ABSOLUTO: separadores como ---, ===, ___ dentro do texto narrativo
+- O texto do livro deve ser LIMPO — o leitor vê apenas a história, nunca a estrutura que a sustenta
+- PROIBIDO: comentários editoriais, ganchos explicativos ou análises fora da narrativa
+- O texto deve ser humanizado, sem rastro de IA
+
+QUANDO PERCEBER QUE ESTÁ SE APROXIMANDO DO LIMITE (últimos 10% do texto):
+NÃO corte no meio de uma frase ou cena. Em vez disso, plante um GANCHO DE TRANSIÇÃO — uma frase ou parágrafo curto que:
+- Encerra naturalmente o momento atual
+- Abre uma tensão, revelação ou movimento que o próximo fragmento vai resolver
+- O gancho deve ser voz de NARRADOR — sem travessão, sem aspas, sem diálogo
+- Deve surgir da lógica interna da cena, nunca de fórmula genérica
+- Exemplos do ESTILO correto (não copiar, apenas orientar o tom):
+  "O que encontrou do outro lado não era o que esperava."
+  "Nenhum dos dois havia percebido que não estavam sós."
+  "Aquela seria, sem que soubesse, a última vez que o veria."
+  "A resposta chegou antes que terminasse de formular a pergunta, e era pior do que qualquer coisa que havia imaginado."
+  "Havia algo errado com o silêncio daquela sala."
+  "Três horas depois, tudo o que havia sido decidido deixou de valer."
+- PROIBIDO: travessão em narrador, frases com "e mudou tudo", "e então percebeu que", "de repente", "inesperadamente" — são marcas de IA
+- Termine com ponto final. O próximo fragmento retoma exatamente dali.
+
+NUNCA corte no meio de uma palavra, frase ou oração. Prefira o gancho ao corte abrupto.
+Use capítulos numerados quando apropriado.
+NÃO inclua meta-comentários. Comece diretamente com a narrativa.`;
+
     for (let ai = arcoInicio; ai < planejamento.length; ai++) {
       const { arco, pags, numFrags, palavrasPorFrag } = planejamento[ai];
 
@@ -962,43 +1039,13 @@ justificativa: [motivo]
         const isLast = fi === numFrags - 1;
         const isLastArco = ai === planejamento.length - 1;
 
-        const dnaSemente = contoBase ? `\nDNA DA OBRA (conto semente — preserve personagens, tom, universo):\n${contoBase.substring(0, 3000)}\n` : '';
-        const promptFragmento = `Você é ${heteronimoEscolhido}, escritor da OHE.
-Tom de voz: ${tomVozGlobal}
-Livro: ${tituloFinal}
-Gênero: ${genero || 'A definir'}
-Sinopse: ${sinopse || 'Não fornecida'}
-Jornada: ${jornada.nome}${dnaSemente}
-
-ARCO ${ai+1} DE ${planejamento.length}: ${arco.nome}
+        const promptFragmento = `ARCO ${ai+1} DE ${planejamento.length}: ${arco.nome}
 Diretrizes: ${arco.desc}
 
 ${resumoAnterior ? 'RESUMO DO QUE JÁ FOI ESCRITO:\n' + resumoAnterior + '\n' : ''}
-${!isFirst ? `Continue a narrativa a partir do parágrafo seguinte ao ponto onde o fragmento anterior terminou. NÃO repita nenhum conteúdo já escrito. NÃO resuma o que veio antes. Prossiga diretamente com a cena seguinte.` : ai > 0 ? `Inicie o Arco ${ai+1} no parágrafo seguinte ao final do Arco ${ai}. Mantenha coerência total com os arcos anteriores. NÃO repita conteúdo anterior.` : 'Inicie o livro expandindo a partir do CONTO SEMENTE acima.
+${!isFirst ? `Continue a narrativa a partir do parágrafo seguinte ao ponto onde o fragmento anterior terminou. NÃO repita nenhum conteúdo já escrito. NÃO resuma o que veio antes. Prossiga diretamente com a cena seguinte.` : ai > 0 ? `Inicie o Arco ${ai+1} no parágrafo seguinte ao final do Arco ${ai}. Mantenha coerência total com os arcos anteriores. NÃO repita conteúdo anterior.` : `Inicie o livro expandindo a partir do CONTO SEMENTE (no system).
 O primeiro capítulo DEVE partir dos mesmos personagens, do mesmo universo e do mesmo ponto narrativo do conto semente.
-NÃO reescreva o conto semente — EXPANDA-O, aprofunde os personagens, desenvolva os eventos anteriores e posteriores.'}
-
-REGRAS NARRATIVAS PERMANENTES — NUNCA VIOLAR:
-
-1. REGRA DA FENDA (ou qualquer portal, anomalia, passagem sobrenatural):
-   - Uma fenda/portal/anomalia é um EVENTO ÚNICO — só pode ser descrita integralmente na primeira vez.
-   - Se o personagem RETORNAR pela mesma fenda: a cena deve ser DIFERENTE da abertura — sensação invertida, perspectiva alterada, nunca cópia.
-   - Se o personagem encontrar uma NOVA passagem em arco diferente: NÃO pode ser fenda. Deve ser um elemento distinto — luz diferente, nome diferente, natureza diferente.
-   - PROIBIDO copiar ou parafrasear cenas já escritas de travessia. Cada passagem é única.
-
-2. REGRA DO QUASE-FECHAMENTO POR ARCO:
-   - Cada arco deve terminar com tensão APARENTEMENTE resolvida — o leitor respira.
-   - Mas UMA coisa permanece suspensa: uma pergunta sem resposta, um personagem com algo não dito, uma consequência ainda não chegou.
-   - Essa sombra restante é o fio que puxa o arco seguinte.
-
-3. REGRA DA REVIRAVOLTA NA TRANSIÇÃO:
-   - Ao iniciar um novo arco, o que parecia resolvido no arco anterior revela uma nova dimensão.
-   - NÃO é recomeço do zero. É o mesmo problema visto de um ângulo que muda tudo.
-   - A reviravolta deve surgir naturalmente do que foi plantado — nunca de um elemento novo sem raiz.
-
-4. REGRA ANTI-REPETIÇÃO:
-   - Nenhuma cena, descrição ou diálogo pode ser repetido ou parafraseado de fragmento anterior.
-   - Se uma cena precisa ser relembrada, use apenas uma referência interna breve — nunca a cena inteira.
+NÃO reescreva o conto semente — EXPANDA-O, aprofunde os personagens, desenvolva os eventos anteriores e posteriores.`}
 
 ${(() => {
   const totalFragsLivro = jornada.arcos.reduce((acc, a, idx) => {
@@ -1070,46 +1117,12 @@ Não force o suspense: deixe-o surgir naturalmente das fissuras da narrativa.`;
   }
 })()}
 
-REGRAS OBRIGATÓRIAS DE FORMATAÇÃO:
-- Diálogos SEMPRE com travessão (—) e verbo dicendi identificado
-- NUNCA usar travessão no meio de frases narrativas — use vírgula
-- Cada parágrafo tem seu próprio espaço com linha em branco entre eles
-- Títulos de capítulos: escrever apenas o número e o nome, sem qualquer formatação especial
-- Numeração de capítulos CONSISTENTE em todo o livro — use sempre o mesmo padrão (ex: Capítulo I, Capítulo II...) — NUNCA misturar padrões entre arcos
-- PROIBIDO ABSOLUTO: <div>, <p>, <center>, <br>, align=, qualquer tag HTML
-- PROIBIDO ABSOLUTO: ## , # , **, *, __ ou qualquer markdown
-- PROIBIDO ABSOLUTO: escrever "Arco I", "Arco II", "Arco III", "Jornada do Herói", "Mundo Comum", "Provações", "Clímax" ou qualquer termo estrutural de construção narrativa dentro do texto
-- PROIBIDO ABSOLUTO: separadores como ---, ===, ___ dentro do texto narrativo
-- O texto do livro deve ser LIMPO — o leitor vê apenas a história, nunca a estrutura que a sustenta
-- PROIBIDO: comentários editoriais, ganchos explicativos ou análises fora da narrativa
-- O texto deve ser humanizado, sem rastro de IA
-
-REGRA DE LIMITE DE TOKENS: Escreva aproximadamente ${palavrasPorFrag} palavras. 
-
-QUANDO PERCEBER QUE ESTÁ SE APROXIMANDO DO LIMITE (últimos 10% do texto):
-NÃO corte no meio de uma frase ou cena. Em vez disso, plante um GANCHO DE TRANSIÇÃO — uma frase ou parágrafo curto que:
-- Encerra naturalmente o momento atual
-- Abre uma tensão, revelação ou movimento que o próximo fragmento vai resolver
-- O gancho deve ser voz de NARRADOR — sem travessão, sem aspas, sem diálogo
-- Deve surgir da lógica interna da cena, nunca de fórmula genérica
-- Exemplos do ESTILO correto (não copiar, apenas orientar o tom):
-  "O que encontrou do outro lado não era o que esperava."
-  "Nenhum dos dois havia percebido que não estavam sós."
-  "Aquela seria, sem que soubesse, a última vez que o veria."
-  "A resposta chegou antes que terminasse de formular a pergunta, e era pior do que qualquer coisa que havia imaginado."
-  "Havia algo errado com o silêncio daquela sala."
-  "Três horas depois, tudo o que havia sido decidido deixou de valer."
-- PROIBIDO: travessão em narrador, frases com "e mudou tudo", "e então percebeu que", "de repente", "inesperadamente" — são marcas de IA
-- Termine com ponto final. O próximo fragmento retoma exatamente dali.
-
-NUNCA corte no meio de uma palavra, frase ou oração. Prefira o gancho ao corte abrupto.
-Use capítulos numerados quando apropriado.
-NÃO inclua meta-comentários. Comece diretamente com a narrativa.`;
+REGRA DE LIMITE DE TOKENS: Escreva aproximadamente ${palavrasPorFrag} palavras.`;
 
         // Último e penúltimo fragmento do último arco recebem mais tokens
         const isPenultimo = isLastArco && (fi === numFrags - 2);
         const tokensParaEsteFragmento = (isLastArco && isLast) ? 16000 : isPenultimo ? 12000 : MAX_TOKENS_POR_CHAMADA;
-        const fragmento = await chamarAPI(promptFragmento, tokensParaEsteFragmento);
+        const fragmento = await chamarAPI(promptFragmento, tokensParaEsteFragmento, 4, 3000, systemFragmento);
         textoArco += fragmento + '\n\n';
 
         // ── CHECKPOINT após cada fragmento ──
@@ -1698,6 +1711,22 @@ async function gerarSaga(titulo, sinopse, volumeTotal, genero, heteronimo, desti
   let sagaCompleta = '';
   let resumoSaga = '';
 
+  // Parte fixa — idêntica em todo volume desta mesma saga — vai no system
+  // com cache_control (ver comentário em chamarAPI).
+  const systemVol = `Você é ${heteronimoEscolhido||heteronimo||'o autor escolhido'}, escritor da OHE.
+Tom: ${tomVozGlobal||'literário elevado'}
+Saga: ${titulo}
+Gênero: ${genero||'romance'}
+Jornada: ${jornada.nome}
+${contoBase ? `CONTO SEMENTE (DNA DA SAGA):\n${contoBase.substring(0,2000)}\n` : ''}
+
+REGRAS:
+- Diálogos com travessão (—)
+- Parágrafos espaçados
+- Tom humanizado
+- Use capítulos numerados
+- Volume com início, meio e fim próprios mas conectado à saga`;
+
   try {
     for (let vi = 0; vi < nVolumes; vi++) {
       document.getElementById('status-vol-' + vi).textContent = 'gerando...';
@@ -1711,31 +1740,20 @@ async function gerarSaga(titulo, sinopse, volumeTotal, genero, heteronimo, desti
       const arcosVol = JORNADAS[jornadaSelecionada].arcos;
       const arcoVol  = arcosVol[Math.min(vi, arcosVol.length-1)];
 
-      const promptVol = `Você é ${heteronimoEscolhido||heteronimo||'o autor escolhido'}, escritor da OHE.
-Tom: ${tomVozGlobal||'literário elevado'}
-Saga: ${titulo}
-Volume: ${vi+1} de ${nVolumes}
+      const promptVol = `Volume: ${vi+1} de ${nVolumes}
 Páginas deste volume: ~${pagsPorVol}
-Gênero: ${genero||'romance'}
-Jornada: ${jornada.nome} — ${arcoVol?.nome||'desenvolvimento'}
+Momento da jornada: ${arcoVol?.nome||'desenvolvimento'}
 
-${contoBase ? `CONTO SEMENTE (DNA DA SAGA):\n${contoBase.substring(0,2000)}\n\n` : ''}
 ${resumoSaga ? `RESUMO DOS VOLUMES ANTERIORES:\n${resumoSaga}\n\n` : ''}
 ${isFirst ? 'Este é o VOLUME DE ABERTURA. Apresente o mundo, personagens e conflito central.' : ''}
 ${isLast ? 'Este é o VOLUME FINAL. Resolva todos os arcos e entregue um desfecho satisfatório e definitivo.' : ''}
 ${!isFirst && !isLast ? `Este é o volume de DESENVOLVIMENTO. Continue a saga com tensão crescente. Termine com cliffhanger que motive o próximo volume.` : ''}
 
-REGRAS:
-- Diálogos com travessão (—)
-- Parágrafos espaçados
-- Tom humanizado
-- Use capítulos numerados
-- Volume com início, meio e fim próprios mas conectado à saga
-- ${isLast ? 'DESFECHO DEFINITIVO — sem cortes abruptos' : 'Termine em ponto de virada para o próximo volume'}
+${isLast ? 'DESFECHO DEFINITIVO — sem cortes abruptos.' : 'Termine em ponto de virada para o próximo volume.'}
 
 Escreva ~${Math.round(pagsPorVol * 250)} palavras. Comece diretamente.`;
 
-      const textoVol = await chamarAPI(promptVol, 8000);
+      const textoVol = await chamarAPI(promptVol, 8000, 4, 3000, systemVol);
       const palavrasVol = textoVol.split(/\s+/).length;
 
       sagaCompleta += `\n\n${'═'.repeat(60)}\nVOLUME ${vi+1}${isLast?' — FINAL':''}\n${'═'.repeat(60)}\n\n${textoVol}`;
@@ -1776,7 +1794,14 @@ Escreva ~${Math.round(pagsPorVol * 250)} palavras. Comece diretamente.`;
   }
 }
 
-async function gerarLivroUnico(titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase) {
+// Renomeada de gerarLivroUnico (30/07/2026) — colidia de nome com a função
+// de verdade que gera o texto do livro (ver comentário lá em cima, perto
+// de executarGeracao). Esta aqui salva o livro pronto no GitHub — não é
+// chamada por ninguém hoje, e tem 3 variáveis fora do escopo dela
+// (destino, conteudo, autor — provavelmente deveriam ser destinoFinal, o
+// texto gerado, e heteronimo/heteronimoEscolhido). Deixei como estava,
+// sem adivinhar o comportamento pretendido.
+async function salvarLivroNoGithub(titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase) {
   try {
     const autorNome = heteronimoEscolhido || heteronimo || 'ohe';
     const autorSlug = autorNome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -1815,11 +1840,11 @@ async function gerarRelatorioFissuras(livroTexto, titulo, autor, genero) {
     const elBtn = document.getElementById('btn-fissuras');
     if (elBtn) { elBtn.textContent = '⟳ Gerando Relatório de Fissuras...'; elBtn.disabled = true; }
 
-    const amostra = livroTexto.substring(0, 6000) + (livroTexto.length > 6000 ? '
+    const amostra = livroTexto.substring(0, 6000) + (livroTexto.length > 6000 ? `
 
 [...]
 
-' + livroTexto.slice(-3000) : '');
+` + livroTexto.slice(-3000) : '');
 
     const prompt = `Você é um editor literário especializado em desenvolvimento de universos ficcionais.
 
@@ -1832,37 +1857,89 @@ GÊNERO: ${genero}
 TEXTO (amostra):
 ${amostra}
 
-Identifique e liste em formato JSON:
-{
-  "personagens_com_historia_nao_contada": [
-    {"nome": "", "fissura": "", "titulo_sugerido": "", "semente": ""}
-  ],
-  "lugares_nao_explorados": [
-    {"lugar": "", "fissura": "", "titulo_sugerido": "", "semente": ""}
-  ],
-  "conflitos_em_aberto": [
-    {"conflito": "", "fissura": "", "titulo_sugerido": "", "semente": ""}
-  ],
-  "perguntas_sem_resposta": [
-    {"pergunta": "", "fissura": "", "titulo_sugerido": "", "semente": ""}
-  ],
-  "epocas_nao_visitadas": [
-    {"epoca": "", "fissura": "", "titulo_sugerido": "", "semente": ""}
-  ]
-}
+Identifique as fissuras narrativas, com no máximo 3 itens por categoria. Para cada item: "semente" é um parágrafo de 2-3 linhas descrevendo como essa fissura poderia virar uma nova obra independente.`;
 
-Para cada item: "semente" é um parágrafo de 2-3 linhas descrevendo como essa fissura poderia virar uma nova obra independente.
-Máximo 3 itens por categoria. Retorne APENAS o JSON válido, sem markdown.`;
+    const SCHEMA_FISSURAS = {
+      type: 'object',
+      properties: {
+        personagens_com_historia_nao_contada: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              nome: { type: 'string' },
+              fissura: { type: 'string' },
+              titulo_sugerido: { type: 'string' },
+              semente: { type: 'string' }
+            },
+            required: ['nome', 'fissura', 'titulo_sugerido', 'semente']
+          }
+        },
+        lugares_nao_explorados: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              lugar: { type: 'string' },
+              fissura: { type: 'string' },
+              titulo_sugerido: { type: 'string' },
+              semente: { type: 'string' }
+            },
+            required: ['lugar', 'fissura', 'titulo_sugerido', 'semente']
+          }
+        },
+        conflitos_em_aberto: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              conflito: { type: 'string' },
+              fissura: { type: 'string' },
+              titulo_sugerido: { type: 'string' },
+              semente: { type: 'string' }
+            },
+            required: ['conflito', 'fissura', 'titulo_sugerido', 'semente']
+          }
+        },
+        perguntas_sem_resposta: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              pergunta: { type: 'string' },
+              fissura: { type: 'string' },
+              titulo_sugerido: { type: 'string' },
+              semente: { type: 'string' }
+            },
+            required: ['pergunta', 'fissura', 'titulo_sugerido', 'semente']
+          }
+        },
+        epocas_nao_visitadas: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              epoca: { type: 'string' },
+              fissura: { type: 'string' },
+              titulo_sugerido: { type: 'string' },
+              semente: { type: 'string' }
+            },
+            required: ['epoca', 'fissura', 'titulo_sugerido', 'semente']
+          }
+        }
+      },
+      required: ['personagens_com_historia_nao_contada', 'lugares_nao_explorados', 'conflitos_em_aberto', 'perguntas_sem_resposta', 'epocas_nao_visitadas']
+    };
 
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] })
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1500, output_config: { format: { type: 'json_schema', schema: SCHEMA_FISSURAS } }, messages: [{ role: 'user', content: prompt }] })
     });
 
     if (!r.ok) return;
     const d = await r.json();
-    const txt = (d.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+    const txt = (d.content||[]).map(b=>b.text||'').join('').trim();
     const fissuras = JSON.parse(txt);
     fissuras.obra = titulo;
     fissuras.autor = autor;
@@ -1927,12 +2004,23 @@ function exibirRelatorioFissuras(f) {
   if (el) el.innerHTML = html;
 }
 
-async function chamarAPI(prompt, maxTokens, tentativas = 4, delayBase = 3000) {
+// `system`: texto fixo opcional (mesma instrução em várias chamadas
+// seguidas — ex.: as regras narrativas permanentes de um livro inteiro)
+// — vai marcado com cache_control pra ser lido do cache (~10% do preço
+// normal) a partir da 2ª chamada da mesma sessão de geração, em vez de
+// reprocessado do zero em cada fragmento/volume.
+async function chamarAPI(prompt, maxTokens, tentativas = 4, delayBase = 3000, system = null) {
   for (let t = 1; t <= tentativas; t++) {
     try {
       const controller = new AbortController();
       // Timeout de 120s por chamada
       const timeout = setTimeout(() => controller.abort(), 120000);
+      const body = {
+        model: 'claude-sonnet-4-6',
+        max_tokens: maxTokens,
+        messages: [{ role: 'user', content: prompt }]
+      };
+      if (system) body.system = [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }];
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         signal: controller.signal,
@@ -1940,11 +2028,7 @@ async function chamarAPI(prompt, maxTokens, tentativas = 4, delayBase = 3000) {
           'Content-Type': 'application/json',
           'anthropic-dangerous-direct-browser-access': 'true'
         },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: maxTokens,
-          messages: [{ role: 'user', content: prompt }]
-        })
+        body: JSON.stringify(body)
       });
       clearTimeout(timeout);
       if (!response.ok) {

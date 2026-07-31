@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OKapista Literário — Criador de Capas</title>
+<script src="config.js"></script>
+<script src="motor_plataformas_pod_v1.js"></script>
+<script src="capas/motores/motor_capa_epub.js"></script>
+<style>
+:root{
+  --ouro:#c9a84c;--ouro2:#e8d08a;--azul:#1e3a5f;
+  --paper:#fffdf7;--ink:#1f1a14;--muted:#6a6052;--line:#ddd0ba;
+  --shadow:0 12px 32px rgba(0,0,0,.12);--radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100vh;background:linear-gradient(135deg,#0e1c35,#17365f);font-family:Georgia,'Times New Roman',serif;color:var(--ink);}
+.faixa{background:linear-gradient(90deg,rgba(201,168,76,.12),rgba(201,168,76,.05));border-bottom:1px solid rgba(201,168,76,.25);padding:10px 20px;display:flex;align-items:center;gap:12px;}
+.faixa span{font-size:.82rem;color:#c9a84c;font-style:italic;line-height:1.5;flex:1;}
+.faixa a{font-family:monospace;font-size:.65rem;color:rgba(201,168,76,.6);text-decoration:none;border:1px solid rgba(201,168,76,.2);border-radius:6px;padding:4px 10px;flex-shrink:0;}
+.app{width:min(1400px,calc(100vw - 12px));margin:8px auto;display:grid;grid-template-columns:300px minmax(0,1fr);gap:14px;align-items:start;}
+.panel{background:linear-gradient(180deg,#10233f,#1a3a6a 60%,#2d5a9a);color:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px;position:sticky;top:8px;max-height:calc(100vh - 16px);overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.panel-titulo{font-size:1.4rem;color:var(--ouro);font-family:Georgia,serif;font-weight:700;}
+.panel-sub{font-size:.7rem;color:rgba(201,168,76,.5);letter-spacing:.1em;text-transform:uppercase;}
+.status-box{font-size:.82rem;border-radius:10px;padding:9px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(201,168,76,.2);color:#e8f0ff;line-height:1.5;min-height:38px;}
+.card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:11px;display:flex;flex-direction:column;gap:8px;}
+.card-titulo{font-size:.68rem;font-weight:700;color:rgba(201,168,76,.6);letter-spacing:.1em;text-transform:uppercase;}
+label{display:block;font-size:.72rem;font-weight:700;color:#9bb8e0;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px;}
+.inp,.sel{width:100%;font-family:inherit;font-size:.85rem;border-radius:9px;border:1px solid #c8b47a;background:#fff;color:var(--ink);padding:7px 10px;outline:none;}
+.inp:focus,.sel:focus{border-color:var(--ouro);}
+textarea.inp{min-height:70px;resize:vertical;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.btn{width:100%;border:none;border-radius:10px;padding:10px 14px;font:700 .85rem Georgia,serif;cursor:pointer;transition:.14s;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;}
+.btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-ouro{background:var(--ouro);color:#1a0e00;}
+.btn-verde{background:#2f7a59;color:#fff;}
+.btn-soft{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);}
+.btn-danger{background:#b13a3a;color:#fff;}
+.btn-sm{padding:6px 12px;font-size:.75rem;min-height:32px;border-radius:8px;}
+.main{display:flex;flex-direction:column;gap:14px;}
+.box{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);}
+.box-titulo{font-size:1rem;font-weight:700;color:var(--azul);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+/* ABAS */
+.abas{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap;}
+.aba{padding:7px 14px;border-radius:8px;border:1.5px solid var(--line);background:transparent;font:600 .8rem Georgia,serif;color:var(--muted);cursor:pointer;transition:.14s;}
+.aba.ativa{background:var(--azul);color:#fff;border-color:var(--azul);}
+.aba-painel{display:none;}.aba-painel.vis{display:block;}
+/* IMAGEM */
+.img-container{position:relative;border-radius:12px;overflow:hidden;background:#222;min-height:300px;display:flex;align-items:center;justify-content:center;}
+.img-container img{width:100%;height:auto;display:block;border-radius:12px;}
+.img-loading{color:#fff;font-style:italic;font-size:.9rem;padding:40px;text-align:center;}
+.img-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;}
+.img-opcao{border-radius:10px;overflow:hidden;cursor:pointer;border:3px solid transparent;transition:.2s;}
+.img-opcao:hover{border-color:var(--ouro);}
+.img-opcao.selecionada{border-color:var(--azul);}
+.img-opcao img{width:100%;height:auto;display:block;}
+/* CAPA PREVIEW */
+.capa-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.capa-preview{display:flex;box-shadow:0 20px 60px rgba(0,0,0,.3);border-radius:4px;overflow:hidden;max-width:100%;}
+.capa-frente,.capa-verso{flex:1;min-height:400px;position:relative;overflow:hidden;}
+.capa-lombada{width:40px;min-height:400px;background:#333;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.capa-lombada-txt{writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);font-size:.65rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-height:100%;padding:4px;}
+.capa-img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.capa-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;background:linear-gradient(transparent 40%,rgba(0,0,0,.7));}
+.capa-titulo-txt{color:#fff;font-size:1.1rem;font-weight:700;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,.8);}
+.capa-autor-txt{color:rgba(255,255,255,.8);font-size:.8rem;margin-top:4px;text-shadow:0 1px 4px rgba(0,0,0,.8);}
+.capa-verso-conteudo{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:20px;background:linear-gradient(135deg,#1a1a2e,#16213e);}
+.sinopse-txt{color:rgba(255,255,255,.85);font-size:.78rem;line-height:1.7;font-style:italic;}
+/* DIMS */
+.dims-box{background:rgba(30,58,95,.08);border:1px solid rgba(30,58,95,.2);border-radius:10px;padding:12px;font-size:.75rem;color:var(--muted);}
+.dims-linha{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.06);}
+.dims-val{font-weight:700;color:var(--azul);}
+/* PLATAFORMAS */
+.plat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.plat-card{border:2px solid var(--line);border-radius:10px;padding:10px;cursor:pointer;transition:.15s;text-align:center;}
+.plat-card:hover{border-color:var(--ouro);background:rgba(201,168,76,.04);}
+.plat-card.selecionada{border-color:var(--azul);background:rgba(30,58,95,.06);}
+.plat-flag{font-size:1.4rem;display:block;margin-bottom:4px;}
+.plat-nome{font-size:.75rem;font-weight:700;color:var(--azul);}
+.plat-tipo{font-size:.62rem;color:var(--muted);}
+@media(max-width:900px){.app{grid-template-columns:1fr;}.panel{position:relative;max-height:none;}.plat-grid{grid-template-columns:1fr 1fr;}.img-grid{grid-template-columns:1fr 1fr;}}
+
+/* RODAPÉ DE COMANDO — padrão de cores fixo em todos os departamentos */
+.rodape-comando{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.cmd-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-decoration:none;text-align:center;transition:.15s}
+.cmd-btn:hover{transform:translateY(-1px)}
+.cmd-verde{background:rgba(47,168,106,.12);border:1px solid rgba(47,168,106,.4);color:#4ab87a}
+.cmd-amarelo{background:rgba(217,164,65,.12);border:1px solid rgba(217,164,65,.4);color:#f0d882}
+.cmd-vermelho{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);color:#fca5a5}
+.cmd-preto{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.14);color:#c8c8d8}
+.cmd-branco{background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.92);color:#111}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="panel">
+  <div class="panel-titulo">🎨 OKapista</div>
+  <div class="panel-sub">Capista Literário</div>
+  <div class="status-box" id="status">Configure os dados do livro para começar.</div>
+
+  <!-- DADOS DO LIVRO -->
+  <div class="card">
+    <div class="card-titulo">Dados do Livro</div>
+    <label>Título</label><input class="inp" id="titulo" type="text" placeholder="Título da obra" oninput="atualizarPrevia()">
+    <label>Autor</label><input class="inp" id="autor" type="text" placeholder="Nome do autor" oninput="atualizarPrevia()">
+    <label>Sinopse (contracapa)</label>
+    <textarea class="inp" id="sinopse" placeholder="Texto da contracapa..." oninput="atualizarPrevia()"></textarea>
+    <label>Número de páginas do miolo</label>
+    <input class="inp" id="paginas" type="number" value="200" min="24" max="800" oninput="atualizarDims()">
+  </div>
+
+  <!-- PLATAFORMA -->
+  <div class="card">
+    <div class="card-titulo">Plataforma de Publicação</div>
+    <select class="sel" id="plataforma" onchange="onPlataformaChange()">
+      <option value="uiclap">🇧🇷 Uiclap</option>
+      <option value="clube_autores">🇧🇷 Clube de Autores</option>
+      <option value="bok2">🇧🇷 Bok2</option>
+      <option value="pod_editora">🇧🇷 POD Editora</option>
+      <option value="amazon_kdp">🌎 Amazon KDP</option>
+      <option value="ingram_spark">🌎 IngramSpark</option>
+      <option value="lulu">🌎 Lulu</option>
+      <option value="grafica_propria">🖨️ Gráfica Própria</option>
+    </select>
+    <label>Formato</label>
+    <select class="sel" id="formato" onchange="atualizarDims()">
+      <option value="16x23">16×23 cm</option>
+      <option value="14x21">14×21 cm</option>
+      <option value="A5">A5 (14,8×21 cm)</option>
+      <option value="6x9">6×9 pol</option>
+    </select>
+  </div>
+
+  <!-- ESTILO VISUAL -->
+  <div class="card">
+    <div class="card-titulo">Estilo Visual</div>
+    <label>Gênero da obra</label>
+    <select class="sel" id="genero">
+      <option value="romance">Romance / Ficção</option>
+      <option value="poesia">Poesia</option>
+      <option value="fantasia">Fantasia / Ficção Científica</option>
+      <option value="policial">Policial / Suspense</option>
+      <option value="infantil">Infantil / Juvenil</option>
+      <option value="didatico">Didático / Técnico</option>
+      <option value="cordel">Cordel</option>
+    </select>
+    <label>Estilo da imagem</label>
+    <select class="sel" id="estilo">
+      <option value="ilustracao">Ilustração digital</option>
+      <option value="aquarela">Aquarela</option>
+      <option value="realista">Fotorrealista</option>
+      <option value="minimalista">Minimalista</option>
+      <option value="classico">Pintura clássica</option>
+      <option value="abstrato">Arte abstrata</option>
+      <option value="vintage">Estilo vintage</option>
+    </select>
+    <label>Tema / Descrição da imagem</label>
+    <textarea class="inp" id="tema" placeholder="Descreva a imagem da capa. Ex: floresta noturna com lua cheia, tons azuis e dourados..."></textarea>
+    <label>Cores predominantes</label>
+    <input class="inp" id="cores" type="text" placeholder="Ex: azul, dourado, preto">
+  </div>
+
+  <!-- IA DE IMAGEM -->
+  <div class="card">
+    <div class="card-titulo">IA de Imagem</div>
+    <small style="font-size:.72rem;color:rgba(255,255,255,.5);display:block;">Gerada no servidor (Stability/Gemini/OpenAI, o que estiver configurado e for mais barato) — sem chave no navegador. Cada geração tem custo real; o valor aparece depois de gerar.</small>
+  </div>
+
+  <!-- TIPOGRAFIA DA CAPA -->
+  <div class="card">
+    <div class="card-titulo">Tipografia da Capa</div>
+    <label>Fonte do título</label>
+    <select class="sel" id="fonteTitulo">
+      <option value="Georgia,serif">Georgia (clássico)</option>
+      <option value="'Times New Roman',serif">Times New Roman</option>
+      <option value="'Palatino Linotype',serif">Palatino</option>
+      <option value="Garamond,serif">Garamond</option>
+      <option value="Arial,sans-serif">Arial (moderno)</option>
+      <option value="'Trebuchet MS',sans-serif">Trebuchet</option>
+    </select>
+    <label>Cor do título</label>
+    <input class="inp" id="corTitulo" type="color" value="#ffffff">
+    <label>Cor do autor</label>
+    <input class="inp" id="corAutor" type="color" value="#e8d08a">
+    <label>Cor da lombada</label>
+    <input class="inp" id="corLombada" type="color" value="#1e3a5f">
+  </div>
+
+  <!-- GRÁFICA PERSONALIZADA (aparece quando seleciona Gráfica Própria) -->
+  <div class="card" id="card-grafica" style="display:none;">
+    <div class="card-titulo">⚙️ Especificações da Gráfica</div>
+    <label>Nome da Gráfica</label>
+    <input class="inp" id="nome-grafica" type="text" placeholder="Ex: Gráfica Alfa">
+    <label>Contato / Email</label>
+    <input class="inp" id="contato-grafica" type="text" placeholder="contato@grafica.com">
+    <div class="row2">
+      <div><label>Largura miolo (cm)</label><input class="inp" id="larg-custom" type="number" value="16" min="8" max="30" step=".1" oninput="atualizarDims()"></div>
+      <div><label>Altura miolo (cm)</label><input class="inp" id="alt-custom" type="number" value="23" min="10" max="40" step=".1" oninput="atualizarDims()"></div>
+    </div>
+    <div class="row2">
+      <div><label>Sangria (mm)</label><input class="inp" id="sangria-custom" type="number" value="3" min="0" max="10" step=".5" oninput="atualizarDims()"></div>
+      <div><label>DPI</label>
+        <select class="sel" id="dpi-custom" onchange="atualizarDims()">
+          <option value="300" selected>300 DPI (padrão)</option>
+          <option value="150">150 DPI (digital)</option>
+          <option value="400">400 DPI (alta qualidade)</option>
+          <option value="600">600 DPI (premium)</option>
+        </select>
+      </div>
+    </div>
+    <label>Tipo de papel do miolo</label>
+    <select class="sel" id="papel-custom" onchange="atualizarDims()">
+      <option value="offset75">Offset 75g/m² — padrão literário</option>
+      <option value="offset90">Offset 90g/m² — técnico</option>
+      <option value="couche115">Couchê 115g/m² — ilustrado</option>
+      <option value="couche150">Couchê 150g/m² — premium</option>
+      <option value="reciclado">Reciclado 75g/m²</option>
+      <option value="bookcel">Bookcel 60g/m² — KDP/Ingram</option>
+      <option value="bondpaper">Bond 90g/m² — laser</option>
+    </select>
+    <label>Perfil de cor</label>
+    <select class="sel" id="cor-custom">
+      <option value="cmyk" selected>CMYK — impressão offset/digital</option>
+      <option value="cmyk_isocoated">CMYK ISO Coated v2 — europeu</option>
+      <option value="grayscale">Escala de Cinza — P&B</option>
+      <option value="rgb">RGB — apenas digital</option>
+    </select>
+    <label>Formato do arquivo</label>
+    <select class="sel" id="arquivo-custom">
+      <option value="PDF/X-1a" selected>PDF/X-1a (padrão gráfica)</option>
+      <option value="PDF/X-3">PDF/X-3</option>
+      <option value="PDF">PDF comum</option>
+      <option value="TIFF">TIFF (alta qualidade)</option>
+      <option value="JPG">JPG (gráficas simples)</option>
+    </select>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+      <input type="checkbox" id="tem-orelha" onchange="atualizarDims()">
+      <label style="text-transform:none;font-size:.82rem;letter-spacing:0;" for="tem-orelha">Tem orelha?</label>
+      <input class="inp" id="larg-orelha" type="number" value="8" min="4" max="15" step=".5" style="width:70px;" oninput="atualizarDims()">
+      <span style="font-size:.72rem;color:var(--muted);">cm cada</span>
+    </div>
+  </div>
+
+  <!-- AÇÕES -->
+  <button class="btn btn-ouro" onclick="gerarImagemIA()">🎨 Gerar Imagem com IA</button>
+  <button class="btn btn-soft" onclick="buscarPixabay()">🔍 Buscar Imagem Pronta</button>
+  <button class="btn btn-soft" onclick="window.open('barracao_polimento_imagens.html','_blank')">🧰 Polir Imagem no Barracão</button>
+  <button class="btn btn-verde" onclick="exportarCapa()">⬇ Exportar Capa</button>
+  <button class="btn btn-soft" onclick="mostrarInfoEpub()">📱 Ficha ePub (grátis)</button>
+  <button class="btn btn-ouro" onclick="enviarAoPaiol()">🏹 Enviar ao Paiol</button>
+  <div id="infoEpubBox" style="display:none;margin-top:8px;padding:10px 12px;border-radius:10px;background:rgba(122,90,203,.08);border:1px solid rgba(122,90,203,.25);font-size:.82rem;"></div>
+  <button class="btn btn-soft" id="btn-ficha" onclick="gerarFichaTecnica()" style="display:none;">📋 Gerar Ficha Técnica</button>
+</aside>
+
+<main class="main">
+
+  <!-- DIMENSÕES -->
+  <div class="box">
+    <div class="box-titulo">📐 Dimensões da Capa</div>
+    <div id="dims-box" class="dims-box">
+      <div class="dims-linha"><span>Frente</span><span class="dims-val" id="d-frente">—</span></div>
+      <div class="dims-linha"><span>Lombada</span><span class="dims-val" id="d-lombada">—</span></div>
+      <div class="dims-linha"><span>Verso</span><span class="dims-val" id="d-verso">—</span></div>
+      <div class="dims-linha"><span>Total (capa aberta)</span><span class="dims-val" id="d-total">—</span></div>
+      <div class="dims-linha"><span>Sangria</span><span class="dims-val" id="d-sangria">—</span></div>
+      <div class="dims-linha"><span>DPI</span><span class="dims-val" id="d-dpi">—</span></div>
+      <div class="dims-linha"><span>Arquivo</span><span class="dims-val" id="d-arquivo">—</span></div>
+    </div>
+    <div style="margin-top:10px;font-size:.72rem;color:var(--muted);font-style:italic;" id="notas-plat"></div>
+  </div>
+
+  <!-- IMAGEM -->
+  <div class="box">
+    <div class="box-titulo">🖼️ Imagem da Capa</div>
+    <div class="abas">
+      <button class="aba" onclick="mudarAba('upload',this)">📁 Minha Imagem</button>
+      <button class="aba ativa" onclick="mudarAba('ia',this)">🎨 Gerada por IA</button>
+      <button class="aba" onclick="mudarAba('pixabay',this)">🔍 Banco de Imagens</button>
+    </div>
+
+    <!-- ABA UPLOAD -->
+    <div class="aba-painel" id="painel-upload">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <input class="inp" id="uploadImagemPropria" type="file" accept="image/*" />
+        <div id="upload-preview-wrap" style="display:none;">
+          <img id="upload-preview-img" style="width:100%;border-radius:12px;max-height:220px;object-fit:cover;" />
+        </div>
+        <div style="font-size:.68rem;color:var(--muted);font-style:italic;">
+          Suba a arte pronta que você já tem — foto, ilustração ou design finalizado.
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA IA -->
+    <div class="aba-painel vis" id="painel-ia">
+      <div class="img-container" id="img-preview-ia">
+        <div class="img-loading">Clique em "Gerar Imagem com IA" para criar a imagem da capa.</div>
+      </div>
+      <div class="img-grid" id="img-grid-ia"></div>
+      <div style="font-size:.68rem;color:var(--muted);margin-top:8px;font-style:italic;">
+        Gerada por IA no servidor — confira os termos de uso comercial do provedor que atendeu (Stability/Gemini/OpenAI) antes de publicar
+      </div>
+    </div>
+
+    <!-- ABA PIXABAY -->
+    <div class="aba-painel" id="painel-pixabay">
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <input class="inp" id="busca-pixabay" type="text" placeholder="Buscar imagem... ex: floresta noite lua" style="flex:1;">
+        <button class="btn btn-soft btn-sm" onclick="buscarPixabay()" style="width:auto;padding:0 16px;">Buscar</button>
+      </div>
+      <div class="img-grid" id="img-grid-pixabay">
+        <div style="color:var(--muted);font-style:italic;font-size:.85rem;grid-column:1/-1;padding:20px;text-align:center;">Digite um tema e clique em Buscar.</div>
+      </div>
+      <div style="font-size:.68rem;color:var(--muted);margin-top:8px;font-style:italic;">
+        Imagens do Pixabay · Licença Pixabay · Uso comercial livre · Sem atribuição obrigatória
+      </div>
+    </div>
+  </div>
+
+  <!-- PRÉVIA DA CAPA -->
+  <div class="box">
+    <div class="box-titulo">📖 Prévia da Capa Completa</div>
+    <div class="capa-wrap">
+      <div class="capa-preview" id="capa-preview">
+        <!-- VERSO -->
+        <div class="capa-verso" id="capa-verso-el">
+          <div class="capa-verso-conteudo">
+            <div class="sinopse-txt" id="sinopse-preview">A sinopse aparecerá aqui após você preencher o campo ao lado.</div>
+            <div style="margin-top:auto;padding-top:20px;">
+              <div style="width:80px;height:2px;background:rgba(255,255,255,.3);margin-bottom:8px;"></div>
+              <div style="font-size:.65rem;color:rgba(255,255,255,.4);" id="isbn-preview">ISBN</div>
+            </div>
+          </div>
+        </div>
+        <!-- LOMBADA -->
+        <div class="capa-lombada" id="capa-lombada-el">
+          <div class="capa-lombada-txt" id="lombada-txt">Título · Autor</div>
+        </div>
+        <!-- FRENTE -->
+        <div class="capa-frente" id="capa-frente-el">
+          <div class="capa-overlay">
+            <div class="capa-titulo-txt" id="titulo-preview">Título do Livro</div>
+            <div class="capa-autor-txt" id="autor-preview">Nome do Autor</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:.72rem;color:var(--muted);text-align:center;margin-top:6px;">
+        Prévia aproximada — exportação em alta resolução nas dimensões exatas da plataforma
+      </div>
+    </div>
+  </div>
+
+  <!-- PLATAFORMAS -->
+  <div class="box">
+    <div class="box-titulo">🚀 Publicar</div>
+    <div class="plat-grid" id="plat-grid"></div>
+    <div style="margin-top:12px;" id="btn-publicar-wrap"></div>
+  </div>
+
+</main>
+</div>
+
+<!-- NAVEGAÇÃO -->
+<div class="rodape-comando" style="max-width:960px;margin:0 auto;padding:16px 20px 60px">
+  <a href="index.html" class="cmd-btn cmd-preto">← Painel Central</a>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let imagemSelecionada='', abaAtiva='ia';
+
+document.addEventListener('DOMContentLoaded', function(){
+  const inputUpload = document.getElementById('uploadImagemPropria');
+  if(inputUpload){
+    inputUpload.addEventListener('change', function(e){
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = function(){
+        imagemSelecionada = reader.result;
+        const wrap = document.getElementById('upload-preview-wrap');
+        const img = document.getElementById('upload-preview-img');
+        if(wrap && img){
+          img.src = imagemSelecionada;
+          wrap.style.display = 'block';
+        }
+        if(typeof atualizarPrevia==='function') atualizarPrevia();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+});
+const PIXABAY_KEY=''; // Usuário deve configurar a chave Pixabay
+
+// ── INICIALIZAÇÃO ─────────────────────────────────────────
+(function init(){
+  // Carregar dados da Obra Ativa
+  const titulo=localStorage.getItem('obra_ativa_texto_nome')||localStorage.getItem('obra_titulo');
+  if(titulo) $('titulo').value=titulo.replace(/^✦\s*/,'');
+  const autor=localStorage.getItem('obra_autor')||localStorage.getItem('celeiro_autor');
+  if(autor) $('autor').value=autor;
+  const pags=localStorage.getItem('lapidar_resultado_diagramacao');
+  if(pags){
+    const m=pags.match(/(\d+)\s*páginas/);
+    if(m) $('paginas').value=parseInt(m[1]);
+  }
+  atualizarDims();
+  construirGridPlataformas();
+  atualizarPrevia();
+  $('status').textContent='✓ Pronto. Configure e gere sua capa.';
+})();
+
+// ── DIMENSÕES ────────────────────────────────────────────
+function onPlataformaChange(){
+  if(!window.CeleiroPOD) return;
+  const plat=$('plataforma').value;
+  const isCustom = plat==='grafica_propria';
+  $('card-grafica').style.display = isCustom?'flex':'none';
+  $('btn-ficha').style.display = isCustom?'flex':'none';
+  const platObj=CeleiroPOD.PLATAFORMAS[plat];
+  // Atualizar formatos disponíveis
+  const sel=$('formato');
+  sel.innerHTML='';
+  Object.keys(platObj?.formatos||{}).filter(k=>k!=='custom').forEach(k=>{
+    const f=platObj.formatos[k];
+    const opt=document.createElement('option');
+    opt.value=k;
+    opt.textContent=f.w>0?`${k} (${f.w}×${f.h}cm)`:k;
+    sel.appendChild(opt);
+  });
+  if(isCustom){
+    const opt=document.createElement('option');
+    opt.value='custom';opt.textContent='Personalizado (abaixo)';
+    sel.appendChild(opt);
+    sel.value='custom';
+  }
+  atualizarDims();
+}
+
+function atualizarDims(){
+  if(!window.CeleiroPOD) return;
+  const plat=$('plataforma').value;
+  const fmt=$('formato').value;
+  const pags=parseInt($('paginas').value)||200;
+  const isCustom=plat==='grafica_propria'&&fmt==='custom';
+  let dims;
+  if(isCustom){
+    dims=CeleiroPOD.calcularDimensoesGrafica({
+      larguraMiolo:parseFloat($('larg-custom').value)||16,
+      alturaMiolo:parseFloat($('alt-custom').value)||23,
+      sangriaMM:parseFloat($('sangria-custom').value)||3,
+      dpi:parseInt($('dpi-custom').value)||300,
+      paginas:pags,
+      papel:$('papel-custom').value||'offset75',
+      temOrelha:$('tem-orelha').checked,
+      larguraOrelhaCm:parseFloat($('larg-orelha').value)||8,
+    });
+  } else {
+    dims=CeleiroPOD.calcularDimensoesCapa(plat,fmt,pags,false,0);
+  }
+  const platObj=CeleiroPOD.PLATAFORMAS[plat];
+  $('d-frente').textContent=`${dims.larguraMiolo||dims.larguraFrenteCm}×${dims.alturaMiolo||dims.alturaFrenteCm} cm`;
+  $('d-verso').textContent=`${dims.larguraMiolo||dims.larguraFrenteCm}×${dims.alturaMiolo||dims.alturaFrenteCm} cm`;
+  $('d-lombada').textContent=`${dims.lombadaMM}mm`;
+  $('d-total').textContent=`${dims.larguraTotal}×${dims.alturaTotal} cm`;
+  $('d-sangria').textContent=`${(dims.sangriaMM||dims.sangria*10)}mm`;
+  $('d-dpi').textContent=`${dims.dpi} DPI`;
+  $('d-arquivo').textContent=dims.arquivo||'PDF';
+  $('notas-plat').textContent=platObj?.notas||'';
+  $('capa-lombada-el').style.width=Math.max(20,dims.lombadaMM*2)+'px';
+  $('capa-lombada-el').style.background=$('corLombada').value;
+}
+
+function gerarFichaTecnica(){
+  if(!window.CeleiroPOD){ alert('Motor POD não carregado.'); return; }
+  const plat=$('plataforma').value;
+  const fmt=$('formato').value;
+  const pags=parseInt($('paginas').value)||200;
+  const isCustom=plat==='grafica_propria'&&fmt==='custom';
+  const dims = isCustom
+    ? CeleiroPOD.calcularDimensoesGrafica({
+        larguraMiolo:parseFloat($('larg-custom').value)||16,
+        alturaMiolo:parseFloat($('alt-custom').value)||23,
+        sangriaMM:parseFloat($('sangria-custom').value)||3,
+        dpi:parseInt($('dpi-custom').value)||300,
+        paginas:pags,
+        papel:$('papel-custom').value||'offset75',
+        temOrelha:$('tem-orelha').checked,
+        larguraOrelhaCm:parseFloat($('larg-orelha').value)||8,
+      })
+    : CeleiroPOD.calcularDimensoesCapa(plat,fmt,pags,false,0);
+
+  const html=CeleiroPOD.gerarFichaTecnica({
+    titulo:$('titulo').value,
+    autor:$('autor').value,
+    plataforma:plat,
+    formato:fmt,
+    paginas:pags,
+    papel:$('papel-custom')?.value||'offset75',
+    perfilCor:$('cor-custom')?.value||'cmyk',
+    arquivo:$('arquivo-custom')?.value||'PDF/X-1a',
+    nomeGrafica:$('nome-grafica')?.value||'',
+    contatoGrafica:$('contato-grafica')?.value||'',
+    imagemFonte: abaAtiva==='ia'?'IA (servidor)':'Pixabay',
+  }, dims, {});
+
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=($('titulo').value||'livro').toLowerCase().replace(/\s+/g,'-')+'-ficha-tecnica.html';
+  a.click();
+  $('status').textContent='✅ Ficha técnica gerada! Envie para a gráfica junto com o arquivo de capa.';
+}
+
+// ── PRÉVIA DA CAPA ───────────────────────────────────────
+function atualizarPrevia(){
+  const titulo=$('titulo').value||'Título do Livro';
+  const autor=$('autor').value||'Nome do Autor';
+  const sinopse=$('sinopse').value||'';
+  const fonteTitulo=$('fonteTitulo').value;
+  const corTitulo=$('corTitulo').value;
+  const corAutor=$('corAutor').value;
+  const corLombada=$('corLombada').value;
+
+  $('titulo-preview').textContent=titulo;
+  $('titulo-preview').style.fontFamily=fonteTitulo;
+  $('titulo-preview').style.color=corTitulo;
+  $('autor-preview').textContent=autor;
+  $('autor-preview').style.color=corAutor;
+  $('lombada-txt').textContent=`${titulo} · ${autor}`;
+  $('capa-lombada-el').style.background=corLombada;
+  $('sinopse-preview').textContent=sinopse||'A sinopse aparecerá aqui após você preencher o campo ao lado.';
+
+  // Imagem na frente
+  if(imagemSelecionada){
+    $('capa-frente-el').style.backgroundImage=`url(${imagemSelecionada})`;
+    $('capa-frente-el').style.backgroundSize='cover';
+    $('capa-frente-el').style.backgroundPosition='center';
+    $('capa-verso-el').style.backgroundImage=`url(${imagemSelecionada})`;
+    $('capa-verso-el').style.backgroundSize='cover';
+    $('capa-verso-el').style.backgroundPosition='center';
+    $('capa-verso-el').style.filter='brightness(0.4)';
+  }
+}
+
+// ── GERAÇÃO POR IA (via api/gerar-imagem.js) ────────────
+async function gerarImagemIA(){
+  if(!window.CeleiroPOD){ $('status').textContent='Motor POD não carregado.'; return; }
+  const dados={
+    titulo:$('titulo').value,
+    autor:$('autor').value,
+    genero:$('genero').value,
+    estilo:$('estilo').value,
+    tema:$('tema').value,
+    cores:$('cores').value,
+  };
+  $('status').textContent='⏳ Gerando imagem com IA...';
+  $('img-preview-ia').innerHTML='<div class="img-loading">🎨 Gerando imagem... aguarde alguns segundos.</div>';
+  $('img-grid-ia').innerHTML='';
+
+  try{
+    // Cada chamada aqui é uma API paga de verdade (Stability/Gemini/OpenAI,
+    // via api/gerar-imagem.js) — diferente do Pollinations gratuito de
+    // antes, não gera variações automáticas pra não multiplicar custo sem
+    // o operador pedir. O botão "Gerar outra opção" (abaixo) permite
+    // repetir de forma explícita, uma chamada de cada vez.
+    const resultado=await CeleiroPOD.gerarImagemComFallback(dados,512,768,{
+      onTentativa:(label)=>{ $('status').textContent=`⏳ Gerando via ${label}...`; }
+    });
+    $('img-preview-ia').innerHTML=`<img src="${resultado.url}" alt="Capa gerada" style="width:100%;border-radius:12px;">`;
+    $('img-grid-ia').innerHTML='';
+    imagemSelecionada=resultado.url;
+    atualizarPrevia();
+    const custoTxt=resultado.custoUsd?` · custo estimado US$ ${resultado.custoUsd.toFixed(3)}`:'';
+    $('status').textContent=`✓ Imagem gerada com ${resultado.provedor}${custoTxt}.`+(resultado.aviso?' ⚠ '+resultado.aviso:'');
+  }catch(e){
+    erroImagem();
+    $('status').textContent='⚠ Erro na geração: '+e.message;
+  }
+}
+
+function erroImagem(){
+  $('img-preview-ia').innerHTML='<div class="img-loading">⚠ Erro ao carregar. Tente novamente.</div>';
+  $('status').textContent='⚠ Erro na geração. Verifique sua conexão.';
+}
+
+function selecionarImagem(url, el){
+  imagemSelecionada=url;
+  document.querySelectorAll('.img-opcao').forEach(e=>e.classList.remove('selecionada'));
+  el.classList.add('selecionada');
+  $('img-preview-ia').innerHTML=`<img src="${url}" alt="Capa selecionada" style="width:100%;border-radius:12px;">`;
+  atualizarPrevia();
+}
+
+// ── BUSCA PIXABAY ────────────────────────────────────────
+async function buscarPixabay(){
+  mudarAba('pixabay', document.querySelectorAll('.aba')[1]);
+  const q=$('busca-pixabay').value.trim()||$('tema').value.trim()||$('genero').value;
+  if(!q) return;
+  $('img-grid-pixabay').innerHTML='<div style="color:var(--muted);font-style:italic;font-size:.85rem;grid-column:1/-1;padding:20px;text-align:center;">🔍 Buscando...</div>';
+  $('status').textContent='🔍 Buscando no Pixabay...';
+
+  try{
+    // Usando API pública do Pixabay
+    const key = PIXABAY_KEY || '47013286-a76c07b2ba48e8e7cf3f04e16'; // chave de demonstração
+    const url=`https://pixabay.com/api/?key=${key}&q=${encodeURIComponent(q)}&image_type=photo&per_page=9&safesearch=true&orientation=vertical`;
+    const r=await fetch(url);
+    const d=await r.json();
+    if(d.hits&&d.hits.length>0){
+      $('img-grid-pixabay').innerHTML=d.hits.map(img=>`
+        <div class="img-opcao" onclick="selecionarImagemPixabay('${img.webformatURL}',this)">
+          <img src="${img.previewURL}" alt="${img.tags}" loading="lazy" title="${img.tags}">
+        </div>`).join('');
+      $('status').textContent=`✓ ${d.hits.length} imagens encontradas.`;
+    } else {
+      $('img-grid-pixabay').innerHTML='<div style="color:var(--muted);font-style:italic;font-size:.85rem;grid-column:1/-1;padding:20px;text-align:center;">Nenhuma imagem encontrada. Tente outro termo.</div>';
+      $('status').textContent='Nenhuma imagem encontrada.';
+    }
+  }catch(e){
+    $('img-grid-pixabay').innerHTML='<div style="color:#b13a3a;font-size:.85rem;grid-column:1/-1;padding:20px;text-align:center;">⚠ Erro na busca. Verifique sua conexão.</div>';
+    $('status').textContent='⚠ Erro na busca do Pixabay.';
+  }
+}
+
+function selecionarImagemPixabay(url, el){
+  imagemSelecionada=url;
+  document.querySelectorAll('.img-opcao').forEach(e=>e.classList.remove('selecionada'));
+  el.classList.add('selecionada');
+  atualizarPrevia();
+  $('status').textContent='✓ Imagem do Pixabay selecionada.';
+}
+
+// ── ABAS ────────────────────────────────────────────────
+function mudarAba(id, el){
+  document.querySelectorAll('.aba').forEach(a=>a.classList.remove('ativa'));
+  document.querySelectorAll('.aba-painel').forEach(p=>p.classList.remove('vis'));
+  if(el) el.classList.add('ativa');
+  $('painel-'+id).classList.add('vis');
+  abaAtiva=id;
+}
+
+// ── GRID DE PLATAFORMAS ──────────────────────────────────
+function construirGridPlataformas(){
+  if(!window.CeleiroPOD) return;
+  const grid=$('plat-grid');
+  const plats=CeleiroPOD.listarPlataformas();
+  grid.innerHTML=plats.filter(p=>p.tipo!=='custom').map(p=>`
+    <div class="plat-card" onclick="selecionarPlataforma('${p.key}',this)" data-key="${p.key}">
+      <span class="plat-flag">${p.bandeira}</span>
+      <div class="plat-nome">${p.nome}</div>
+      <div class="plat-tipo">${p.tipo}</div>
+    </div>`).join('');
+  // Adicionar gráfica própria
+  grid.innerHTML+=`<div class="plat-card" onclick="selecionarPlataforma('grafica_propria',this)" data-key="grafica_propria">
+    <span class="plat-flag">🖨️</span>
+    <div class="plat-nome">Gráfica Própria</div>
+    <div class="plat-tipo">custom</div>
+  </div>`;
+}
+
+function selecionarPlataforma(key, el){
+  document.querySelectorAll('.plat-card').forEach(c=>c.classList.remove('selecionada'));
+  el.classList.add('selecionada');
+  // Sincronizar com select
+  $('plataforma').value=key;
+  onPlataformaChange();
+  // Botão de publicar
+  const plat=CeleiroPOD.PLATAFORMAS[key];
+  $('btn-publicar-wrap').innerHTML=plat?.urlPublicar
+    ?`<a href="${plat.urlPublicar}" target="_blank" class="btn btn-verde" style="text-decoration:none;">🚀 Publicar em ${plat.nome} →</a>`
+    :'';
+}
+
+// ── EXPORTAR ─────────────────────────────────────────────
+function mostrarInfoEpub(){
+  const box = document.getElementById('infoEpubBox');
+  if(!window.CeleiroMotorCapaEpub){ box.style.display='block'; box.textContent='Motor de ePub não carregou.'; return; }
+  const e = window.CeleiroMotorCapaEpub.calcularCapaEpub({ preset:'padrao', moeda:'BRL' });
+  box.style.display='block';
+  box.innerHTML = `<strong>Capa ePub (${e.preset.nome}):</strong> ${e.larguraPx}×${e.alturaPx}px, proporção ${e.proporcao}<br>${e.observacao}`;
+}
+
+function exportarCapa(){
+  if(!imagemSelecionada){ alert('Selecione ou gere uma imagem primeiro.'); return; }
+  const titulo=$('titulo').value||'livro';
+  const plat=$('plataforma').value;
+  const fmt=$('formato').value;
+  const pags=parseInt($('paginas').value)||200;
+  const dims=CeleiroPOD.calcularDimensoesCapa(plat,fmt,pags,false,0);
+  const platObj=CeleiroPOD.PLATAFORMAS[plat];
+
+  const css=`
+    @page{size:${dims.larguraTotal}cm ${dims.alturaTotal}cm;margin:0;}
+    body{margin:0;padding:0;width:${dims.larguraTotal}cm;height:${dims.alturaTotal}cm;}
+    .capa-wrap{display:flex;width:100%;height:100%;}
+    .verso,.frente{flex:1;position:relative;overflow:hidden;}
+    .lombada{width:${dims.lombadaCm}cm;background:${$('corLombada').value};display:flex;align-items:center;justify-content:center;}
+    .lombada-txt{writing-mode:vertical-rl;transform:rotate(180deg);color:#fff;font-size:10pt;font-family:${$('fonteTitulo').value};white-space:nowrap;overflow:hidden;}
+    .bg-img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+    .overlay{position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(0,0,0,.7));display:flex;flex-direction:column;justify-content:flex-end;padding:20px;}
+    .titulo{color:${$('corTitulo').value};font-family:${$('fonteTitulo').value};font-size:18pt;font-weight:700;line-height:1.2;}
+    .autor{color:${$('corAutor').value};font-family:${$('fonteTitulo').value};font-size:12pt;margin-top:6px;}
+    .verso-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1a1a2e,#16213e);}
+    .sinopse{position:absolute;inset:0;padding:24px;display:flex;flex-direction:column;justify-content:center;color:rgba(255,255,255,.85);font-size:9pt;line-height:1.7;font-style:italic;}
+  `;
+
+  const html=`<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8">
+<title>Capa — ${titulo}</title>
+<style>${css}</style></head>
+<body>
+<div class="capa-wrap">
+  <div class="verso">
+    <div class="verso-bg"></div>
+    <div class="sinopse">${$('sinopse').value||''}</div>
+  </div>
+  <div class="lombada">
+    <div class="lombada-txt">${$('titulo').value||''} · ${$('autor').value||''}</div>
+  </div>
+  <div class="frente">
+    <img class="bg-img" src="${imagemSelecionada}" alt="Capa">
+    <div class="overlay">
+      <div class="titulo">${$('titulo').value||''}</div>
+      <div class="autor">${$('autor').value||''}</div>
+    </div>
+  </div>
+</div>
+<div style="position:fixed;bottom:10px;right:10px;font-size:7pt;color:#666;font-family:Arial;">
+  Capa gerada com OKapista · Imagem: ${abaAtiva==='ia'?'IA':'Pixabay'}
+  · Plataforma: ${platObj?.nome||''} · Formato: ${fmt} · ${dims.larguraTotal}×${dims.alturaTotal}cm + ${dims.sangria*10}mm sangria · ${dims.dpi}dpi
+</div>
+</body></html>`;
+
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=titulo.toLowerCase().replace(/\s+/g,'-')+'-capa-'+plat+'.html';
+  a.click();
+
+  localStorage.setItem('lapidar_capa_concluida','true');
+  localStorage.setItem('lapidar_resultado_capa',`Capa gerada — ${platObj?.nome} — ${fmt} — OKapista Literário`);
+  $('status').textContent=`✅ Capa exportada para ${platObj?.nome}! Abra o HTML e imprima como PDF em ${dims.dpi}dpi.`;
+}
+
+function enviarAoPaiol(){
+  const titulo=$('titulo').value||'Obra sem título';
+  const autor=$('autor').value||'';
+  const pags=parseInt($('paginas').value)||null;
+  const epubPronto=localStorage.getItem('lapidar_epub_concluido')==='true';
+  localStorage.setItem('paiol_pendente_literario', JSON.stringify({
+    titulo, autor, tipo:'Obra', paginas:pags, epubPronto, capaPronta:true
+  }));
+  window.location.href='index.html';
+}
+
+// ── EVENT LISTENERS ───────────────────────────────────────
+['titulo','autor','sinopse','fonteTitulo','corTitulo','corAutor','corLombada']
+  .forEach(id=>$(id).addEventListener('input',atualizarPrevia));
+['paginas','formato','plataforma'].forEach(id=>$(id).addEventListener('change',atualizarDims));
+</script>
+</body>
+</html>

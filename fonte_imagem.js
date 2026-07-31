@@ -8,10 +8,10 @@
  * mais chegam no navegador. Este arquivo virou um cliente fino: só chama o
  * proxy e devolve o mesmo formato de sempre pra quem consome.
  *
- * Preços de referência (jul/2026, ver conversa com Wagner pra fonte):
- *   Stability (stable-image/generate/core) → US$0,035/imagem, fixo
- *   Gemini 2.5 Flash Image (Nano Banana), API paga → US$0,039/imagem
- *   GPT Image 2 (OpenAI) → US$0,006 (baixa) / 0,053 (média) / 0,211 (alta)
+ * A partir de 30/07/2026, só duas fontes (decisão explícita — Gemini e GPT
+ * Image 2 saíram): Stability (stable-image/generate/core, US$0,035/imagem
+ * fixo) como opção paga, com fallback automático pro Pollinations (grátis,
+ * sem chave) se a Stability não estiver configurada/falhar.
  */
 
 function _carregarImagem(url) {
