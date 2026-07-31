@@ -205,6 +205,18 @@ body {
     </div>
   </div>
 
+  <div class="card">
+    <div class="card-titulo">// Ateliê de Terceiros — Balanço por Cliente</div>
+    <div id="lista-terceiros"><div class="vazio">Carregando...</div></div>
+    <div class="nota">
+      Custo real de cada obra de terceiro (organização via IA + qualquer gasto extra que você
+      anotar no <a href="atelie_terceiros.html" style="color:var(--ouro-claro);">Ateliê de Terceiros</a>
+      — capa, impressão, o que for), em dólar e já convertido em reais na cotação atual. Use isso
+      como piso de custo pra decidir o valor a cobrar do cliente — o preço final é seu, isso aqui é
+      só o quanto já foi gasto produzindo a obra dele.
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -222,6 +234,7 @@ async function carregarTudo() {
   const [gasto, cotacao] = await Promise.all([carregarGasto(), carregarCotacao()]);
   renderizarGasto(gasto, cotacao);
   renderizarObras();
+  renderizarTerceiros(cotacao);
 }
 
 async function carregarGasto() {
@@ -298,6 +311,36 @@ function renderizarObras() {
     <div class="lista-item">
       <div class="li-titulo">${it.titulo}<span class="li-origem">${it.origem}</span></div>
       <div class="li-custo">${formatarUSD(it.custoUSD)}</div>
+    </div>
+  `).join('');
+}
+
+function renderizarTerceiros(cotacao) {
+  const el = document.getElementById('lista-terceiros');
+  let lista;
+  try {
+    lista = JSON.parse(localStorage.getItem('atelie_terceiros') || '[]');
+  } catch (e) {
+    el.innerHTML = '<div class="vazio">Não foi possível ler os dados do Ateliê de Terceiros.</div>';
+    return;
+  }
+
+  if (!lista.length) {
+    el.innerHTML = '<div class="vazio">Nenhuma obra de terceiro salva ainda neste navegador.</div>';
+    return;
+  }
+
+  const itens = lista.map(item => {
+    const extras = (item.gastosExtras || []).reduce((s, g) => s + (Number(g.valorUSD) || 0), 0);
+    const totalUSD = (item.custoUSD || 0) + extras;
+    return { titulo: item.titulo, autor: item.autorReal, totalUSD, temExtras: (item.gastosExtras || []).length > 0 };
+  });
+
+  itens.sort((a, b) => b.totalUSD - a.totalUSD);
+  el.innerHTML = itens.map(it => `
+    <div class="lista-item">
+      <div class="li-titulo">${it.titulo}<span class="li-origem">${it.autor}</span></div>
+      <div class="li-custo">${formatarUSD(it.totalUSD)}${cotacao && cotacao.usdbrl ? ' · ' + formatarBRL(it.totalUSD * cotacao.usdbrl) : ''}${it.temExtras ? ' (com extras)' : ''}</div>
     </div>
   `).join('');
 }
