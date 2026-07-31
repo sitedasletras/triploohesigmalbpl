@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <script src="config.js"></script>
+<script src="motor_celeiro_v3.js"></script>
+<script src="motores_lapidar/motor_roteador_v1.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/index.umd.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIGMAL HQ · Painel Central</title>
@@ -2132,6 +2134,7 @@ body::before {
             <button onclick="copiarLivro()" class="btn-p">📋 COPIAR LIVRO</button>
             <button onclick="exportarLivroWord(genLivroCompleto, document.getElementById('gen-titulo').value, document.getElementById('gen-heteronimo').value)" class="btn-p" style="background:#2b579a;border-color:#2b579a;">📄 EXPORTAR WORD</button>
             <button onclick="enviarLivroGeradoParaPaiol()" class="btn-s" style="border-color:#f57f17;color:#f57f17;">🏹 ENVIAR AO PAIOL</button>
+            <button onclick="enviarLivroGeradoParaDiagramador()" class="btn-s" style="border-color:#4caf50;color:#4caf50;">🛠️ ENVIAR AO DIAGRAMADOR</button>
             <button onclick="novoLivro()" class="btn-s">+ NOVO LIVRO</button>
             <button onclick="sairDoGerador()" class="btn-s">✕ SAIR DO GERADOR</button>
           </div>
@@ -4774,6 +4777,28 @@ function enviarLivroGeradoParaPaiol() {
   genUltimoItemIdx = null;
   genUltimoItemOrigem = null;
   notif('PAIOL', `"${item.titulo}" enviado diretamente para o Paiol Literário.`, 'sucesso');
+}
+
+function enviarLivroGeradoParaDiagramador() {
+  if (!genLivroCompleto || !genLivroCompleto.trim()) {
+    notif('NADA PARA ENVIAR', 'Nenhum livro gerado nesta sessão ainda.', 'erro');
+    return;
+  }
+  if (!window.CeleiroRoteador) {
+    notif('MOTOR NÃO CARREGOU', 'Roteador de gênero não carregou — recarregue a página.', 'erro');
+    return;
+  }
+  const titulo = document.getElementById('gen-titulo').value || 'Obra sem título';
+  const heteronimo = document.getElementById('gen-heteronimo').value || '';
+  const resultado = window.CeleiroRoteador.encaminhar(genLivroCompleto);
+  if (!resultado.arquivo) {
+    notif('TEXTO VAZIO', 'Não foi possível classificar o texto para roteamento.', 'erro');
+    return;
+  }
+  localStorage.setItem('obra_titulo', titulo);
+  localStorage.setItem('obra_autor', heteronimo);
+  notif('ENVIANDO AO DIAGRAMADOR', `Detectei ${resultado.nome} — redirecionando...`, 'sucesso');
+  setTimeout(() => { window.location.href = resultado.arquivo; }, 700);
 }
 
 function sairDoGerador() {

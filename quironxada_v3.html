@@ -172,6 +172,7 @@ label{display:block;font-size:.72rem;font-weight:700;color:#d4b890;letter-spacin
   <button class="btn btn-verde" id="btnExportar" onclick="exportarCordel()">📜 Exportar Cordel</button>
   <button class="btn btn-soft" onclick="abrirEImprimirPDF()">🖨 Abrir e Imprimir (PDF)</button>
   <button class="btn btn-soft" onclick="exportarEpubCompleto()">📱 Exportar EPUB (livro completo)</button>
+  <button class="btn btn-verde" onclick="irParaCapa()">🖼 Fazer a Capa</button>
   <button class="btn btn-danger" onclick="limpar()">✕ Limpar</button>
 
   <div class="alertas-box" id="alertasBox"></div>
@@ -526,6 +527,12 @@ async function exportarEpubCompleto(){
     alert('Erro ao gerar EPUB: ' + e.message);
     console.error(e);
   }
+}
+
+function irParaCapa(){
+  localStorage.setItem('obra_titulo', (document.getElementById('titulo')||{}).value || 'Obra sem título');
+  localStorage.setItem('obra_autor', (document.getElementById('autor')||{}).value || '');
+  window.location.href = 'okapista_cordel.html';
 }
 </script>
 </body>
