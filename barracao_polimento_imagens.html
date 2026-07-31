@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barracão de Polimento das Imagens</title>
+<style>
+:root{--cor:#a86820;--cor-bg:#1c1105;--cor-bg2:#38220a;
+
+  --azul:#07101d;--azul2:#10233f;--azul3:#17365f;
+  --ouro:#c9a646;--ouro2:#f4dc88;--cobre:#b87333;
+  --papel:#fffaf0;--txt:#1f2a3a;--muted:#5a6478;
+  --verde:#1f7a42;--linha:rgba(201,166,70,.3);--r:20px;--s:0 14px 40px rgba(0,0,0,.15)
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Georgia,'Times New Roman',serif;background:linear-gradient(160deg,#f8f3e8,#ede0c4);color:var(--txt);min-height:100vh}
+
+.topbar{position:sticky;top:0;z-index:100;background:rgba(7,16,29,.97);border-bottom:2px solid var(--ouro);backdrop-filter:blur(10px)}
+.top-in{max-width:1300px;margin:auto;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.marca{font-family:Georgia,serif;color:var(--ouro2);font-size:14px;font-weight:700}
+.marca small{display:block;font-size:10px;color:rgba(244,220,136,.5);font-family:Arial,sans-serif;letter-spacing:.06em}
+.tnav{display:flex;gap:6px;flex-wrap:wrap}
+.tnav a{font-family:Arial,sans-serif;font-size:11px;color:#c8c0ae;text-decoration:none;padding:6px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.1);transition:.15s}
+.tnav a:hover{color:var(--ouro2);border-color:var(--ouro);background:rgba(201,166,70,.12)}
+
+.hero{background:linear-gradient(140deg,var(--azul) 0%,var(--azul2) 50%,#2a1a08 100%);color:white;padding:42px 20px 34px;border-bottom:5px solid var(--ouro);text-align:center}
+.hero h1{font-size:clamp(30px,5vw,52px);color:var(--ouro2);margin-bottom:6px}
+.hero p{font-size:16px;color:#c8b898;font-style:italic}
+
+.wrap{max-width:1300px;margin:auto;padding:26px 20px 60px;display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start}
+
+/* PAINEL */
+.painel{background:var(--papel);border:1px solid var(--linha);border-radius:var(--r);overflow:hidden;box-shadow:var(--s)}
+.ph{background:linear-gradient(135deg,var(--azul2),var(--azul3));padding:16px 18px;border-bottom:1px solid var(--linha)}
+.ph h2{font-size:1.1rem;color:var(--ouro2);margin-bottom:4px}
+.ph p{font-size:.85rem;color:rgba(244,220,136,.6);font-family:Arial,sans-serif;line-height:1.4}
+.pb{padding:18px;display:flex;flex-direction:column;gap:14px}
+
+.campo label{display:block;font-family:Arial,sans-serif;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--azul2);margin-bottom:6px}
+.campo input[type=file],.campo select{width:100%;border:1.5px solid #d4c89a;border-radius:12px;padding:10px 12px;font:inherit;font-size:.92rem;background:#fffdf8;color:var(--txt);outline:none;transition:border-color .2s}
+.campo input[type=file]{padding:8px 10px;font-size:.85rem}
+.campo select:focus{border-color:var(--ouro)}
+
+/* RANGE CUSTOMIZADO */
+.range-wrap{display:flex;flex-direction:column;gap:6px}
+.range-wrap label{font-family:Arial,sans-serif;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--azul2)}
+.range-row{display:flex;align-items:center;gap:10px}
+.range-row input[type=range]{flex:1;accent-color:var(--ouro)}
+.range-val{font-family:'Courier New',monospace;font-size:.85rem;color:var(--azul2);min-width:38px;text-align:right}
+
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sep{height:1px;background:var(--linha)}
+
+/* STATUS */
+.status-box{background:#e8f4f0;border:1px solid #8eb9a2;border-radius:14px;padding:12px;font-family:Arial,sans-serif;font-size:13px;color:#1a4a30;line-height:1.5}
+.status-box.aviso{background:#fff8d6;border-color:#d4c850;color:#3c300a}
+
+/* STAGE */
+.stage{background:var(--papel);border:1px solid var(--linha);border-radius:var(--r);padding:20px;box-shadow:var(--s)}
+.stage-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.stage-top h2{font-size:1.2rem;color:var(--azul2)}
+.canvas-shell{background:linear-gradient(135deg,#e8dfcd,#d9c9b1);border-radius:16px;padding:20px;display:flex;justify-content:center;align-items:center;min-height:580px;overflow:auto}
+canvas{box-shadow:0 16px 44px rgba(0,0,0,.28);max-width:100%;height:auto}
+.meta{font-family:Arial,sans-serif;font-size:.8rem;color:var(--muted);margin-top:10px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+
+/* DICAS */
+.dicas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.dica{background:#fffdf8;border:1px solid var(--linha);border-radius:14px;padding:12px;font-size:.85rem;color:var(--muted);line-height:1.4}
+.dica strong{display:block;color:var(--azul2);margin-bottom:3px}
+
+/* BOTÕES */
+.btn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:999px;padding:11px 16px;font:700 .88rem Arial,sans-serif;cursor:pointer;transition:.15s;box-shadow:0 4px 12px rgba(0,0,0,.1);text-decoration:none}
+.btn:hover{transform:translateY(-1px)}
+.btn-ouro{background:var(--ouro);color:var(--azul)}
+.btn-ouro:hover{background:var(--ouro2)}
+.btn-azul{background:var(--azul2);color:var(--ouro2);border:1px solid rgba(201,166,70,.35)}
+.btn-azul:hover{background:var(--azul)}
+.btn-verde{background:var(--verde);color:white}
+.btn-verde:hover{background:#165c31}
+.btn-red{background:#7b1f1f;color:white}
+.btn-red:hover{background:#5a1515}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+
+footer{background:var(--azul);color:#c8c0ae;border-top:4px solid var(--ouro);padding:28px 20px;text-align:center}
+footer strong{color:var(--ouro2)}
+footer p{font-size:13px;line-height:1.8}
+
+@media(max-width:960px){.wrap{grid-template-columns:1fr}.dicas{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.r2,.dicas{grid-template-columns:1fr}.btns{flex-direction:column}.btn{width:100%;justify-content:center}}
+@media print{.topbar,.painel,.dicas,.btns,.meta,.stage-top{display:none!important}.wrap{display:block;padding:0}.stage{border:0;box-shadow:none;padding:0}.canvas-shell{background:white;padding:0;border-radius:0;min-height:auto}}
+
+/* RODAPÉ DE COMANDO — padrão de cores fixo em todos os departamentos */
+.rodape-comando{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.cmd-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-decoration:none;text-align:center;transition:.15s}
+.cmd-btn:hover{transform:translateY(-1px)}
+.cmd-verde{background:rgba(47,168,106,.12);border:1px solid rgba(47,168,106,.4);color:#4ab87a}
+.cmd-amarelo{background:rgba(217,164,65,.12);border:1px solid rgba(217,164,65,.4);color:#f0d882}
+.cmd-vermelho{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);color:#fca5a5}
+.cmd-preto{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.14);color:#c8c8d8}
+.cmd-branco{background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.92);color:#111}
+</style>
+<script src="js/motor_imagens_obra.js"></script>
+</head>
+<body>
+<div class="topbar">
+  <div class="top-in">
+    <div class="marca">OKapista<small>BARRACÃO DE POLIMENTO DAS IMAGENS</small></div>
+    <nav class="tnav">
+      <a href="okapista_literario.html">OKapista Literário</a>
+      <a href="okapista_cordel.html">Kapa Cordel</a>
+      <a href="okapista_polimata.html">Kapa Polímata</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <h1>🧱 Barracão de Polimento das Imagens</h1>
+  <p>Motor visual local — upload, corte automático, brilho, contraste, saturação, vinheta e download. Sem upload externo.</p>
+</header>
+
+<main class="wrap">
+
+  <!-- PAINEL CONTROLES -->
+  <aside>
+    <div class="painel">
+      <div class="ph">
+        <h2>Ajustes de polimento</h2>
+        <p>Use para preparar imagens antes de capa, miolo, HQ ou materiais de divulgação. Tudo roda no navegador.</p>
+      </div>
+      <div class="pb">
+
+        <div id="imagens-central-obra" class="campo" style="display:none">
+          <label>Imagens já na Central da Obra</label>
+          <div id="imagens-central-obra-lista" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"></div>
+        </div>
+
+        <div class="campo"><label>Enviar imagem</label><input id="file" type="file" accept="image/*"></div>
+
+        <div class="r2">
+          <div class="campo"><label>Formato de saída</label>
+            <select id="preset" onchange="render()">
+              <option value="free">Livre</option>
+              <option value="cover">Capa vertical (livro)</option>
+              <option value="square">Quadrado (redes)</option>
+              <option value="wide">Horizontal (banner)</option>
+              <option value="a4">A4 (relatório)</option>
+            </select>
+          </div>
+          <div class="campo"><label>Qualidade do download</label>
+            <select id="quality">
+              <option value="0.95">Máxima</option>
+              <option value="0.85" selected>Alta</option>
+              <option value="0.70">Média</option>
+              <option value="0.55">Leve</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="range-wrap">
+          <label>Brilho</label>
+          <div class="range-row"><input id="brightness" type="range" min="50" max="150" value="100" oninput="ajusteManual()"><span class="range-val" id="vBrightness">100%</span></div>
+        </div>
+        <div class="range-wrap">
+          <label>Contraste</label>
+          <div class="range-row"><input id="contrast" type="range" min="50" max="170" value="100" oninput="ajusteManual()"><span class="range-val" id="vContrast">100%</span></div>
+        </div>
+        <div class="range-wrap">
+          <label>Saturação</label>
+          <div class="range-row"><input id="saturation" type="range" min="0" max="180" value="100" oninput="ajusteManual()"><span class="range-val" id="vSaturation">100%</span></div>
+        </div>
+        <div class="range-wrap">
+          <label>Vinheta (escurecer bordas)</label>
+          <div class="range-row"><input id="vignette" type="range" min="0" max="70" value="0" oninput="ajusteManual()"><span class="range-val" id="vVignette">0%</span></div>
+        </div>
+        <div class="range-wrap">
+          <label>Nitidez (sharpen)</label>
+          <div class="range-row"><input id="sharpen" type="range" min="0" max="100" value="0" oninput="ajusteManual()"><span class="range-val" id="vSharpen">0%</span></div>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="campo"><label>Legenda da imagem (opcional)</label><input id="legenda" type="text" placeholder="Ex.: O pescador diante do mar" style="width:100%;border:1.5px solid #d4c89a;border-radius:12px;padding:10px 12px;font:inherit;font-size:.92rem;background:#fffdf8;color:var(--txt);outline:none"></div>
+
+        <div class="btns">
+          <button class="btn btn-verde" onclick="render()" style="width:100%;justify-content:center">↺ Atualizar imagem</button>
+          <button class="btn btn-verde" onclick="converterParaPB()" style="width:100%;justify-content:center">◐ Converter para preto e branco (grátis)</button>
+          <button class="btn btn-ouro" onclick="downloadImg()" style="width:100%;justify-content:center">↓ Baixar imagem tratada</button>
+          <button class="btn btn-azul" onclick="inserirNoMiolo()" style="width:100%;justify-content:center">📖 Inserir no miolo do livro</button>
+          <button class="btn btn-red" onclick="resetAll()" style="width:100%;justify-content:center">↺ Limpar ajustes</button>
+        </div>
+
+        <div class="status-box" id="statusBox">Aguardando envio da imagem.</div>
+
+        <div class="status-box aviso">
+          💡 Para capa literária use formato vertical. Para redes sociais use quadrado. Para ePub prefira arquivo leve.
+        </div>
+
+      </div>
+    </div>
+  </aside>
+
+  <!-- STAGE -->
+  <div class="stage">
+    <div class="stage-top">
+      <h2>Prévia tratada</h2>
+      <span style="font-family:Arial,sans-serif;font-size:.8rem;color:var(--muted)" id="metaInfo">Nenhuma imagem carregada</span>
+    </div>
+    <div class="canvas-shell">
+      <canvas id="canvas" width="900" height="1200"></canvas>
+    </div>
+    <div class="meta">
+      <span id="metaDim">—</span>
+      <span>Canvas local · sem upload externo · privado</span>
+    </div>
+    <div class="btns">
+      <button class="btn btn-ouro" onclick="downloadImg()">↓ Baixar imagem</button>
+      <button class="btn btn-azul" onclick="window.print()">🖨 PDF / Imprimir</button>
+      <a class="btn btn-azul" href="okapista_literario.html">📘 OKapista Literário</a>
+      <a class="btn btn-azul" href="okapista_cordel.html">📜 Kapa Cordel</a>
+    </div>
+
+    <div class="dicas">
+      <div class="dica"><strong>Motor local</strong>Tudo processa no seu navegador. A imagem não é enviada a nenhum servidor externo.</div>
+      <div class="dica"><strong>Nitidez visual</strong>O sharpen aumenta a percepção de detalhes — ideal para imagens levemente desfocadas.</div>
+      <div class="dica"><strong>Próxima etapa</strong>Após o polimento, envie para o OKapista para criar a capa.</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p><strong>Barracão de Polimento das Imagens</strong></p>
+</footer>
+
+<script>
+const cv = document.getElementById('canvas')
+const ctx = cv.getContext('2d')
+let img = null
+let loadedName = 'imagem'
+let imagemCarregando = false
+// null = imagem original/sem ajuste · 'pb' = só preto-e-branco (livre) · 'tratamento' = ajuste manual (pago)
+let modoAtual = null
+
+const DIMS = {
+  free:   { w: 1000, h: 1200 },
+  cover:  { w: 900,  h: 1400 },
+  square: { w: 1000, h: 1000 },
+  wide:   { w: 1400, h: 800  },
+  a4:     { w: 595,  h: 842  },
+}
+
+function carregarArquivoImagem(f) {
+  if (!f) return
+  loadedName = f.name.replace(/\.[^.]+$/, '') || 'imagem'
+  imagemCarregando = true
+  status('⏳ Carregando ' + f.name + '...')
+  const r = new FileReader()
+  r.onload = () => {
+    img = new Image()
+    img.onload = () => { imagemCarregando = false; modoAtual = null; status('Imagem recebida. Barracão pronto para polir.'); render() }
+    img.src = r.result
+  }
+  r.readAsDataURL(f)
+}
+
+document.getElementById('file').addEventListener('change', e => {
+  carregarArquivoImagem(e.target.files[0])
+})
+
+// ── IMAGENS JÁ ENVIADAS NA CENTRAL DA OBRA ─────────────────────────────
+// Evita pedir upload de novo se a pessoa já subiu a imagem em
+// obra_ativa.html — mostra miniaturas clicáveis pra reaproveitar.
+async function carregarImagensDaCentral() {
+  if (!window.CeleiroImagensObra) return
+  try {
+    const imagens = await CeleiroImagensObra.carregarImagens()
+    if (!imagens.length) return
+    const wrap = document.getElementById('imagens-central-obra')
+    const lista = document.getElementById('imagens-central-obra-lista')
+    lista.innerHTML = ''
+    imagens.forEach(item => {
+      const url = URL.createObjectURL(item.blob)
+      const btn = document.createElement('button')
+      btn.type = 'button'
+      btn.title = item.nome
+      btn.style.cssText = 'border:2px solid #d4c89a;border-radius:10px;padding:0;width:64px;height:64px;overflow:hidden;cursor:pointer;background:#fffdf8'
+      btn.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;display:block">`
+      btn.onclick = () => carregarArquivoImagem(item.blob)
+      lista.appendChild(btn)
+    })
+    wrap.style.display = 'block'
+  } catch (e) { console.error(e) }
+}
+carregarImagensDaCentral()
+
+function atualizar() {
+  ;[['brightness','vBrightness'],['contrast','vContrast'],['saturation','vSaturation'],['vignette','vVignette'],['sharpen','vSharpen']].forEach(([id,vid]) => {
+    document.getElementById(vid).textContent = document.getElementById(id).value + '%'
+  })
+  render()
+}
+
+// Ajuste manual num dos controles (brilho/contraste/saturação/vinheta/nitidez) —
+// isso é "tratamento visual" e passa a exigir contribuição pra baixar/inserir.
+function ajusteManual() {
+  modoAtual = 'tratamento'
+  atualizar()
+}
+
+// Conversão pra preto-e-branco de um clique — fica de fora da trava por
+// definição institucional: só desliga a cor, sem tratamento visual de verdade.
+function converterParaPB() {
+  if (imagemCarregando) { status('⏳ Ainda carregando a imagem — aguarde terminar.'); return }
+  if (!img) { status('Envie uma imagem antes de converter.'); return }
+  document.getElementById('brightness').value = 100
+  document.getElementById('contrast').value   = 100
+  document.getElementById('saturation').value = 0
+  document.getElementById('vignette').value   = 0
+  document.getElementById('sharpen').value    = 0
+  modoAtual = 'pb'
+  atualizar()
+  status('Convertida para preto e branco — gratuito, sem necessidade de contribuição.')
+}
+
+function setCanvas() {
+  const dim = DIMS[document.getElementById('preset').value] || DIMS.free
+  cv.width = dim.w; cv.height = dim.h
+}
+
+function coverDraw() {
+  const s = Math.max(cv.width / img.width, cv.height / img.height)
+  const w = img.width * s, h = img.height * s
+  const x = (cv.width - w) / 2, y = (cv.height - h) / 2
+  ctx.drawImage(img, x, y, w, h)
+}
+
+function render() {
+  setCanvas()
+  ctx.clearRect(0, 0, cv.width, cv.height)
+  ctx.fillStyle = '#fffaf0'
+  ctx.fillRect(0, 0, cv.width, cv.height)
+
+  if (!img) {
+    ctx.fillStyle = '#10233f'
+    ctx.font = '38px Georgia,serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('Envie uma imagem', cv.width/2, cv.height/2 - 20)
+    ctx.font = '18px Arial,sans-serif'
+    ctx.fillStyle = '#c9a646'
+    ctx.fillText('Barracão de Polimento', cv.width/2, cv.height/2 + 20)
+    return
+  }
+
+  const br = document.getElementById('brightness').value
+  const co = document.getElementById('contrast').value
+  const sa = document.getElementById('saturation').value
+
+  ctx.filter = `brightness(${br}%) contrast(${co}%) saturate(${sa}%)`
+  coverDraw()
+  ctx.filter = 'none'
+
+  // Sharpen (simulado com contrast extra sobre camada)
+  const sh = parseInt(document.getElementById('sharpen').value)
+  if (sh > 0) {
+    ctx.save()
+    ctx.globalAlpha = sh / 300
+    ctx.filter = `contrast(${100 + sh * 1.5}%)`
+    coverDraw()
+    ctx.restore()
+    ctx.filter = 'none'
+  }
+
+  // Vinheta
+  const v = parseInt(document.getElementById('vignette').value)
+  if (v > 0) {
+    const g = ctx.createRadialGradient(cv.width/2, cv.height/2, cv.width * .18, cv.width/2, cv.height/2, Math.max(cv.width, cv.height) * .72)
+    g.addColorStop(0, 'rgba(0,0,0,0)')
+    g.addColorStop(1, `rgba(0,0,0,${v/100})`)
+    ctx.fillStyle = g
+    ctx.fillRect(0, 0, cv.width, cv.height)
+  }
+
+  document.getElementById('metaDim').textContent = `${cv.width} × ${cv.height}px`
+  document.getElementById('metaInfo').textContent = `${loadedName} · polida ✔`
+  status('Imagem polida e pronta para download.')
+}
+
+function downloadImg() {
+  if (imagemCarregando) { status('⏳ Ainda carregando a imagem — aguarde terminar.'); return }
+  if (!img) { status('Envie uma imagem antes de baixar.'); return }
+  const q = parseFloat(document.getElementById('quality').value)
+  const a = document.createElement('a')
+  a.href = cv.toDataURL('image/jpeg', q)
+  a.download = `${loadedName}-polida-barracao.jpg`
+  a.click()
+  status('Download gerado.')
+}
+
+function inserirNoMiolo() {
+  if (imagemCarregando) { status('⏳ Ainda carregando a imagem — aguarde terminar antes de inserir no miolo.'); return }
+  if (!img) { status('Envie e trate uma imagem antes de inserir no miolo.'); return }
+  const q = parseFloat(document.getElementById('quality').value)
+  const dataUrl = cv.toDataURL('image/jpeg', q)
+  const legenda = (document.getElementById('legenda').value || '').trim()
+  // Escapa colchetes/parênteses da legenda pra não quebrar a sintaxe da linha
+  const legendaSegura = legenda.replace(/[\[\]]/g, '')
+  const linha = `![${legendaSegura}](${dataUrl} "${cv.width}x${cv.height}")`
+
+  const chavesTexto = ['lapidar_resultado_anterior', 'lapidar_obra_texto', 'lapidar_texto_obra']
+  let textoBase = ''
+  for (const k of chavesTexto) {
+    const v = localStorage.getItem(k)
+    if (v && v.trim().length > 20) { textoBase = v; break }
+  }
+  if (!textoBase) {
+    status('Nenhuma obra ativa encontrada — trate o texto no Lapidar antes de inserir imagens.')
+    return
+  }
+  const textoComImagem = textoBase.replace(/\n+$/, '') + '\n\n' + linha + '\n'
+  chavesTexto.forEach(k => localStorage.setItem(k, textoComImagem))
+  status(`✔ Imagem adicionada ao final do miolo (${cv.width}×${cv.height}px). Volte ao Lapidar/Diagramador — se quiser reposicionar, edite o texto lá e mova a linha "![...]" pra onde a imagem deve aparecer.`)
+}
+
+function resetAll() {
+  document.getElementById('brightness').value = 100
+  document.getElementById('contrast').value   = 100
+  document.getElementById('saturation').value = 100
+  document.getElementById('vignette').value   = 0
+  document.getElementById('sharpen').value    = 0
+  document.getElementById('preset').value     = 'free'
+  modoAtual = null
+  atualizar()
+  status('Ajustes reiniciados.')
+}
+
+function status(t) {
+  document.getElementById('statusBox').textContent = t
+}
+
+render()
+</script>
+
+<!-- VALOR DE REFERÊNCIA OBRIGATÓRIO -->
+<div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.3);border-radius:12px;padding:16px;margin:16px 0;max-width:760px;font-family:Arial,sans-serif;">
+  <div style="font-size:.7rem;color:#c9a84c;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-bottom:2px;">✦ Valor de Referência Obrigatório — Barracão de Polimento</div>
+  <div style="font-size:.62rem;color:#8a7a5a;font-style:italic;margin-bottom:10px;">Modalidade de permuta. Somado ao VR da diagramação ou OKapista. Pagamento consolidado na Expedição Lapidar.</div>
+
+  <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(201,168,76,.12);font-size:.72rem;">
+    <span style="color:#5a6478;">Tratamento de capa (capa + contracapa + lombada + orelhas)</span>
+    <span style="color:#c9a84c;font-weight:700;">+ 5 créditos</span>
+  </div>
+  <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(201,168,76,.12);font-size:.72rem;">
+    <span style="color:#5a6478;">Capa + até 5 imagens internas</span>
+    <span style="color:#c9a84c;font-weight:700;">+ 10 créditos</span>
+  </div>
+  <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(201,168,76,.12);font-size:.72rem;">
+    <span style="color:#5a6478;">Capa + 10 imagens internas (pacote completo)</span>
+    <span style="color:#c9a84c;font-weight:700;">+ 15 créditos</span>
+  </div>
+  <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(201,168,76,.12);font-size:.72rem;">
+    <span style="color:#b87333;">⚠ Cada imagem interna além do pacote de 10</span>
+    <span style="color:#b87333;font-weight:700;">+ 0,50 crédito/imagem</span>
+  </div>
+
+  <!-- CONTADOR DE IMAGENS -->
+  <div style="margin-top:12px;background:rgba(201,168,76,.08);border-radius:8px;padding:12px;">
+    <div style="font-size:.7rem;color:#c9a84c;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-weight:700;">Calculadora de VR</div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+      <label style="font-size:.75rem;color:#8a7a5a;">Imagens internas tratadas:</label>
+      <input type="number" id="qtd-imgs" min="0" max="999" value="0" oninput="calcVR()"
+        style="width:64px;background:#1c1105;border:1px solid rgba(201,168,76,.4);border-radius:6px;color:#f4dc88;font-size:.9rem;padding:4px 8px;text-align:center;outline:none;">
+      <label style="font-size:.75rem;color:#8a7a5a;display:flex;align-items:center;gap:6px;">
+        <input type="checkbox" id="tem-capa" onchange="calcVR()" style="accent-color:#c9a84c;"> Inclui tratamento de capa
+      </label>
+    </div>
+    <div id="vr-resultado" style="font-size:.82rem;color:#f4dc88;font-weight:700;min-height:20px;"></div>
+    <div id="vr-alerta" style="font-size:.72rem;color:#b87333;margin-top:4px;display:none;">⚠ Imagens acima do pacote de 10 — cada excedente acrescenta 0,50 crédito ao VR.</div>
+  </div>
+</div>
+
+<script>
+function calcVR(){
+  const imgs = parseInt(document.getElementById('qtd-imgs').value)||0;
+  const capa = document.getElementById('tem-capa').checked;
+  const alerta = document.getElementById('vr-alerta');
+  let vr = 0; let desc = '';
+
+  if(capa && imgs === 0){ vr = 5; desc = 'Somente tratamento de capa'; }
+  else if(capa && imgs <= 5){ vr = 10; desc = 'Capa + até 5 imagens internas'; }
+  else if(capa && imgs <= 10){ vr = 15; desc = 'Capa + pacote completo (10 imgs)'; }
+  else if(capa && imgs > 10){ vr = 15 + (imgs - 10) * 0.5; desc = `Capa + ${imgs} imgs (${imgs-10} excedente(s))`; alerta.style.display='block'; }
+  else if(!capa && imgs > 0 && imgs <= 5){ vr = 5; desc = `${imgs} imagem(ns) interna(s) — sem capa`; }
+  else if(!capa && imgs > 5 && imgs <= 10){ vr = 10; desc = `${imgs} imagens internas — sem capa`; }
+  else if(!capa && imgs > 10){ vr = 10 + (imgs - 10) * 0.5; desc = `${imgs} imgs internas — ${imgs-10} excedente(s)`; alerta.style.display='block'; }
+
+  if(imgs <= 10) alerta.style.display='none';
+
+  if(vr > 0){
+    document.getElementById('vr-resultado').textContent = `${desc} → VR do Barracão: ${vr.toFixed(1).replace('.',',')} créditos (somado ao VR da diagramação/OKapista)`;
+  } else {
+    document.getElementById('vr-resultado').textContent = 'Selecione capa e/ou quantidade de imagens para calcular.';
+  }
+}
+calcVR();
+</script>
+
+<div class="rodape-comando" style="max-width:900px;margin:0 auto;padding:20px 16px 60px">
+  <a href="index.html" class="cmd-btn cmd-preto">← Painel Central</a>
+</div>
+</body>
+</html>
