@@ -775,7 +775,8 @@ async function executarGeracao() {
 // (a página inteira ficava sem nenhum JS rodando). Isso também tinha
 // escondido uma colisão de nome: já existia outra função chamada
 // gerarLivroUnico mais abaixo (que salva no GitHub, sem relação com gerar
-// o texto) — renomeada para salvarLivroNoGithub pra não colidir com esta.
+// o texto) — renomeada para salvarLivroNoGitHub (ver comentário lá) pra
+// não colidir com esta.
 async function gerarLivroUnico(titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase) {
   // gerarLivroUnico recebe os parâmetros direto — sem revalidar
   custoSessaoUSD = 0;
@@ -1659,6 +1660,7 @@ Escreva o conto completo agora. Comece diretamente com a narrativa.`;
       });
       localStorage.setItem('sigmal_hq', JSON.stringify(sigmal));
       log('✓ Conto Semente salvo no Calabouço.');
+      salvarLivroNoGitHub(tituloFinal, heteronimoEscolhido, livroCompleto, destino);
     } catch(eSave) {
       log('⚠ Erro ao salvar: ' + eSave.message);
     }
@@ -1805,14 +1807,19 @@ Escreva ~${Math.round(pagsPorVol * 250)} palavras. Comece diretamente.`;
   }
 }
 
-// Renomeada de gerarLivroUnico (30/07/2026) — colidia de nome com a função
-// de verdade que gera o texto do livro (ver comentário lá em cima, perto
-// de executarGeracao). Esta aqui salva o livro pronto no GitHub — não é
-// chamada por ninguém hoje, e tem 3 variáveis fora do escopo dela
-// (destino, conteudo, autor — provavelmente deveriam ser destinoFinal, o
-// texto gerado, e heteronimo/heteronimoEscolhido). Deixei como estava,
-// sem adivinhar o comportamento pretendido.
-async function salvarLivroNoGithub(titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase) {
+// Salva o livro pronto no GitHub (repo triploohesigmalbpl, mesma pasta usada
+// pelo salvarNoGitHub do index.html) — chamada por mostrarResultado() ao
+// final de gerarLivroUnico/gerarSaga. Corrigido em 31/07/2026: o nome desta
+// função estava escrito "salvarLivroNoGithub" (h minúsculo) enquanto a
+// chamada em mostrarResultado() usa "salvarLivroNoGitHub" (H maiúsculo) —
+// essa diferença de maiúscula/minúscula disparava ReferenceError e quebrava
+// mostrarResultado() inteiro no fim da geração, e o livro nunca chegava a
+// ser salvo em lugar nenhum (nem no GitHub, nem em calabouco_livros/
+// sigmal_hq, cujo código vem depois desta chamada na mesma função). Também
+// tinha 3 variáveis fora de escopo (destino, conteudo, autor) que nunca
+// existiram como parâmetros — os parâmetros agora batem com o que
+// mostrarResultado() realmente passa.
+async function salvarLivroNoGitHub(titulo, heteronimo, conteudo, destino) {
   try {
     const autorNome = heteronimoEscolhido || heteronimo || 'ohe';
     const autorSlug = autorNome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -1825,7 +1832,7 @@ async function salvarLivroNoGithub(titulo, sinopse, volume, genero, heteronimo, 
       const check = await fetch(`/api/github-contents?repo=triploohesigmalbpl&path=${encodeURIComponent(nomeArquivo)}`);
       if (check.ok) { const ex = await check.json(); sha = ex.sha; }
     } catch(e) {}
-    const body = { repo: 'triploohesigmalbpl', path: nomeArquivo, content: conteudo, message: `[LIVRO] ${autor} — ${titulo}` };
+    const body = { repo: 'triploohesigmalbpl', path: nomeArquivo, content: conteudo, message: `[LIVRO] ${heteronimo} — ${titulo}` };
     if (sha) body.sha = sha;
     const resp = await fetch('/api/github-contents', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     if (resp.ok) { log('✓ Livro salvo no GitHub: /' + pasta + '/'); }

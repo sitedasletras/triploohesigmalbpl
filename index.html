@@ -3670,6 +3670,7 @@ function liberarMasmorra(i) {
   renderizarMasmorra();
   renderizarCalabouco();
   notif('LIBERADO!', `"${item.titulo}" saiu da Masmorra e entrou no Calabouço.`, 'sucesso');
+  salvarNoGitHub(item, 'calabouco');
   // ── Atualizar biografia do autor com nova obra ──
   if(item.autor && item.titulo){
     atualizarBiografiaComObra(item).catch(e=>console.warn('Bio não atualizada:',e));
@@ -5207,6 +5208,7 @@ Escreva agora sem introdução ou comentário.`;
         arr[genUltimoItemIdx].conteudo = genLivroCompleto;
         arr[genUltimoItemIdx].custoUSD = (arr[genUltimoItemIdx].custoUSD || 0) + custoCosturaFinal;
         salvar();
+        salvarNoGitHub(arr[genUltimoItemIdx], genUltimoItemOrigem);
       }
     }
 
