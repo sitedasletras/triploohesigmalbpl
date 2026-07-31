@@ -5,14 +5,15 @@
 
   Entrega:
   - HTML de impressão para PDF via navegador;
-  - XHTML base para EPUB;
+  - XHTML base para EPUB (compatibilidade/depuração);
+  - pacote .epub real, zipado e validável (EPUB3 com fallback toc.ncx);
   - pacote editorial JSON;
   - manifesto simples de arquivos;
   - integração opcional com CeleiroMotorPaginacaoReal.
 
   Observação técnica:
   - PDF final é produzido pelo navegador/impressão ou por motor externo futuro;
-  - EPUB completo em .epub zipado fica para camada posterior; este motor gera a base técnica validável.
+  - montarEpubZip() requer window.JSZip carregado na página (CDN).
 */
 
 (function(){
@@ -162,6 +163,149 @@ ${conteudo}
     };
   }
 
+  function uuidV4(){
+    if(window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
+      return v.toString(16);
+    });
+  }
+
+  function blocoParaXHTML(b){
+    const tipo = b.tipo || 'prosa';
+    const conteudo = escapeHTML(b.conteudo || b.texto || '').replace(/\n/g,'<br/>');
+    if(tipo === 'capitulo') return `<h1 class="epub-capitulo">${conteudo}</h1>`;
+    if(tipo === 'subtitulo') return `<p class="epub-subtitulo">${conteudo}</p>`;
+    return `<p class="epub-${tipo}">${conteudo}</p>`;
+  }
+
+  function agruparCapitulosEPUB(blocos){
+    const grupos = [];
+    let atual = null;
+    (blocos || []).forEach(b => {
+      if(b.tipo === 'capitulo'){
+        atual = { titulo:(b.conteudo || '').split('\n')[0].trim(), blocos:[b] };
+        grupos.push(atual);
+      } else {
+        if(!atual){ atual = { titulo:null, blocos:[] }; grupos.push(atual); }
+        atual.blocos.push(b);
+      }
+    });
+    if(!grupos.length) grupos.push({ titulo:null, blocos:blocos || [] });
+    return grupos;
+  }
+
+  const CSS_LEITURA_EPUB = `body{font-family:serif;line-height:1.5;margin:1em;}
+h1.epub-capitulo{text-align:center;font-size:1.4em;margin:2em 0 1em;}
+p.epub-subtitulo{text-align:center;font-style:italic;margin-bottom:1.5em;}
+p.epub-poesia,p.epub-sextilha,p.epub-decima,p.epub-cordel{text-align:left;margin-left:2em;}
+p{margin:0 0 .9em 0;text-align:justify;}`;
+
+  // Gera um pacote .epub real (zipado, EPUB3 + toc.ncx de fallback).
+  // Requer window.JSZip carregado na página. Retorna Promise<Blob>.
+  async function montarEpubZip(projetoEntrada, opcoes){
+    if(!window.JSZip){
+      throw new Error('JSZip não carregado — inclua o script JSZip na página antes de exportar EPUB.');
+    }
+    const projeto = garantirPaginacao(projetoEntrada, opcoes || {});
+    const zip = new window.JSZip();
+    zip.file('mimetype', 'application/epub+zip', { compression:'STORE' });
+
+    zip.folder('META-INF').file('container.xml', `<?xml version="1.0" encoding="UTF-8"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+  <rootfiles>
+    <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+  </rootfiles>
+</container>`);
+
+    const oebps = zip.folder('OEBPS');
+    oebps.file('css/estilo.css', CSS_LEITURA_EPUB);
+
+    const grupos = agruparCapitulosEPUB(projeto.blocos);
+    const uuid = uuidV4();
+    const dataMod = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+    const titulo = projeto.titulo, autor = projeto.autor, idioma = projeto.idioma;
+
+    const manifestItens = [
+      '<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>',
+      '<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>',
+      '<item id="css" href="css/estilo.css" media-type="text/css"/>'
+    ];
+    const spineItens = [];
+    const navPontos = [];
+    const ncxPontos = [];
+
+    grupos.forEach((g, i) => {
+      const n = String(i+1).padStart(3,'0');
+      const id = `cap${n}`;
+      const href = `chapters/capitulo-${n}.xhtml`;
+      const tituloCap = g.titulo || (grupos.length === 1 ? titulo : `Capítulo ${i+1}`);
+      const corpo = g.blocos.map(blocoParaXHTML).join('\n');
+      oebps.file(href, `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="${escapeHTML(idioma)}">
+<head>
+<title>${escapeHTML(tituloCap)}</title>
+<link rel="stylesheet" type="text/css" href="../css/estilo.css"/>
+</head>
+<body>
+${corpo}
+</body>
+</html>`);
+      manifestItens.push(`<item id="${id}" href="${href}" media-type="application/xhtml+xml"/>`);
+      spineItens.push(`<itemref idref="${id}"/>`);
+      navPontos.push(`<li><a href="${href}">${escapeHTML(tituloCap)}</a></li>`);
+      ncxPontos.push(`<navPoint id="navpoint-${i+1}" playOrder="${i+1}"><navLabel><text>${escapeHTML(tituloCap)}</text></navLabel><content src="${href}"/></navPoint>`);
+    });
+
+    oebps.file('content.opf', `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="pub-id" xml:lang="${escapeHTML(idioma)}">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="pub-id">urn:uuid:${uuid}</dc:identifier>
+    <dc:title>${escapeHTML(titulo)}</dc:title>
+    <dc:creator>${escapeHTML(autor)}</dc:creator>
+    <dc:language>${escapeHTML(idioma)}</dc:language>
+    <meta property="dcterms:modified">${dataMod}</meta>
+  </metadata>
+  <manifest>
+    ${manifestItens.join('\n    ')}
+  </manifest>
+  <spine toc="ncx">
+    ${spineItens.join('\n    ')}
+  </spine>
+</package>`);
+
+    oebps.file('nav.xhtml', `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="${escapeHTML(idioma)}">
+<head><title>Sumário</title></head>
+<body>
+<nav epub:type="toc" id="toc">
+<h1>Sumário</h1>
+<ol>
+${navPontos.join('\n')}
+</ol>
+</nav>
+</body>
+</html>`);
+
+    oebps.file('toc.ncx', `<?xml version="1.0" encoding="UTF-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+<head>
+<meta name="dtb:uid" content="urn:uuid:${uuid}"/>
+<meta name="dtb:depth" content="1"/>
+<meta name="dtb:totalPageCount" content="0"/>
+<meta name="dtb:maxPageNumber" content="0"/>
+</head>
+<docTitle><text>${escapeHTML(titulo)}</text></docTitle>
+<navMap>
+${ncxPontos.join('\n')}
+</navMap>
+</ncx>`);
+
+    return zip.generateAsync({ type:'blob', mimeType:'application/epub+zip' });
+  }
+
   function montarPacoteEditorial(projetoEntrada, extras){
     const projeto = garantirPaginacao(projetoEntrada, extras || {});
     return {
@@ -194,6 +338,7 @@ ${conteudo}
   window.CeleiroMotorExportacaoFinalPdfEpub = {
     montarHTMLImpressao,
     montarXHTMLParaEPUB,
+    montarEpubZip,
     montarManifestoEPUB,
     montarPacoteEditorial,
     prepararDownload,

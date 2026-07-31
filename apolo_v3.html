@@ -14,6 +14,7 @@
 <script src="motores_lapidar/finais/motor_paginacao_real_v1.js"></script>
 <script src="motores_lapidar/finais/motor_exportacao_final_pdf_epub_v1.js"></script>
 <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
@@ -720,9 +721,13 @@ function abrirEImprimirPDF(){
 }
 
 // ── EXPORTAR EPUB DO LIVRO COMPLETO (motores finais, independente do fluxo principal) ──
-function exportarEpubCompleto(){
+async function exportarEpubCompleto(){
   if(!window.CeleiroV3 || !window.CeleiroMotorExportacaoFinalPdfEpub){
     alert('Motores de exportação final não carregaram.');
+    return;
+  }
+  if(!window.JSZip){
+    alert('Biblioteca JSZip não carregou (verifique sua conexão) — não é possível gerar o .epub.');
     return;
   }
   const texto = document.getElementById('texto').value.trim();
@@ -731,14 +736,13 @@ function exportarEpubCompleto(){
   const autor = (document.getElementById('m-autor')||document.getElementById('autor')||{}).value || 'Autor';
   try{
     const blocos = window.CeleiroV3.quebrarBlocos(texto);
-    const xhtml = window.CeleiroMotorExportacaoFinalPdfEpub.montarXHTMLParaEPUB(
+    const blob = await window.CeleiroMotorExportacaoFinalPdfEpub.montarEpubZip(
       { titulo, autor, idioma:'pt-BR', blocos },
       { formato: (document.getElementById('formato')||{}).value || '16x23' }
     );
-    const blob = new Blob([xhtml], { type:'application/xhtml+xml;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = (titulo||'obra').toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-epub.xhtml';
+    a.download = (titulo||'obra').toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.epub';
     a.click();
   }catch(e){
     alert('Erro ao gerar EPUB: ' + e.message);
