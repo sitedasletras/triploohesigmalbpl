@@ -330,6 +330,31 @@ body::before {
 .ala.ativa { display: block; }
 
 /* ===================== DASHBOARD ===================== */
+.hall-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.hall-card {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 6px;
+  padding: 1.3rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.hall-card:hover { border-color: rgba(201,168,76,0.4); transform: translateY(-2px); }
+.hall-icon { font-size: 1.5rem; }
+.hall-titulo { font-family: 'Cinzel', serif; font-size: 1.05rem; color: var(--ouro-claro); }
+.hall-desc { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.8rem; color: var(--prata); line-height: 1.5; }
+.hall-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.2rem 0; }
+.hall-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.4rem; letter-spacing: 0.05em; padding: 0.2rem 0.5rem; border: 1px solid rgba(201,168,76,0.2); color: var(--prata); text-transform: uppercase; border-radius: 3px; }
+.hall-entrar { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.1em; color: var(--ouro); text-transform: uppercase; margin-top: auto; padding-top: 0.3rem; }
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1211,6 +1236,106 @@ body::before {
 
     <!-- ===== DASHBOARD ===== -->
     <div class="ala ativa" id="ala-dashboard">
+      <div class="hall-grid">
+
+        <div class="hall-card" onclick="irAla('ohe', document.querySelector('.ala-btn[onclick*=ohe]'))">
+          <div class="hall-icon">🗂️</div>
+          <div class="hall-titulo">OHE · Entradas</div>
+          <div class="hall-desc">Envie tema, imagem ou desafio pra iniciar uma obra — seis portas de entrada, curadas por Fernando Peçanha.</div>
+          <div class="hall-tags"><span class="hall-tag">Máquina de Dados</span><span class="hall-tag">Modo Desafio</span><span class="hall-tag">Imagem</span><span class="hall-tag">Vídeo</span><span class="hall-tag">Edital</span></div>
+          <div class="hall-entrar">ENTRAR →</div>
+        </div>
+
+        <div class="hall-card" onclick="irAla('masmorra', document.querySelector('.ala-btn[onclick*=masmorra]'))">
+          <div class="hall-icon">⛓️</div>
+          <div class="hall-titulo">Masmorra da Torre</div>
+          <div class="hall-desc">Obras em quarentena de 750 dias antes de seguirem pro Calabouço — prazo editorial da OHE.</div>
+          <div class="hall-tags"><span class="hall-tag">Quarentena</span><span class="hall-tag">Expandir p/ Livro</span></div>
+          <div class="hall-entrar">ENTRAR →</div>
+        </div>
+
+        <div class="hall-card" onclick="irAla('calabouco', document.querySelector('.ala-btn[onclick*=calabouco]'))">
+          <div class="hall-icon">📚</div>
+          <div class="hall-titulo">Calabouço</div>
+          <div class="hall-desc">Obras consolidadas do acervo da OHE — analisar, gerar livro completo, exportar, enviar pro Paiol.</div>
+          <div class="hall-tags"><span class="hall-tag">Analisar</span><span class="hall-tag">Gerar Livro</span><span class="hall-tag">Word</span></div>
+          <div class="hall-entrar">ENTRAR →</div>
+        </div>
+
+        <div class="hall-card" onclick="irAla('sigmal', document.querySelector('.ala-btn[onclick*=sigmal]'))">
+          <div class="hall-icon">🎵</div>
+          <div class="hall-titulo">Sigmal Music</div>
+          <div class="hall-desc">Estúdios em produção, singles e LPs — Condor Andino no repertório, Maestro Aaron nos intérpretes.</div>
+          <div class="hall-tags"><span class="hall-tag">Estúdios</span><span class="hall-tag">Singles</span><span class="hall-tag">Music Studio</span></div>
+          <div class="hall-entrar">ENTRAR →</div>
+        </div>
+
+        <div class="hall-card" onclick="irAla('nucleo', document.querySelector('.ala-btn[onclick*=nucleo]'))">
+          <div class="hall-icon">🏛️</div>
+          <div class="hall-titulo">Núcleo N · BPL</div>
+          <div class="hall-desc">Banco de Personagens Literários — registro e consistência de personagens entre obras.</div>
+          <div class="hall-tags"><span class="hall-tag">Banco de Personagens</span></div>
+          <div class="hall-entrar">ENTRAR →</div>
+        </div>
+
+        <div class="hall-card" onclick="irAla('silo', document.querySelector('.ala-btn[onclick*=silo]'))">
+          <div class="hall-icon">🎬</div>
+          <div class="hall-titulo">Silo Multimídia</div>
+          <div class="hall-desc">A obra em outras linguagens — HQ, livro ilustrado, quadrinho clássico, chamada pro estúdio.</div>
+          <div class="hall-tags"><span class="hall-tag">HQ Animada</span><span class="hall-tag">Livro Ilustrado</span><span class="hall-tag">Quadrinho</span></div>
+          <div class="hall-entrar">ENTRAR →</div>
+        </div>
+
+        <div class="hall-card" onclick="irAla('gerador', document.querySelector('.ala-btn[onclick*=gerador]'))">
+          <div class="hall-icon">📖</div>
+          <div class="hall-titulo">Gerador · Livro</div>
+          <div class="hall-desc">Expansão narrativa por arco ou saga — geração longa com costura entre partes, direto pro Calabouço/Masmorra.</div>
+          <div class="hall-tags"><span class="hall-tag">Por Arco</span><span class="hall-tag">Saga</span><span class="hall-tag">Costurar</span></div>
+          <div class="hall-entrar">ENTRAR →</div>
+        </div>
+
+        <div class="hall-card" onclick="irAla('metrica', document.querySelector('.ala-btn[onclick*=metrica]'))">
+          <div class="hall-icon">🀄</div>
+          <div class="hall-titulo">Métrica · Poesia</div>
+          <div class="hall-desc">Motores de métrica oriental, ocidental e formas diversas — checagem formal de verso e estrofe.</div>
+          <div class="hall-tags"><span class="hall-tag">Oriental</span><span class="hall-tag">Ocidental</span><span class="hall-tag">Formas Diversas</span></div>
+          <div class="hall-entrar">ENTRAR →</div>
+        </div>
+
+        <div class="hall-card" onclick="irAla('maternidade', document.querySelector('.ala-btn[onclick*=maternidade]'))">
+          <div class="hall-icon">🍼</div>
+          <div class="hall-titulo">Maternidade</div>
+          <div class="hall-desc">Registro civil dos heterônimos da OHE-Peçanha — 51 autores ativos e os que ainda vão nascer.</div>
+          <div class="hall-tags"><span class="hall-tag">51 Heterônimos</span></div>
+          <div class="hall-entrar">ENTRAR →</div>
+        </div>
+
+        <div class="hall-card" onclick="irAla('paiol', document.querySelector('.ala-btn[onclick*=paiol]'))">
+          <div class="hall-icon">🏹</div>
+          <div class="hall-titulo">Paiol · Expedição</div>
+          <div class="hall-desc">Obras prontas pra expedição — Catapulta pro Lapidar (diagramação e capa), Balestra pro Silo Multimídia.</div>
+          <div class="hall-tags"><span class="hall-tag">Diagramadores</span><span class="hall-tag">Capistas</span><span class="hall-tag">Concursos</span></div>
+          <div class="hall-entrar">ENTRAR →</div>
+        </div>
+
+        <div class="hall-card" onclick="window.open('escritorio_triplo.html','_blank')">
+          <div class="hall-icon">🏢</div>
+          <div class="hall-titulo">Escritório</div>
+          <div class="hall-desc">Gasto real acumulado em Claude, em dólar e reais, e balanço de custo por obra — inclusive as de terceiros.</div>
+          <div class="hall-tags"><span class="hall-tag">Gasto Total</span><span class="hall-tag">Custo por Obra</span></div>
+          <div class="hall-entrar">ENTRAR →</div>
+        </div>
+
+        <div class="hall-card" onclick="window.open('atelie_terceiros.html','_blank')">
+          <div class="hall-icon">🖋️</div>
+          <div class="hall-titulo">Ateliê de Terceiros</div>
+          <div class="hall-desc">Serviço editorial pago — organiza o material bruto de autores externos sem inventar conteúdo, sua fonte de renda à parte.</div>
+          <div class="hall-tags"><span class="hall-tag">Organizar Obra</span><span class="hall-tag">Autor Real</span></div>
+          <div class="hall-entrar">ENTRAR →</div>
+        </div>
+
+      </div>
+
       <div class="dashboard-grid">
         <div class="dash-card dc-ohe clicavel" onclick="irAla('ohe', document.querySelector('.ala-btn[onclick*=ohe]'))" title="Ver fila de curadoria">
           <div class="dash-num" id="cnt-fila">0</div>
