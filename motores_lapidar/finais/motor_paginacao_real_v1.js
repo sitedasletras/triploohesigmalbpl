@@ -101,10 +101,17 @@
       const paginaVazia = pagina.blocos.length === 0;
 
       if(!cabe && !paginaVazia){
-        if(cfg.evitarTituloSolitario && ehTitulo(blocoFinal)){
-          paginas.push(pagina);
-          pagina = criarPagina(cfg.primeiraPagina + paginas.length, cfg);
-        } else {
+        paginas.push(pagina);
+        pagina = criarPagina(cfg.primeiraPagina + paginas.length, cfg);
+      } else if(cabe && !paginaVazia && cfg.evitarTituloSolitario && ehTitulo(blocoFinal)){
+        // O título cabe, mas sobraria pouco espaço depois dele nesta
+        // página — menos de duas linhas de corpo de texto — deixando-o
+        // "solitário" no fim da página, com o conteúdo empurrado pra
+        // próxima. Antecipa a quebra pra manter título e início do
+        // conteúdo juntos.
+        const espacoDepois = alturaUtil - (pagina.alturaUsada + altura);
+        const alturaMinLinha = (cfg.fontePx || 16) * (cfg.entrelinha || 1.45);
+        if(espacoDepois < alturaMinLinha * 2){
           paginas.push(pagina);
           pagina = criarPagina(cfg.primeiraPagina + paginas.length, cfg);
         }
