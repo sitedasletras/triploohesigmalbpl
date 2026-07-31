@@ -1071,6 +1071,37 @@ function enviarDestino(dest) {
 
   // Salvar na chave correta que o index_15 lê
   localStorage.setItem('sigmal_hq', JSON.stringify(estado));
+  salvarObraNoGitHub(item, dest);
+}
+
+// Mesmo padrão do salvarNoGitHub do index.html — salva a obra (não só
+// biografia/personagens) como .md no repo triploohesigmalbpl, pra toda obra
+// enviada pela Máquina Desafio também ficar persistida no GitHub, não só no
+// localStorage do navegador.
+async function salvarObraNoGitHub(item, destino) {
+  try {
+    const autorSlug = (item.autor || 'a-definir').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const tituloSlug = (item.titulo || 'sem-titulo').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 60);
+    const data = new Date().toISOString().split('T')[0];
+    const pasta = destino === 'calabouco' ? `calabouco/heteronimos/${autorSlug}` : `masmorra/heteronimos/${autorSlug}`;
+    const nomeArquivo = `${pasta}/${data}-${tituloSlug}.md`;
+    const conteudoTexto = `# ${item.titulo}\n\n**Autor:** ${item.autor}\n**Data:** ${item.dataProcessamento || data}\n**Tipo:** ${item.tipo}\n**Destino:** ${destino}\n\n---\n\n${item.conteudo || ''}`;
+
+    let sha = null;
+    try {
+      const check = await fetch(`/api/github-contents?repo=triploohesigmalbpl&path=${encodeURIComponent(nomeArquivo)}`);
+      if (check.ok) { const ex = await check.json(); sha = ex.sha; }
+    } catch (e) {}
+
+    const body = { repo: 'triploohesigmalbpl', path: nomeArquivo, content: conteudoTexto, message: `[OHE] ${item.autor} — ${item.titulo}` };
+    if (sha) body.sha = sha;
+
+    const resp = await fetch('/api/github-contents', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (resp.ok) log('✓ Obra salva no GitHub: /' + pasta + '/');
+    else { const err = await resp.json().catch(() => ({})); log('⚠ Obra não salva no GitHub: ' + (err.error?.message || 'erro desconhecido')); }
+  } catch (e) {
+    log('⚠ Erro ao salvar obra no GitHub: ' + e.message);
+  }
 }
 
 // ── RESETAR ───────────────────────────────────────────────────────────────────
