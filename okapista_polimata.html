@@ -180,6 +180,7 @@ html,body{min-height:100vh;background:var(--bg);color:var(--txt);font-family:'DM
         </div>
         <div class="field"><label>Imagem (opcional)</label><input class="input" id="imgInput" type="file" accept="image/*" style="padding:5px;font-size:.82rem;"></div>
         <button class="btn btn-purple" style="width:100%;margin:6px 0;" onclick="gerarImagemPollinataPolimata()">🎨 Gerar imagem com IA</button>
+        <button class="btn btn-ghost" style="width:100%;margin:0 0 6px;" onclick="window.open('barracao_polimento_imagens.html','_blank')">🧰 Polir Imagem no Barracão</button>
         <div id="statusGeracaoIA" style="font-size:.78rem;color:var(--muted);text-align:center;min-height:1em;"></div>
         <div class="row2">
           <div class="field"><label>Plataforma de publicação</label>
@@ -234,6 +235,7 @@ html,body{min-height:100vh;background:var(--bg);color:var(--txt);font-family:'DM
         <button class="btn btn-purple" onclick="render()">↺ Atualizar</button>
         <button class="btn btn-green"  onclick="baixar()">↓ Baixar JPG</button>
         <button class="btn btn-ghost"  onclick="window.print()">🖨 PDF</button>
+        <button class="btn btn-purple" onclick="enviarAoPaiol()">🏹 Enviar ao Paiol</button>
       </div>
     </div>
     <div class="ia-box">
@@ -426,6 +428,17 @@ function enviarExpedicao(){
   localStorage.setItem('okapista_perfil', 'polimata');
   alert('✔ Capa enviada à Expedição Editorial!');
   window.location.href='expedicao_editorial.html';
+}
+
+function enviarAoPaiol(){
+  const titulo=$('titulo').value||'Obra sem título';
+  const autor=$('autor').value||'';
+  const pags=parseInt($('paginasPolimata').value)||null;
+  const epubPronto=localStorage.getItem('lapidar_epub_concluido')==='true';
+  localStorage.setItem('paiol_pendente_literario', JSON.stringify({
+    titulo, autor, tipo:MODOS[modoAtual]?.label||'Obra', paginas:pags, epubPronto, capaPronta:true
+  }));
+  window.location.href='index.html';
 }
 </script>
 

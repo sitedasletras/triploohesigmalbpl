@@ -2999,6 +2999,14 @@ const PLATAFORMAS_POSTAGEM = [
   { id:'draft2Digital', nome:'Draft2Digital' },
 ];
 
+function toggleEpubPronto(i) {
+  const item = estado.paiol.literario[i];
+  if (!item) return;
+  item.epubPronto = !item.epubPronto;
+  salvar();
+  renderizarPaiol();
+}
+
 function togglePostagem(i, plataformaId) {
   const item = estado.paiol.literario[i];
   if (!item) return;
@@ -3027,7 +3035,11 @@ function renderizarPaiol() {
           <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.15em;color:#f57f17;text-transform:uppercase;margin-bottom:0.3rem;">${item.autor || 'Autor a definir'}</div>
           <div style="font-family:'Cinzel',serif;font-size:0.95rem;color:var(--creme);margin-bottom:0.5rem;">${item.titulo}</div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:var(--prata);margin-bottom:0.5rem;">${item.tipo || 'Obra'} · ${item.dataEntrada || ''} · ${item.paginas ? item.paginas + ' pág' : ''}</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:${statusCor};text-transform:uppercase;margin-bottom:0.6rem;">${statusTexto}</div>
+          <label style="display:flex;align-items:center;gap:0.3rem;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.3rem;color:${item.epubPronto?'var(--verde)':'var(--prata)'};">
+            <input type="checkbox" ${item.epubPronto?'checked':''} onchange="toggleEpubPronto(${i})" style="cursor:pointer;">
+            📱 EPUB ${item.epubPronto?'pronto':'pendente'}
+          </label>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:${statusCor};text-transform:uppercase;margin-bottom:0.6rem;">🖨 FÍSICO — ${statusTexto}</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.2rem;margin-bottom:0.8rem;font-family:'Share Tech Mono',monospace;font-size:0.42rem;color:var(--prata);">
             ${PLATAFORMAS_POSTAGEM.map(p => `
               <label style="display:flex;align-items:center;gap:0.3rem;cursor:pointer;${postagens[p.id]?'color:var(--verde);':''}">
@@ -5717,8 +5729,31 @@ function salvarEstadoGeracao(estado) { localStorage.setItem('geracao_pausada', J
 function limparEstadoGeracao() { localStorage.removeItem('geracao_pausada'); }
 function carregarEstadoGeracao() { const s = localStorage.getItem('geracao_pausada'); return s ? JSON.parse(s) : null; }
 
+function receberPaiolPendente() {
+  const pendenteStr = localStorage.getItem('paiol_pendente_literario');
+  if (!pendenteStr) return;
+  localStorage.removeItem('paiol_pendente_literario');
+  let pendente;
+  try { pendente = JSON.parse(pendenteStr); } catch (e) { return; }
+  if (!pendente || !pendente.titulo) return;
+  estado.paiol.literario.push({
+    titulo: pendente.titulo,
+    autor: pendente.autor || '',
+    tipo: pendente.tipo || 'Obra',
+    paginas: pendente.paginas || null,
+    epubPronto: !!pendente.epubPronto,
+    dataEntrada: new Date().toLocaleDateString('pt-BR'),
+    status: 'no-paiol',
+    postagens: {}
+  });
+  salvar();
+  notif('PAIOL', `"${pendente.titulo}" chegou do capista — diagramação e capa prontas.`, 'sucesso');
+  setTimeout(() => irAla('paiol', document.querySelector('.ala-btn[onclick*=paiol]')), 300);
+}
+
 function init() {
   carregar();
+  receberPaiolPendente();
   // Aguardar DOM completo antes de renderizar
   setTimeout(() => {
     renderizarFila();

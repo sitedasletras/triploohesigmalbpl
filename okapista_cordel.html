@@ -148,7 +148,8 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent-2);box-shadow:
       <input class="hidden-input" id="imagemInput" type="file" accept="image/*"/>
       <button class="btn btn-brown" type="button" id="btnImagem">Escolher imagem</button>
       <button class="btn btn-yellow" type="button" id="btnGerarIA" onclick="gerarImagemPollinations()">🎨 Gerar com IA</button>
-      <small>A imagem entra na arte central em preto e branco. Tenta primeiro a Stability (paga, servidor) e cai automaticamente para o Pollinations.AI (grátis) se não estiver configurada ou falhar.</small>
+      <button class="btn btn-brown" type="button" onclick="window.open('barracao_polimento_imagens.html','_blank')">🧰 Polir Imagem no Barracão</button>
+      <small>A imagem entra na arte central em preto e branco. Tenta primeiro a Stability (paga, servidor) e cai automaticamente para o Pollinations.AI (grátis) se não estiver configurada ou falhar. Se quiser ajustar brilho/contraste/preto-e-branco antes, use o Barracão de Polimento de Imagens (abre em nova aba) e depois escolha o arquivo polido aqui.</small>
     </div>
     <div class="field"><label for="plataformaPub">Plataforma de publicação</label>
       <select class="inp" id="plataformaPub" onchange="atualizarLombadaCordel()"></select>
@@ -203,6 +204,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent-2);box-shadow:
     <button class="btn btn-brown" onclick="mostrarInfoEpubCordel()">📱 Ficha ePub (grátis)</button>
     <div id="infoEpubCordelBox" style="display:none;margin-top:8px;padding:10px 12px;border-radius:10px;background:rgba(122,90,203,.08);border:1px solid rgba(122,90,203,.25);font-size:.82rem;"></div>
     <button class="btn btn-brown" id="btnLimparImagem">Remover imagem</button>
+    <button class="btn btn-yellow" onclick="enviarAoPaiol()">🏹 Enviar ao Paiol</button>
   </div>
 </section>
 </main>
@@ -315,6 +317,17 @@ function enviarExpedicao(){
   localStorage.setItem('okapista_perfil', 'cordel');
   alert('✔ Capa enviada! Prossiga para o Qui(RON)xadá.');
   window.location.href='quironxada_v3.html';
+}
+
+function enviarAoPaiol(){
+  const titulo=document.getElementById('titulo').value||'Obra sem título';
+  const autor=document.getElementById('autor').value||'';
+  const pags=parseInt(document.getElementById('paginasCordel').value)||null;
+  const epubPronto=localStorage.getItem('lapidar_epub_concluido')==='true';
+  localStorage.setItem('paiol_pendente_literario', JSON.stringify({
+    titulo, autor, tipo:'Cordel', paginas:pags, epubPronto, capaPronta:true
+  }));
+  window.location.href='index.html';
 }
 </script>
 

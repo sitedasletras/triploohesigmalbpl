@@ -252,8 +252,10 @@ textarea.inp{min-height:70px;resize:vertical;}
   <!-- AÇÕES -->
   <button class="btn btn-ouro" onclick="gerarImagemIA()">🎨 Gerar Imagem com IA</button>
   <button class="btn btn-soft" onclick="buscarPixabay()">🔍 Buscar Imagem Pronta</button>
+  <button class="btn btn-soft" onclick="window.open('barracao_polimento_imagens.html','_blank')">🧰 Polir Imagem no Barracão</button>
   <button class="btn btn-verde" onclick="exportarCapa()">⬇ Exportar Capa</button>
   <button class="btn btn-soft" onclick="mostrarInfoEpub()">📱 Ficha ePub (grátis)</button>
+  <button class="btn btn-ouro" onclick="enviarAoPaiol()">🏹 Enviar ao Paiol</button>
   <div id="infoEpubBox" style="display:none;margin-top:8px;padding:10px 12px;border-radius:10px;background:rgba(122,90,203,.08);border:1px solid rgba(122,90,203,.25);font-size:.82rem;"></div>
   <button class="btn btn-soft" id="btn-ficha" onclick="gerarFichaTecnica()" style="display:none;">📋 Gerar Ficha Técnica</button>
 
@@ -756,6 +758,17 @@ function exportarCapa(){
   localStorage.setItem('lapidar_capa_concluida','true');
   localStorage.setItem('lapidar_resultado_capa',`Capa gerada — ${platObj?.nome} — ${fmt} — OKapista Literário`);
   $('status').textContent=`✅ Capa exportada para ${platObj?.nome}! Abra o HTML e imprima como PDF em ${dims.dpi}dpi.`;
+}
+
+function enviarAoPaiol(){
+  const titulo=$('titulo').value||'Obra sem título';
+  const autor=$('autor').value||'';
+  const pags=parseInt($('paginas').value)||null;
+  const epubPronto=localStorage.getItem('lapidar_epub_concluido')==='true';
+  localStorage.setItem('paiol_pendente_literario', JSON.stringify({
+    titulo, autor, tipo:'Obra', paginas:pags, epubPronto, capaPronta:true
+  }));
+  window.location.href='index.html';
 }
 
 // ── EVENT LISTENERS ───────────────────────────────────────

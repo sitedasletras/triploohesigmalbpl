@@ -745,6 +745,7 @@ async function exportarEpubCompleto(){
     a.href = URL.createObjectURL(blob);
     a.download = (titulo||'obra').toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.epub';
     a.click();
+    localStorage.setItem('lapidar_epub_concluido','true');
   }catch(e){
     alert('Erro ao gerar EPUB: ' + e.message);
     console.error(e);
