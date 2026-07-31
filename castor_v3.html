@@ -350,6 +350,23 @@ window.addEventListener('load',()=>{
   if(autor) $('autor').value=autor;
   onFormaChange();
   if($('texto').value) render();
+  // Diagramação automática — obra veio do Gerador de Livros pelo pipeline
+  // (linha de montagem): gera e baixa o PDF completo sozinho, sem exigir
+  // que alguém abra o formulário de dados manualmente. Usa só título/autor
+  // já conhecidos — dedicatória, ISBN etc. ficam em branco/padrão.
+  if($('texto').value && localStorage.getItem('lapidar_diagramar_automatico')==='true'){
+    localStorage.removeItem('lapidar_diagramar_automatico');
+    setTimeout(()=>{
+      if(!resultado) return;
+      try{
+        abrirModalDados();
+        exportarPDFRealCompleto();
+      }catch(e){
+        console.error('Erro na diagramação automática:', e);
+        $('status').textContent='Diagramação automática falhou: '+e.message;
+      }
+    }, 400);
+  }
 })();
 
 // ── MUDANÇA DE FORMA ──────────────────────────────────────

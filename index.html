@@ -4847,6 +4847,7 @@ function enviarLivroGeradoParaDiagramador() {
   }
   localStorage.setItem('obra_titulo', titulo);
   localStorage.setItem('obra_autor', heteronimo);
+  localStorage.setItem('lapidar_diagramar_automatico', 'true');
   notif('ENVIANDO AO DIAGRAMADOR', `Detectei ${resultado.nome} — redirecionando...`, 'sucesso');
   setTimeout(() => { window.location.href = resultado.arquivo; }, 700);
 }
