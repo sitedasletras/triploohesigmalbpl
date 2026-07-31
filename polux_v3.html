@@ -562,12 +562,22 @@ function atualizarPreviaSumario(){
   const capitulos=CeleiroJuncao.extrairCapitulosDoMiolo(resultado.paginas||[], 1);
   if(!capitulos.length){ box.style.display='none'; return; }
   lista.innerHTML=capitulos.map(c=>`
-    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:.35em">
+    <div onclick="irParaPaginaSumario(${c.pagina})" title="Ir para a página ${c.pagina}" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:.1em;padding:.2em .4em;border-radius:5px;cursor:pointer;transition:background .12s;" onmouseover="this.style.background='rgba(0,0,0,.06)'" onmouseout="this.style.background='transparent'">
       <span>${(c.titulo||'').replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]))}</span>
       <span style="border-bottom:1px dotted #ccc;flex:1;margin:0 6px;min-width:16px"></span>
       <span style="color:var(--muted);flex-shrink:0">${c.pagina}</span>
     </div>`).join('');
   box.style.display='block';
+}
+
+// Sumário clicável (estilo "índice" do Windows/CHM): clicar num item do
+// sumário leva direto pra página correspondente na prévia.
+function irParaPaginaSumario(numeroPagina){
+  if(!resultado||!resultado.paginas||!resultado.paginas[numeroPagina-1]) return;
+  pagAtual=numeroPagina;
+  renderPag();
+  const stage=document.getElementById('preview');
+  if(stage&&stage.scrollIntoView) stage.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function scheduleRender(){
