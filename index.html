@@ -2522,18 +2522,30 @@ function migrarEstado() {
   // Migração: garantir que concursos existe em estados antigos
   if (!estado.concursos) estado.concursos = [];
 }
+// Conta quantos itens reais tem um estado (obras + registros em todas as
+// filas/seções) — usado como salvaguarda pra nunca deixar uma versão da
+// nuvem incompleta (ex.: backup ainda não feito, ou falha parcial)
+// sobrescrever um estado local que tenha mais coisa dentro.
+function contarItensEstado(e) {
+  if (!e) return 0;
+  return (e.fila?.length || 0) + (e.masmorra?.length || 0) + (e.calabouco?.length || 0) +
+    (e.concursos?.length || 0) + (e.paiol?.literario?.length || 0) + (e.paiol?.musical?.length || 0) +
+    (e.estudios?.length || 0) + (e.silo?.livros?.length || 0) + (e.silo?.singles?.length || 0) +
+    (e.silo?.lps?.length || 0) + (e.silo?.clips?.length || 0);
+}
 async function carregar() {
   const s = localStorage.getItem('sigmal_hq');
   if (s) {
     estado = JSON.parse(s);
     migrarEstado();
   }
-  // Nuvem é a fonte de verdade quando existe — cobre o caso de ter
-  // trabalhado noutra máquina/navegador. Se ainda não existir nada lá
-  // (primeira vez depois desta atualização), sobe agora o que já tinha
-  // localmente, pra não ficar sem backup nenhum.
+  // Nuvem só vence se tiver tanto ou mais conteúdo que o navegador — cobre
+  // o caso de ter trabalhado noutra máquina, mas nunca deixa uma nuvem
+  // incompleta (vazia ou desatualizada) apagar dado local que tenha mais
+  // obras. Quando o local vence, sobe ele pra nuvem em vez de aceitar a
+  // versão menor de lá.
   const estadoNuvem = await carregarDaNuvem();
-  if (estadoNuvem) {
+  if (estadoNuvem && contarItensEstado(estadoNuvem) >= contarItensEstado(estado)) {
     estado = estadoNuvem;
     migrarEstado();
     localStorage.setItem('sigmal_hq', JSON.stringify(estado));
