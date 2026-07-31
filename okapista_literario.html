@@ -79,13 +79,6 @@ textarea.inp{min-height:70px;resize:vertical;}
 .plat-flag{font-size:1.4rem;display:block;margin-bottom:4px;}
 .plat-nome{font-size:.75rem;font-weight:700;color:var(--azul);}
 .plat-tipo{font-size:.62rem;color:var(--muted);}
-/* VALOR */
-.valor-ref{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.25);border-radius:12px;padding:14px;margin-top:4px;}
-.valor-ref-titulo{font-size:.65rem;color:var(--ouro);letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px;}
-.valor-linha{display:flex;justify-content:space-between;padding:3px 0;font-size:.72rem;border-bottom:1px solid rgba(201,168,76,.1);}
-.valor-nome{color:rgba(255,255,255,.5);}
-.valor-preco{color:var(--ouro);font-weight:700;}
-.valor-total{display:flex;justify-content:space-between;padding:6px 0 0;font-size:.8rem;font-weight:700;color:var(--ouro);}
 @media(max-width:900px){.app{grid-template-columns:1fr;}.panel{position:relative;max-height:none;}.plat-grid{grid-template-columns:1fr 1fr;}.img-grid{grid-template-columns:1fr 1fr;}}
 
 /* RODAPÉ DE COMANDO — padrão de cores fixo em todos os departamentos */
@@ -258,16 +251,6 @@ textarea.inp{min-height:70px;resize:vertical;}
   <button class="btn btn-ouro" onclick="enviarAoPaiol()">🏹 Enviar ao Paiol</button>
   <div id="infoEpubBox" style="display:none;margin-top:8px;padding:10px 12px;border-radius:10px;background:rgba(122,90,203,.08);border:1px solid rgba(122,90,203,.25);font-size:.82rem;"></div>
   <button class="btn btn-soft" id="btn-ficha" onclick="gerarFichaTecnica()" style="display:none;">📋 Gerar Ficha Técnica</button>
-
-  <!-- VALOR -->
-  <div class="valor-ref">
-    <div class="valor-ref-titulo">✦ Valor de Referência</div>
-    <div class="valor-linha"><span class="valor-nome">Design de Capa</span><span class="valor-preco">20 créditos</span></div>
-    <div class="valor-linha"><span class="valor-nome">Geração de Imagem IA</span><span class="valor-preco">5 créditos</span></div>
-    <div class="valor-linha"><span class="valor-nome">Exportação</span><span class="valor-preco">5 créditos</span></div>
-    <div class="valor-total"><span>Total ref.</span><span>30 créditos</span></div>
-    <div style="font-size:.6rem;color:rgba(255,255,255,.3);font-style:italic;margin-top:6px;">Permuta cultural voluntária · consolidada na Expedição Lapidar</div>
-  </div>
 </aside>
 
 <main class="main">
