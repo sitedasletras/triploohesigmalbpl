@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIGMAL HQ · Escritório</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --preto-light: #0d1825;
+  --ouro: #c9a84c;
+  --ouro-claro: #e8cc7a;
+  --ouro-escuro: #7a5f1a;
+  --creme: #f0e8d0;
+  --prata: #6a7d90;
+  --verde: #00c853;
+  --vermelho: #d32f2f;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--preto);
+  color: var(--creme);
+  font-family: 'Crimson Pro', Georgia, serif;
+  min-height: 100vh;
+  padding: 1.5rem 1rem 4rem;
+}
+.topo {
+  max-width: 900px;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+.topo h1 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  color: var(--ouro-claro);
+  letter-spacing: 0.05em;
+}
+.topo .sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  color: var(--prata);
+  text-transform: uppercase;
+  margin-top: 0.2rem;
+}
+.btn-voltar {
+  background: transparent;
+  border: 1px solid rgba(201,168,76,0.3);
+  color: var(--prata);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  border-radius: 4px;
+}
+.container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.2rem; }
+.card {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 8px;
+  padding: 1.4rem 1.6rem;
+}
+.card-titulo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.15em;
+  color: var(--ouro);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.gasto-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+.gasto-num {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--ouro-claro);
+}
+.gasto-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 0.1em;
+  color: var(--prata);
+  text-transform: uppercase;
+  margin-top: 0.3rem;
+}
+.nota {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: var(--prata);
+  line-height: 1.6;
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(201,168,76,0.08);
+}
+.lista-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.8rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(201,168,76,0.06);
+  font-size: 0.85rem;
+}
+.lista-item:last-child { border-bottom: none; }
+.li-titulo { color: var(--creme); }
+.li-origem {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.38rem;
+  letter-spacing: 0.08em;
+  color: var(--prata);
+  text-transform: uppercase;
+  margin-left: 0.5rem;
+}
+.li-custo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--ouro);
+  white-space: nowrap;
+}
+.vazio {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  color: var(--prata);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 1rem 0;
+}
+.btn-atualizar {
+  background: linear-gradient(135deg, var(--ouro-escuro), var(--ouro));
+  color: #04080f;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 0.6rem 1.1rem;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  border-radius: 4px;
+}
+.status-linha {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  color: var(--prata);
+  letter-spacing: 0.05em;
+  margin-top: 0.6rem;
+}
+</style>
+</head>
+<body>
+
+<div class="topo">
+  <div>
+    <h1>🏢 ESCRITÓRIO</h1>
+    <div class="sub">// custo estimado das gerações via Claude (Anthropic)</div>
+  </div>
+  <button class="btn-voltar" onclick="window.location.href='index.html'">← VOLTAR AO TRIPLO</button>
+</div>
+
+<div class="container">
+
+  <div class="card">
+    <div class="card-titulo">// Gasto Total Acumulado</div>
+    <div class="gasto-grid">
+      <div>
+        <div class="gasto-num" id="gasto-usd">—</div>
+        <div class="gasto-label">Dólares (USD)</div>
+      </div>
+      <div>
+        <div class="gasto-num" id="gasto-brl">—</div>
+        <div class="gasto-label">Reais (BRL)</div>
+      </div>
+    </div>
+    <div class="status-linha" id="status-cotacao">Carregando cotação e gasto acumulado...</div>
+    <button class="btn-atualizar" style="margin-top:1rem;" onclick="carregarTudo()">🔄 ATUALIZAR</button>
+    <div class="nota">
+      Valor calculado chamada a chamada, a partir dos tokens reais que a API da Anthropic devolve
+      (entrada, saída e cache), pelo preço público do Claude Sonnet — não é a fatura oficial da
+      Anthropic, é uma estimativa registrada pelo próprio sistema. A cotação de dólar é a de mercado
+      no momento, atualizada a cada hora.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-titulo">// Custo por Obra (mais caras primeiro)</div>
+    <div id="lista-obras"><div class="vazio">Carregando...</div></div>
+    <div class="nota">
+      Só obras geradas depois desta atualização do sistema têm custo registrado — obras mais
+      antigas não têm esse dado retroativo. O total acima inclui também gerações que não viraram
+      obra salva (rascunhos, análises, briefings) e por isso costuma ser um pouco maior que a soma
+      da lista abaixo.
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SENHA = 'asdrubalorei';
+
+function formatarUSD(v) {
+  return 'US$ ' + (Number(v) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+}
+function formatarBRL(v) {
+  return 'R$ ' + (Number(v) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+async function carregarTudo() {
+  document.getElementById('status-cotacao').textContent = 'Carregando cotação e gasto acumulado...';
+  const [gasto, cotacao] = await Promise.all([carregarGasto(), carregarCotacao()]);
+  renderizarGasto(gasto, cotacao);
+  renderizarObras();
+}
+
+async function carregarGasto() {
+  try {
+    const r = await fetch('/api/creditos-status', { headers: { 'x-celeiro-senha': SENHA } });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } catch (e) {
+    console.error('Falha ao carregar gasto:', e.message);
+    return null;
+  }
+}
+
+async function carregarCotacao() {
+  try {
+    const r = await fetch('/api/cotacao');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } catch (e) {
+    console.error('Falha ao carregar cotação:', e.message);
+    return null;
+  }
+}
+
+function renderizarGasto(gasto, cotacao) {
+  const status = document.getElementById('status-cotacao');
+  if (!gasto) {
+    document.getElementById('gasto-usd').textContent = '—';
+    document.getElementById('gasto-brl').textContent = '—';
+    status.textContent = '⚠ Não foi possível carregar o gasto acumulado — verifique se CELEIRO_BACKUP_SENHA está configurada na Vercel.';
+    return;
+  }
+  const usd = gasto.gastoClaudeUSD || 0;
+  document.getElementById('gasto-usd').textContent = formatarUSD(usd);
+  if (cotacao && cotacao.usdbrl) {
+    document.getElementById('gasto-brl').textContent = formatarBRL(usd * cotacao.usdbrl);
+    status.textContent = `Cotação: US$ 1 = R$ ${cotacao.usdbrl.toFixed(2)} (atualizada em ${new Date(cotacao.atualizadoEm).toLocaleString('pt-BR')}) · Gasto atualizado em ${new Date(gasto.atualizadoEm).toLocaleString('pt-BR')}`;
+  } else {
+    document.getElementById('gasto-brl').textContent = '—';
+    status.textContent = '⚠ Não foi possível obter a cotação do dólar agora — o valor em reais fica indisponível até a próxima tentativa.';
+  }
+}
+
+function renderizarObras() {
+  const el = document.getElementById('lista-obras');
+  let estado;
+  try {
+    estado = JSON.parse(localStorage.getItem('sigmal_hq') || '{}');
+  } catch (e) {
+    el.innerHTML = '<div class="vazio">Não foi possível ler os dados locais do triplo.</div>';
+    return;
+  }
+
+  const origens = [
+    { chave: 'calabouco', rotulo: 'Calabouço' },
+    { chave: 'masmorra', rotulo: 'Masmorra' },
+    { chave: 'fila', rotulo: 'Fila OHE' },
+  ];
+
+  const itens = [];
+  origens.forEach(({ chave, rotulo }) => {
+    (estado[chave] || []).forEach(item => {
+      if (item.custoUSD) itens.push({ titulo: item.titulo || 'Sem título', origem: rotulo, custoUSD: item.custoUSD });
+    });
+  });
+
+  if (!itens.length) {
+    el.innerHTML = '<div class="vazio">Nenhuma obra com custo registrado ainda neste navegador.</div>';
+    return;
+  }
+
+  itens.sort((a, b) => b.custoUSD - a.custoUSD);
+  el.innerHTML = itens.map(it => `
+    <div class="lista-item">
+      <div class="li-titulo">${it.titulo}<span class="li-origem">${it.origem}</span></div>
+      <div class="li-custo">${formatarUSD(it.custoUSD)}</div>
+    </div>
+  `).join('');
+}
+
+carregarTudo();
+</script>
+
+</body>
+</html>

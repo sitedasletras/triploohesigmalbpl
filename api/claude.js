@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
     const dados = await resposta.json();
     if (dados?.usage) {
-      await registrarGasto(kv, 'claude', dados.usage.input_tokens, dados.usage.output_tokens);
+      dados._custoUSD = await registrarGasto(kv, 'claude', dados.usage);
     }
     return res.status(resposta.status).json(dados);
   } catch (e) {

@@ -370,6 +370,7 @@ let novoHetDados = null;
 let resolveNovoHet = null;
 let sessaoAtual = null;
 let tomVozGlobal = '';
+let custoSessaoUSD = 0;
 
 // Tokens por chamada e palavras por página A4
 const MAX_TOKENS_POR_CHAMADA = 8000; // Sonnet 4.6 suporta até 8192
@@ -777,6 +778,7 @@ async function executarGeracao() {
 // o texto) — renomeada para salvarLivroNoGithub pra não colidir com esta.
 async function gerarLivroUnico(titulo, sinopse, volume, genero, heteronimo, destinoFinal, contoBase) {
   // gerarLivroUnico recebe os parâmetros direto — sem revalidar
+  custoSessaoUSD = 0;
   const jornada = JORNADAS[jornadaSelecionada];
   const planejamento = calcularFragmentos(volume);
   const totalFragmentos = planejamento.reduce((s, a) => s + a.numFrags, 0);
@@ -1509,6 +1511,7 @@ Escreva agora. Comece imediatamente sem introdução ou comentário.`;
 // CONTO SEMENTE — 3.700 a 4.500 palavras · arco completo
 // ═══════════════════════════════════════════════════════════
 async function gerarContoSemente(titulo, sinopse) {
+  custoSessaoUSD = 0;
   const genero = document.getElementById('genero-semente').value;
   const heteronimo = document.getElementById('heteronimo').value.trim();
   const destino = document.getElementById('destino-semente').value;
@@ -1636,7 +1639,8 @@ Escreva o conto completo agora. Comece diretamente com a narrativa.`;
         destino: destino,
         data: new Date().toLocaleDateString('pt-BR'),
         tipo: 'conto_semente',
-        conteudo: livroCompleto
+        conteudo: livroCompleto,
+        custoUSD: custoSessaoUSD
       });
       localStorage.setItem('calabouco_livros', JSON.stringify(livros));
 
@@ -1650,7 +1654,8 @@ Escreva o conto completo agora. Comece diretamente com a narrativa.`;
         autor: heteronimoEscolhido,
         tipo: 'conto_semente',
         data: new Date().toLocaleDateString('pt-BR'),
-        conteudo: livroCompleto
+        conteudo: livroCompleto,
+        custoUSD: custoSessaoUSD
       });
       localStorage.setItem('sigmal_hq', JSON.stringify(sigmal));
       log('✓ Conto Semente salvo no Calabouço.');
@@ -1688,6 +1693,7 @@ function mostrarResultadoSemente(destino, palavras) {
 // GERAÇÃO DE SAGA — múltiplos volumes
 // ═══════════════════════════════════════════════════════════
 async function gerarSaga(titulo, sinopse, volumeTotal, genero, heteronimo, destino, contoBase, nVolumes) {
+  custoSessaoUSD = 0;
   const pagsPorVol = Math.round(volumeTotal / nVolumes);
   const jornada = JORNADAS[jornadaSelecionada];
   const nomesSaga = ['', 'Livro Único', 'Duologia', 'Trilogia', 'Tetralogia', 'Pentalogy'];
@@ -2041,6 +2047,7 @@ async function chamarAPI(prompt, maxTokens, tentativas = 4, delayBase = 3000, sy
         throw new Error(`Erro ${response.status}: ${err.error?.message||'API indisponível'}`);
       }
       const data = await response.json();
+      custoSessaoUSD += (data._custoUSD || 0);
       return data.content[0].text;
     } catch(e) {
       const ultimo = t === tentativas;
@@ -2303,7 +2310,7 @@ SITE DAS LETRAS EDIÇÕES LITERÁRIAS`;
   salvarLivroNoGitHub(tituloFinal, heteronimoEscolhido, livroCompleto, destino);
 
   const livros = JSON.parse(localStorage.getItem('calabouco_livros') || '[]');
-  livros.push({ id: Date.now(), titulo: tituloFinal, heteronimo: heteronimoEscolhido, jornada: jornadaSelecionada, volume: volumeVal, destino, data: new Date().toLocaleDateString('pt-BR'), novoHeteronimo: novoHet ? novoHetDados : null, conteudo: livroCompleto });
+  livros.push({ id: Date.now(), titulo: tituloFinal, heteronimo: heteronimoEscolhido, jornada: jornadaSelecionada, volume: volumeVal, destino, data: new Date().toLocaleDateString('pt-BR'), novoHeteronimo: novoHet ? novoHetDados : null, conteudo: livroCompleto, custoUSD: custoSessaoUSD });
   localStorage.setItem('calabouco_livros', JSON.stringify(livros));
 }
 

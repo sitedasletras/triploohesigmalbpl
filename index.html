@@ -1198,6 +1198,10 @@ body::before {
       <div class="ala-dot" style="background:#f57f17"></div>
       PAIOL · EXPEDIÇÃO
     </button>
+    <button class="ala-btn" onclick="window.open('escritorio_triplo.html','_blank')">
+      <div class="ala-dot" style="background:#8d6e63"></div>
+      🏢 ESCRITÓRIO
+    </button>
   </div>
 
   <!-- CONTEÚDO -->
@@ -3540,6 +3544,7 @@ async function processarComFernandoPecanha(i) {
     renderizarFila();
     if (!response.ok) throw new Error(`Erro ${response.status}`);
     const data = await response.json();
+    item.custoUSD = (item.custoUSD || 0) + (data._custoUSD || 0);
     const texto = data.content[0].text;
     const matchHet = texto.match(/---HETERÔNIMO ESCOLHIDO---\s*([\s\S]*?)---/);
     item.status = 'processado';
@@ -3618,6 +3623,7 @@ function renderizarMasmorra() {
       <div class="masmorra-card">
         <div class="masmorra-autor">${item.autor || 'Autor a definir'}</div>
         <div class="masmorra-titulo">${item.titulo}</div>
+        ${item.custoUSD ? `<div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;letter-spacing:0.08em;color:rgba(201,168,76,0.45);text-transform:uppercase;margin:0.15rem 0;">custo estimado: US$ ${item.custoUSD.toFixed(2)}</div>` : ''}
         <div class="masmorra-prog">
           <div class="masmorra-dias">
             <span>${diasPassados} dias passados</span>
@@ -3732,7 +3738,7 @@ function verConteudoMasmorra(i) {
         ${item.conteudo.replace(/</g,'&lt;').replace(/>/g,'&gt;')}
       </div>
       <div style="padding:0.8rem 1.5rem;border-top:1px solid rgba(201,168,76,0.08);font-family:'Share Tech Mono',monospace;font-size:0.42rem;color:rgba(201,168,76,0.2);text-transform:uppercase;">
-        ${item.conteudo ? Math.ceil(item.conteudo.split(' ').length / 250) + ' páginas A4 estimadas · ' + item.conteudo.split(' ').length + ' palavras · ' + item.conteudo.length.toLocaleString('pt-BR') + ' caracteres' : ''}
+        ${item.conteudo ? Math.ceil(item.conteudo.split(' ').length / 250) + ' páginas A4 estimadas · ' + item.conteudo.split(' ').length + ' palavras · ' + item.conteudo.length.toLocaleString('pt-BR') + ' caracteres' : ''}${item.custoUSD ? ' · custo estimado: US$ ' + item.custoUSD.toFixed(2) : ''}
       </div>
     </div>
   `;
@@ -3791,6 +3797,7 @@ function renderizarCalabouco() {
       <div class="cal-tipo">${item.tipo?.toUpperCase() || '—'} ${item.jornada ? `· ${GEN_JORNADAS[item.jornada]?.nome||item.jornada}` : ''}</div>
       <div class="cal-titulo">${item.titulo}</div>
       <div class="cal-autor">${item.autor || item.meta || '—'}</div>
+      ${item.custoUSD ? `<div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;letter-spacing:0.08em;color:rgba(201,168,76,0.45);text-transform:uppercase;margin-top:0.15rem;">custo estimado: US$ ${item.custoUSD.toFixed(2)}</div>` : ''}
       ${tagsHtml}
       ${persHtml}
       <div style="margin-top:0.5rem;">
@@ -4122,6 +4129,7 @@ let genUltimoItemIdx = null;
 let genUltimoItemOrigem = null;
 let arcosTextoGlobal = [];
 let genResolveAprovacao = null;
+let genCustoAcumuladoUSD = 0;
 
 const GEN_JORNADAS = {
   // ── GRUPO 1: JORNADA INDIVIDUAL ──
@@ -4468,6 +4476,7 @@ Escreva agora apenas a continuação direta.`;
     });
     if (!response.ok) return texto;
     const data = await response.json();
+    genCustoAcumuladoUSD += (data._custoUSD || 0);
     let continuacao = data.content[0].text
       .replace(/<[^>]+>/g,'').replace(/^#{1,6}\s*/gm,'')
       .replace(/^---+\s*$/gm,'').replace(/\*\*([^*]+)\*\*/g,'$1')
@@ -4611,6 +4620,7 @@ async function iniciarGeracaoLivro() {
 
   genLivroCompleto = '';
   arcosTextoGlobal = [];
+  genCustoAcumuladoUSD = 0;
   let resumoAnterior = '';
   let capituloAtual = 1;
   genIniciarCronometro(jornada.arcos.length);
@@ -4664,6 +4674,7 @@ Escreva aproximadamente ${palavrasPorArco} palavras. Comece diretamente com a na
 
       if (!response.ok) throw new Error(`Erro ${response.status}`);
       const data = await response.json();
+      genCustoAcumuladoUSD += (data._custoUSD || 0);
       const textoArco = data.content[0].text;
       arcosTextoGlobal[ai] = textoArco;
 
@@ -4710,6 +4721,7 @@ Escreva o resumo em 5-7 parágrafos densos. Não interprete nem analise — apen
         });
         if (resumoResp.ok) {
           const resumoData = await resumoResp.json();
+          genCustoAcumuladoUSD += (resumoData._custoUSD || 0);
           resumoAnterior = resumoData.content[0].text;
         }
       }
@@ -4760,7 +4772,8 @@ ${genLivroCompleto}`;
     data: new Date().toLocaleDateString('pt-BR'),
     conteudo: genLivroCompleto,
     tipo: 'livro',
-    personagens: []
+    personagens: [],
+    custoUSD: genCustoAcumuladoUSD
   };
 
   if (destino === 'calabouco') {
@@ -5071,6 +5084,7 @@ Escreva agora sem introdução ou comentário.`;
       body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 8000, messages: [{ role: 'user', content: prompt }] })
     });
     const data = await response.json();
+    genCustoAcumuladoUSD += (data._custoUSD || 0);
     let continuacao = data.content[0].text
       .replace(/<[^>]+>/g,'').replace(/^#{1,6}\s*/gm,'')
       .replace(/^---+\s*$/gm,'').replace(/\*\*([^*]+)\*\*/g,'$1')
@@ -5170,6 +5184,7 @@ Escreva agora sem introdução ou comentário.`;
       body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 16000, messages: [{ role: 'user', content: prompt }] })
     });
     const data = await response.json();
+    const custoCosturaFinal = data._custoUSD || 0;
     let continuacao = limparTextoArco(data.content[0].text);
 
     // Rede de segurança contra repetição do título mesmo após a instrução.
@@ -5190,6 +5205,7 @@ Escreva agora sem introdução ou comentário.`;
       const arr = genUltimoItemOrigem === 'calabouco' ? estado.calabouco : estado.masmorra;
       if (arr[genUltimoItemIdx]) {
         arr[genUltimoItemIdx].conteudo = genLivroCompleto;
+        arr[genUltimoItemIdx].custoUSD = (arr[genUltimoItemIdx].custoUSD || 0) + custoCosturaFinal;
         salvar();
       }
     }
@@ -5546,6 +5562,10 @@ Para "sugestoes_trecho": escolha no MÁXIMO 3 trechos — os que mais desvaloriz
     });
     if (response.ok) {
       const data = await response.json();
+      if (data._custoUSD && origem && idx !== undefined && idx !== null && estado[origem]?.[idx]) {
+        estado[origem][idx].custoUSD = (estado[origem][idx].custoUSD || 0) + data._custoUSD;
+        salvar();
+      }
       const textoResp = data.content[0].text.trim();
       analiseIA = JSON.parse(textoResp);
     } else {
