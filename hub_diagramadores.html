@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIGMAL HQ · Diagramadores</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --ouro: #c9a84c;
+  --ouro-claro: #e8cc7a;
+  --ouro-escuro: #7a5f1a;
+  --creme: #f0e8d0;
+  --prata: #6a7d90;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--preto);
+  color: var(--creme);
+  font-family: 'Crimson Pro', Georgia, serif;
+  min-height: 100vh;
+  padding: 1.5rem 1rem 2rem;
+}
+.topo { max-width: 1000px; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+.topo h1 { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--ouro-claro); letter-spacing: 0.05em; }
+.topo .sub { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.1em; color: var(--prata); text-transform: uppercase; margin-top: 0.2rem; }
+.btn-voltar { background: transparent; border: 1px solid rgba(201,168,76,0.3); color: var(--prata); font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.08em; padding: 0.5rem 0.9rem; cursor: pointer; text-transform: uppercase; border-radius: 4px; text-decoration: none; display: inline-block; }
+.intro { max-width: 1000px; margin: 0 auto 1.5rem; font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.9rem; color: var(--prata); line-height: 1.6; }
+.grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+.card {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 8px;
+  padding: 1.2rem 1.3rem;
+  text-decoration: none;
+  color: var(--creme);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  transition: transform .15s, border-color .15s;
+}
+.card:hover { transform: translateY(-3px); border-color: rgba(201,168,76,0.4); }
+.card .icone { font-size: 1.6rem; }
+.card h2 { font-family: 'Cinzel', serif; font-size: 1.05rem; color: var(--ouro-claro); }
+.card p { font-size: 0.85rem; line-height: 1.5; color: var(--creme); opacity: 0.85; }
+.card .quando { font-family: 'Share Tech Mono', monospace; font-size: 0.42rem; letter-spacing: 0.05em; color: var(--prata); text-transform: uppercase; margin-top: 0.3rem; line-height: 1.5; }
+.divider { max-width: 1000px; margin: 2rem auto 1rem; display: flex; align-items: center; gap: 0.8rem; }
+.divider .linha { flex: 1; height: 1px; background: rgba(201,168,76,0.15); }
+.divider span { font-family: 'Share Tech Mono', monospace; font-size: 0.42rem; letter-spacing: 0.1em; color: var(--prata); text-transform: uppercase; }
+.aviso { max-width: 1000px; margin: 0 auto; background: rgba(201,168,76,0.06); border: 1px solid rgba(201,168,76,0.2); border-radius: 6px; padding: 1rem 1.2rem; font-size: 0.82rem; line-height: 1.6; color: var(--creme); opacity: 0.9; }
+
+.sigmal-rodape-nav{max-width:1000px;margin:3rem auto 1rem;padding:0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.6rem;}
+.sigmal-cmd-btn{display:flex;align-items:center;justify-content:center;gap:0.4rem;padding:0.7rem 0.5rem;border-radius:6px;font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;text-decoration:none;text-align:center;text-transform:uppercase;transition:transform .15s;border:1px solid;}
+.sigmal-cmd-btn:hover{transform:translateY(-2px);}
+.sigmal-cmd-ouro{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.4);color:#e8cc7a;}
+.sigmal-cmd-roxo{background:rgba(106,27,154,.12);border-color:rgba(106,27,154,.4);color:#ce93d8;}
+.sigmal-cmd-verde{background:rgba(0,200,83,.1);border-color:rgba(0,200,83,.35);color:#69f0ae;}
+.sigmal-cmd-laranja{background:rgba(230,81,0,.1);border-color:rgba(230,81,0,.35);color:#ffab40;}
+.sigmal-cmd-marrom{background:rgba(121,85,72,.15);border-color:rgba(121,85,72,.4);color:#bcaaa4;}
+</style>
+</head>
+<body>
+
+<div class="topo">
+  <div>
+    <h1>🛠️ DIAGRAMADORES</h1>
+    <div class="sub">// oito diagramadores, cada um especializado numa forma de texto</div>
+  </div>
+  <a class="btn-voltar" href="index.html">← VOLTAR AO TRIPLO</a>
+</div>
+
+<p class="intro">Leia o que cada um faz e escolha o diagramador certo pra sua obra. Todos os oito estão em uso — o objetivo aqui é só ajudar a apontar pro certo mais rápido, não decidir por você.</p>
+
+<div class="grid">
+
+  <a href="polux_v3.html" class="card">
+    <div class="icone">📜</div>
+    <h2>Pólux</h2>
+    <p>Diagramador de prosa — romance, conto, crônica, flash-fiction, memórias e biografia.</p>
+    <div class="quando">Quando usar: obra majoritariamente em prosa corrida.</div>
+  </a>
+
+  <a href="castor_v3.html" class="card">
+    <div class="icone">🖋️</div>
+    <h2>Castor</h2>
+    <p>Diagramador de poesia livre — versos sem forma fixa nomeada.</p>
+    <div class="quando">Quando usar: poesia que não é soneto, cordel nem forma oriental.</div>
+  </a>
+
+  <a href="apolo_v3.html" class="card">
+    <div class="icone">🎼</div>
+    <h2>Apolo</h2>
+    <p>Diagramador de sonetos — petrarquiano, shakespeariano, monostrófico e estrambótico.</p>
+    <div class="quando">Quando usar: obra feita de sonetos (14 versos, forma fixa).</div>
+  </a>
+
+  <a href="samurai_v3.html" class="card">
+    <div class="icone">🎋</div>
+    <h2>Samurai</h2>
+    <p>Diagramador de poesia oriental — haicai, tanka, senryū e formas breves.</p>
+    <div class="quando">Quando usar: formas curtas de origem japonesa ou coreana.</div>
+  </a>
+
+  <a href="espartano_v3.html" class="card">
+    <div class="icone">🛡️</div>
+    <h2>Espartano</h2>
+    <p>Diagramador estrofista — Novo Movimento Estrofista, padrão losango de estrofes.</p>
+    <div class="quando">Quando usar: poesia estruturada no formato losango de versos.</div>
+  </a>
+
+  <a href="quironxada_v3.html" class="card">
+    <div class="icone">🎭</div>
+    <h2>Quironxadá</h2>
+    <p>Diagramador de cordel — sextilha e décima, folheto de varal ou livro de cordel.</p>
+    <div class="quando">Quando usar: literatura de cordel nordestina.</div>
+  </a>
+
+  <a href="centauro_v3.html" class="card">
+    <div class="icone">📚</div>
+    <h2>Centauro</h2>
+    <p>Diagramador híbrido — quando duas ou mais formas aparecem misturadas na mesma obra.</p>
+    <div class="quando">Quando usar: prosa e poesia juntas, ou mais de uma forma poética no mesmo texto.</div>
+  </a>
+
+  <a href="hercules_v3.html" class="card">
+    <div class="icone">🌿</div>
+    <h2>Hércules</h2>
+    <p>Diagramador técnico — infantil, infanto-juvenil, juvenil, receitas e material didático.</p>
+    <div class="quando">Quando usar: livros técnicos, didáticos ou infantojuvenis (parceiro do OKapista Polimata).</div>
+  </a>
+
+</div>
+
+<div class="divider"><div class="linha"></div><span>Depois da diagramação</span><div class="linha"></div></div>
+
+<div class="aviso">
+  📐 Depois de diagramar, a obra segue para o <strong>capista certo</strong> — veja o <a href="hub_capistas.html" style="color:var(--ouro-claro);">guia de Capistas</a> pra saber qual OKapista pareia com cada diagramador (Pólux/Castor/Apolo/Samurai/Espartano/Centauro → OKapista Literário; Quironxadá → OKapista Cordel; Hércules → OKapista Polimata) — e por fim para o Paiol, de onde a obra segue pra Expedição.
+</div>
+
+<div class="sigmal-rodape-nav">
+  <a href="index.html" class="sigmal-cmd-btn sigmal-cmd-ouro">🏠 SIGMAL HQ</a>
+  <a href="hub_diagramadores.html" class="sigmal-cmd-btn sigmal-cmd-roxo">🛠️ Diagramadores</a>
+  <a href="hub_capistas.html" class="sigmal-cmd-btn sigmal-cmd-verde">🖼️ Capistas</a>
+  <a href="gerador_livro_calabouco.html" class="sigmal-cmd-btn sigmal-cmd-ouro">📖 Gerador de Livro</a>
+  <a href="maquina_desafio.html" class="sigmal-cmd-btn sigmal-cmd-laranja">⚡ Máquina Desafio</a>
+  <a href="escritorio_triplo.html" class="sigmal-cmd-btn sigmal-cmd-marrom">🏢 Escritório</a>
+</div>
+
+</body>
+</html>

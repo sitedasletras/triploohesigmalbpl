@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIGMAL HQ · Capistas</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --ouro: #c9a84c;
+  --ouro-claro: #e8cc7a;
+  --creme: #f0e8d0;
+  --prata: #6a7d90;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--preto);
+  color: var(--creme);
+  font-family: 'Crimson Pro', Georgia, serif;
+  min-height: 100vh;
+  padding: 1.5rem 1rem 2rem;
+}
+.topo { max-width: 1000px; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+.topo h1 { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--ouro-claro); letter-spacing: 0.05em; }
+.topo .sub { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.1em; color: var(--prata); text-transform: uppercase; margin-top: 0.2rem; }
+.btn-voltar { background: transparent; border: 1px solid rgba(201,168,76,0.3); color: var(--prata); font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.08em; padding: 0.5rem 0.9rem; cursor: pointer; text-transform: uppercase; border-radius: 4px; text-decoration: none; display: inline-block; }
+.intro { max-width: 1000px; margin: 0 auto 1.5rem; font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.9rem; color: var(--prata); line-height: 1.6; }
+.grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+.card {
+  background: var(--preto-mid);
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 8px;
+  padding: 1.2rem 1.3rem;
+  text-decoration: none;
+  color: var(--creme);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  transition: transform .15s, border-color .15s;
+}
+.card:hover { transform: translateY(-3px); border-color: rgba(201,168,76,0.4); }
+.card .icone { font-size: 1.6rem; }
+.card h2 { font-family: 'Cinzel', serif; font-size: 1.05rem; color: var(--ouro-claro); }
+.card p { font-size: 0.85rem; line-height: 1.5; color: var(--creme); opacity: 0.85; }
+.card .quando { font-family: 'Share Tech Mono', monospace; font-size: 0.42rem; letter-spacing: 0.05em; color: var(--prata); text-transform: uppercase; margin-top: 0.3rem; line-height: 1.5; }
+.aviso { max-width: 1000px; margin: 1.5rem auto 0; background: rgba(201,168,76,0.06); border: 1px solid rgba(201,168,76,0.2); border-radius: 6px; padding: 1rem 1.2rem; font-size: 0.82rem; line-height: 1.6; color: var(--creme); opacity: 0.9; }
+
+.sigmal-rodape-nav{max-width:1000px;margin:3rem auto 1rem;padding:0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.6rem;}
+.sigmal-cmd-btn{display:flex;align-items:center;justify-content:center;gap:0.4rem;padding:0.7rem 0.5rem;border-radius:6px;font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;text-decoration:none;text-align:center;text-transform:uppercase;transition:transform .15s;border:1px solid;}
+.sigmal-cmd-btn:hover{transform:translateY(-2px);}
+.sigmal-cmd-ouro{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.4);color:#e8cc7a;}
+.sigmal-cmd-roxo{background:rgba(106,27,154,.12);border-color:rgba(106,27,154,.4);color:#ce93d8;}
+.sigmal-cmd-verde{background:rgba(0,200,83,.1);border-color:rgba(0,200,83,.35);color:#69f0ae;}
+.sigmal-cmd-laranja{background:rgba(230,81,0,.1);border-color:rgba(230,81,0,.35);color:#ffab40;}
+.sigmal-cmd-marrom{background:rgba(121,85,72,.15);border-color:rgba(121,85,72,.4);color:#bcaaa4;}
+</style>
+</head>
+<body>
+
+<div class="topo">
+  <div>
+    <h1>🖼️ CAPISTAS</h1>
+    <div class="sub">// escolha o fazedor de capas certo pra sua obra</div>
+  </div>
+  <a class="btn-voltar" href="index.html">← VOLTAR AO TRIPLO</a>
+</div>
+
+<p class="intro">Cada capista foi feito pra acompanhar um grupo de diagramadores. Todos os quatro estão em uso — o objetivo aqui é só ajudar a apontar pro certo mais rápido.</p>
+
+<div class="grid">
+
+  <a href="okapista_literario.html" class="card">
+    <div class="icone">🖼️</div>
+    <h2>OKapista Literário</h2>
+    <p>Capista de uso geral — capas literárias para prosa e poesia em forma fixa ou livre.</p>
+    <div class="quando">Pareia com: Pólux, Castor, Apolo, Samurai, Espartano e Centauro.</div>
+  </a>
+
+  <a href="okapista_cordel.html" class="card">
+    <div class="icone">🖼️</div>
+    <h2>OKapista Cordel</h2>
+    <p>Capista especializado em xilogravura e estética de folheto/cordel nordestino.</p>
+    <div class="quando">Pareia com: Quironxadá.</div>
+  </a>
+
+  <a href="okapista_polimata.html" class="card">
+    <div class="icone">🖼️</div>
+    <h2>OKapista Polimata</h2>
+    <p>Capista especializado em capas técnicas, didáticas e infantojuvenis.</p>
+    <div class="quando">Pareia com: Hércules.</div>
+  </a>
+
+  <a href="barracao_polimento_imagens.html" class="card">
+    <div class="icone">🧱</div>
+    <h2>Barracão de Polimento</h2>
+    <p>Motor visual local — upload, corte automático, brilho, contraste, saturação e vinheta. Sem upload externo, tudo processado no navegador.</p>
+    <div class="quando">Quando usar: retocar qualquer imagem/capa já gerada, de qualquer um dos três OKapistas acima.</div>
+  </a>
+
+</div>
+
+<div class="aviso">
+  🖼️ Depois da capa pronta, a obra segue pro <strong>Paiol</strong> — de lá pra Expedição no Celeiro Literário. Se ainda não escolheu o diagramador, veja o <a href="hub_diagramadores.html" style="color:var(--ouro-claro);">guia de Diagramadores</a>.
+</div>
+
+<div class="sigmal-rodape-nav">
+  <a href="index.html" class="sigmal-cmd-btn sigmal-cmd-ouro">🏠 SIGMAL HQ</a>
+  <a href="hub_diagramadores.html" class="sigmal-cmd-btn sigmal-cmd-roxo">🛠️ Diagramadores</a>
+  <a href="hub_capistas.html" class="sigmal-cmd-btn sigmal-cmd-verde">🖼️ Capistas</a>
+  <a href="gerador_livro_calabouco.html" class="sigmal-cmd-btn sigmal-cmd-ouro">📖 Gerador de Livro</a>
+  <a href="maquina_desafio.html" class="sigmal-cmd-btn sigmal-cmd-laranja">⚡ Máquina Desafio</a>
+  <a href="escritorio_triplo.html" class="sigmal-cmd-btn sigmal-cmd-marrom">🏢 Escritório</a>
+</div>
+
+</body>
+</html>
