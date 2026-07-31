@@ -510,8 +510,8 @@ async function exportarEpubCompleto(){
   }
   const texto = document.getElementById('texto').value.trim();
   if(!texto){ alert('Escreva ou carregue o texto da obra primeiro.'); return; }
-  const titulo = (document.getElementById('m-titulo')||document.getElementById('titulo')||{}).value || 'Obra sem título';
-  const autor = (document.getElementById('m-autor')||document.getElementById('autor')||{}).value || 'Autor';
+  const titulo = (document.getElementById('titulo')||{}).value || (document.getElementById('m-titulo')||{}).value || 'Obra sem título';
+  const autor = (document.getElementById('autor')||{}).value || (document.getElementById('m-autor')||{}).value || 'Autor';
   try{
     const blocos = window.CeleiroV3.quebrarBlocos(texto);
     const blob = await window.CeleiroMotorExportacaoFinalPdfEpub.montarEpubZip(
