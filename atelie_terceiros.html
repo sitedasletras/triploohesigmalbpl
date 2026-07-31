@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIGMAL HQ · Ateliê de Terceiros</title>
+<script src="config.js"></script>
+<script src="checklist_antiia.js"></script>
+<script src="motor_celeiro_v3.js"></script>
+<script src="motores_lapidar/motor_roteador_v1.js"></script>
+<script src="motores_lapidar/motor_upload_manuscrito_v1.js"></script>
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto: #04080f;
+  --preto-mid: #080f1a;
+  --ouro: #c9a84c;
+  --ouro-claro: #e8cc7a;
+  --creme: #f0e8d0;
+  --prata: #6a7d90;
+  --verde: #00c853;
+  --vermelho: #d32f2f;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background: var(--preto); color: var(--creme); font-family: 'Crimson Pro', Georgia, serif; min-height: 100vh; padding: 1.5rem 1rem 2rem; }
+.topo { max-width: 900px; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+.topo h1 { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--ouro-claro); letter-spacing: 0.05em; }
+.topo .sub { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.1em; color: var(--prata); text-transform: uppercase; margin-top: 0.2rem; }
+.btn-voltar { background: transparent; border: 1px solid rgba(201,168,76,0.3); color: var(--prata); font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.08em; padding: 0.5rem 0.9rem; cursor: pointer; text-transform: uppercase; border-radius: 4px; text-decoration: none; display: inline-block; }
+.intro { max-width: 900px; margin: 0 auto 1.5rem; font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.88rem; color: var(--prata); line-height: 1.6; }
+.container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.2rem; }
+.card { background: var(--preto-mid); border: 1px solid rgba(201,168,76,0.15); border-radius: 8px; padding: 1.4rem 1.6rem; }
+.card-titulo { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.15em; color: var(--ouro); text-transform: uppercase; margin-bottom: 1rem; }
+label { display: block; font-family: 'Share Tech Mono', monospace; font-size: 0.42rem; letter-spacing: 0.1em; color: var(--prata); text-transform: uppercase; margin-bottom: 0.3rem; margin-top: 0.8rem; }
+label:first-child { margin-top: 0; }
+input[type=text], textarea {
+  width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(201,168,76,0.2); border-radius: 4px;
+  color: var(--creme); font-family: 'Crimson Pro', serif; font-size: 0.9rem; padding: 0.6rem 0.7rem;
+}
+textarea { min-height: 160px; resize: vertical; line-height: 1.6; white-space: pre-wrap; }
+input[type=file] { font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; color: var(--prata); margin-top: 0.3rem; }
+.btn-acao {
+  background: linear-gradient(135deg, #7a5f1a, var(--ouro)); color: #04080f; font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem; font-weight: 700; letter-spacing: 0.1em; padding: 0.7rem 1.2rem; border: none; cursor: pointer;
+  text-transform: uppercase; border-radius: 4px; margin-top: 1rem; margin-right: 0.5rem;
+}
+.btn-sec {
+  background: transparent; border: 1px solid rgba(201,168,76,0.3); color: var(--prata); font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem; letter-spacing: 0.08em; padding: 0.65rem 1rem; cursor: pointer; text-transform: uppercase; border-radius: 4px; margin-top: 1rem; margin-right: 0.5rem;
+}
+.status-linha { font-family: 'Share Tech Mono', monospace; font-size: 0.45rem; color: var(--prata); letter-spacing: 0.05em; margin-top: 0.6rem; }
+.nota { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.78rem; color: var(--prata); line-height: 1.6; margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid rgba(201,168,76,0.08); }
+.lista-item { border-bottom: 1px solid rgba(201,168,76,0.08); padding: 0.9rem 0; }
+.lista-item:last-child { border-bottom: none; }
+.li-topo { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
+.li-titulo { font-size: 0.95rem; color: var(--creme); }
+.li-autor { font-family: 'Share Tech Mono', monospace; font-size: 0.42rem; color: var(--prata); text-transform: uppercase; margin-top: 0.15rem; }
+.li-custo { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--ouro); }
+.li-acoes { margin-top: 0.6rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.li-btn { background: rgba(201,168,76,0.06); border: 1px solid rgba(201,168,76,0.25); color: var(--prata); font-family: 'Share Tech Mono', monospace; font-size: 0.42rem; letter-spacing: 0.06em; padding: 0.4rem 0.6rem; cursor: pointer; text-transform: uppercase; border-radius: 4px; text-decoration: none; }
+.vazio { font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; color: var(--prata); text-transform: uppercase; letter-spacing: 0.08em; padding: 1rem 0; }
+
+.sigmal-rodape-nav{max-width:900px;margin:2rem auto;padding:0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.6rem;}
+.sigmal-cmd-btn{display:flex;align-items:center;justify-content:center;gap:0.4rem;padding:0.7rem 0.5rem;border-radius:6px;font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;text-decoration:none;text-align:center;text-transform:uppercase;transition:transform .15s;border:1px solid;}
+.sigmal-cmd-btn:hover{transform:translateY(-2px);}
+.sigmal-cmd-ouro{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.4);color:#e8cc7a;}
+.sigmal-cmd-roxo{background:rgba(106,27,154,.12);border-color:rgba(106,27,154,.4);color:#ce93d8;}
+.sigmal-cmd-verde{background:rgba(0,200,83,.1);border-color:rgba(0,200,83,.35);color:#69f0ae;}
+.sigmal-cmd-laranja{background:rgba(230,81,0,.1);border-color:rgba(230,81,0,.35);color:#ffab40;}
+.sigmal-cmd-marrom{background:rgba(121,85,72,.15);border-color:rgba(121,85,72,.4);color:#bcaaa4;}
+.sigmal-cmd-rosa{background:rgba(216,27,96,.1);border-color:rgba(216,27,96,.35);color:#f48fb1;}
+</style>
+</head>
+<body>
+
+<div class="topo">
+  <div>
+    <h1>🖋️ ATELIÊ DE TERCEIROS</h1>
+    <div class="sub">// serviço editorial pago — obras de autores de fora da OHE</div>
+  </div>
+  <a class="btn-voltar" href="index.html">← VOLTAR AO TRIPLO</a>
+</div>
+
+<p class="intro">
+  Área separada do acervo da OHE — pra quando um autor real (cliente pagante, não um heterônimo da casa)
+  traz o próprio material bruto (anotações, ideias soltas, rascunho) e você organiza, diagrama e faz a capa
+  usando as mesmas ferramentas do triplo. A obra fica com o nome real do autor, guardada à parte do Calabouço/Masmorra.
+</p>
+
+<div class="container">
+
+  <div class="card">
+    <div class="card-titulo">// Novo Material</div>
+
+    <label>Nome do autor (real, não heterônimo)</label>
+    <input type="text" id="at-autor" placeholder="Ex: Maria da Silva">
+
+    <label>Título da obra (se já tiver)</label>
+    <input type="text" id="at-titulo" placeholder="Pode deixar em branco e definir depois">
+
+    <label>Enviar arquivo (.txt, .doc ou .docx) — opcional</label>
+    <input type="file" id="at-upload" accept=".txt,.doc,.docx">
+    <div class="status-linha" id="at-status-upload"></div>
+
+    <label>Ou cole o material bruto aqui (anotações, ideias, rascunho do autor)</label>
+    <textarea id="at-material" placeholder="Cole aqui tudo o que o autor mandou — nem que esteja bagunçado. A IA vai organizar sem inventar conteúdo novo."></textarea>
+
+    <button class="btn-acao" onclick="organizarObra()">🗂️ ORGANIZAR OBRA</button>
+    <div class="status-linha" id="at-status"></div>
+
+    <div class="nota">
+      A organização NÃO inventa cenas, fatos ou personagens novos — só estrutura, ordena e corrige o que já
+      está no material, preservando a voz do autor. Trechos incompletos ou confusos voltam marcados como
+      "[A DEFINIR PELO AUTOR]" em vez de serem inventados.
+    </div>
+  </div>
+
+  <div class="card" id="at-resultado-wrap" style="display:none;">
+    <div class="card-titulo">// Resultado Organizado</div>
+    <textarea id="at-resultado" style="min-height:320px;"></textarea>
+    <div class="status-linha" id="at-resultado-custo"></div>
+    <button class="btn-acao" onclick="salvarNoAtelie()">💾 SALVAR NO ATELIÊ</button>
+    <button class="btn-sec" onclick="organizarObra()">🔄 REORGANIZAR</button>
+  </div>
+
+  <div class="card">
+    <div class="card-titulo">// Obras Salvas no Ateliê</div>
+    <div id="at-lista"><div class="vazio">Nenhuma obra de terceiros salva ainda.</div></div>
+  </div>
+
+</div>
+
+<div class="sigmal-rodape-nav">
+  <a href="index.html" class="sigmal-cmd-btn sigmal-cmd-ouro">🏠 SIGMAL HQ</a>
+  <a href="atelie_terceiros.html" class="sigmal-cmd-btn sigmal-cmd-rosa">🖋️ Ateliê de Terceiros</a>
+  <a href="hub_diagramadores.html" class="sigmal-cmd-btn sigmal-cmd-roxo">🛠️ Diagramadores</a>
+  <a href="hub_capistas.html" class="sigmal-cmd-btn sigmal-cmd-verde">🖼️ Capistas</a>
+  <a href="gerador_livro_calabouco.html" class="sigmal-cmd-btn sigmal-cmd-ouro">📖 Gerador de Livro</a>
+  <a href="maquina_desafio.html" class="sigmal-cmd-btn sigmal-cmd-laranja">⚡ Máquina Desafio</a>
+  <a href="escritorio_triplo.html" class="sigmal-cmd-btn sigmal-cmd-marrom">🏢 Escritório</a>
+</div>
+
+<script>
+let organizadoAtual = '';
+let custoOrganizarUSD = 0;
+let materialBrutoAtual = '';
+
+// Reaproveita o widget de upload já usado pelos diagramadores (.txt/.docx/.doc)
+if (typeof CeleiroUploadManuscrito !== 'undefined') {
+  CeleiroUploadManuscrito.montar({
+    inputId: 'at-upload',
+    textareaId: 'at-material',
+    statusId: 'at-status-upload'
+  });
+}
+
+async function organizarObra() {
+  const autor = document.getElementById('at-autor').value.trim();
+  const titulo = document.getElementById('at-titulo').value.trim();
+  const material = document.getElementById('at-material').value.trim();
+  const status = document.getElementById('at-status');
+
+  if (!autor) { status.textContent = '⚠ Informe o nome do autor.'; return; }
+  if (!material || material.length < 50) { status.textContent = '⚠ Cole ou envie o material bruto (pelo menos algumas linhas).'; return; }
+
+  materialBrutoAtual = material;
+  status.textContent = '⏳ Organizando material...';
+
+  const blocoAntiIA = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
+  const prompt = `Você é um editor literário profissional contratado para ORGANIZAR o material bruto de um autor — não para escrever uma obra nova.
+
+AUTOR: ${autor}
+TÍTULO (se informado pelo autor): ${titulo || 'não informado — sugira um ao final, mas não force um se não for óbvio'}
+
+MATERIAL BRUTO (anotações, fragmentos, ideias soltas do autor):
+${material}
+
+SUA MISSÃO — ORGANIZAÇÃO, NÃO CRIAÇÃO:
+1. Leia todo o material e identifique a estrutura que já existe nele — ordem cronológica, temática ou narrativa que o próprio autor já sugeriu, mesmo que de forma implícita ou bagunçada.
+2. Organize o material nessa estrutura: parágrafos, capítulos ou seções, o que fizer mais sentido pro tipo de texto (prosa, poesia, ensaio, etc.).
+3. Corrija apenas problemas técnicos óbvios: pontuação, concordância, repetição involuntária de palavra, frases incompletas que têm um sentido óbvio a completar.
+4. PROIBIDO ABSOLUTO: inventar cenas, personagens, diálogos, fatos, reviravoltas ou qualquer conteúdo que não esteja implícito ou explícito no material original.
+5. Se uma parte do material estiver incompleta, contraditória ou confusa demais pra organizar com segurança, marque no texto como "[A DEFINIR PELO AUTOR: descreva objetivamente o que falta ou o que está confuso]" em vez de inventar o que poderia vir ali.
+6. Preserve a voz, o vocabulário, o tom e o estilo do PRÓPRIO autor — não substitua pela sua própria voz literária, não "floreie" o texto além do que ele já é.
+7. Se o material já é praticamente uma obra pronta, apenas formate e organize — não reescreva o que já está bom.${blocoAntiIA}
+
+Devolva só o texto organizado, pronto pra virar manuscrito, sem nenhum comentário seu antes ou depois.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 8000, messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!response.ok) throw new Error('Erro ' + response.status);
+    const data = await response.json();
+    custoOrganizarUSD += (data._custoUSD || 0);
+    organizadoAtual = data.content[0].text.trim();
+    document.getElementById('at-resultado').value = organizadoAtual;
+    document.getElementById('at-resultado-wrap').style.display = 'block';
+    document.getElementById('at-resultado-custo').textContent = 'Custo acumulado nesta organização: US$ ' + custoOrganizarUSD.toFixed(3);
+    status.textContent = '✓ Organizado. Revise o resultado abaixo antes de salvar — pode editar direto no campo.';
+    document.getElementById('at-resultado-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    status.textContent = '✗ Erro ao organizar: ' + e.message;
+  }
+}
+
+function slugificar(txt) {
+  return (txt || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+async function salvarTerceiroNoGitHub(item) {
+  try {
+    const autorSlug = slugificar(item.autorReal || 'autor');
+    const tituloSlug = slugificar(item.titulo || 'sem-titulo').substring(0, 60);
+    const data = new Date().toISOString().split('T')[0];
+    const pasta = `terceiros/${autorSlug}`;
+    const nomeArquivo = `${pasta}/${data}-${tituloSlug}.md`;
+    const conteudoTexto = `# ${item.titulo}\n\n**Autor:** ${item.autorReal}\n**Data:** ${item.dataEntrada}\n**Origem:** Ateliê de Terceiros (serviço editorial pago)\n\n---\n\n${item.conteudoOrganizado}`;
+
+    let sha = null;
+    try {
+      const check = await fetch(`/api/github-contents?repo=triploohesigmalbpl&path=${encodeURIComponent(nomeArquivo)}`);
+      if (check.ok) { const ex = await check.json(); sha = ex.sha; }
+    } catch (e) {}
+
+    const body = { repo: 'triploohesigmalbpl', path: nomeArquivo, content: conteudoTexto, message: `[TERCEIROS] ${item.autorReal} — ${item.titulo}` };
+    if (sha) body.sha = sha;
+
+    const resp = await fetch('/api/github-contents', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!resp.ok) console.warn('Obra de terceiro não salva no GitHub.');
+  } catch (e) {
+    console.warn('Erro ao salvar obra de terceiro no GitHub:', e.message);
+  }
+}
+
+function carregarLista() {
+  try { return JSON.parse(localStorage.getItem('atelie_terceiros') || '[]'); }
+  catch (e) { return []; }
+}
+
+function salvarNoAtelie() {
+  const autor = document.getElementById('at-autor').value.trim();
+  const titulo = document.getElementById('at-titulo').value.trim() || 'Sem título';
+  const conteudo = document.getElementById('at-resultado').value.trim();
+  if (!conteudo) return;
+
+  const item = {
+    id: Date.now(),
+    autorReal: autor,
+    titulo,
+    materialBruto: materialBrutoAtual,
+    conteudoOrganizado: conteudo,
+    dataEntrada: new Date().toLocaleDateString('pt-BR'),
+    custoUSD: custoOrganizarUSD
+  };
+
+  const lista = carregarLista();
+  lista.unshift(item);
+  localStorage.setItem('atelie_terceiros', JSON.stringify(lista));
+  salvarTerceiroNoGitHub(item);
+
+  document.getElementById('at-status').textContent = '✓ Salvo no Ateliê de Terceiros.';
+  document.getElementById('at-resultado-wrap').style.display = 'none';
+  document.getElementById('at-material').value = '';
+  document.getElementById('at-titulo').value = '';
+  organizadoAtual = '';
+  custoOrganizarUSD = 0;
+  renderizarLista();
+}
+
+function enviarParaDiagramador(idx) {
+  const lista = carregarLista();
+  const item = lista[idx];
+  if (!item) return;
+  if (!window.CeleiroRoteador) { alert('Motor roteador não carregou — recarregue a página.'); return; }
+  const resultado = window.CeleiroRoteador.encaminhar(item.conteudoOrganizado);
+  if (!resultado.arquivo) { alert('Não foi possível classificar o texto pra roteamento automático. Escolha manualmente no guia de Diagramadores.'); return; }
+  localStorage.setItem('obra_titulo', item.titulo);
+  localStorage.setItem('obra_autor', item.autorReal);
+  localStorage.setItem('lapidar_diagramar_automatico', 'true');
+  document.getElementById('at-status').textContent = `Detectei ${resultado.nome} — redirecionando...`;
+  setTimeout(() => { window.location.href = resultado.arquivo; }, 600);
+}
+
+function removerDoAtelie(idx) {
+  if (!confirm('Remover esta obra do Ateliê de Terceiros? (isso não apaga a cópia já salva no GitHub, se houver)')) return;
+  const lista = carregarLista();
+  lista.splice(idx, 1);
+  localStorage.setItem('atelie_terceiros', JSON.stringify(lista));
+  renderizarLista();
+}
+
+function renderizarLista() {
+  const el = document.getElementById('at-lista');
+  const lista = carregarLista();
+  if (!lista.length) {
+    el.innerHTML = '<div class="vazio">Nenhuma obra de terceiros salva ainda.</div>';
+    return;
+  }
+  el.innerHTML = lista.map((item, i) => `
+    <div class="lista-item">
+      <div class="li-topo">
+        <div>
+          <div class="li-titulo">${item.titulo}</div>
+          <div class="li-autor">${item.autorReal} · ${item.dataEntrada}</div>
+        </div>
+        <div class="li-custo">${item.custoUSD ? 'US$ ' + item.custoUSD.toFixed(3) : ''}</div>
+      </div>
+      <div class="li-acoes">
+        <button class="li-btn" onclick="enviarParaDiagramador(${i})">🛠️ Enviar (auto) pro Diagramador</button>
+        <a class="li-btn" href="hub_diagramadores.html">🛠️ Escolher Diagramador manualmente</a>
+        <a class="li-btn" href="hub_capistas.html">🖼️ Ir pros Capistas</a>
+        <button class="li-btn" onclick="removerDoAtelie(${i})" style="color:var(--vermelho);border-color:rgba(211,47,47,0.3);">✕ Remover</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+renderizarLista();
+</script>
+
+</body>
+</html>
