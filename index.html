@@ -2471,19 +2471,74 @@ let estado = {
   estudioAtivo: null
 };
 
+// ===================== BACKUP NA NUVEM (Vercel KV) =====================
+// Antes disso, o Calabouço/Masmorra/Paiol só existiam no localStorage do
+// navegador — sumiam se limpasse os dados ou trocasse de máquina. Agora
+// cada salvar() também manda uma cópia pro Vercel KV (debounced, pra não
+// disparar uma chamada de rede a cada clique), e o carregar() do início
+// tenta puxar a versão da nuvem antes de cair pro localStorage.
+let _salvarNuvemTimer = null;
+function agendarSalvarNaNuvem() {
+  clearTimeout(_salvarNuvemTimer);
+  _salvarNuvemTimer = setTimeout(salvarNaNuvem, 1500);
+}
+async function salvarNaNuvem() {
+  try {
+    const resp = await fetch('/api/estado', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-celeiro-senha': SENHA },
+      body: JSON.stringify(estado),
+    });
+    if (!resp.ok) {
+      const dados = await resp.json().catch(() => ({}));
+      console.error('Falha ao salvar backup na nuvem:', dados.erro || resp.status);
+      notif('BACKUP NA NUVEM FALHOU', dados.erro || `Erro ${resp.status} — o trabalho continua salvo neste navegador.`, 'erro');
+    }
+  } catch (e) {
+    console.error('Falha ao salvar backup na nuvem:', e.message);
+  }
+}
+async function carregarDaNuvem() {
+  try {
+    const resp = await fetch('/api/estado', { headers: { 'x-celeiro-senha': SENHA } });
+    if (!resp.ok) return null;
+    const dados = await resp.json();
+    return dados.estado || null;
+  } catch (e) {
+    console.error('Falha ao carregar backup da nuvem:', e.message);
+    return null;
+  }
+}
+
 function salvar() {
   localStorage.setItem('sigmal_hq', JSON.stringify(estado));
+  agendarSalvarNaNuvem();
 }
-function carregar() {
+function migrarEstado() {
+  // Migração: garantir que paiol existe em estados antigos
+  if (!estado.paiol) estado.paiol = { literario: [], musical: [] };
+  if (!estado.paiol.literario) estado.paiol.literario = [];
+  if (!estado.paiol.musical) estado.paiol.musical = [];
+  // Migração: garantir que concursos existe em estados antigos
+  if (!estado.concursos) estado.concursos = [];
+}
+async function carregar() {
   const s = localStorage.getItem('sigmal_hq');
   if (s) {
     estado = JSON.parse(s);
-    // Migração: garantir que paiol existe em estados antigos
-    if (!estado.paiol) estado.paiol = { literario: [], musical: [] };
-    if (!estado.paiol.literario) estado.paiol.literario = [];
-    if (!estado.paiol.musical) estado.paiol.musical = [];
-    // Migração: garantir que concursos existe em estados antigos
-    if (!estado.concursos) estado.concursos = [];
+    migrarEstado();
+  }
+  // Nuvem é a fonte de verdade quando existe — cobre o caso de ter
+  // trabalhado noutra máquina/navegador. Se ainda não existir nada lá
+  // (primeira vez depois desta atualização), sobe agora o que já tinha
+  // localmente, pra não ficar sem backup nenhum.
+  const estadoNuvem = await carregarDaNuvem();
+  if (estadoNuvem) {
+    estado = estadoNuvem;
+    migrarEstado();
+    localStorage.setItem('sigmal_hq', JSON.stringify(estado));
+  } else if (s) {
+    salvarNaNuvem();
   }
 }
 
@@ -5752,8 +5807,8 @@ function receberPaiolPendente() {
   setTimeout(() => irAla('paiol', document.querySelector('.ala-btn[onclick*=paiol]')), 300);
 }
 
-function init() {
-  carregar();
+async function init() {
+  await carregar();
   receberPaiolPendente();
   // Aguardar DOM completo antes de renderizar
   setTimeout(() => {
