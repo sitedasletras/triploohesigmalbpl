@@ -848,7 +848,7 @@ Responda EXATAMENTE neste formato:
       .replace(/\*\*/g, '').replace(/\*/g, '').trim();
     const corpo  = linhas.slice(1).join('\n').trim();
 
-    _semente = { het, eixo, apres, titulo, corpo, epoca: _epoca, universo, modo: _modoAtual, forma: _formaPoesia, protagonista: nomeProtagonista, antagonista: nomeAntagonista, direcao: obs };
+    _semente = { het, eixo, apres, titulo, corpo, epoca: _epoca, universo, modo: _modoAtual, forma: _formaPoesia, protagonista: nomeProtagonista, antagonista: nomeAntagonista, direcao: obs, custoUSD: data._custoUSD || 0 };
 
     // Preencher resultado
     document.getElementById('res-het-nome').textContent = het;
@@ -1052,7 +1052,8 @@ function enviarDestino(dest) {
     modo: _semente.modo,
     forma: _semente.forma !== 'pecanha_decide' ? _semente.forma : null,
     dataProcessamento: new Date().toLocaleDateString('pt-BR'),
-    origem: 'Máquina Desafio · ' + _semente.epoca + ' · ' + _semente.universo
+    origem: 'Máquina Desafio · ' + _semente.epoca + ' · ' + _semente.universo,
+    custoUSD: _semente.custoUSD || 0
   };
 
   if (dest === 'calabouco') {
