@@ -390,6 +390,51 @@ function classificarObra(blocos){
 // ═══════════════════════════════════════════════════════════
 // 8. PAGINAÇÃO
 // ═══════════════════════════════════════════════════════════
+
+// Estimativa por fórmula (caracteres por linha) — usada só como
+// contingência fora do navegador (sem `document`, medição real é
+// impossível). Dentro do app, quem decide altura é medirAlturaReal().
+function estimarAlturaFormula(bloco, cfg, fmt){
+  const largUtil=fmt.w-(cfg.mI||57)-(cfg.mE||43);
+  const fs=cfg.tamanhoFonte||12;
+  const lh=cfg.entrelinha||1.52;
+  const fsPx=fs*1.333;
+  const cpl=Math.max(20,Math.floor(largUtil/(fsPx*0.52)));
+  let linhas=0;
+  bloco.conteudo.split('\n').forEach(l=>{
+    linhas+=Math.max(1,Math.ceil(Math.max(1,l.trim().length)/cpl));
+  });
+  const extra=bloco.tipo==='capitulo'?60:bloco.tipo==='subtitulo'?30:16;
+  return Math.ceil(linhas*fsPx*lh+extra);
+}
+
+// Medidor real: um <div> fora da tela, com exatamente a mesma largura/
+// fonte/entrelinha/hifenização da área de conteúdo da página, onde
+// renderizamos o HTML de cada bloco pra ler a altura de verdade
+// (scrollHeight) — a mesma técnica que o navegador vai usar quando a
+// página for exibida. Isso substitui a estimativa por fórmula, que não
+// tinha como saber quebra de linha, hifenização ou largura real do texto.
+let _medidor=null;
+function _obterMedidor(){
+  if(_medidor) return _medidor;
+  if(typeof document==='undefined') return null;
+  _medidor=document.createElement('div');
+  _medidor.style.cssText='position:absolute;visibility:hidden;pointer-events:none;left:-99999px;top:0;';
+  document.body.appendChild(_medidor);
+  return _medidor;
+}
+
+function _configurarMedidor(medidor, cfg, largUtil){
+  medidor.style.width=largUtil+'px';
+  medidor.style.fontFamily=cfg.fonte||"Georgia,'Times New Roman',serif";
+  medidor.style.fontSize=(cfg.tamanhoFonte||12)+'pt';
+  medidor.style.lineHeight=String(cfg.entrelinha||1.52);
+  medidor.style.hyphens=cfg.hifenizacao?'auto':'manual';
+  medidor.style.webkitHyphens=medidor.style.hyphens;
+  medidor.style.wordBreak='break-word';
+  medidor.lang='pt-BR';
+}
+
 function estimarAltura(bloco, cfg, fmt){
   const largUtil=fmt.w-(cfg.mI||57)-(cfg.mE||43);
   if(bloco.tipo==='imagem'){
@@ -402,17 +447,47 @@ function estimarAltura(bloco, cfg, fmt){
     // ela ocupa a página inteira disponível em vez de vazar pra próxima.
     return Math.ceil(Math.min(altTotal,altUtilPagina));
   }
-  const fs=cfg.tamanhoFonte||12;
-  const lh=cfg.entrelinha||1.52;
-  // px por pt: 1pt ≈ 1.333px
-  const fsPx=fs*1.333;
-  const cpl=Math.max(20,Math.floor(largUtil/(fsPx*0.52)));
-  let linhas=0;
-  bloco.conteudo.split('\n').forEach(l=>{
-    linhas+=Math.max(1,Math.ceil(Math.max(1,l.trim().length)/cpl));
+  const medidor=_obterMedidor();
+  if(!medidor) return estimarAlturaFormula(bloco,cfg,fmt);
+  _configurarMedidor(medidor,cfg,largUtil);
+  // Medição sem capitular: a letra capitular (float) só afeta um único
+  // parágrafo por página e a diferença de altura é pequena — a rede de
+  // segurança de detectarOverflowPaginas() cobre esse resíduo, medindo a
+  // página inteira já renderizada com o capitular real aplicado.
+  medidor.innerHTML=renderizarBloco(bloco,cfg,false);
+  const altura=medidor.scrollHeight;
+  return altura||estimarAlturaFormula(bloco,cfg,fmt);
+}
+
+// Rede de segurança: depois que a paginação decide onde cada bloco vai,
+// remonta o HTML real de cada página (com capitular de verdade aplicado,
+// exatamente como renderizarPagina() vai desenhar) e mede de novo. Se a
+// altura real ultrapassar o espaço disponível, a página entra nos alertas
+// — o texto NUNCA fica cortado silenciosamente atrás do overflow:hidden;
+// se sobrar algo, o usuário é avisado exatamente em qual página.
+function detectarOverflowPaginas(paginas, cfg, fmt){
+  const medidor=_obterMedidor();
+  if(!medidor) return [];
+  const altUtil=fmt.h-(cfg.mT||52)-(cfg.mB||58);
+  const largUtil=fmt.w-(cfg.mI||57)-(cfg.mE||43);
+  _configurarMedidor(medidor,cfg,largUtil);
+  const overflow=[];
+  paginas.forEach(pag=>{
+    let capApl=false;
+    const abreCap=pag.blocos.length>0&&pag.blocos[0].tipo==='capitulo';
+    const podeCap=pag.numero===1||abreCap;
+    const html=pag.blocos.map(b=>{
+      const aplica=(!capApl&&podeCap&&b.tipo==='prosa'&&cfg.capitular&&cfg.capitular!=='none');
+      if(b.tipo==='prosa') capApl=true;
+      return renderizarBloco(b,cfg,aplica);
+    }).join('');
+    medidor.innerHTML=html;
+    // pequena tolerância de arredondamento entre medições sucessivas
+    if(medidor.scrollHeight>altUtil+2){
+      overflow.push({pagina:pag.numero,alturaReal:medidor.scrollHeight,alturaDisponivel:altUtil});
+    }
   });
-  const extra=bloco.tipo==='capitulo'?60:bloco.tipo==='subtitulo'?30:16;
-  return Math.ceil(linhas*fsPx*lh+extra);
+  return overflow;
 }
 
 function paginar(blocos, cfg, fmt){
@@ -422,11 +497,18 @@ function paginar(blocos, cfg, fmt){
 
   blocos.forEach(bloco=>{
     const alt=estimarAltura(bloco,cfg,fmt);
-    // Capítulo sempre começa em nova página
+    // Capítulo sempre começa em nova página — e, dentro do miolo, sempre
+    // em página ímpar (recto/direita), regra editorial padrão. Se a nova
+    // página cair em par (verso/esquerda), intercala uma página em branco
+    // pra empurrar o capítulo pra próxima página ímpar.
     if(bloco.tipo==='capitulo'&&pag.blocos.length>0){
       paginas.push(pag);
-      const n=paginas.length+1;
-      pag={numero:n,lado:n%2===0?'verso':'recto',blocos:[],alturaUsada:0};
+      let n=paginas.length+1;
+      if(n%2===0){
+        paginas.push({numero:n,lado:'verso',blocos:[],alturaUsada:0,pagBranca:true});
+        n=paginas.length+1;
+      }
+      pag={numero:n,lado:'recto',blocos:[],alturaUsada:0};
     }
     if(pag.blocos.length&&pag.alturaUsada+alt>altUtil){
       paginas.push(pag);
@@ -705,7 +787,7 @@ function gerarPaginaRosto(titulo, autor, subtitulo, fmt, cfg){
 // ═══════════════════════════════════════════════════════════
 // 14. ALERTAS
 // ═══════════════════════════════════════════════════════════
-function gerarAlertas(blocos, paginas, modulo){
+function gerarAlertas(blocos, paginas, modulo, cfg, fmt){
   const alertas=[];
   // Viúvas/órfãs
   paginas.flatMap(p=>p.blocos).filter(b=>b._corrigido).forEach(b=>{
@@ -730,6 +812,12 @@ function gerarAlertas(blocos, paginas, modulo){
     if(!val.valido){
       alertas.push({tipo:'cordel_paginas',msg:`${nPags} páginas — ajuste para ${val.paginasNecessarias} páginas (${val.folhas} folhas)`});
     }
+  }
+  // Overflow real — rede de segurança contra corte silencioso de texto
+  if(cfg&&fmt){
+    detectarOverflowPaginas(paginas,cfg,fmt).forEach(o=>{
+      alertas.push({tipo:'overflow',msg:`⚠ Página ${o.pagina}: texto real (${o.alturaReal}px) ultrapassa o espaço disponível (${o.alturaDisponivel}px) — reduza a fonte, aumente margens ou revise o bloco.`});
+    });
   }
   return alertas;
 }
@@ -783,7 +871,7 @@ function preparar(textoBruto, opcoes){
       corrigidos,
       composicoes:blocos.filter(b=>['haicai','estrofe','estrofe_soneto'].includes(b.tipo)).length,
     },
-    alertas:gerarAlertas(blocos,paginas,modulo),
+    alertas:gerarAlertas(blocos,paginas,modulo,cfg,fmt),
   };
 }
 
@@ -846,6 +934,7 @@ global.CeleiroV3={
   validarCordel,
   quebrarHaicai, quebrarEstrofista, quebrarSoneto,
   LOSANGO,
+  detectarOverflowPaginas,
 };
 
 })(typeof window!=='undefined'?window:global);
