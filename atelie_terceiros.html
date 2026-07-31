@@ -271,6 +271,35 @@ function salvarNoAtelie() {
   renderizarLista();
 }
 
+function custoTotalItem(item) {
+  const extras = (item.gastosExtras || []).reduce((s, g) => s + (Number(g.valorUSD) || 0), 0);
+  return (item.custoUSD || 0) + extras;
+}
+
+function adicionarGastoExtra(idx) {
+  const lista = carregarLista();
+  const item = lista[idx];
+  if (!item) return;
+  const descricao = prompt('Descrição do gasto (ex: capa via Stability, impressão de prova, frete):');
+  if (!descricao) return;
+  const valorStr = prompt('Valor em dólares (US$) — se o gasto foi em real, converta antes de digitar:');
+  const valor = parseFloat((valorStr || '').replace(',', '.'));
+  if (!Number.isFinite(valor) || valor <= 0) { alert('Valor inválido.'); return; }
+  if (!item.gastosExtras) item.gastosExtras = [];
+  item.gastosExtras.push({ descricao, valorUSD: valor, data: new Date().toLocaleDateString('pt-BR') });
+  localStorage.setItem('atelie_terceiros', JSON.stringify(lista));
+  renderizarLista();
+}
+
+function removerGastoExtra(idx, gastoIdx) {
+  const lista = carregarLista();
+  const item = lista[idx];
+  if (!item || !item.gastosExtras) return;
+  item.gastosExtras.splice(gastoIdx, 1);
+  localStorage.setItem('atelie_terceiros', JSON.stringify(lista));
+  renderizarLista();
+}
+
 function enviarParaDiagramador(idx) {
   const lista = carregarLista();
   const item = lista[idx];
@@ -300,23 +329,36 @@ function renderizarLista() {
     el.innerHTML = '<div class="vazio">Nenhuma obra de terceiros salva ainda.</div>';
     return;
   }
-  el.innerHTML = lista.map((item, i) => `
+  el.innerHTML = lista.map((item, i) => {
+    const extras = item.gastosExtras || [];
+    const extrasHtml = extras.length ? `
+      <div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px dashed rgba(201,168,76,0.12);">
+        ${extras.map((g, gi) => `
+          <div style="display:flex;justify-content:space-between;align-items:center;font-family:'Share Tech Mono',monospace;font-size:0.42rem;color:var(--prata);letter-spacing:0.04em;padding:0.15rem 0;">
+            <span>${g.descricao} · ${g.data}</span>
+            <span style="display:flex;align-items:center;gap:0.4rem;">US$ ${Number(g.valorUSD).toFixed(2)} <button onclick="removerGastoExtra(${i},${gi})" style="background:none;border:none;color:var(--vermelho);cursor:pointer;font-size:0.55rem;opacity:0.6;">✕</button></span>
+          </div>
+        `).join('')}
+      </div>` : '';
+    return `
     <div class="lista-item">
       <div class="li-topo">
         <div>
           <div class="li-titulo">${item.titulo}</div>
           <div class="li-autor">${item.autorReal} · ${item.dataEntrada}</div>
         </div>
-        <div class="li-custo">${item.custoUSD ? 'US$ ' + item.custoUSD.toFixed(3) : ''}</div>
+        <div class="li-custo">US$ ${custoTotalItem(item).toFixed(2)}${extras.length ? ' total' : ''}</div>
       </div>
+      ${extrasHtml}
       <div class="li-acoes">
         <button class="li-btn" onclick="enviarParaDiagramador(${i})">🛠️ Enviar (auto) pro Diagramador</button>
         <a class="li-btn" href="hub_diagramadores.html">🛠️ Escolher Diagramador manualmente</a>
         <a class="li-btn" href="hub_capistas.html">🖼️ Ir pros Capistas</a>
+        <button class="li-btn" onclick="adicionarGastoExtra(${i})">💵 Adicionar gasto</button>
         <button class="li-btn" onclick="removerDoAtelie(${i})" style="color:var(--vermelho);border-color:rgba(211,47,47,0.3);">✕ Remover</button>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 renderizarLista();
