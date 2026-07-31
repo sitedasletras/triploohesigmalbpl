@@ -914,7 +914,161 @@ h2 { text-align:center; font-size:1.05em; font-style:italic; font-weight:400; }
 }
 
 // ═══════════════════════════════════════════════════════════
-// 17. EXPORT GLOBAL
+// 17. EXPORTAÇÃO PDF REAL (via jsPDF, carregado pela página)
+// --------------------------------------------------------------
+// Substitui o antigo "exportar HTML e mandar imprimir pelo navegador"
+// por um PDF de verdade: texto vetorial real (selecionável/pesquisável,
+// não é imagem), numeração de página batendo com o sumário, e um
+// outline (bookmarks) com um item por capítulo — a mesma navegação que
+// o Explorer/CHM do Windows mostra num painel de índice lateral.
+//
+// jsPDF só tem 3 famílias de fonte embutidas (Helvetica, Times,
+// Courier) — a família configurada em cada diagramador (Georgia, Arial
+// etc.) é mapeada pra mais próxima. Isso significa que a métrica exata
+// de quebra de linha do PDF pode diferir um pouco da prévia em HTML
+// (fontes diferentes quebram texto em pontos ligeiramente diferentes).
+// Por isso cada página é medida ANTES de ser desenhada (sem desenhar
+// nada, só computando alturas com as APIs reais do jsPDF) e, se não
+// coubesse no espaço disponível, a fonte daquela página é encolhida em
+// passos pequenos até caber — nunca corta ou perde texto.
+// ═══════════════════════════════════════════════════════════
+function _fontePDF(cssFonte){
+  const alvo=(cssFonte||'').toLowerCase();
+  if(/courier|mono/.test(alvo)) return 'courier';
+  if(/arial|helvetica|sans/.test(alvo)) return 'helvetica';
+  return 'times';
+}
+
+// Processa um bloco pro PDF: se desenhar=true, desenha de verdade no
+// doc; sempre retorna o novo Y (fim do espaço ocupado pelo bloco) —
+// permite uma passada "seca" (só medir) antes da passada real.
+function _processarBlocoPDF(doc, bloco, cfg, x, y, larguraUtilMm, fontFamily, escala, desenhar){
+  const fs=(cfg.tamanhoFonte||12)*escala;
+  const lh=fs*(cfg.entrelinha||1.52)*0.3527; // pt → mm, já com entrelinha
+  const centro=x+larguraUtilMm/2;
+  // Remove hífens invisíveis de hifenização (­) — servem pro CSS
+  // "hyphens:auto" do HTML, mas o jsPDF desenha texto vetorial puro e
+  // mostraria cada um como um hífen literal e visível.
+  const conteudo=(bloco.conteudo||'').replace(/­/g,'');
+
+  if(bloco.tipo==='imagem'){
+    const img=parseImagem(conteudo);
+    if(img&&/^data:image\//.test(img.url)){
+      const razao=(img.largura&&img.altura)?img.altura/img.largura:0.66;
+      const altImgMm=Math.min(larguraUtilMm*razao,120);
+      if(desenhar){
+        try{ doc.addImage(img.url,x,y,larguraUtilMm,altImgMm); }catch(e){ /* imagem inválida, segue sem ela */ }
+      }
+      return y+altImgMm+lh*0.5;
+    }
+    return y;
+  }
+
+  if(bloco.tipo==='capitulo'){
+    if(desenhar){ doc.setFont(fontFamily,'bold'); doc.setFontSize(fs*1.35); doc.text(conteudo,centro,y+lh,{align:'center'}); }
+    return y+lh*2.4;
+  }
+  if(bloco.tipo==='subtitulo'){
+    if(desenhar){ doc.setFont(fontFamily,'italic'); doc.setFontSize(fs*0.95); doc.text(conteudo,centro,y+lh,{align:'center'}); }
+    return y+lh*1.8;
+  }
+  if(bloco.tipo==='poesia'||bloco.tipo==='sextilha'||bloco.tipo==='decima'||bloco.tipo==='dialogo'){
+    const alinh=bloco.tipo==='dialogo'?'left':(cfg.alinhPoesia||'center');
+    if(desenhar){ doc.setFont(fontFamily,'normal'); doc.setFontSize(fs); }
+    let yy=y;
+    conteudo.split('\n').forEach(l=>{
+      const linha=l.trim();
+      if(!linha){ yy+=lh*0.5; return; }
+      if(desenhar) doc.text(linha,alinh==='left'?x:centro,yy+lh,{align:alinh==='left'?'left':'center'});
+      yy+=lh;
+    });
+    return yy+lh*0.5;
+  }
+  if(bloco.tipo==='haicai'||bloco.tipo==='estrofe'||bloco.tipo==='estrofe_soneto'||bloco.tipo==='estrofe_livre'){
+    let yy=y;
+    if(bloco.titulo){
+      if(desenhar){ doc.setFont(fontFamily,'italic'); doc.setFontSize(fs*0.85); doc.text(bloco.titulo,centro,yy+lh,{align:'center'}); }
+      yy+=lh*1.4;
+    }
+    if(desenhar){ doc.setFont(fontFamily,'normal'); doc.setFontSize(fs); }
+    (bloco.versos||conteudo.split('\n').filter(Boolean)).forEach(v=>{
+      if(desenhar) doc.text(String(v).trim(),centro,yy+lh,{align:'center'});
+      yy+=lh*1.25;
+    });
+    return yy+lh*0.6;
+  }
+
+  // prosa (default) — texto corrido, quebra automática, justificado
+  if(desenhar) { doc.setFont(fontFamily,'normal'); doc.setFontSize(fs); }
+  const linhas=doc.splitTextToSize(conteudo.replace(/\n/g,' ').trim(),larguraUtilMm);
+  if(desenhar) doc.text(linhas,x,y+lh,{align:'justify',maxWidth:larguraUtilMm});
+  return y+lh*linhas.length+lh*(cfg.paragraphGap||0.4);
+}
+
+function _alturaPaginaPDF(doc, pag, cfg, x, larguraUtilMm, fontFamily, escala){
+  let y=0;
+  pag.blocos.forEach(b=>{ y=_processarBlocoPDF(doc,b,cfg,x,y,larguraUtilMm,fontFamily,escala,false); });
+  return y;
+}
+
+function gerarPDFReal(resultado, titulo, autor){
+  if(typeof window==='undefined'||!window.jspdf||!window.jspdf.jsPDF){
+    throw new Error('jsPDF não carregado — inclua o script jsPDF na página antes de exportar.');
+  }
+  const { jsPDF }=window.jspdf;
+  const cfg=resultado.cfg, fmt=resultado.fmt;
+  const wMm=(fmt.wCm||16)*10, hMm=(fmt.hCm||23)*10;
+  const doc=new jsPDF({unit:'mm',format:[wMm,hMm],compress:true});
+  const fontFamily=_fontePDF(cfg.fonte);
+  const mTmm=(cfg.mT||52)/37.795*10;
+  const mBmm=(cfg.mB||58)/37.795*10;
+  const mImm=(cfg.mI||57)/37.795*10;
+  const mEmm=(cfg.mE||43)/37.795*10;
+  const alturaUtilMm=hMm-mTmm-mBmm;
+
+  doc.setProperties({
+    title:titulo||'Obra sem título',
+    author:autor||'',
+    creator:'SIGMAL HQ — Dias Gramador ('+(PRESETS[resultado.modulo]?.nome||resultado.modulo)+')',
+  });
+
+  const outlineEntries=[];
+  resultado.paginas.forEach((pag,idx)=>{
+    if(idx>0) doc.addPage([wMm,hMm]);
+    const isRecto=pag.lado==='recto';
+    const margL=isRecto?mImm:mEmm;
+    const margR=isRecto?mEmm:mImm;
+    const larguraUtilMm=wMm-margL-margR;
+
+    // Passada seca: mede a altura real com as fontes do jsPDF e, se
+    // estourar o espaço disponível, encolhe a fonte em passos pequenos
+    // até caber — texto nunca sai da página nem é cortado.
+    let escala=1;
+    while(escala>0.7 && _alturaPaginaPDF(doc,pag,cfg,margL,larguraUtilMm,fontFamily,escala)>alturaUtilMm){
+      escala-=0.05;
+    }
+
+    let y=mTmm;
+    pag.blocos.forEach(bloco=>{
+      if(bloco.tipo==='capitulo') outlineEntries.push({titulo:bloco.conteudo.replace(/­/g,''),pagina:idx+1});
+      y=_processarBlocoPDF(doc,bloco,cfg,margL,y,larguraUtilMm,fontFamily,escala,true);
+    });
+
+    if(cfg.numeracao&&cfg.numeracao!=='off'){
+      doc.setFont(fontFamily,'normal'); doc.setFontSize(9);
+      const alinhNum=cfg.numeracao==='dir'?'right':isRecto?'right':'left';
+      const xNum=alinhNum==='right'?wMm-margR:margL;
+      doc.text(String(pag.numero),xNum,hMm-mBmm/2,{align:alinhNum});
+    }
+  });
+
+  outlineEntries.forEach(o=>{ doc.outline.add(null,o.titulo,{pageNumber:o.pagina}); });
+
+  return doc.output('blob');
+}
+
+// ═══════════════════════════════════════════════════════════
+// 18. EXPORT GLOBAL
 // ═══════════════════════════════════════════════════════════
 global.CeleiroV3={
   FORMATOS, MARGENS, PRESETS,
@@ -935,6 +1089,10 @@ global.CeleiroV3={
   quebrarHaicai, quebrarEstrofista, quebrarSoneto,
   LOSANGO,
   detectarOverflowPaginas,
+  gerarPDFReal,
+  fontePDF:_fontePDF,
+  processarBlocoPDF:_processarBlocoPDF,
+  alturaPaginaPDF:_alturaPaginaPDF,
 };
 
 })(typeof window!=='undefined'?window:global);

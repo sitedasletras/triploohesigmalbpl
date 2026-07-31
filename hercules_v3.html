@@ -16,6 +16,7 @@
 <script src="motores_lapidar/finais/motor_decoracao_editorial_v1.js"></script>
 <script src="diagramacao/motor/adaptador_hercules.js"></script>
 <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 :root{
@@ -267,6 +268,7 @@ label{display:block;font-size:.72rem;font-weight:700;color:#90c890;letter-spacin
   <div class="modal-btns">
     <button class="btn btn-danger" onclick="fecharModal()">✕ Cancelar</button>
     <button class="btn btn-verde" onclick="exportarLivroCompleto()">📚 Gerar Livro Completo</button>
+    <button class="btn btn-verde" onclick="exportarPDFRealCompleto()">📕 Baixar PDF Real</button>
   </div>
 </div>
 </div>
@@ -464,6 +466,40 @@ function exportarLivroCompleto(){
       localStorage.setItem('lapidar_resultado_diagramacao',`Livro Técnico — ${livro.stats.totalPaginas} páginas — Hércules`);
       $('status').textContent=`✅ ${livro.stats.totalPaginas} páginas geradas.`;
       $('sPags').textContent=livro.stats.totalPaginas;
+    }catch(e){$('status').textContent='Erro: '+e.message;console.error(e);}
+  },100);
+}
+
+// PDF real (vetorial, com numeração e sumário navegável tipo Windows/CHM),
+// cobrindo o livro inteiro — pré-textuais + miolo + pós-textuais.
+function exportarPDFRealCompleto(){
+  if(!resultado||!window.CeleiroPretextuais||!window.CeleiroJuncao||!window.jspdf){
+    alert('Motores de PDF não carregados.');return;
+  }
+  const ilustrador=$('m-ilustrador').value.trim();
+  const faixa=$('m-faixa').value.trim();
+  const dados={
+    titulo:$('m-titulo').value.trim(),subtitulo:ilustrador?`Ilustrações: ${ilustrador}`:'',
+    autor:$('m-autor').value.trim(),editora:$('m-editora').value.trim(),
+    local:$('m-local').value.trim(),ano:$('m-ano').value.trim(),
+    isbn:$('m-isbn').value.trim(),
+    notaNatureza:faixa?`Faixa etária: ${faixa}`:'',
+    dedicatoria:$('m-dedicatoria').value.trim(),
+    sobreAutor:$('m-sobre-autor').value.trim(),
+    colofao:true,entradasSumario:extrairEntradasSumario(),
+  };
+  fecharModal();
+  $('status').textContent='⏳ Gerando PDF real...';
+  setTimeout(()=>{
+    try{
+      const cfg=resultado.cfg,fmt=resultado.fmt;
+      const blob=CeleiroJuncao.gerarPDFRealCompleto(dados,resultado,cfg,fmt);
+      const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+      a.download=(dados.titulo||'hercules').toLowerCase().replace(/\s+/g,'-')+'-completo.pdf';
+      a.click();
+      localStorage.setItem('lapidar_diagramacao_concluida','true');
+      localStorage.setItem('lapidar_resultado_diagramacao',`Livro Técnico (PDF real) — Hércules`);
+      $('status').textContent='✅ PDF real gerado com sucesso.';
     }catch(e){$('status').textContent='Erro: '+e.message;console.error(e);}
   },100);
 }

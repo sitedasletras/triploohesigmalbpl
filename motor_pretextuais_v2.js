@@ -189,6 +189,43 @@ function estimarAlturaParagrafo(paragrafoTexto, fmt, cfg){
 }
 
 /**
+ * AGRUPA ITENS EM PÁGINAS POR ALTURA ESTIMADA — algoritmo genérico usado
+ * tanto por paginarTextoComTitulo() (parágrafos) quanto por gerarSumario()
+ * (entradas título+página), pra garantir que a paginação em PDF real siga
+ * exatamente a mesma lógica da prévia HTML.
+ */
+function agruparPorAltura(itens, fmt, cfg, alturaPrimeiraPaginaExtra, alturaFn){
+  const mT=cfg.mT||52, mB=cfg.mB||58;
+  const altUtil=fmt.h-mT-mB;
+  const grupos=[];
+  let atual=[], alturaUsada=0;
+  itens.forEach(item=>{
+    const primeiraPagina=grupos.length===0;
+    const budget=altUtil-(primeiraPagina?alturaPrimeiraPaginaExtra:0);
+    const alt=alturaFn(item);
+    if(atual.length&&alturaUsada+alt>budget){
+      grupos.push(atual); atual=[]; alturaUsada=0;
+    }
+    atual.push(item); alturaUsada+=alt;
+  });
+  if(atual.length) grupos.push(atual);
+  return grupos;
+}
+
+function alturaTituloSecao(cfg){
+  const fs=cfg.tamanhoFonte||12;
+  return Math.ceil(fs*1.333*1.3*2.4);
+}
+
+function agruparParagrafos(paragrafos, fmt, cfg, alturaPrimeiraPaginaExtra){
+  return agruparPorAltura(paragrafos, fmt, cfg, alturaPrimeiraPaginaExtra, p=>estimarAlturaParagrafo(p, fmt, cfg));
+}
+
+function agruparEntradasSumario(entradas, fmt, cfg){
+  return agruparPorAltura(entradas, fmt, cfg, alturaTituloSecao(cfg), e=>estimarAlturaParagrafo(e.titulo||'', fmt, cfg));
+}
+
+/**
  * PAGINA TEXTO CORRIDO COM TÍTULO — usado por prefácio, posfácio, notas,
  * referências e sobre o autor. Quebra em quantas páginas forem necessárias
  * em vez de cortar o texto silenciosamente numa única página fixa.
@@ -202,22 +239,10 @@ function paginarTextoComTitulo(titulo, texto, fmt, cfg, opts){
   const fs=cfg.tamanhoFonte||12;
   const lh=cfg.entrelinha||1.52;
   const mT=cfg.mT||52, mB=cfg.mB||58, mI=cfg.mI||57, mE=cfg.mE||43;
-  const altUtil=fmt.h-mT-mB;
-  const tituloAlt=titulo?Math.ceil(fs*1.333*1.3*2.4):0;
+  const tituloAlt=titulo?alturaTituloSecao(cfg):0;
 
   const paragrafos=texto.split(/\n\s*\n/).filter(Boolean).map(p=>p.trim());
-  const paginasParas=[];
-  let atual=[], alturaUsada=0;
-  paragrafos.forEach(p=>{
-    const primeiraPagina=paginasParas.length===0;
-    const budget=altUtil-(primeiraPagina?tituloAlt+introAltura:0);
-    const alt=estimarAlturaParagrafo(p, fmt, cfg);
-    if(atual.length&&alturaUsada+alt>budget){
-      paginasParas.push(atual); atual=[]; alturaUsada=0;
-    }
-    atual.push(p); alturaUsada+=alt;
-  });
-  if(atual.length) paginasParas.push(atual);
+  const paginasParas=agruparParagrafos(paragrafos, fmt, cfg, tituloAlt+introAltura);
   if(!paginasParas.length) return [];
 
   return paginasParas.map((paras,pageIdx)=>{
@@ -259,21 +284,8 @@ function gerarSumario(entradas, fmt, cfg){
   const ff=cfg.fonte||"Georgia,'Times New Roman',serif";
   const fs=cfg.tamanhoFonte||12;
   const mT=cfg.mT||52, mB=cfg.mB||58, mI=cfg.mI||57, mE=cfg.mE||43;
-  const altUtil=fmt.h-mT-mB;
-  const tituloAlt=Math.ceil(fs*1.333*1.3*2.4);
 
-  const paginasEntradas=[];
-  let atual=[], alturaUsada=0;
-  entradas.forEach(e=>{
-    const primeiraPagina=paginasEntradas.length===0;
-    const budget=altUtil-(primeiraPagina?tituloAlt:0);
-    const alt=estimarAlturaParagrafo(e.titulo||'', fmt, cfg);
-    if(atual.length&&alturaUsada+alt>budget){
-      paginasEntradas.push(atual); atual=[]; alturaUsada=0;
-    }
-    atual.push(e); alturaUsada+=alt;
-  });
-  if(atual.length) paginasEntradas.push(atual);
+  const paginasEntradas=agruparEntradasSumario(entradas, fmt, cfg);
   if(!paginasEntradas.length) return [];
 
   return paginasEntradas.map((grupo,pageIdx)=>{
@@ -506,6 +518,10 @@ global.CeleiroPretextuais={
   salvarDados,
   carregarDados,
   dadosPadrao,
+  estimarAlturaParagrafo,
+  agruparParagrafos,
+  agruparEntradasSumario,
+  alturaTituloSecao,
 };
 
 })(typeof window!=='undefined'?window:global);

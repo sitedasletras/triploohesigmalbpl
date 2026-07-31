@@ -409,6 +409,7 @@ label{display:block;font-size:.72rem;font-weight:700;color:#9bb8e0;letter-spacin
   <div class="modal-btns">
     <button class="btn btn-danger" onclick="fecharModal()">✕ Cancelar</button>
     <button class="btn btn-verde" onclick="exportarLivroCompleto()">📚 Gerar Livro Completo</button>
+    <button class="btn btn-verde" onclick="exportarPDFRealCompleto()">📕 Baixar PDF Real</button>
   </div>
 </div>
 </div>
@@ -758,6 +759,36 @@ function exportarLivroCompleto(){
         `Livro completo — ${livro.stats.totalPaginas} pgs (${livro.stats.paginasPreTextuais} pré + ${livro.stats.paginasMiolo} miolo + ${livro.stats.paginasPosTextuais} pós) — Pólux`);
       $('status').textContent=`✅ ${livro.stats.totalPaginas} páginas geradas · Abra o HTML no browser e imprima como PDF.`;
       $('sPags').textContent=livro.stats.totalPaginas;
+    }catch(e){
+      $('status').textContent='Erro: '+e.message;
+      console.error(e);
+    }
+  },100);
+}
+
+// PDF real (vetorial, com numeração e sumário navegável tipo Windows/CHM),
+// cobrindo o livro inteiro — pré-textuais + miolo + pós-textuais.
+function exportarPDFRealCompleto(){
+  if(!resultado){alert('Diagrame o texto primeiro.');return;}
+  if(!window.CeleiroPretextuais||!window.CeleiroJuncao||!window.jspdf){
+    alert('Motores de PDF não carregados.');return;
+  }
+  const dados=coletarDadosModal();
+  CeleiroPretextuais.salvarDados(dados);
+  const cfg=resultado.cfg, fmt=resultado.fmt;
+  $('status').textContent='⏳ Gerando PDF real...';
+  fecharModal();
+  setTimeout(()=>{
+    try{
+      const blob=CeleiroJuncao.gerarPDFRealCompleto(dados,resultado,cfg,fmt);
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      const nome=(dados.titulo||'livro').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
+      a.download=nome+'.pdf';
+      a.click();
+      localStorage.setItem('lapidar_diagramacao_concluida','true');
+      localStorage.setItem('lapidar_resultado_diagramacao', `Livro completo (PDF real) — Pólux`);
+      $('status').textContent='✅ PDF real gerado com sucesso.';
     }catch(e){
       $('status').textContent='Erro: '+e.message;
       console.error(e);
