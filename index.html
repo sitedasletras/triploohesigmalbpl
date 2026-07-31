@@ -684,6 +684,10 @@ body::before {
 .st-masmorra { border-color: rgba(211,47,47,0.4); color: #ff6b6b; }
 .st-calabouco { border-color: rgba(106,27,154,0.4); color: #ce93d8; }
 .st-pronto { border-color: rgba(21,101,192,0.4); color: #90caf9; }
+.st-concurso-critico { border-color: rgba(211,47,47,0.5); color: #ff6b6b; }
+.st-concurso-atencao { border-color: rgba(245,127,23,0.5); color: #f57f17; }
+.st-concurso-ok { border-color: rgba(0,200,83,0.4); color: var(--verde); }
+.st-concurso-enviado { border-color: rgba(21,101,192,0.4); color: #90caf9; }
 .fila-acoes { display: flex; gap: 0.4rem; }
 .fa-btn {
   font-family: 'Share Tech Mono', monospace;
@@ -1229,6 +1233,11 @@ body::before {
           <div class="dash-label">Heterônimos</div>
           <div class="dash-sub">OHE-Peçanha ativos</div>
         </div>
+        <div class="dash-card dc-corsi clicavel" onclick="irAla('ohe', document.querySelector('.ala-btn[onclick*=ohe]'))" title="Ver Concursos em Aberto">
+          <div class="dash-num" id="cnt-concursos">0</div>
+          <div class="dash-label">Concursos em Aberto</div>
+          <div class="dash-sub">editais aguardando envio</div>
+        </div>
       </div>
 
       <!-- Fluxo visual -->
@@ -1716,6 +1725,20 @@ body::before {
     <button class="btn-s" onclick="fecharPainel()">CANCELAR</button>
   </div>
 </div>
+
+      <!-- ===== CONCURSOS EM ABERTO (material de edital sai antes do Celeiro/Masmorra) ===== -->
+      <div class="sec-header" style="margin-top:2rem;">
+        <div>
+          <div class="sec-label">// OHE-PEÇANHA · ROTA DIRETA DE EDITAL</div>
+          <h2 class="sec-titulo">Concursos <em>em Aberto</em></h2>
+        </div>
+      </div>
+      <p style="font-family:'Crimson Pro',serif;font-style:italic;font-size:0.85rem;color:var(--prata);opacity:0.7;margin-bottom:1rem;line-height:1.6;">
+        Material enviado pela entrada "Edital" fica aqui, fora do Celeiro e da Masmorra, até ser enviado ou expirar.
+      </p>
+      <div id="concursos-ohe">
+        <div class="vazio"><div class="vazio-icon">📋</div><div class="vazio-txt">Nenhum concurso em aberto.<br>Use a entrada "Edital" acima para registrar um.</div></div>
+      </div>
 
       <!-- ===== FILA DE CURADORIA ===== -->
       <div class="sec-header" style="margin-top:2rem;">
@@ -2438,6 +2461,7 @@ let estado = {
   fila: [],
   masmorra: [],
   calabouco: [],
+  concursos: [],
   paiol: { literario: [], musical: [] },
   estudios: [],
   silo: { livros:[], singles:[], lps:[], clips:[] },
@@ -2455,6 +2479,8 @@ function carregar() {
     if (!estado.paiol) estado.paiol = { literario: [], musical: [] };
     if (!estado.paiol.literario) estado.paiol.literario = [];
     if (!estado.paiol.musical) estado.paiol.musical = [];
+    // Migração: garantir que concursos existe em estados antigos
+    if (!estado.concursos) estado.concursos = [];
   }
 }
 
@@ -2509,7 +2535,7 @@ function irAla(id, el) {
     setTimeout(() => {
       if (id === 'masmorra') renderizarMasmorra();
       else if (id === 'calabouco') renderizarCalabouco();
-      else if (id === 'ohe') renderizarFila();
+      else if (id === 'ohe') { renderizarFila(); renderizarConcursos(); }
       else if (id === 'paiol') renderizarPaiol();
       else if (id === 'dashboard') atualizarContadores();
       else if (id === 'gerador') carregarItemNoGerador();
@@ -2730,23 +2756,21 @@ function enviarParaFila(tipo) {
     document.getElementById('img-upload').value = '';
   }
 
-  // Editais vão para a Masmorra com quarentena
+  // Editais/concursos saem antes de entrar no Celeiro ou na Masmorra — rota própria
   if (tipo === 'edital') {
     const prazoStr = document.getElementById('ed-prazo').value;
-    const dataEntrada = new Date();
-    const dataLiberacao = new Date(dataEntrada);
-    dataLiberacao.setDate(dataLiberacao.getDate() + 750);
-    estado.masmorra.push({
-      ...item,
-      autor: 'A definir por Fernando Peçanha',
-      dataEntrada: dataEntrada.toISOString(),
-      dataLiberacao: dataLiberacao.toISOString(),
-      diasTotal: 750,
-      prazoEdital: prazoStr
+    const tipoEdital = document.getElementById('ed-tipo').value || '—';
+    estado.concursos.push({
+      id: item.id,
+      titulo,
+      tipoEdital,
+      prazo: prazoStr || null,
+      status: 'aberto',
+      dataEntrada: new Date().toISOString()
     });
-    renderizarMasmorra();
+    renderizarConcursos();
     atualizarContadores();
-    notif('ENVIADO PARA MASMORRA', `"${titulo}" entrou em quarentena de 750 dias.`, 'info');
+    notif('CONCURSO REGISTRADO', `"${titulo}" está na lista de concursos em aberto.`, 'info');
   } else {
     estado.fila.push(item);
     renderizarFila();
@@ -2782,6 +2806,66 @@ function renderizarFila() {
     </div>
   `).join('');
   atualizarContadores();
+}
+
+// ===================== CONCURSOS (rota direta de Edital) =====================
+function diasAtePrazo(prazoStr) {
+  if (!prazoStr) return null;
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const prazo = new Date(prazoStr + 'T00:00:00');
+  if (isNaN(prazo.getTime())) return null;
+  return Math.round((prazo - hoje) / 86400000);
+}
+
+function renderizarConcursos() {
+  const el = document.getElementById('concursos-ohe');
+  if (!el) { setTimeout(renderizarConcursos, 100); return; }
+  if (!estado.concursos.length) {
+    el.innerHTML = `<div class="vazio"><div class="vazio-icon">📋</div><div class="vazio-txt">Nenhum concurso em aberto.<br>Use a entrada "Edital" acima para registrar um.</div></div>`;
+    return;
+  }
+  el.innerHTML = estado.concursos.map((c, i) => {
+    const dias = diasAtePrazo(c.prazo);
+    let statusClasse = 'st-concurso-ok', statusTexto = c.prazo ? `PRAZO: ${new Date(c.prazo+'T00:00:00').toLocaleDateString('pt-BR')}` : 'SEM PRAZO DEFINIDO';
+    if (c.status === 'enviado') { statusClasse = 'st-concurso-enviado'; statusTexto = '✓ ENVIADO'; }
+    else if (dias !== null) {
+      if (dias < 0) { statusClasse = 'st-concurso-critico'; statusTexto = `EXPIRADO HÁ ${Math.abs(dias)}D`; }
+      else if (dias <= 7) { statusClasse = 'st-concurso-critico'; statusTexto = `${dias}D RESTANTES`; }
+      else if (dias <= 30) { statusClasse = 'st-concurso-atencao'; statusTexto = `${dias}D RESTANTES`; }
+      else { statusTexto = `${dias}D RESTANTES`; }
+    }
+    return `
+    <div class="fila-item">
+      <div class="fila-idx">${String(i+1).padStart(2,'0')}</div>
+      <div class="fila-info">
+        <div class="fila-titulo">${c.titulo}</div>
+        <div class="fila-meta">${c.tipoEdital} · registrado em ${new Date(c.dataEntrada).toLocaleDateString('pt-BR')}</div>
+      </div>
+      <div class="fila-status ${statusClasse}">${statusTexto}</div>
+      <div class="fila-acoes">
+        ${c.status !== 'enviado' ? `<button class="fa-btn" onclick="marcarConcursoEnviado(${i})">✓ MARCAR ENVIADO</button>` : ''}
+        <button class="fa-btn" onclick="removerConcurso(${i})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+  atualizarContadores();
+}
+
+function marcarConcursoEnviado(i) {
+  if (!estado.concursos[i]) return;
+  estado.concursos[i].status = 'enviado';
+  salvar();
+  renderizarConcursos();
+  notif('CONCURSO ENVIADO', `"${estado.concursos[i].titulo}" marcado como enviado.`, 'sucesso');
+}
+
+function removerConcurso(i) {
+  if (!estado.concursos[i]) return;
+  const titulo = estado.concursos[i].titulo;
+  estado.concursos.splice(i, 1);
+  salvar();
+  renderizarConcursos();
+  notif('CONCURSO REMOVIDO', `"${titulo}" removido da lista.`, 'info');
 }
 
 
@@ -3847,6 +3931,7 @@ function atualizarContadores() {
   document.getElementById('cnt-fila').textContent = estado.fila.length;
   document.getElementById('cnt-masmorra').textContent = estado.masmorra.length;
   document.getElementById('cnt-calabouco').textContent = estado.calabouco.length;
+  document.getElementById('cnt-concursos').textContent = estado.concursos.filter(c => c.status !== 'enviado').length;
   const totalSingles = estado.estudios.reduce((a,e) => a + e.singles.length, 0);
   document.getElementById('cnt-singles').textContent = totalSingles;
   document.getElementById('cnt-estudios').textContent = estado.estudios.length;
@@ -5574,6 +5659,7 @@ function init() {
   // Aguardar DOM completo antes de renderizar
   setTimeout(() => {
     renderizarFila();
+    renderizarConcursos();
     renderizarMasmorra();
     renderizarCalabouco();
     renderizarEstudios();
