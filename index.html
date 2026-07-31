@@ -1408,6 +1408,22 @@ body::before {
   </div>
 
   <div class="fg">
+    <label class="fl">Meta de tamanho (concursos/antologias costumam limitar)</label>
+    <select class="fs" id="maq-meta-tamanho">
+      <option value="">Sem meta — Fernando Peçanha decide o tamanho natural</option>
+      <option value="500">~500 caracteres (micro-conto / poema único)</option>
+      <option value="1000">~1.000 caracteres</option>
+      <option value="1500">~1.500 caracteres</option>
+      <option value="2000">~2.000 caracteres</option>
+      <option value="3000">~3.000 caracteres</option>
+      <option value="5000">~5.000 caracteres</option>
+      <option value="8000">~8.000 caracteres</option>
+      <option value="12000">~12.000 caracteres</option>
+      <option value="18000">~18.000 caracteres (conto/novela curta)</option>
+    </select>
+  </div>
+
+  <div class="fg">
     <label class="fl">Tema / Território central</label>
     <input type="text" class="fi" id="maq-tema" placeholder="ex: amor impossível no sertão, guerra medieval, vampiro aristocrático...">
     <div class="maq-chips">
@@ -1720,6 +1736,22 @@ body::before {
         <option value="Imediata" selected>Imediata</option>
       </select>
     </div>
+  </div>
+
+  <div class="fg">
+    <label class="fl">Meta de tamanho (concursos/antologias costumam limitar)</label>
+    <select class="fs" id="des-meta-tamanho">
+      <option value="">Sem meta — Fernando Peçanha decide o tamanho natural</option>
+      <option value="500">~500 caracteres (micro-conto / poema único)</option>
+      <option value="1000">~1.000 caracteres</option>
+      <option value="1500">~1.500 caracteres</option>
+      <option value="2000">~2.000 caracteres</option>
+      <option value="3000">~3.000 caracteres</option>
+      <option value="5000">~5.000 caracteres</option>
+      <option value="8000">~8.000 caracteres</option>
+      <option value="12000">~12.000 caracteres</option>
+      <option value="18000">~18.000 caracteres (conto/novela curta)</option>
+    </select>
   </div>
 
   <div class="form-acoes">
@@ -2755,7 +2787,7 @@ function carregarImagem(input) {
 function enviarParaFila(tipo) {
   if (estado.sistemaParado) { notif('SISTEMA PARADO', 'Retome o sistema antes de enviar.', 'erro'); return; }
 
-  let titulo = '', meta = '', destino = 'masmorra';
+  let titulo = '', meta = '', destino = 'masmorra', metaCaracteres = null;
 
   if (tipo === 'maquina') {
   titulo = document.getElementById('maq-tema').value || 'Geração automática';
@@ -2769,8 +2801,10 @@ function enviarParaFila(tipo) {
   const sens = document.getElementById('maq-sensorial').value;
   const ref = document.getElementById('maq-referencia').value;
   const instr = document.getElementById('maq-instrucoes').value;
+  metaCaracteres = parseInt(document.getElementById('maq-meta-tamanho').value) || null;
   meta = `${cat || 'Categoria a definir'} · ${het || 'Fernando Peçanha decide'}` +
     (fmto ? ` · Formato: ${fmto}` : '') +
+    (metaCaracteres ? ` · Meta: ~${metaCaracteres.toLocaleString('pt-BR')} caracteres` : '') +
     (cen ? ` · Cenário: ${cen}` : '') +
     (pers ? ` · Personagem: ${pers}` : '') +
     (conf ? ` · Conflito: ${conf}` : '') +
@@ -2799,7 +2833,11 @@ function enviarParaFila(tipo) {
     destino = 'masmorra';
   } else if (tipo === 'desafio') {
     titulo = (document.getElementById('des-ideia')?.value || '').substring(0, 80) || 'Desafio sem descrição';
-    meta = `Urgência: ${document.getElementById('des-urgencia')?.value || 'não definida'} · Modo Desafio`;
+    const desFmto = document.getElementById('des-formato')?.value || '';
+    metaCaracteres = parseInt(document.getElementById('des-meta-tamanho')?.value) || null;
+    meta = `Urgência: ${document.getElementById('des-urgencia')?.value || 'não definida'} · Modo Desafio` +
+      (desFmto ? ` · Formato: ${desFmto}` : '') +
+      (metaCaracteres ? ` · Meta: ~${metaCaracteres.toLocaleString('pt-BR')} caracteres` : '');
     destino = 'calabouco';
   }
 
@@ -2811,6 +2849,7 @@ function enviarParaFila(tipo) {
     titulo,
     meta,
     destino,
+    metaCaracteres,
     status: 'aguardando',
     data: new Date().toLocaleDateString('pt-BR'),
     progresso: 0,
@@ -3469,7 +3508,7 @@ async function processarComFernandoPecanha(i) {
   item.progresso = 10;
   renderizarFila();
   notif('FERNANDO PEÇANHA', `Iniciando curadoria de "${item.titulo}"...`, 'info');
-  const prompt = `Você é Fernando Peçanha, curador da OHE com 57 heterônimos.\n\nENTRADA: ${item.titulo}\nTIPO: ${item.tipo}\nDETALHES: ${item.meta || ''}\nDESTINO: ${item.destino}\n\nHETERÔNIMOS DISPONÍVEIS:\n${HETERONIMOS.map(h => `- ${h.nome} | ${h.eixo} | ${h.territorio} | formato: ${h.formato}`).join('\n')}\n\nREGRAS ABSOLUTAS — NUNCA VIOLE:\n\nREGRA 1 — HETERÔNIMO:\n- Se o usuário mencionou explicitamente um nome de heterônimo nos DETALHES ou na ENTRADA, use ESSE heterônimo obrigatoriamente, sem exceção.\n- Só escolha livremente se nenhum nome foi especificado.\n- NUNCA use colaborações ou vozes múltiplas. UM ÚNICO heterônimo por obra.\n- Se nenhum heterônimo disponível for adequado: crie um novo na MATERNIDADE.\n\nREGRA 2 — FORMATO:\n- Respeite rigorosamente o formato especificado (cordel, soneto, prosa, conto, etc.).\n- O template é apenas guia de estrutura — NÃO fixa quantidade de versos por estrofe a menos que o usuário especifique.\n- Se o usuário indicar número de estrofes, versos ou páginas, siga exatamente.\n\nREGRA 3 — POESIA GERAL (soneto, ode, haicai, ghazal, pantum, trova, poetrix, poesia livre, poema narrativo):\n- Todo verso termina com pontuação obrigatória (vírgula, ponto, ponto e vírgula, reticências, exclamação ou interrogação).\n- Todo verso começa com letra MAIÚSCULA.\n- Sem exceções para essas duas regras.\n\nREGRA 4 — CORDEL (quando formato = cordel):\n- Verificar nos DETALHES quantos versos por estrofe foram especificados (6, 7, 8 ou 10).\n- Se não especificado, usar 6 versos (sextilha) como padrão.\n- SEXTILHA (6 versos): rima obrigatória nas linhas 2, 4 e 6 de cada estrofe (esquema XAXAXA).\n- SÉTIMA (7 versos): rima nas linhas 2, 4, 5 e 7 (esquema XAXAABX ou variação).\n- OITAVA (8 versos): rima nas linhas 2, 4, 6 e 8 (esquema XAXAXAXA).\n- DÉCIMA (10 versos): rima nas linhas 2, 4, 6, 8 e 10 (esquema XAXAXAXAXA).\n- Métrica de 7 sílabas poéticas (setissílabo) em todos os versos.\n- Todo verso termina com pontuação. Todo verso começa com maiúscula.\n- Tom pode ser: épico, dramático, lírico, humorístico ou crítico-político.\n\nREGRA 5 — PROSA (conto, romance, crônica, flash-fiction, prosa poética):\n- Estrutura narrativa com COMEÇO, MEIO e FIM. Pode ter capítulos.\n- Usar SEMPRE a Jornada do Herói e/ou Jornada da Vilania com arcos narrativos.\n- Diálogos SEMPRE com travessão (—) e verbo dicendi identificado.\n- NUNCA usar travessão no meio de frases narrativas — use vírgula.\n- Cada parágrafo ocupa seu próprio espaço com linha em branco entre eles.\n- PROIBIDO: comentários editoriais, ganchos explicativos, análises do tipo "📌 Gancho para o próximo capítulo".\n- PROIBIDO: listas de frases curtas empilhadas sem parágrafo próprio.\n- O texto deve ser humanizado, sem qualquer rastro ou sinal de produção por IA.\n\nREGRA 6 — FORMATAÇÃO GERAL:\n- Texto em modo JUSTIFICADO.\n- Títulos de capítulos: CENTRALIZADOS, dizeres curtos.\n- Travessão (—) apenas em diálogos. NUNCA para substituir vírgula em frases narrativas.\n- Parágrafo novo = linha nova com espaço de separação.\n\nREGRA 7 — REVISÃO OBRIGATÓRIA antes de entregar:\n- Verificar travessões indevidos em frases narrativas → substituir por vírgula.\n- Verificar espaçamento correto entre parágrafos.\n- Verificar e remover todos os comentários editoriais.\n- Verificar pontuação e maiúscula em cada verso de poesia/cordel.\n- Verificar rima e métrica do cordel conforme versos especificados.\n- Verificar verbos dicendi em todos os diálogos.\n\nMISSÃO:\n1. Identifique se há heterônimo especificado (REGRA 1)\n2. Identifique o formato e aplique as regras correspondentes (REGRAS 2, 3, 4)\n3. Escreva a obra completa dentro do limite de tokens disponível\n4. Aplique a revisão obrigatória (REGRA 6)\n5. Faça breve comentário como Fernando Peçanha\n\nFORMATO DE RESPOSTA:\n---HETERÔNIMO ESCOLHIDO---\n[nome]\n\n---NOVO HETERÔNIMO (se criado)---\n[nome | eixo | territorio | formato | volumeMinimo | destino] ou "Não foi necessário criar novo heterônimo."\n\n---OBRA---\n[título]\n\n[texto]\n\n---REVISÃO DE FERNANDO PEÇANHA---\n[comentário]`;
+  const prompt = `Você é Fernando Peçanha, curador da OHE com 57 heterônimos.\n\nENTRADA: ${item.titulo}\nTIPO: ${item.tipo}\nDETALHES: ${item.meta || ''}\nDESTINO: ${item.destino}\nMETA DE TAMANHO: ${item.metaCaracteres ? `aproximadamente ${item.metaCaracteres} caracteres (com espaços)` : 'sem meta definida — use o tamanho natural do formato'}\n\nHETERÔNIMOS DISPONÍVEIS:\n${HETERONIMOS.map(h => `- ${h.nome} | ${h.eixo} | ${h.territorio} | formato: ${h.formato}`).join('\n')}\n\nREGRAS ABSOLUTAS — NUNCA VIOLE:\n\nREGRA 1 — HETERÔNIMO:\n- Se o usuário mencionou explicitamente um nome de heterônimo nos DETALHES ou na ENTRADA, use ESSE heterônimo obrigatoriamente, sem exceção.\n- Só escolha livremente se nenhum nome foi especificado.\n- NUNCA use colaborações ou vozes múltiplas. UM ÚNICO heterônimo por obra.\n- Se nenhum heterônimo disponível for adequado: crie um novo na MATERNIDADE.\n\nREGRA 2 — FORMATO:\n- Respeite rigorosamente o formato especificado (cordel, soneto, prosa, conto, etc.).\n- O template é apenas guia de estrutura — NÃO fixa quantidade de versos por estrofe a menos que o usuário especifique.\n- Se o usuário indicar número de estrofes, versos ou páginas, siga exatamente.\n\nREGRA 3 — POESIA GERAL (soneto, ode, haicai, ghazal, pantum, trova, poetrix, poesia livre, poema narrativo):\n- Todo verso termina com pontuação obrigatória (vírgula, ponto, ponto e vírgula, reticências, exclamação ou interrogação).\n- Todo verso começa com letra MAIÚSCULA.\n- Sem exceções para essas duas regras.\n\nREGRA 4 — CORDEL (quando formato = cordel):\n- Verificar nos DETALHES quantos versos por estrofe foram especificados (6, 7, 8 ou 10).\n- Se não especificado, usar 6 versos (sextilha) como padrão.\n- SEXTILHA (6 versos): rima obrigatória nas linhas 2, 4 e 6 de cada estrofe (esquema XAXAXA).\n- SÉTIMA (7 versos): rima nas linhas 2, 4, 5 e 7 (esquema XAXAABX ou variação).\n- OITAVA (8 versos): rima nas linhas 2, 4, 6 e 8 (esquema XAXAXAXA).\n- DÉCIMA (10 versos): rima nas linhas 2, 4, 6, 8 e 10 (esquema XAXAXAXAXA).\n- Métrica de 7 sílabas poéticas (setissílabo) em todos os versos.\n- Todo verso termina com pontuação. Todo verso começa com maiúscula.\n- Tom pode ser: épico, dramático, lírico, humorístico ou crítico-político.\n\nREGRA 5 — PROSA (conto, romance, crônica, flash-fiction, prosa poética):\n- Estrutura narrativa com COMEÇO, MEIO e FIM. Pode ter capítulos.\n- Usar SEMPRE a Jornada do Herói e/ou Jornada da Vilania com arcos narrativos.\n- Diálogos SEMPRE com travessão (—) e verbo dicendi identificado.\n- NUNCA usar travessão no meio de frases narrativas — use vírgula.\n- Cada parágrafo ocupa seu próprio espaço com linha em branco entre eles.\n- PROIBIDO: comentários editoriais, ganchos explicativos, análises do tipo "📌 Gancho para o próximo capítulo".\n- PROIBIDO: listas de frases curtas empilhadas sem parágrafo próprio.\n- O texto deve ser humanizado, sem qualquer rastro ou sinal de produção por IA.\n\nREGRA 6 — FORMATAÇÃO GERAL:\n- Texto em modo JUSTIFICADO.\n- Títulos de capítulos: CENTRALIZADOS, dizeres curtos.\n- Travessão (—) apenas em diálogos. NUNCA para substituir vírgula em frases narrativas.\n- Parágrafo novo = linha nova com espaço de separação.\n\nREGRA 7 — REVISÃO OBRIGATÓRIA antes de entregar:\n- Verificar travessões indevidos em frases narrativas → substituir por vírgula.\n- Verificar espaçamento correto entre parágrafos.\n- Verificar e remover todos os comentários editoriais.\n- Verificar pontuação e maiúscula em cada verso de poesia/cordel.\n- Verificar rima e métrica do cordel conforme versos especificados.\n- Verificar verbos dicendi em todos os diálogos.\n\nREGRA 8 — META DE TAMANHO (quando especificada acima):\n- PROSA: escreva até se aproximar do total de caracteres pedido — não pare cedo demais nem estoure muito além do alvo.\n- POESIA CURTA (haicai, tanka, senryu, trova, poetrix e formas breves semelhantes): um poema isolado nunca chega perto da meta. Em vez de um só poema, escreva uma COLEÇÃO de vários poemas dessa mesma forma, unidos por tema/território comum, numerados ou com subtítulos, até a soma de caracteres se aproximar da meta.\n- POESIA DE FÔLEGO MAIOR (soneto, ode, ghazal, pantum, poema narrativo, cordel): se um único poema não bastar pra meta, também vire coleção de poemas correlatos até aproximar do total.\n- Nunca sacrifique qualidade só pra bater número — se não for natural continuar, prefira uma coleção com mais peças a inflar artificialmente uma peça só.\n\nMISSÃO:\n1. Identifique se há heterônimo especificado (REGRA 1)\n2. Identifique o formato e aplique as regras correspondentes (REGRAS 2, 3, 4)\n3. Escreva a obra completa respeitando a META DE TAMANHO quando houver (REGRA 8), dentro do limite de tokens disponível\n4. Aplique a revisão obrigatória (REGRA 6)\n5. Faça breve comentário como Fernando Peçanha\n\nFORMATO DE RESPOSTA:\n---HETERÔNIMO ESCOLHIDO---\n[nome]\n\n---NOVO HETERÔNIMO (se criado)---\n[nome | eixo | territorio | formato | volumeMinimo | destino] ou "Não foi necessário criar novo heterônimo."\n\n---OBRA---\n[título]\n\n[texto]\n\n---REVISÃO DE FERNANDO PEÇANHA---\n[comentário]`;
   try {
      item.progresso = 30;
     renderizarFila();
@@ -3691,7 +3730,7 @@ function verConteudoMasmorra(i) {
         ${item.conteudo.replace(/</g,'&lt;').replace(/>/g,'&gt;')}
       </div>
       <div style="padding:0.8rem 1.5rem;border-top:1px solid rgba(201,168,76,0.08);font-family:'Share Tech Mono',monospace;font-size:0.42rem;color:rgba(201,168,76,0.2);text-transform:uppercase;">
-        ${item.conteudo ? Math.ceil(item.conteudo.split(' ').length / 250) + ' páginas A4 estimadas · ' + item.conteudo.split(' ').length + ' palavras' : ''}
+        ${item.conteudo ? Math.ceil(item.conteudo.split(' ').length / 250) + ' páginas A4 estimadas · ' + item.conteudo.split(' ').length + ' palavras · ' + item.conteudo.length.toLocaleString('pt-BR') + ' caracteres' : ''}
       </div>
     </div>
   `;
