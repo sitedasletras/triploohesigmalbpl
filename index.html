@@ -2286,23 +2286,17 @@ body::before {
           <h2 class="sec-titulo" style="font-size:1.1rem;">🛠️ Diagramadores & <em>Capistas</em></h2>
         </div>
       </div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.15em;color:var(--ouro);opacity:0.5;text-transform:uppercase;margin-bottom:0.4rem;">// Dias Gramador — Diagramação</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.4rem;margin-bottom:1rem;">
-        <button class="btn-s" onclick="window.location.href='polux_v3.html'" style="text-align:left;font-size:0.52rem;">📜 Pólux — Prosa</button>
-        <button class="btn-s" onclick="window.location.href='apolo_v3.html'" style="text-align:left;font-size:0.52rem;">🎼 Apolo — Sonetos</button>
-        <button class="btn-s" onclick="window.location.href='castor_v3.html'" style="text-align:left;font-size:0.52rem;">🖋️ Castor — Poesia</button>
-        <button class="btn-s" onclick="window.location.href='samurai_v3.html'" style="text-align:left;font-size:0.52rem;">🎋 Samurai — Poesia Oriental</button>
-        <button class="btn-s" onclick="window.location.href='espartano_v3.html'" style="text-align:left;font-size:0.52rem;">🛡️ Espartano — Estrofista</button>
-        <button class="btn-s" onclick="window.location.href='quironxada_v3.html'" style="text-align:left;font-size:0.52rem;">🎭 Quironxadá — Cordel</button>
-        <button class="btn-s" onclick="window.location.href='centauro_v3.html'" style="text-align:left;font-size:0.52rem;">📚 Centauro — Híbrido</button>
-        <button class="btn-s" onclick="window.location.href='hercules_v3.html'" style="text-align:left;font-size:0.52rem;">🌿 Hércules — Técnico</button>
-      </div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.15em;color:var(--ouro);opacity:0.5;text-transform:uppercase;margin-bottom:0.4rem;">// OKapista — Capas</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.4rem;margin-bottom:1.5rem;">
-        <button class="btn-s" onclick="window.location.href='okapista_literario.html'" style="text-align:left;font-size:0.52rem;">🖼️ OKapista Literário</button>
-        <button class="btn-s" onclick="window.location.href='okapista_cordel.html'" style="text-align:left;font-size:0.52rem;">🖼️ OKapista Cordel</button>
-        <button class="btn-s" onclick="window.location.href='okapista_polimata.html'" style="text-align:left;font-size:0.52rem;">🖼️ OKapista Polimata</button>
-        <button class="btn-s" onclick="window.location.href='barracao_polimento_imagens.html'" style="text-align:left;font-size:0.52rem;">🧰 Barracão de Polimento</button>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0.8rem;margin-bottom:1.5rem;">
+        <div onclick="window.location.href='hub_diagramadores.html'" style="background:linear-gradient(135deg,rgba(106,27,154,0.1),rgba(106,27,154,0.05));border:1px solid rgba(106,27,154,0.3);border-radius:6px;padding:1.2rem;cursor:pointer;">
+          <div style="font-size:1.3rem;margin-bottom:0.3rem;">🛠️</div>
+          <div style="font-family:'Cinzel',serif;font-size:1rem;color:var(--ouro-claro);margin-bottom:0.3rem;">Diagramadores</div>
+          <div style="font-family:'Crimson Pro',serif;font-size:0.78rem;color:var(--prata);line-height:1.5;">Guia dos 8 diagramadores — leia o que cada um faz e escolha o certo pra sua obra.</div>
+        </div>
+        <div onclick="window.location.href='hub_capistas.html'" style="background:linear-gradient(135deg,rgba(201,168,76,0.1),rgba(201,168,76,0.05));border:1px solid rgba(201,168,76,0.3);border-radius:6px;padding:1.2rem;cursor:pointer;">
+          <div style="font-size:1.3rem;margin-bottom:0.3rem;">🖼️</div>
+          <div style="font-family:'Cinzel',serif;font-size:1rem;color:var(--ouro-claro);margin-bottom:0.3rem;">Capistas</div>
+          <div style="font-family:'Crimson Pro',serif;font-size:0.78rem;color:var(--prata);line-height:1.5;">Guia dos 4 capistas — qual OKapista pareia com qual diagramador.</div>
+        </div>
       </div>
 
       <!-- PAIOL LITERÁRIO -->
@@ -5919,5 +5913,24 @@ if (localStorage.getItem('sigmal_hq_auth') === '1') {
   init();
 }
 </script>
+
+<style>
+.sigmal-rodape-nav{max-width:1000px;margin:2rem auto;padding:0 1rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.6rem;}
+.sigmal-cmd-btn{display:flex;align-items:center;justify-content:center;gap:0.4rem;padding:0.7rem 0.5rem;border-radius:6px;font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;text-decoration:none;text-align:center;text-transform:uppercase;transition:transform .15s;border:1px solid;}
+.sigmal-cmd-btn:hover{transform:translateY(-2px);}
+.sigmal-cmd-ouro{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.4);color:#e8cc7a;}
+.sigmal-cmd-roxo{background:rgba(106,27,154,.12);border-color:rgba(106,27,154,.4);color:#ce93d8;}
+.sigmal-cmd-verde{background:rgba(0,200,83,.1);border-color:rgba(0,200,83,.35);color:#69f0ae;}
+.sigmal-cmd-laranja{background:rgba(230,81,0,.1);border-color:rgba(230,81,0,.35);color:#ffab40;}
+.sigmal-cmd-marrom{background:rgba(121,85,72,.15);border-color:rgba(121,85,72,.4);color:#bcaaa4;}
+</style>
+<div class="sigmal-rodape-nav">
+  <a href="index.html" class="sigmal-cmd-btn sigmal-cmd-ouro">🏠 SIGMAL HQ</a>
+  <a href="hub_diagramadores.html" class="sigmal-cmd-btn sigmal-cmd-roxo">🛠️ Diagramadores</a>
+  <a href="hub_capistas.html" class="sigmal-cmd-btn sigmal-cmd-verde">🖼️ Capistas</a>
+  <a href="gerador_livro_calabouco.html" class="sigmal-cmd-btn sigmal-cmd-ouro">📖 Gerador de Livro</a>
+  <a href="maquina_desafio.html" class="sigmal-cmd-btn sigmal-cmd-laranja">⚡ Máquina Desafio</a>
+  <a href="escritorio_triplo.html" class="sigmal-cmd-btn sigmal-cmd-marrom">🏢 Escritório</a>
+</div>
 </body>
 </html>
