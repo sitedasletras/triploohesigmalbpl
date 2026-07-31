@@ -2988,6 +2988,26 @@ async function atualizarBiografiaComObra(item) {
   }
 }
 
+const PLATAFORMAS_POSTAGEM = [
+  { id:'uiclap', nome:'Uiclap' },
+  { id:'clubeAutores', nome:'Clube de Autores' },
+  { id:'bok2', nome:'Bok2' },
+  { id:'podEditora', nome:'POD Editora' },
+  { id:'amazonKdp', nome:'Amazon KDP' },
+  { id:'ingramSpark', nome:'IngramSpark' },
+  { id:'lulu', nome:'Lulu' },
+  { id:'draft2Digital', nome:'Draft2Digital' },
+];
+
+function togglePostagem(i, plataformaId) {
+  const item = estado.paiol.literario[i];
+  if (!item) return;
+  if (!item.postagens) item.postagens = {};
+  item.postagens[plataformaId] = !item.postagens[plataformaId];
+  salvar();
+  renderizarPaiol();
+}
+
 function renderizarPaiol() {
   // Literário
   const elLit = document.getElementById('grade-paiol-literario');
@@ -2995,17 +3015,33 @@ function renderizarPaiol() {
     if (!estado.paiol.literario.length) {
       elLit.innerHTML = '<div class="vazio" style="grid-column:1/-1;"><div class="vazio-icon">📦</div><div class="vazio-txt">Nenhuma obra literária no Paiol ainda.</div></div>';
     } else {
-      elLit.innerHTML = estado.paiol.literario.map((item, i) => `
+      elLit.innerHTML = estado.paiol.literario.map((item, i) => {
+        const postagens = item.postagens || {};
+        const totalPostado = PLATAFORMAS_POSTAGEM.filter(p => postagens[p.id]).length;
+        const statusTexto = totalPostado === 0 ? 'AGUARDANDO POSTAGEM'
+          : totalPostado === PLATAFORMAS_POSTAGEM.length ? '✓ POSTADO EM TUDO'
+          : `POSTADO EM ${totalPostado}/${PLATAFORMAS_POSTAGEM.length}`;
+        const statusCor = totalPostado === 0 ? '#f57f17' : totalPostado === PLATAFORMAS_POSTAGEM.length ? 'var(--verde)' : '#90caf9';
+        return `
         <div style="background:var(--preto-mid);border:1px solid rgba(245,127,23,0.25);padding:1.2rem;border-left:3px solid #f57f17;">
           <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.15em;color:#f57f17;text-transform:uppercase;margin-bottom:0.3rem;">${item.autor || 'Autor a definir'}</div>
           <div style="font-family:'Cinzel',serif;font-size:0.95rem;color:var(--creme);margin-bottom:0.5rem;">${item.titulo}</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:var(--prata);margin-bottom:0.8rem;">${item.tipo || 'Obra'} · ${item.dataEntrada || ''} · ${item.paginas ? item.paginas + ' pág' : ''}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:var(--prata);margin-bottom:0.5rem;">${item.tipo || 'Obra'} · ${item.dataEntrada || ''} · ${item.paginas ? item.paginas + ' pág' : ''}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:${statusCor};text-transform:uppercase;margin-bottom:0.6rem;">${statusTexto}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.2rem;margin-bottom:0.8rem;font-family:'Share Tech Mono',monospace;font-size:0.42rem;color:var(--prata);">
+            ${PLATAFORMAS_POSTAGEM.map(p => `
+              <label style="display:flex;align-items:center;gap:0.3rem;cursor:pointer;${postagens[p.id]?'color:var(--verde);':''}">
+                <input type="checkbox" ${postagens[p.id]?'checked':''} onchange="togglePostagem(${i},'${p.id}')" style="cursor:pointer;">
+                ${p.nome}
+              </label>`).join('')}
+          </div>
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
             <button class="fa-btn" onclick="verConteudoPaiol('literario', ${i})">👁 VER</button>
             <button class="fa-btn" style="color:#f57f17;border-color:#f57f17;" onclick="catapultarItem(${i})">🏹 CATAPULTAR</button>
             <button class="fa-btn" style="color:var(--vermelho);border-color:var(--vermelho);" onclick="removerPaiol('literario', ${i})">✕</button>
           </div>
-        </div>`).join('');
+        </div>`;
+      }).join('');
     }
   }
   // Musical
@@ -3054,7 +3090,8 @@ function moverParaPaiol(i) {
   estado.paiol.literario.push({
     ...item,
     dataEntrada: new Date().toLocaleDateString('pt-BR'),
-    status: 'no-paiol'
+    status: 'no-paiol',
+    postagens: {}
   });
   salvar();
   renderizarCalabouco();
@@ -4768,7 +4805,8 @@ function enviarLivroGeradoParaPaiol() {
   estado.paiol.literario.push({
     ...item,
     dataEntrada: new Date().toLocaleDateString('pt-BR'),
-    status: 'no-paiol'
+    status: 'no-paiol',
+    postagens: {}
   });
   salvar();
   renderizarCalabouco();
