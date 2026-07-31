@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Centauro — Diagramador Híbrido</title>
+<script src="config.js"></script>
+<script src="motor_celeiro_v3.js"></script>
+<script src="motores_lapidar/finais/motor_decoracao_editorial_v1.js"></script>
+<script src="motor_pretextuais_v2.js"></script>
+<script src="motor_juncao_v1.js"></script>
+<script src="motores_lapidar/motor_upload_manuscrito_v1.js"></script>
+<script src="motores_lapidar/motor_exportacao_pdf_v1.js"></script>
+<script src="motores_lapidar/finais/motor_paginacao_real_v1.js"></script>
+<script src="motores_lapidar/finais/motor_exportacao_final_pdf_epub_v1.js"></script>
+<script src="motores_lapidar/finais/motor_decoracao_editorial_v1.js"></script>
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --ouro:#c9a84c;--ouro2:#e8d08a;--azul:#1e3a5f;
+  --paper:#fffdf7;--ink:#1f1a14;--muted:#6a6052;--line:#ddd0ba;
+  --ok:#2f7a59;--warn:#b7921e;--danger:#b13a3a;
+  --shadow:0 12px 32px rgba(0,0,0,.10);--radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100vh;background:linear-gradient(135deg,#120a2e,#1e1248);font-family:Georgia,'Times New Roman',serif;color:var(--ink);}
+
+/* LAYOUT */
+.app{width:min(1400px,calc(100vw - 12px));margin:8px auto;display:grid;grid-template-columns:290px minmax(0,1fr);gap:14px;align-items:start;}
+
+/* PAINEL */
+.panel{background:linear-gradient(180deg,#1a0e35,#2d1a5f 60%,#4a2d9a);color:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px;position:sticky;top:8px;max-height:calc(100vh - 16px);overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.panel-titulo{font-size:1.6rem;color:var(--ouro);font-family:Georgia,serif;font-weight:700;margin-bottom:4px;}
+.panel-sub{font-size:.7rem;color:rgba(201,168,76,.5);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.status-box{font-size:.82rem;border-radius:10px;padding:9px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(201,168,76,.2);color:#e8f0ff;line-height:1.5;min-height:38px;}
+.motor-ok{font-size:.68rem;color:#86efac;background:rgba(47,168,106,.1);border:1px solid rgba(47,168,106,.2);border-radius:7px;padding:3px 8px;text-align:center;}
+.motor-warn{font-size:.68rem;color:#fcd34d;background:rgba(183,146,30,.1);border:1px solid rgba(183,146,30,.2);border-radius:7px;padding:3px 8px;text-align:center;}
+
+.card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:11px;display:flex;flex-direction:column;gap:8px;}
+.card-titulo{font-size:.68rem;font-weight:700;color:rgba(201,168,76,.6);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;}
+label{display:block;font-size:.72rem;font-weight:700;color:#9bb8e0;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px;}
+.inp,.sel{width:100%;font-family:inherit;font-size:.88rem;border-radius:9px;border:1px solid #c8b47a;background:#fff;color:var(--ink);padding:7px 10px;outline:none;}
+.inp:focus,.sel:focus{border-color:var(--ouro);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.btn{width:100%;border:none;border-radius:10px;padding:10px 14px;font:700 .85rem Georgia,serif;cursor:pointer;transition:.14s;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;}
+.btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-ouro{background:var(--ouro);color:#1a0e00;}
+.btn-soft{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);}
+.btn-verde{background:#2f7a59;color:#fff;}
+.btn-danger{background:#b13a3a;color:#fff;}
+
+/* ALERTAS */
+.alertas-box{background:rgba(183,146,30,.1);border:1px solid rgba(183,146,30,.25);border-radius:10px;padding:9px;display:none;flex-direction:column;gap:4px;}
+.alertas-box.vis{display:flex;}
+.alerta-item{font-size:.73rem;color:#f0e4b8;display:flex;gap:5px;line-height:1.4;}
+
+/* OBRA ATIVA BANNER */
+.banner-obra{background:rgba(47,168,106,.1);border:1px solid rgba(47,168,106,.25);border-radius:10px;padding:10px 12px;display:none;gap:8px;align-items:center;font-size:.78rem;}
+.banner-obra.vis{display:flex;}
+.banner-obra-dot{width:8px;height:8px;border-radius:50%;background:#2fa86a;animation:pulse 2s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(1.3);}}
+
+/* ÁREA PRINCIPAL */
+.main{display:flex;flex-direction:column;gap:14px;}
+.box{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:4px;}
+.stat-card{background:#fffdf5;border:1px solid #e8d8b4;border-radius:12px;padding:10px;text-align:center;}
+.stat-val{font-size:1.1rem;font-weight:700;color:var(--azul);}
+.stat-lbl{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+
+/* PAGINADOR */
+.pager{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.btn-pg{border:1.5px solid var(--ouro);background:transparent;color:var(--azul);border-radius:999px;padding:7px 16px;font:700 .84rem Georgia,serif;cursor:pointer;transition:.14s;}
+.btn-pg:hover:not(:disabled){background:var(--ouro);color:#1a0e00;}
+.btn-pg:disabled{opacity:.3;cursor:not-allowed;}
+.pg-info{font-size:.86rem;color:var(--azul);font-weight:700;margin:0 auto;}
+
+/* STAGE — onde a página aparece */
+.stage{background:linear-gradient(180deg,#ddd5c0,#cec4ae);border-radius:16px;padding:20px;min-height:500px;display:flex;align-items:flex-start;justify-content:center;overflow:auto;}
+.meta-linha{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:.75rem;color:var(--muted);margin-top:8px;}
+
+/* TEXTAREA */
+.textarea-obra{width:100%;min-height:180px;border:1.5px solid var(--line);border-radius:12px;padding:12px;resize:vertical;background:#fff;color:var(--ink);font-family:Georgia,'Times New Roman',serif;font-size:.95rem;line-height:1.6;outline:none;}
+.textarea-obra:focus{border-color:var(--ouro);}
+
+/* MODAL DADOS DO LIVRO */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;overflow-y:auto;padding:20px;}
+.modal-overlay.vis{display:flex;align-items:flex-start;justify-content:center;}
+.modal{background:linear-gradient(180deg,#10233f,#1a3a6a);border:1px solid rgba(201,168,76,.3);border-radius:20px;padding:24px;width:min(680px,100%);color:#fff;margin:auto;}
+.modal-titulo{font-size:1.2rem;color:var(--ouro);font-family:Georgia,serif;font-weight:700;margin-bottom:4px;}
+.modal-sub{font-size:.7rem;color:rgba(201,168,76,.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px;}
+.modal-secao{font-size:.68rem;font-weight:700;color:rgba(201,168,76,.5);letter-spacing:.1em;text-transform:uppercase;margin:14px 0 6px;border-bottom:1px solid rgba(201,168,76,.15);padding-bottom:4px;}
+.modal .inp,.modal .sel,.modal textarea{width:100%;font-family:inherit;font-size:.85rem;border-radius:9px;border:1px solid #c8b47a;background:#fff;color:var(--ink);padding:7px 10px;outline:none;margin-bottom:6px;}
+.modal textarea{min-height:80px;resize:vertical;}
+.modal .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.modal .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.modal label{font-size:.7rem;font-weight:700;color:#9bb8e0;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px;display:block;}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px;}
+
+@media(max-width:900px){
+  .app{grid-template-columns:1fr;}
+  .panel{position:relative;top:auto;max-height:none;}
+  .stats-grid{grid-template-columns:1fr 1fr 1fr;}
+}
+@media print{
+  .panel,.pager,.meta-linha,.alertas-box,.motor-ok,.motor-warn,.rodape-comando,.nav-obra-ativa,.modal-overlay{display:none!important;}
+  .app{display:block;}
+  .box{box-shadow:none;border:0;padding:0;}
+  .stage{padding:0;background:#fff;border-radius:0;}
+}
+
+/* RODAPÉ DE COMANDO — padrão de cores fixo em todos os departamentos */
+.rodape-comando{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.cmd-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-decoration:none;text-align:center;transition:.15s}
+.cmd-btn:hover{transform:translateY(-1px)}
+.cmd-verde{background:rgba(47,168,106,.12);border:1px solid rgba(47,168,106,.4);color:#4ab87a}
+.cmd-amarelo{background:rgba(217,164,65,.12);border:1px solid rgba(217,164,65,.4);color:#f0d882}
+.cmd-vermelho{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);color:#fca5a5}
+.cmd-preto{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.14);color:#c8c8d8}
+.cmd-branco{background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.92);color:#111}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ═══ PAINEL LATERAL ═══ -->
+<aside class="panel">
+  <div class="panel-titulo">⚖️ Centauro</div>
+  <div class="panel-sub">Diagramador Híbrido · Dep. 01</div>
+
+  <div class="status-box" id="status">Carregando obra ativa para Centauro...</div>
+  <div class="motor-ok" id="motorBadge">⏳ Centauro · Motor V3 · Carregando...</div>
+
+  <!-- OBRA ATIVA -->
+  <div class="banner-obra" id="bannerObra">
+    <div class="banner-obra-dot"></div>
+    <div style="flex:1;font-size:.75rem;">
+      <div style="color:#86efac;font-weight:700;">Obra Ativa</div>
+      <div style="color:rgba(134,239,172,.6);font-size:.68rem;" id="nomeObra">—</div>
+    </div>
+  </div>
+
+  <!-- TÍTULO E AUTOR -->
+  <div class="card">
+    <div class="card-titulo">Identificação</div>
+    <label>Título</label><input class="inp" id="titulo" type="text" placeholder="Título da obra">
+    <label>Autor</label><input class="inp" id="autor" type="text" placeholder="Nome do autor">
+    <label>Subtítulo</label><input class="inp" id="subtitulo" type="text" placeholder="Subtítulo (opcional)">
+  </div>
+
+  <!-- FORMATO -->
+  <div class="card">
+    <div class="card-titulo">Formato da Página</div>
+    <label>Tamanho</label>
+    <select class="sel" id="formato">
+      <option value="16x23" selected>16×23 cm — padrão literário</option>
+      <option value="14x21">14×21 cm — pocket</option>
+      <option value="A5">A5 (14,8×21 cm)</option>
+      <option value="6x9">6×9 pol — internacional</option>
+    </select>
+    <div class="row2">
+      <div><label>Fonte (pt)</label><input class="inp" id="fontSize" type="number" value="12" min="9" max="16" step=".5"></div>
+      <div><label>Entrelinha</label><input class="inp" id="lineHeight" type="number" value="1.52" min="1.2" max="2.2" step=".05"></div>
+    </div>
+    <label>Margem</label>
+    <select class="sel" id="margem">
+      <option value="normal" selected>Normal</option>
+      <option value="estreita">Estreita</option>
+      <option value="ampla">Ampla</option>
+    </select>
+  </div>
+
+  <!-- TIPOGRAFIA -->
+  <div class="card">
+    <div class="card-titulo">Tipografia</div>
+    <label>Fonte do corpo</label>
+    <select class="sel" id="fontFamily">
+      <option value="Georgia,'Times New Roman',serif" selected>Georgia</option>
+      <option value="'Times New Roman',serif">Times New Roman</option>
+      <option value="Garamond,serif">Garamond</option>
+      <option value="'Palatino Linotype',Palatino,serif">Palatino</option>
+      <option value="Arial,sans-serif">Arial (técnico)</option>
+    </select>
+    <div class="row2">
+      <div><label>Recuo §</label>
+        <select class="sel" id="recuo">
+          <option value="1.2" selected>1.2 em</option>
+          <option value="2">2 em</option>
+          <option value="0">Sem recuo</option>
+        </select>
+      </div>
+      <div><label>Espaço §</label><input class="inp" id="paragraphGap" type="number" value="0" min="0" max="2" step=".1"></div>
+    </div>
+  </div>
+
+  <!-- RECURSOS EDITORIAIS -->
+  <div class="card">
+    <div class="card-titulo">Recursos Editoriais</div>
+    <label>Capitular</label>
+    <select class="sel" id="capitular">
+      <option value="auto" selected>✨ Automática (por gênero da obra)</option>
+      <option value="classic">Classic</option>
+      <option value="simple">Simples</option>
+      <option value="ornamental">Ornamental</option>
+      <option value="medieval">Medieval</option>
+      <option value="iluminura">Iluminura</option>
+      <option value="none">Sem capitular</option>
+    </select>
+    <label>Hifenização PT-BR</label>
+    <select class="sel" id="hifenizacao">
+      <option value="true" selected>Ativa</option>
+      <option value="false">Desativada</option>
+    </select>
+    <label>Viúvas e Órfãs</label>
+    <select class="sel" id="viuvasOrfas">
+      <option value="corrigir" selected>Corrigir automaticamente</option>
+      <option value="off">Ignorar</option>
+    </select>
+    <label>Numeração</label>
+    <select class="sel" id="numeracao">
+      <option value="espelho" selected>Espelho (recto/verso)</option>
+      <option value="dir">Sempre à direita</option>
+      <option value="off">Sem numeração</option>
+    </select>
+    <label>Correção textual</label>
+    <select class="sel" id="correcao">
+      <option value="leve" selected>Leve</option>
+      <option value="media">Média</option>
+    </select>
+  </div>
+
+  <!-- AÇÕES -->
+  <button class="btn btn-ouro" onclick="render()">🖨 Atualizar Prévia</button>
+  <button class="btn btn-verde" onclick="abrirModalDados()">📚 Exportar Livro Completo</button>
+  <button class="btn btn-soft" onclick="abrirEImprimirPDF()">🖨 Abrir e Imprimir (PDF)</button>
+  <button class="btn btn-soft" onclick="exportarEpubCompleto()">📱 Exportar EPUB (livro completo)</button>
+  <button class="btn btn-soft" onclick="exportarTXT()">📄 Baixar .txt</button>
+  <button class="btn btn-danger" onclick="limpar()">✕ Limpar</button>
+
+  <!-- ALERTAS -->
+  <div class="alertas-box" id="alertasBox"></div>
+
+</aside>
+
+<!-- ═══ ÁREA PRINCIPAL ═══ -->
+<main class="main">
+
+  <!-- STATS -->
+  <div class="box">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val" id="sFmt">—</div><div class="stat-lbl">Formato</div></div>
+      <div class="stat-card"><div class="stat-val" id="sPags">0</div><div class="stat-lbl">Páginas</div></div>
+      <div class="stat-card"><div class="stat-val" id="sWords">0</div><div class="stat-lbl">Palavras</div></div>
+      <div class="stat-card"><div class="stat-val" id="sCaps">0</div><div class="stat-lbl">Capítulos</div></div>
+      <div class="stat-card"><div class="stat-val" id="sCorr">0</div><div class="stat-lbl">V/O Corr.</div></div>
+    </div>
+  </div>
+
+  <div class="box" id="previaSumarioBox" style="display:none">
+    <div style="font-size:.82rem;font-weight:700;color:var(--azul);margin-bottom:10px;">📑 Prévia do Sumário <span style="font-weight:400;color:var(--muted);font-size:.72rem">— atualiza ao editar</span></div>
+    <div id="previaSumarioLista" style="font-size:.85rem;line-height:1.9"></div>
+  </div>
+
+  <!-- TEXTO (oculto mas editável) -->
+  <div class="box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-size:.82rem;font-weight:700;color:var(--azul);">Texto da Obra</div>
+      <span style="font-size:.7rem;color:var(--muted);">Carregado da Obra Ativa · edite se necessário</span>
+    </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+      <input type="file" id="uploadArquivo" accept=".txt,.docx,.doc" style="font-size:.8rem;flex:1;" />
+      <span id="uploadStatus" style="font-size:.75rem;color:var(--muted);"></span>
+    </div>
+<textarea class="textarea-obra" id="texto" placeholder="O texto será carregado automaticamente da Obra Ativa. Você também pode colar aqui diretamente." oninput="scheduleRender()"></textarea>
+  </div>
+
+  <!-- PRÉVIA -->
+  <div class="box">
+    <div class="pager">
+      <button class="btn-pg" id="btnAnt" onclick="paginaAnterior()" disabled>← Anterior</button>
+      <span class="pg-info" id="pgInfo">—</span>
+      <button class="btn-pg" id="btnProx" onclick="proximaPagina()" disabled>Próxima →</button>
+    </div>
+    <div class="stage" id="preview">
+      <div style="color:#8a7a5a;font-style:italic;font-size:.9rem;padding:40px;text-align:center;">A prévia aparecerá aqui após carregar o texto.</div>
+    </div>
+    <div class="meta-linha">
+      <span id="metaTipo">—</span>
+      <span id="metaInfo">—</span>
+      <span id="metaPag">—</span>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<div class="rodape-comando" style="max-width:960px;margin:0 auto;padding:16px 20px 60px">
+  <a href="index.html" class="cmd-btn cmd-preto">← Painel Central</a>
+</div>
+
+<!-- MODAL DADOS DO LIVRO -->
+<div class="modal-overlay" id="modalDados">
+<div class="modal">
+  <div class="modal-titulo">📚 Dados do Livro</div>
+  <div class="modal-sub">Preencha para gerar o livro completo com pré e pós-textuais</div>
+
+  <div class="modal-secao">Identificação</div>
+  <div class="row2">
+    <div><label>Título</label><input class="inp" id="m-titulo" type="text" placeholder="Título da obra"></div>
+    <div><label>Subtítulo</label><input class="inp" id="m-subtitulo" type="text" placeholder="Subtítulo (opcional)"></div>
+  </div>
+  <div class="row2">
+    <div><label>Autor</label><input class="inp" id="m-autor" type="text" placeholder="Nome do autor"></div>
+    <div><label>Ano</label><input class="inp" id="m-ano" type="text" placeholder="2025"></div>
+  </div>
+  <div class="row3">
+    <div><label>Editora</label><input class="inp" id="m-editora" type="text" placeholder="Nome da editora"></div>
+    <div><label>Local</label><input class="inp" id="m-local" type="text" placeholder="Brasil"></div>
+    <div><label>Edição</label><input class="inp" id="m-edicao" type="text" placeholder="1"></div>
+  </div>
+
+  <div class="modal-secao">Ficha Catalográfica (ABNT)</div>
+  <div class="row2">
+    <div><label>ISBN</label><input class="inp" id="m-isbn" type="text" placeholder="978-85-..."></div>
+    <div><label>CDD</label><input class="inp" id="m-cdd" type="text" placeholder="869.1"></div>
+  </div>
+  <label>Assuntos (um por linha)</label>
+  <textarea id="m-assuntos" placeholder="Literatura brasileira&#10;Romance&#10;Ficção científica"></textarea>
+  <div class="row2">
+    <div><label>Bibliotecária</label><input class="inp" id="m-biblio" type="text" placeholder="Nome da bibliotecária"></div>
+    <div><label>CRB</label><input class="inp" id="m-crb" type="text" placeholder="CRB-8/1234"></div>
+  </div>
+
+  <div class="modal-secao">Textos do Livro</div>
+  <label>Dedicatória</label>
+  <textarea id="m-dedicatoria" placeholder="A quem você dedica esta obra..."></textarea>
+  <div class="row2">
+    <div>
+      <label>Epígrafe</label>
+      <textarea id="m-epigrafe" placeholder="Citação de abertura..."></textarea>
+    </div>
+    <div>
+      <label>Autor da epígrafe</label>
+      <input class="inp" id="m-autor-epigrafe" type="text" placeholder="Nome do autor citado">
+    </div>
+  </div>
+  <label>Prefácio / Apresentação (opcional)</label>
+  <textarea id="m-prefacio" placeholder="Texto do prefácio..."></textarea>
+
+  <div class="modal-secao">Sobre o Autor</div>
+  <textarea id="m-sobre-autor" placeholder="Biografia do autor para o final do livro..."></textarea>
+
+  <div class="modal-secao">Pós-textuais (opcional)</div>
+  <label>Posfácio</label>
+  <textarea id="m-posfacio" placeholder="Texto do posfácio..."></textarea>
+  <label>Notas</label>
+  <textarea id="m-notas" placeholder="Notas de rodapé ou finais..."></textarea>
+
+  <div class="modal-secao">Ficha Técnica (Colofão)</div>
+  <div class="row2">
+    <div><label>Impressão</label><input class="inp" id="m-impressao" type="text" placeholder="Gráfica XYZ"></div>
+    <div><label>Tiragem</label><input class="inp" id="m-tiragem" type="text" placeholder="1000"></div>
+  </div>
+  <div class="row2">
+    <div><label>Papel</label><input class="inp" id="m-papel" type="text" placeholder="Offset 75g/m²"></div>
+    <div><label>Tipografia</label><input class="inp" id="m-tipografia" type="text" placeholder="Georgia 12pt"></div>
+  </div>
+
+  <div class="modal-btns">
+    <button class="btn btn-danger" onclick="fecharModal()">✕ Cancelar</button>
+    <button class="btn btn-verde" onclick="exportarLivroCompleto()">📚 Gerar Livro Completo</button>
+  </div>
+</div>
+</div>
+
+<script>
+// ── ESTADO ────────────────────────────────────────────────
+let resultado=null, pagAtual=0;
+let _renderTimer=null;
+
+const $=id=>document.getElementById(id);
+
+// ── MOTOR ─────────────────────────────────────────────────
+window.addEventListener('load',()=>{
+  const ok=!!window.CeleiroV3;
+  $('motorBadge').textContent=ok?'✓ Motor V3 carregado':'⚠ Motor não encontrado';
+  $('motorBadge').className=ok?'motor-ok':'motor-warn';
+});
+
+// ── OBRA ATIVA ────────────────────────────────────────────
+(function carregarObraAtiva(){
+  const fontes=[
+    'lapidar_obra_texto',
+    'lapidar_resultado_desbaste',
+    'lapidar_resultado_anterior',
+    'obra_ativa_texto',
+    'lapidar_texto_obra',
+  ];
+  let texto='';
+  for(const k of fontes){
+    const v=localStorage.getItem(k);
+    if(v&&v.trim().length>20){texto=v;break;}
+  }
+  if(texto){
+    $('texto').value=texto;
+    $('bannerObra').classList.add('vis');
+    const nome=localStorage.getItem('obra_ativa_texto_nome')||'Texto da Central';
+    $('nomeObra').textContent=nome.replace(/^✦\s*/,'');
+    $('status').textContent='Obra carregada. Clique em "Atualizar Prévia".';
+  } else {
+    $('status').textContent='Nenhuma obra ativa. Vá à Central da Obra.';
+  }
+  // Título e autor
+  const titulo=localStorage.getItem('obra_ativa_texto_nome')||localStorage.getItem('obra_titulo');
+  if(titulo) $('titulo').value=titulo.replace(/^✦\s*/,'');
+  const autor=localStorage.getItem('obra_autor')||localStorage.getItem('celeiro_autor');
+  if(autor) $('autor').value=autor;
+  // Render inicial
+  if(texto) render();
+})();
+
+// ── CONFIGURAÇÃO ──────────────────────────────────────────
+function getCfg(){
+  return {
+    modulo:'centauro',
+    formato:$('formato').value,
+    margem:$('margem').value,
+    tamanhoFonte:parseFloat($('fontSize').value)||12,
+    entrelinha:parseFloat($('lineHeight').value)||1.52,
+    fonte:$('fontFamily').value,
+    recuo:parseFloat($('recuo').value)||1.2,
+    paragraphGap:parseFloat($('paragraphGap').value)||0,
+    capitular:$('capitular').value==='auto'?'classic':$('capitular').value,
+    decoracao:$('capitular').value==='auto'?(localStorage.getItem('lapidar_genero_obra')||localStorage.getItem('lapidar_tipo_obra')||''):'',
+    hifenizacao:$('hifenizacao').value==='true',
+    correcao:$('correcao').value,
+    numeracao:$('numeracao').value,
+  };
+}
+
+// ── RENDER ────────────────────────────────────────────────
+function render(){
+  const texto=$('texto').value.trim();
+  if(!texto){
+    $('status').textContent='Nenhum texto para diagramar.';
+    $('preview').innerHTML='<div style="color:#8a7a5a;font-style:italic;font-size:.9rem;padding:40px;text-align:center;">Carregue uma obra para ver a prévia.</div>';
+    return;
+  }
+  if(!window.CeleiroV3){
+    $('status').textContent='Motor V3 não carregado.';
+    return;
+  }
+  try{
+    const cfg=getCfg();
+    resultado=CeleiroV3.preparar(texto,cfg);
+    pagAtual=0;
+
+    // Stats
+    $('sFmt').textContent=resultado.fmt?.nome||cfg.formato;
+    $('sPags').textContent=resultado.stats.paginas;
+    $('sWords').textContent=resultado.stats.palavras.toLocaleString('pt-BR');
+    $('sCaps').textContent=resultado.stats.capitulos;
+    $('sCorr').textContent=resultado.stats.corrigidos;
+
+    // Página de rosto como página 0
+    resultado._paginaRosto=CeleiroV3.gerarPaginaRosto(
+      $('titulo').value||'Sem título',
+      $('autor').value,
+      $('subtitulo').value,
+      resultado.fmt, cfg
+    );
+
+    renderPag();
+    $('status').textContent=`✓ ${resultado.stats.paginas} páginas · ${resultado.stats.palavras.toLocaleString('pt-BR')} palavras · ${resultado.stats.corrigidos} V/O corrigidas`;
+    $('metaTipo').textContent=resultado.tipoObra?.toUpperCase()||'PROSA';
+
+    // Alertas
+    const alertas=resultado.alertas||[];
+    const box=$('alertasBox');
+    if(alertas.length){
+      box.classList.add('vis');
+      box.innerHTML=alertas.slice(0,8).map(a=>`<div class="alerta-item">⚠ ${a.msg||a}</div>`).join('');
+    } else {
+      box.classList.remove('vis');
+    }
+
+    // Prévia do sumário — ao vivo, junto com a prévia das páginas
+    atualizarPreviaSumario();
+
+  }catch(e){
+    $('status').textContent='Erro: '+e.message;
+    console.error(e);
+  }
+}
+
+function atualizarPreviaSumario(){
+  const box=$('previaSumarioBox'), lista=$('previaSumarioLista');
+  if(!box||!lista||!resultado) return;
+  if(!window.CeleiroJuncao){ box.style.display='none'; return; }
+  const capitulos=CeleiroJuncao.extrairCapitulosDoMiolo(resultado.paginas||[], 1);
+  if(!capitulos.length){ box.style.display='none'; return; }
+  lista.innerHTML=capitulos.map(c=>`
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:.35em">
+      <span>${(c.titulo||'').replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]))}</span>
+      <span style="border-bottom:1px dotted #ccc;flex:1;margin:0 6px;min-width:16px"></span>
+      <span style="color:var(--muted);flex-shrink:0">${c.pagina}</span>
+    </div>`).join('');
+  box.style.display='block';
+}
+
+function scheduleRender(){
+  clearTimeout(_renderTimer);
+  _renderTimer=setTimeout(render,800);
+}
+
+function renderPag(){
+  if(!resultado) return;
+
+  // Total com página de rosto
+  const totalPags=resultado.paginas.length+1;
+  // Página 0 = rosto, páginas 1..n = conteúdo
+  let html='';
+  if(pagAtual===0){
+    html=resultado._paginaRosto||'';
+  } else {
+    const pag=resultado.paginas[pagAtual-1];
+    if(!pag) return;
+    html=CeleiroV3.renderizarPagina(pag,resultado.cfg,resultado.fmt,resultado.cfg.numeracao);
+  }
+
+  $('preview').innerHTML=html;
+  $('pgInfo').textContent=`Página ${pagAtual===0?'Rosto':pagAtual} / ${resultado.paginas.length}`;
+  $('metaPag').textContent=`Pág ${pagAtual===0?'R':pagAtual}/${resultado.paginas.length}`;
+  $('metaInfo').textContent=`${resultado.stats.palavras.toLocaleString('pt-BR')} palavras · ${resultado.stats.corrigidos} V/O corrigidas`;
+  $('btnAnt').disabled=pagAtual===0;
+  $('btnProx').disabled=pagAtual===resultado.paginas.length;
+}
+
+function paginaAnterior(){if(pagAtual>0){pagAtual--;renderPag();}}
+function proximaPagina(){if(resultado&&pagAtual<resultado.paginas.length){pagAtual++;renderPag();}}
+
+function limpar(){
+  $('texto').value='';resultado=null;pagAtual=0;
+  $('preview').innerHTML='';
+  $('status').textContent='Texto limpo.';
+  ['sFmt','sPags','sWords','sCaps','sCorr'].forEach(id=>$(id).textContent='—');
+}
+
+// ── EXPORTAR PDF ──────────────────────────────────────────
+function exportarPDF(){
+  if(!resultado){alert('Diagrame o texto primeiro.');return;}
+  // Montar HTML completo para impressão
+  const cfg=resultado.cfg;
+  const fmt=resultado.fmt;
+  const css=CeleiroV3.gerarCSSImpressao(cfg,fmt);
+  const titulo=$('titulo').value||'obra';
+
+  // Montar todas as páginas como HTML contínuo
+  let corpo=`<div style="page-break-after:always;">${resultado._paginaRosto}</div>`;
+  resultado.paginas.forEach((pag,i)=>{
+    const quebra=i<resultado.paginas.length-1?'page-break-after:always;':'';
+    corpo+=`<div style="${quebra}">${CeleiroV3.renderizarPagina(pag,cfg,fmt,cfg.numeracao)}</div>`;
+  });
+
+  const html=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><style>${css}body{margin:0;}div{overflow:visible;}</style></head><body>${corpo}</body></html>`;
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=titulo.toLowerCase().replace(/\s+/g,'-')+'-polux.html';
+  a.click();
+  // Salvar na expedição
+  localStorage.setItem('lapidar_diagramacao_concluida','true');
+  localStorage.setItem('lapidar_resultado_diagramacao', `Diagramação concluída — ${resultado.stats.paginas} páginas — Pólux`);
+  $('status').textContent='✓ Arquivo HTML gerado — abra no browser e imprima como PDF.';
+}
+
+function exportarTXT(){
+  const t=$('texto').value.trim();if(!t)return;
+  const blob=new Blob([t],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=($('titulo').value||'centauro-obra').toLowerCase().replace(/\s+/g,'-')+'.txt';
+  a.click();
+}
+
+// ── EVENT LISTENERS ───────────────────────────────────────
+['formato','fontSize','lineHeight','margem','fontFamily','recuo',
+ 'paragraphGap','capitular','hifenizacao','viuvasOrfas','correcao','numeracao']
+  .forEach(id=>{
+    $(id).addEventListener('change',()=>{render();});
+  });
+['titulo','autor','subtitulo'].forEach(id=>{
+  $(id).addEventListener('input',()=>{
+    if(resultado) resultado._paginaRosto=CeleiroV3.gerarPaginaRosto(
+      $('titulo').value,$('autor').value,$('subtitulo').value,resultado.fmt,resultado.cfg
+    );
+    if(pagAtual===0) renderPag();
+  });
+});
+
+// ── MODAL DADOS DO LIVRO ──────────────────────────────────
+function abrirModalDados(){
+  if(!resultado){alert('Diagrame o texto primeiro.');return;}
+  const dados=CeleiroPretextuais?.carregarDados()||{};
+  $('m-titulo').value=dados.titulo||$('titulo').value||'';
+  $('m-subtitulo').value=dados.subtitulo||$('subtitulo').value||'';
+  $('m-autor').value=dados.autor||$('autor').value||'';
+  $('m-ano').value=dados.ano||String(new Date().getFullYear());
+  $('m-editora').value=dados.editora||'';
+  $('m-local').value=dados.local||'Brasil';
+  $('m-edicao').value=dados.edicao||'1';
+  $('m-isbn').value=dados.isbn||'';
+  $('m-cdd').value=dados.cdd||'';
+  $('m-assuntos').value=(dados.assuntos||[]).join('\n');
+  $('m-biblio').value=dados.bibliotecaria||'';
+  $('m-crb').value=dados.crb||'';
+  $('m-dedicatoria').value=dados.dedicatoria||'';
+  $('m-epigrafe').value=dados.epigrafe||'';
+  $('m-autor-epigrafe').value=dados.autorEpigrafe||'';
+  $('m-prefacio').value=dados.prefacio||'';
+  $('m-sobre-autor').value=dados.sobreAutor||'';
+  $('m-posfacio').value=dados.posfacio||'';
+  $('m-notas').value=dados.notas||'';
+  $('m-impressao').value=dados.impressao||'';
+  $('m-tiragem').value=dados.tiragem||'';
+  $('m-papel').value=dados.papel||'';
+  $('m-tipografia').value=dados.tipografia||`${resultado.cfg.fonte?.split(',')[0]||'Georgia'} ${resultado.cfg.tamanhoFonte||12}pt`;
+  $('modalDados').classList.add('vis');
+}
+
+function fecharModal(){ $('modalDados').classList.remove('vis'); }
+
+function extrairEntradasSumario(){
+  // A extração de verdade já existe em CeleiroJuncao (mesma lógica que
+  // juntar() usa pra recalcular o sumário com as páginas reais depois)
+  // — só delega em vez de duplicar o algoritmo de novo aqui.
+  if(!window.CeleiroJuncao || !resultado) return [];
+  return CeleiroJuncao.extrairCapitulosDoMiolo(resultado.paginas||[], 1);
+}
+
+function coletarDadosModal(){
+  return {
+    titulo:$('m-titulo').value.trim(), subtitulo:$('m-subtitulo').value.trim(),
+    autor:$('m-autor').value.trim(), ano:$('m-ano').value.trim(),
+    editora:$('m-editora').value.trim(), local:$('m-local').value.trim(),
+    edicao:$('m-edicao').value.trim(), isbn:$('m-isbn').value.trim(),
+    cdd:$('m-cdd').value.trim(),
+    assuntos:$('m-assuntos').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    bibliotecaria:$('m-biblio').value.trim(), crb:$('m-crb').value.trim(),
+    dedicatoria:$('m-dedicatoria').value.trim(), epigrafe:$('m-epigrafe').value.trim(),
+    autorEpigrafe:$('m-autor-epigrafe').value.trim(), prefacio:$('m-prefacio').value.trim(),
+    sobreAutor:$('m-sobre-autor').value.trim(), posfacio:$('m-posfacio').value.trim(),
+    notas:$('m-notas').value.trim(), impressao:$('m-impressao').value.trim(),
+    tiragem:$('m-tiragem').value.trim(), papel:$('m-papel').value.trim(),
+    tipografia:$('m-tipografia').value.trim(), colofao:true, entradasSumario:extrairEntradasSumario(),
+  };
+}
+
+function exportarLivroCompleto(){
+  if(!resultado){alert('Diagrame o texto primeiro.');return;}
+  if(!window.CeleiroPretextuais||!window.CeleiroJuncao){
+    alert('Motores de pré-textuais não carregados.');return;
+  }
+  const dados=coletarDadosModal();
+  CeleiroPretextuais.salvarDados(dados);
+  const cfg=resultado.cfg, fmt=resultado.fmt;
+  $('status').textContent='⏳ Gerando livro completo...';
+  fecharModal();
+  setTimeout(()=>{
+    try{
+      const pre=CeleiroPretextuais.gerarPreTextuais(dados,fmt,cfg);
+      const pos=CeleiroPretextuais.gerarPosTextuais(dados,fmt,cfg);
+      const livro=CeleiroJuncao.juntar(pre,resultado,pos,cfg,fmt);
+      CeleiroJuncao.salvarLivroCompleto(livro);
+      const html=CeleiroJuncao.renderizarLivroCompleto(livro,cfg,fmt);
+      window.__ultimoLivroHTML=html;
+      localStorage.setItem('lapidar_ultima_contagem_paginas', String(livro.stats.totalPaginas));
+      const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      const nome=(dados.titulo||'livro').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
+      a.download=nome+'-centauro-completo.html';
+      a.click();
+      localStorage.setItem('lapidar_diagramacao_concluida','true');
+      localStorage.setItem('lapidar_resultado_diagramacao',
+        `Livro completo — ${livro.stats.totalPaginas} pgs (${livro.stats.paginasPreTextuais} pré + ${livro.stats.paginasMiolo} miolo + ${livro.stats.paginasPosTextuais} pós) — Pólux`);
+      $('status').textContent=`✅ ${livro.stats.totalPaginas} páginas geradas · Abra o HTML no browser e imprima como PDF.`;
+      $('sPags').textContent=livro.stats.totalPaginas;
+    }catch(e){
+      $('status').textContent='Erro: '+e.message;
+      console.error(e);
+    }
+  },100);
+}
+</script>
+<script>
+if(window.CeleiroUploadManuscrito){
+  window.CeleiroUploadManuscrito.montar({
+    inputId:'uploadArquivo',
+    textareaId:'texto',
+    statusId:'uploadStatus',
+    aoCarregar:function(texto){
+      if(typeof scheduleRender==='function') scheduleRender();
+      else if(typeof render==='function') render();
+    }
+  });
+}
+function abrirEImprimirPDF(){
+  if(!window.__ultimoLivroHTML){
+    alert('Gere o livro/coletânea completa primeiro (botão de exportação acima) antes de imprimir em PDF.');
+    return;
+  }
+  const janela=window.open('','_blank');
+  if(!janela){ alert('O navegador bloqueou a nova aba. Permita pop-ups e tente de novo.'); return; }
+  janela.document.write(window.__ultimoLivroHTML);
+  janela.document.close();
+  setTimeout(()=>{ janela.print(); }, 400);
+}
+
+// ── EXPORTAR EPUB DO LIVRO COMPLETO (motores finais, independente do fluxo principal) ──
+function exportarEpubCompleto(){
+  if(!window.CeleiroV3 || !window.CeleiroMotorExportacaoFinalPdfEpub){
+    alert('Motores de exportação final não carregaram.');
+    return;
+  }
+  const texto = document.getElementById('texto').value.trim();
+  if(!texto){ alert('Escreva ou carregue o texto da obra primeiro.'); return; }
+  const titulo = (document.getElementById('m-titulo')||document.getElementById('titulo')||{}).value || 'Obra sem título';
+  const autor = (document.getElementById('m-autor')||document.getElementById('autor')||{}).value || 'Autor';
+  try{
+    const blocos = window.CeleiroV3.quebrarBlocos(texto);
+    const xhtml = window.CeleiroMotorExportacaoFinalPdfEpub.montarXHTMLParaEPUB(
+      { titulo, autor, idioma:'pt-BR', blocos },
+      { formato: (document.getElementById('formato')||{}).value || '16x23' }
+    );
+    const blob = new Blob([xhtml], { type:'application/xhtml+xml;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (titulo||'obra').toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-epub.xhtml';
+    a.click();
+  }catch(e){
+    alert('Erro ao gerar EPUB: ' + e.message);
+    console.error(e);
+  }
+}
+</script>
+</body>
+</html>

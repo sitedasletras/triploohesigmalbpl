@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Quironxadá — Diagramador de Cordel</title>
+<script src="config.js"></script>
+<script src="motor_celeiro_v3.js"></script>
+<script src="motores_lapidar/finais/motor_decoracao_editorial_v1.js"></script>
+<script src="motor_pretextuais_v2.js"></script>
+<script src="motor_juncao_v1.js"></script>
+<script src="motores_lapidar/motor_upload_manuscrito_v1.js"></script>
+<script src="motores_lapidar/motor_exportacao_pdf_v1.js"></script>
+<script src="motores_lapidar/finais/motor_paginacao_real_v1.js"></script>
+<script src="motores_lapidar/finais/motor_exportacao_final_pdf_epub_v1.js"></script>
+<script src="motores_lapidar/finais/motor_decoracao_editorial_v1.js"></script>
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+<style>
+:root{
+  --ouro:#e8a040;--ouro2:#f0c870;--azul:#3a1e00;
+  --paper:#fffcf5;--ink:#1f1000;--muted:#6a5030;--line:#e0c890;
+  --ok:#2f7a59;--warn:#b7921e;--danger:#b13a3a;
+  --shadow:0 12px 32px rgba(0,0,0,.15);--radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100vh;background:linear-gradient(135deg,#200f00,#3d2000);font-family:Georgia,'Times New Roman',serif;color:var(--ink);}
+.app{width:min(1400px,calc(100vw - 12px));margin:8px auto;display:grid;grid-template-columns:290px minmax(0,1fr);gap:14px;align-items:start;}
+.panel{background:linear-gradient(180deg,#1a0a00,#3a1e00 60%,#5a3000);color:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px;position:sticky;top:8px;max-height:calc(100vh - 16px);overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.panel-titulo{font-size:1.6rem;color:var(--ouro);font-family:Georgia,serif;font-weight:700;}
+.panel-sub{font-size:.7rem;color:rgba(232,160,64,.5);letter-spacing:.1em;text-transform:uppercase;}
+.status-box{font-size:.82rem;border-radius:10px;padding:9px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(232,160,64,.2);color:#fff8e8;line-height:1.5;min-height:38px;}
+.motor-ok{font-size:.68rem;color:#86efac;background:rgba(47,168,106,.1);border:1px solid rgba(47,168,106,.2);border-radius:7px;padding:3px 8px;text-align:center;}
+.motor-warn{font-size:.68rem;color:#fcd34d;background:rgba(183,146,30,.1);border:1px solid rgba(183,146,30,.2);border-radius:7px;padding:3px 8px;text-align:center;}
+.card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:11px;display:flex;flex-direction:column;gap:8px;}
+.card-titulo{font-size:.68rem;font-weight:700;color:rgba(232,160,64,.6);letter-spacing:.1em;text-transform:uppercase;}
+label{display:block;font-size:.72rem;font-weight:700;color:#d4b890;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px;}
+.inp,.sel{width:100%;font-family:inherit;font-size:.88rem;border-radius:9px;border:1px solid #c8a060;background:#fffcf0;color:var(--ink);padding:7px 10px;outline:none;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.btn{width:100%;border:none;border-radius:10px;padding:10px 14px;font:700 .85rem Georgia,serif;cursor:pointer;transition:.14s;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;}
+.btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-ouro{background:var(--ouro);color:#1a0800;}
+.btn-soft{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);}
+.btn-verde{background:#2f7a59;color:#fff;}
+.btn-danger{background:#b13a3a;color:#fff;}
+.alertas-box{background:rgba(183,146,30,.1);border:1px solid rgba(183,146,30,.25);border-radius:10px;padding:9px;display:none;flex-direction:column;gap:4px;}
+.alertas-box.vis{display:flex;}
+.alerta-item{font-size:.73rem;color:#f0e4b8;display:flex;gap:5px;line-height:1.4;}
+/* Banner modo */
+.banner-modo{border-radius:10px;padding:10px 12px;font-size:.78rem;margin-bottom:4px;}
+.banner-varal{background:rgba(232,160,64,.12);border:1px solid rgba(232,160,64,.3);color:#f0c870;}
+.banner-livro{background:rgba(47,168,106,.1);border:1px solid rgba(47,168,106,.3);color:#86efac;}
+.banner-obra{background:rgba(47,168,106,.1);border:1px solid rgba(47,168,106,.25);border-radius:10px;padding:10px 12px;display:none;gap:8px;align-items:center;font-size:.78rem;}
+.banner-obra.vis{display:flex;}
+.dot{width:8px;height:8px;border-radius:50%;background:#2fa86a;animation:pulse 2s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(1.3);}}
+.main{display:flex;flex-direction:column;gap:14px;}
+.box{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);}
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:4px;}
+.stat-card{background:#fffdf5;border:1px solid #e8d8b4;border-radius:12px;padding:10px;text-align:center;}
+.stat-val{font-size:1.1rem;font-weight:700;color:var(--azul);}
+.stat-lbl{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+.pager{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.btn-pg{border:1.5px solid var(--ouro);background:transparent;color:var(--azul);border-radius:999px;padding:7px 16px;font:700 .84rem Georgia,serif;cursor:pointer;transition:.14s;}
+.btn-pg:hover:not(:disabled){background:var(--ouro);color:#1a0800;}
+.btn-pg:disabled{opacity:.3;cursor:not-allowed;}
+.pg-info{font-size:.86rem;color:var(--azul);font-weight:700;margin:0 auto;}
+.stage{background:linear-gradient(180deg,#c8a870,#b89050);border-radius:16px;padding:20px;min-height:500px;display:flex;align-items:flex-start;justify-content:center;overflow:auto;}
+.meta-linha{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:.75rem;color:var(--muted);margin-top:8px;}
+.textarea-obra{width:100%;min-height:180px;border:1.5px solid var(--line);border-radius:12px;padding:12px;resize:vertical;background:#fff;color:var(--ink);font-family:Georgia,'Times New Roman',serif;font-size:.95rem;line-height:1.6;outline:none;}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;overflow-y:auto;padding:20px;}
+.modal-overlay.vis{display:flex;align-items:flex-start;justify-content:center;}
+.modal{background:linear-gradient(180deg,#1a0a00,#3a1e00);border:1px solid rgba(232,160,64,.3);border-radius:20px;padding:24px;width:min(680px,100%);color:#fff;margin:auto;}
+.modal-titulo{font-size:1.2rem;color:var(--ouro);font-family:Georgia,serif;font-weight:700;margin-bottom:4px;}
+.modal-sub{font-size:.7rem;color:rgba(232,160,64,.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px;}
+.modal-secao{font-size:.68rem;font-weight:700;color:rgba(232,160,64,.5);letter-spacing:.1em;text-transform:uppercase;margin:14px 0 6px;border-bottom:1px solid rgba(232,160,64,.15);padding-bottom:4px;}
+.modal .inp,.modal .sel,.modal textarea{width:100%;font-family:inherit;font-size:.85rem;border-radius:9px;border:1px solid #c8a060;background:#fffcf0;color:var(--ink);padding:7px 10px;outline:none;margin-bottom:6px;}
+.modal textarea{min-height:80px;resize:vertical;}
+.modal .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.modal .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.modal label{font-size:.7rem;font-weight:700;color:#d4b890;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px;display:block;}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px;}
+@media(max-width:900px){.app{grid-template-columns:1fr;}.panel{position:relative;top:auto;max-height:none;}.stats-grid{grid-template-columns:1fr 1fr 1fr;}}
+
+/* RODAPÉ DE COMANDO — padrão de cores fixo em todos os departamentos */
+.rodape-comando{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.cmd-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-decoration:none;text-align:center;transition:.15s}
+.cmd-btn:hover{transform:translateY(-1px)}
+.cmd-verde{background:rgba(47,168,106,.12);border:1px solid rgba(47,168,106,.4);color:#4ab87a}
+.cmd-amarelo{background:rgba(217,164,65,.12);border:1px solid rgba(217,164,65,.4);color:#f0d882}
+.cmd-vermelho{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);color:#fca5a5}
+.cmd-preto{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.14);color:#c8c8d8}
+.cmd-branco{background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.92);color:#111}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="panel">
+  <div class="panel-titulo">🎭 Quironxadá</div>
+  <div class="panel-sub">Diagramador de Cordel · Dep. 01</div>
+  <div class="status-box" id="status">Carregando obra ativa...</div>
+  <div class="motor-ok" id="motorBadge">⏳ Motor V3 carregando...</div>
+
+  <!-- MODO DETECTADO -->
+  <div class="banner-modo banner-varal" id="bannerModo" style="display:none"></div>
+
+  <!-- OBRA ATIVA -->
+  <div class="banner-obra" id="bannerObra">
+    <div class="dot"></div>
+    <div style="flex:1;font-size:.75rem;">
+      <div style="color:#86efac;font-weight:700;">Obra Ativa</div>
+      <div style="color:rgba(134,239,172,.6);font-size:.68rem;" id="nomeObra">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-titulo">Identificação</div>
+    <label>Título</label><input class="inp" id="titulo" type="text" placeholder="Título do cordel">
+    <label>Autor / Cordelista</label><input class="inp" id="autor" type="text" placeholder="Nome do cordelista">
+  </div>
+
+  <div class="card">
+    <div class="card-titulo">Formato</div>
+    <label>Tamanho do Folheto</label>
+    <select class="sel" id="formato" onchange="detectarModo()">
+      <option value="cordel" selected>11×16 cm — Tradicional (varal)</option>
+      <option value="cordel_classico">12×18 cm — Clássico (varal)</option>
+      <option value="cordel_luzeiro">13,5×18 cm — Luzeiro (varal)</option>
+      <option value="A5">A5 — Livro de cordel</option>
+      <option value="14x21">14×21 cm — Livro de cordel</option>
+      <option value="16x23">16×23 cm — Livro de cordel</option>
+    </select>
+    <div class="row2">
+      <div><label>Fonte (pt)</label><input class="inp" id="fontSize" type="number" value="11" min="9" max="14" step=".5"></div>
+      <div><label>Entrelinha</label><input class="inp" id="lineHeight" type="number" value="1.3" min="1.1" max="1.8" step=".05"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-titulo">Tipografia</div>
+    <label>Fonte</label>
+    <select class="sel" id="fontFamily">
+      <option value="Georgia,'Times New Roman',serif" selected>Georgia</option>
+      <option value="'Times New Roman',serif">Times New Roman</option>
+      <option value="Courier New,monospace">Courier New (tipográfico)</option>
+    </select>
+    <label>Alinhamento</label>
+    <select class="sel" id="alinhPoesia">
+      <option value="left" selected>Alinhado à esquerda</option>
+      <option value="center">Centralizado</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <div class="card-titulo">Recursos</div>
+    <label>Correção textual</label>
+    <select class="sel" id="correcao">
+      <option value="leve" selected>Leve</option>
+      <option value="media">Média</option>
+    </select>
+    <label>Numeração</label>
+    <select class="sel" id="numeracao">
+      <option value="espelho" selected>Espelho</option>
+      <option value="dir">Sempre à direita</option>
+      <option value="off">Sem numeração</option>
+    </select>
+  </div>
+
+  <button class="btn btn-ouro" onclick="render()">🖨 Atualizar Prévia</button>
+  <button class="btn btn-verde" id="btnExportar" onclick="exportarCordel()">📜 Exportar Cordel</button>
+  <button class="btn btn-soft" onclick="abrirEImprimirPDF()">🖨 Abrir e Imprimir (PDF)</button>
+  <button class="btn btn-soft" onclick="exportarEpubCompleto()">📱 Exportar EPUB (livro completo)</button>
+  <button class="btn btn-danger" onclick="limpar()">✕ Limpar</button>
+
+  <div class="alertas-box" id="alertasBox"></div>
+</aside>
+
+<main class="main">
+  <div class="box">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val" id="sFmt">—</div><div class="stat-lbl">Formato</div></div>
+      <div class="stat-card"><div class="stat-val" id="sPags">0</div><div class="stat-lbl">Páginas</div></div>
+      <div class="stat-card"><div class="stat-val" id="sWords">0</div><div class="stat-lbl">Palavras</div></div>
+      <div class="stat-card"><div class="stat-val" id="sFolhas">—</div><div class="stat-lbl">Folhas</div></div>
+      <div class="stat-card"><div class="stat-val" id="sModo">—</div><div class="stat-lbl">Modo</div></div>
+    </div>
+  </div>
+
+  <div class="box" id="previaSumarioBox" style="display:none">
+    <div style="font-size:.82rem;font-weight:700;color:var(--azul);margin-bottom:10px;">📑 Prévia do Sumário <span style="font-weight:400;color:var(--muted);font-size:.72rem">— atualiza ao editar</span></div>
+    <div id="previaSumarioLista" style="font-size:.85rem;line-height:1.9"></div>
+  </div>
+
+  <div class="box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-size:.82rem;font-weight:700;color:var(--azul);">Texto do Cordel</div>
+      <span style="font-size:.7rem;color:var(--muted);">Carregado da Obra Ativa</span>
+    </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+      <input type="file" id="uploadArquivo" accept=".txt,.docx,.doc" style="font-size:.8rem;flex:1;" />
+      <span id="uploadStatus" style="font-size:.75rem;color:var(--muted);"></span>
+    </div>
+<textarea class="textarea-obra" id="texto" placeholder="O texto será carregado automaticamente da Obra Ativa..." oninput="scheduleRender()"></textarea>
+  </div>
+
+  <div class="box">
+    <div class="pager">
+      <button class="btn-pg" id="btnAnt" onclick="paginaAnterior()" disabled>← Anterior</button>
+      <span class="pg-info" id="pgInfo">—</span>
+      <button class="btn-pg" id="btnProx" onclick="proximaPagina()" disabled>Próxima →</button>
+    </div>
+    <div class="stage" id="preview">
+      <div style="color:#6a5030;font-style:italic;font-size:.9rem;padding:40px;text-align:center;">A prévia aparecerá aqui após carregar o texto.</div>
+    </div>
+    <div class="meta-linha">
+      <span id="metaTipo">—</span>
+      <span id="metaInfo">—</span>
+      <span id="metaPag">—</span>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- MODAL DADOS (só para modo livro) -->
+<div class="modal-overlay" id="modalDados">
+<div class="modal">
+  <div class="modal-titulo">📚 Dados do Livro de Cordel</div>
+  <div class="modal-sub">Preencha para gerar o livro completo</div>
+  <div class="modal-secao">Identificação</div>
+  <div class="row2">
+    <div><label>Título</label><input class="inp" id="m-titulo" type="text"></div>
+    <div><label>Autor</label><input class="inp" id="m-autor" type="text"></div>
+  </div>
+  <div class="row3">
+    <div><label>Editora</label><input class="inp" id="m-editora" type="text" placeholder="Nome da editora"></div>
+    <div><label>Local</label><input class="inp" id="m-local" type="text" placeholder="Brasil"></div>
+    <div><label>Ano</label><input class="inp" id="m-ano" type="text"></div>
+  </div>
+  <div class="modal-secao">Textos</div>
+  <label>Dedicatória</label><textarea id="m-dedicatoria"></textarea>
+  <label>Sobre o Autor/Cordelista</label><textarea id="m-sobre-autor"></textarea>
+  <div class="modal-btns">
+    <button class="btn btn-danger" onclick="fecharModal()">✕ Cancelar</button>
+    <button class="btn btn-verde" onclick="exportarLivroCompleto()">📚 Gerar Livro</button>
+  </div>
+</div>
+</div>
+
+<div class="rodape-comando" style="max-width:960px;margin:0 auto;padding:16px 20px 60px">
+  <a href="index.html" class="cmd-btn cmd-preto">← Painel Central</a>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let resultado=null,pagAtual=0,modoAtual='varal',_t=null;
+const FORMATOS_VARAL=['cordel','cordel_classico','cordel_luzeiro'];
+const PAGINAS_VALIDAS=[8,16,24,32,40,48,56,64];
+
+// Formatos extras para o motor V3
+if(window.CeleiroV3){
+  CeleiroV3.FORMATOS['cordel_classico']={nome:'Cordel 12×18',w:340,h:510,wCm:12,hCm:18};
+  CeleiroV3.FORMATOS['cordel_luzeiro']={nome:'Cordel 13,5×18',w:383,h:510,wCm:13.5,hCm:18};
+}
+
+window.addEventListener('load',()=>{
+  const ok=!!window.CeleiroV3;
+  $('motorBadge').textContent=ok?'✓ Quironxadá · Motor V3':'⚠ Motor não encontrado';
+  $('motorBadge').className=ok?'motor-ok':'motor-warn';
+});
+
+(function carregarObraAtiva(){
+  const fontes=['lapidar_obra_texto','lapidar_resultado_desbaste','lapidar_resultado_anterior','obra_ativa_texto','lapidar_texto_obra'];
+  for(const k of fontes){
+    const v=localStorage.getItem(k);
+    if(v&&v.trim().length>20){
+      $('texto').value=v;
+      $('bannerObra').classList.add('vis');
+      const nome=localStorage.getItem('obra_ativa_texto_nome')||'Texto da Central';
+      $('nomeObra').textContent=nome.replace(/^✦\s*/,'');
+      break;
+    }
+  }
+  const titulo=localStorage.getItem('obra_ativa_texto_nome')||localStorage.getItem('obra_titulo');
+  if(titulo) $('titulo').value=titulo.replace(/^✦\s*/,'');
+  const autor=localStorage.getItem('obra_autor');
+  if(autor) $('autor').value=autor;
+  detectarModo();
+  if($('texto').value) render();
+})();
+
+function detectarModo(){
+  const fmt=$('formato').value;
+  const eVaral=FORMATOS_VARAL.includes(fmt);
+  modoAtual=eVaral?'varal':'livro';
+  const banner=$('bannerModo');
+  banner.style.display='block';
+  if(eVaral){
+    banner.className='banner-modo banner-varal';
+    banner.innerHTML='🎭 <strong>Cordel de Varal</strong> — Folheto tradicional · Sem pré-textuais';
+    $('btnExportar').textContent='📜 Exportar Folheto';
+  } else {
+    banner.className='banner-modo banner-livro';
+    banner.innerHTML='📚 <strong>Livro de Cordel</strong> — Com ficha catalográfica, dedicatória e colofão';
+    $('btnExportar').textContent='📚 Exportar Livro de Cordel';
+  }
+}
+
+function getCfg(){
+  const fmt=$('formato').value;
+  // Mapear formatos cordel para o motor
+  const fmtMotor=fmt==='cordel_classico'?'cordel_classico':fmt==='cordel_luzeiro'?'cordel_luzeiro':fmt;
+  // Varal (folheto pequeno, impressão caseira) usa 1cm — a montagem foi
+  // calibrada pra encaixar 4 estrofes de sextilha por página nesse espaço.
+  // Livro de cordel (A5/14x21/16x23) segue o padrão de 2cm das gráficas,
+  // igual aos outros 7 diagramadores.
+  const margemCordel=FORMATOS_VARAL.includes(fmt)?'cordel':'grafica';
+  return {
+    modulo:'quironxada',
+    formato:fmtMotor,
+    margem:margemCordel,
+    tamanhoFonte:parseFloat($('fontSize').value)||11,
+    entrelinha:parseFloat($('lineHeight').value)||1.3,
+    fonte:$('fontFamily').value,
+    recuo:0,paragraphGap:0.8,
+    capitular:'none',hifenizacao:false,
+    decoracao:localStorage.getItem('lapidar_genero_obra')||localStorage.getItem('lapidar_tipo_obra')||'',
+    alinhPoesia:$('alinhPoesia').value,
+    correcao:$('correcao').value,
+    numeracao:$('numeracao').value,
+  };
+}
+
+function render(){
+  const texto=$('texto').value.trim();
+  if(!texto||!window.CeleiroV3){return;}
+  try{
+    const cfg=getCfg();
+    resultado=CeleiroV3.preparar(texto,cfg);
+    pagAtual=0;
+    const nPags=resultado.stats.paginas;
+    // Validar páginas se varal
+    const val=CeleiroV3.validarCordel?CeleiroV3.validarCordel(nPags):{paginasNecessarias:nPags,folhas:Math.ceil(nPags/8),valido:true};
+    $('sFmt').textContent=resultado.fmt?.nome||cfg.formato;
+    $('sPags').textContent=nPags;
+    $('sWords').textContent=resultado.stats.palavras.toLocaleString('pt-BR');
+    $('sFolhas').textContent=val.folhas||Math.ceil(nPags/8);
+    $('sModo').textContent=modoAtual==='varal'?'Varal':'Livro';
+    renderPag();
+    let msg=`✓ ${nPags} páginas`;
+    if(modoAtual==='varal'){
+      if(!val.valido) msg+=` ⚠ Ajuste para ${val.paginasNecessarias} páginas (${val.folhas} folhas)`;
+      else msg+=` · ${val.folhas} folha(s) · Cordel de Varal ✓`;
+    }
+    $('status').textContent=msg;
+    const alertas=resultado.alertas||[];
+    const box=$('alertasBox');
+    if(alertas.length){box.classList.add('vis');box.innerHTML=alertas.slice(0,6).map(a=>`<div class="alerta-item">⚠ ${a.msg||a}</div>`).join('');}
+    else box.classList.remove('vis');
+    atualizarPreviaSumario();
+  }catch(e){$('status').textContent='Erro: '+e.message;console.error(e);}
+}
+
+function atualizarPreviaSumario(){
+  const box=$('previaSumarioBox'), lista=$('previaSumarioLista');
+  if(!box||!lista||!resultado) return;
+  if(!window.CeleiroJuncao){ box.style.display='none'; return; }
+  const capitulos=CeleiroJuncao.extrairCapitulosDoMiolo(resultado.paginas||[], 1);
+  if(!capitulos.length){ box.style.display='none'; return; }
+  lista.innerHTML=capitulos.map(c=>`
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:.35em">
+      <span>${(c.titulo||'').replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]))}</span>
+      <span style="border-bottom:1px dotted #ccc;flex:1;margin:0 6px;min-width:16px"></span>
+      <span style="color:var(--muted);flex-shrink:0">${c.pagina}</span>
+    </div>`).join('');
+  box.style.display='block';
+}
+
+function scheduleRender(){clearTimeout(_t);_t=setTimeout(render,800);}
+
+function renderPag(){
+  if(!resultado) return;
+  const pag=resultado.paginas[pagAtual];
+  if(!pag) return;
+  $('preview').innerHTML=CeleiroV3.renderizarPagina(pag,resultado.cfg,resultado.fmt,resultado.cfg.numeracao);
+  $('pgInfo').textContent=`Página ${pagAtual+1} / ${resultado.paginas.length}`;
+  $('metaPag').textContent=`Pág ${pagAtual+1}/${resultado.paginas.length}`;
+  $('metaInfo').textContent=`${resultado.stats.palavras.toLocaleString('pt-BR')} palavras`;
+  $('btnAnt').disabled=pagAtual===0;
+  $('btnProx').disabled=pagAtual===resultado.paginas.length-1;
+}
+
+function paginaAnterior(){if(pagAtual>0){pagAtual--;renderPag();}}
+function proximaPagina(){if(resultado&&pagAtual<resultado.paginas.length-1){pagAtual++;renderPag();}}
+function limpar(){$('texto').value='';resultado=null;pagAtual=0;$('preview').innerHTML='';$('status').textContent='Texto limpo.';}
+
+function exportarCordel(){
+  if(!resultado){alert('Diagrame o texto primeiro.');return;}
+  if(modoAtual==='varal'){
+    // Exportar folheto simples — sem pré-textuais
+    const cfg=resultado.cfg,fmt=resultado.fmt;
+    const css=CeleiroV3.gerarCSSImpressao(cfg,fmt);
+    let corpo='';
+    resultado.paginas.forEach((pag,i)=>{
+      const q=i<resultado.paginas.length-1?'page-break-after:always;':'';
+      corpo+=`<div style="${q}">${CeleiroV3.renderizarPagina(pag,cfg,fmt,cfg.numeracao)}</div>`;
+    });
+    const html=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><style>${css}body{margin:0;}</style></head><body>${corpo}</body></html>`;
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    const nome=($('titulo').value||'cordel').toLowerCase().replace(/\s+/g,'-');
+    a.download=nome+'-varal.html';
+    a.click();
+    localStorage.setItem('lapidar_diagramacao_concluida','true');
+    localStorage.setItem('lapidar_resultado_diagramacao',`Cordel de Varal — ${resultado.stats.paginas} páginas — Quironxadá`);
+    $('status').textContent=`✅ Folheto gerado — ${resultado.stats.paginas} páginas · Imprima e dobre!`;
+  } else {
+    // Modo livro — abrir modal
+    abrirModalDados();
+  }
+}
+
+function abrirModalDados(){
+  $('m-titulo').value=$('titulo').value;
+  $('m-autor').value=$('autor').value;
+  $('m-ano').value=String(new Date().getFullYear());
+  $('m-editora').value='';
+  $('m-local').value='Brasil';
+  $('modalDados').classList.add('vis');
+}
+function fecharModal(){$('modalDados').classList.remove('vis');}
+
+function extrairEntradasSumario(){
+  // A extração de verdade já existe em CeleiroJuncao (mesma lógica que
+  // juntar() usa pra recalcular o sumário com as páginas reais depois)
+  // — só delega em vez de duplicar o algoritmo de novo aqui.
+  if(!window.CeleiroJuncao || !resultado) return [];
+  return CeleiroJuncao.extrairCapitulosDoMiolo(resultado.paginas||[], 1);
+}
+
+function exportarLivroCompleto(){
+  if(!resultado||!window.CeleiroPretextuais||!window.CeleiroJuncao){return;}
+  const dados={
+    titulo:$('m-titulo').value.trim(),autor:$('m-autor').value.trim(),
+    editora:$('m-editora').value.trim(),local:$('m-local').value.trim(),
+    ano:$('m-ano').value.trim(),dedicatoria:$('m-dedicatoria').value.trim(),
+    sobreAutor:$('m-sobre-autor').value.trim(),colofao:true,entradasSumario:extrairEntradasSumario(),
+  };
+  fecharModal();
+  $('status').textContent='⏳ Gerando livro de cordel...';
+  setTimeout(()=>{
+    try{
+      const cfg=resultado.cfg,fmt=resultado.fmt;
+      const pre=CeleiroPretextuais.gerarPreTextuais(dados,fmt,cfg);
+      const pos=CeleiroPretextuais.gerarPosTextuais(dados,fmt,cfg);
+      const livro=CeleiroJuncao.juntar(pre,resultado,pos,cfg,fmt);
+      const html=CeleiroJuncao.renderizarLivroCompleto(livro,cfg,fmt);
+      window.__ultimoLivroHTML=html;
+      localStorage.setItem('lapidar_ultima_contagem_paginas', String(livro.stats.totalPaginas));
+      const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download=(dados.titulo||'cordel').toLowerCase().replace(/\s+/g,'-')+'-livro.html';
+      a.click();
+      localStorage.setItem('lapidar_diagramacao_concluida','true');
+      localStorage.setItem('lapidar_resultado_diagramacao',`Livro de Cordel — ${livro.stats.totalPaginas} páginas — Quironxadá`);
+      $('status').textContent=`✅ Livro de cordel gerado — ${livro.stats.totalPaginas} páginas.`;
+    }catch(e){$('status').textContent='Erro: '+e.message;console.error(e);}
+  },100);
+}
+
+['formato','fontSize','lineHeight','fontFamily','alinhPoesia','correcao','numeracao']
+  .forEach(id=>{$(id).addEventListener('change',()=>{detectarModo();render();});});
+</script>
+<script>
+if(window.CeleiroUploadManuscrito){
+  window.CeleiroUploadManuscrito.montar({
+    inputId:'uploadArquivo',
+    textareaId:'texto',
+    statusId:'uploadStatus',
+    aoCarregar:function(texto){
+      if(typeof scheduleRender==='function') scheduleRender();
+      else if(typeof render==='function') render();
+    }
+  });
+}
+function abrirEImprimirPDF(){
+  if(!window.__ultimoLivroHTML){
+    alert('Gere o livro/coletânea completa primeiro (botão de exportação acima) antes de imprimir em PDF.');
+    return;
+  }
+  const janela=window.open('','_blank');
+  if(!janela){ alert('O navegador bloqueou a nova aba. Permita pop-ups e tente de novo.'); return; }
+  janela.document.write(window.__ultimoLivroHTML);
+  janela.document.close();
+  setTimeout(()=>{ janela.print(); }, 400);
+}
+
+// ── EXPORTAR EPUB DO LIVRO COMPLETO (motores finais, independente do fluxo principal) ──
+function exportarEpubCompleto(){
+  if(!window.CeleiroV3 || !window.CeleiroMotorExportacaoFinalPdfEpub){
+    alert('Motores de exportação final não carregaram.');
+    return;
+  }
+  const texto = document.getElementById('texto').value.trim();
+  if(!texto){ alert('Escreva ou carregue o texto da obra primeiro.'); return; }
+  const titulo = (document.getElementById('m-titulo')||document.getElementById('titulo')||{}).value || 'Obra sem título';
+  const autor = (document.getElementById('m-autor')||document.getElementById('autor')||{}).value || 'Autor';
+  try{
+    const blocos = window.CeleiroV3.quebrarBlocos(texto);
+    const xhtml = window.CeleiroMotorExportacaoFinalPdfEpub.montarXHTMLParaEPUB(
+      { titulo, autor, idioma:'pt-BR', blocos },
+      { formato: (document.getElementById('formato')||{}).value || '16x23' }
+    );
+    const blob = new Blob([xhtml], { type:'application/xhtml+xml;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (titulo||'obra').toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-epub.xhtml';
+    a.click();
+  }catch(e){
+    alert('Erro ao gerar EPUB: ' + e.message);
+    console.error(e);
+  }
+}
+</script>
+</body>
+</html>
