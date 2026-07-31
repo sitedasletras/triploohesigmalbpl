@@ -27,12 +27,13 @@ const PADROES_ANTI_IA = [
   'Paralelismo negativo em série: "não é só X, é Y" repetido como muleta retórica ("não é um lançamento, é uma mudança de era"). No máximo uma vez por texto longo, nunca como padrão recorrente.',
   'Atribuição vaga (weasel wording): "dizem que", "é visto como", "especialistas apontam" sem nomear quem — jogando a autoridade da frase pra uma fonte que não existe. Se não há uma fonte concreta na ficção, não finja que há.',
   'Tom promocional parelho: adjetivo de propaganda ("de tirar o fôlego", "imperdível", "único") aplicado a qualquer coisa, sem hierarquia real de intensidade — tudo soa igualmente incrível, e por isso nada soa.',
-  'Simetria de superfície: parágrafos do mesmo tamanho, frases do mesmo comprimento, ritmo regular demais. Escrita humana varia — frase de duas palavras ao lado de uma de quarenta, parágrafo curto quebrando um bloco longo.'
+  'Simetria de superfície: parágrafos do mesmo tamanho, frases do mesmo comprimento, ritmo regular demais. Escrita humana varia — frase de duas palavras ao lado de uma de quarenta, parágrafo curto quebrando um bloco longo.',
+  'Diálogo em fôrma fixa: usar sempre a mesma construção "— Fala — verbo dicendi — continuação da fala." (travessão, fala, travessão, verbo dicendi, travessão, resto da fala no MESMO parágrafo) em praticamente toda linha de diálogo. Esse formato existe e é válido pra fala genuinamente interrompida e retomada (Chicago Manual of Style o reconhece), mas IA o repete como padrão fixo em vez de reservá-lo pra interrupções reais — e travessão em excesso (3-5x a taxa de autores humanos) já é, por si só, sinal reconhecido de texto gerado. Varie: termine a fala com ponto logo após o verbo dicendi e comece um parágrafo novo pra continuação ("— Fala — disse ele.\\n— Continuação."), ou dispense o verbo dicendi e deixe a ação/contexto identificar quem fala, ou junte fala e tag numa linha só sem retomar no mesmo parágrafo. Reserve o travessão-retomada só pra quando o personagem é de fato cortado e recomeça a MESMA frase.'
 ];
 
 // Monta o bloco pronto pra injetar em qualquer system prompt de geração —
 // chamar sempre, independente de o heterônimo ter Perfil de Voz ou não.
 function montarBlocoAntiIA() {
-  return `\n\nCHECKLIST ANTI-PADRÃO-DE-IA (aplica-se sempre, é a base mínima de qualquer texto seu — evite estes dez vícios que denunciam texto gerado em piloto automático):
+  return `\n\nCHECKLIST ANTI-PADRÃO-DE-IA (aplica-se sempre, é a base mínima de qualquer texto seu — evite estes ${PADROES_ANTI_IA.length} vícios que denunciam texto gerado em piloto automático):
 ${PADROES_ANTI_IA.map((p, i) => `${i + 1}. ${p}`).join('\n')}`;
 }

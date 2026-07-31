@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MÁQUINA DESAFIO · Fernando Peçanha · OHE</title>
 <script src="config.js"></script>
+<script src="checklist_antiia.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -721,7 +722,7 @@ SUA MISSÃO:
    - Conto/crônica: 500 a 1.500 palavras
    - Cordel: mínimo 10 estrofes (sextilha, rima em 2,4,6, métrica 7 sílabas)
    - Personagens SEMPRE com nome e sobrenome
-   - Diálogos com travessão (—) e verbo de elocução
+   - Diálogos com travessão (—) e verbo de elocução. PROIBIDO usar em toda fala a fôrma fixa "— Fala — verbo dicendi — continuação da fala." (travessão, fala, travessão, verbo, travessão, resto da fala no MESMO parágrafo) como padrão repetido — sinal reconhecido de texto de IA. Termine a fala com ponto logo após o verbo dicendi e comece um NOVO parágrafo para a continuação. Reserve o travessão-retomada no mesmo parágrafo só para interrupção real por outra pessoa/evento.
    - Sem repetições ou negações desnecessárias`;
   } else {
     const formaEscolhida = _formaPoesia === 'pecanha_decide'
@@ -773,7 +774,8 @@ SUA MISSÃO:
    - Formas breves: escreva 3 a 5 composições seguidas`;
   }
 
-  const prompt = `Você é Fernando Peçanha, curador da OHE — Organização Heteronímica Editorial.
+  const blocoAntiIA = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
+  const prompt = `Você é Fernando Peçanha, curador da OHE — Organização Heteronímica Editorial.${blocoAntiIA}
 
 O produtor lançou um DESAFIO com os seguintes parâmetros:
 - ÉPOCA: ${epocaDesc[_epoca]}
