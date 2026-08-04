@@ -379,6 +379,11 @@ let custoSessaoUSD = 0;
 // meio de uma geração (ver aviso-saida-geracao mais abaixo), pra um toque
 // acidental no link de voltar não derrubar trabalho em andamento.
 let geracaoAtiva = false;
+// Total de arcos planejados pra obra atual — usado por costurarTexto()
+// pra decidir se um corte é "fim do livro" ou "transição entre arcos".
+// gerarLivroUnico() atualiza com o valor real (planejamento.length); sem
+// isso (semente, saga, ou geração vinda de outro fluxo), fica no padrão.
+let totalArcosPlanejados = 3;
 
 // Tokens por chamada e palavras por página A4
 const MAX_TOKENS_POR_CHAMADA = 8000; // Sonnet 4.6 suporta até 8192
@@ -791,6 +796,7 @@ async function gerarLivroUnico(titulo, sinopse, volume, genero, heteronimo, dest
   const jornada = JORNADAS[jornadaSelecionada];
   const planejamento = calcularFragmentos(volume);
   const totalFragmentos = planejamento.reduce((s, a) => s + a.numFrags, 0);
+  totalArcosPlanejados = planejamento.length;
 
   // Iniciar sessão
   sessaoAtual = { titulo, heteronimo: heteronimo || 'A definir', jornada: jornadaSelecionada, volume, fragmentosSalvos: [] };
@@ -1201,26 +1207,7 @@ Escreva uma revisão editorial (máximo 3 parágrafos):
     limparCheckpoints();
     liberarWakeLock();
     mostrarResultado(destinoFinal, novoHeteronimoCriado);
-
-    // ── COSTURADOR AUTOMÁTICO INTELIGENTE ──
-    const ultimoChar = livroCompleto.trim().slice(-1);
-    const ultimoTrecho = livroCompleto.trim().slice(-600).toLowerCase();
-    // Cortado: último char não é pontuação de fim de texto
-    const textoCortado = !'.!?…"»)\u2014'.includes(ultimoChar);
-    // Sem desfecho: termina com ação em aberto
-    const padraoAberto = /\b(caminharam|continuaram|seguiram|partindo|foi quando|estava prestes|havia ainda|ainda havia|começou a|estava a|olhou para|disse apenas|ficou em)\b/;
-    const semDesfecho = !textoCortado && padraoAberto.test(ultimoTrecho);
-
-    log('📊 Último char: "' + ultimoChar + '" | Cortado: ' + textoCortado + ' | Sem desfecho: ' + semDesfecho);
-
-    if (textoCortado || semDesfecho) {
-      log('🧵 ' + (textoCortado ? 'Corte detectado ("' + ultimoChar + '")' : 'Desfecho ausente') + ' — costura inteligente em 2s...');
-      setTimeout(() => costurarTexto(true), 2000);
-    } else {
-      log('✅ Texto aparentemente completo. Use 🧵 COSTURAR se quiser finalizar.');
-      const btnC = document.getElementById('btn-costurar');
-      if (btnC) btnC.style.display = 'inline-block';
-    }
+    detectarCorteEAgendarCostura();
 
   } catch (err) {
     log('✗ ERRO: ' + err.message);
@@ -1377,6 +1364,32 @@ async function costurarEContinuar() {
 }
 
 // ===================== COSTURADOR INTELIGENTE =====================
+// Detecta se livroCompleto terminou cortado (API interrompida no meio de
+// palavra/frase) ou sem desfecho (termina em ação aberta) e, se sim,
+// agenda a costura automática — usado tanto no livro completo/saga quanto
+// no conto semente, que também pode terminar cortado (é uma chamada de
+// API só, sem fragmentação, então corte no limite de saída é comum).
+// Sempre deixa o botão COSTURAR visível pro usuário acionar manualmente.
+function detectarCorteEAgendarCostura() {
+  const ultimoChar = livroCompleto.trim().slice(-1);
+  const ultimoTrecho = livroCompleto.trim().slice(-600).toLowerCase();
+  const textoCortado = !'.!?…"»)—'.includes(ultimoChar);
+  const padraoAberto = /\b(caminharam|continuaram|seguiram|partindo|foi quando|estava prestes|havia ainda|ainda havia|começou a|estava a|olhou para|disse apenas|ficou em)\b/;
+  const semDesfecho = !textoCortado && padraoAberto.test(ultimoTrecho);
+
+  log('📊 Último char: "' + ultimoChar + '" | Cortado: ' + textoCortado + ' | Sem desfecho: ' + semDesfecho);
+
+  const btnC = document.getElementById('btn-costurar');
+  if (btnC) btnC.style.display = 'inline-block';
+
+  if (textoCortado || semDesfecho) {
+    log('🧵 ' + (textoCortado ? 'Corte detectado ("' + ultimoChar + '")' : 'Desfecho ausente') + ' — costura inteligente em 2s...');
+    setTimeout(() => costurarTexto(true), 2000);
+  } else {
+    log('✅ Texto aparentemente completo. Use 🧵 COSTURAR se quiser finalizar.');
+  }
+}
+
 async function costurarTexto(automatico = false) {
   const btn = document.getElementById('btn-costurar');
   if (!livroCompleto || livroCompleto.length < 100) {
@@ -1426,7 +1439,7 @@ async function costurarTexto(automatico = false) {
     // Determinar se é corte de arco intermediário ou final do livro
     // Conta quantos separadores de arco há no texto
     const numArcos = (texto.match(/Arco\s+[IVX]+/gi) || []).length;
-    const totalArcosEsperados = planejamento ? planejamento.length : 3;
+    const totalArcosEsperados = totalArcosPlanejados;
     const eDesfechoFinal = numArcos >= totalArcosEsperados || texto.length > 20000;
 
     const promptCostura = `Você é ${heteronimoEscolhido || 'um escritor da OHE'}, escritor literário.
@@ -1507,6 +1520,16 @@ Escreva agora. Comece imediatamente sem introdução ou comentário.`;
       log('💾 Versão costurada salva no Calabouço.');
     }
 
+    // Conto semente costurado também atualiza o texto-base salvo pra
+    // expansão (localStorage.conto_semente_texto) — sem isso, expandir
+    // pro livro completo usaria a versão cortada como DNA da obra.
+    if (modoAtual === 'semente') {
+      const contoStripado = livroCompleto.replace(/^🌱 CONTO SEMENTE\n[\s\S]*?═+\n\n/, '');
+      localStorage.setItem('conto_semente_texto', contoStripado);
+      localStorage.setItem('conto_semente_palavras', String(contoStripado.split(/\s+/).filter(Boolean).length));
+      log('💾 Conto semente costurado também atualizado como base de expansão.');
+    }
+
   } catch (e) {
     log('✗ Erro na costura: ' + e.message);
     if (btn) {
@@ -1521,6 +1544,11 @@ Escreva agora. Comece imediatamente sem introdução ou comentário.`;
 // ═══════════════════════════════════════════════════════════
 async function gerarContoSemente(titulo, sinopse) {
   custoSessaoUSD = 0;
+  // Conto semente é sempre um arco único e completo — a costura, se
+  // precisar entrar, deve sempre mirar um desfecho de verdade, nunca uma
+  // transição de "quase-fechamento" pro próximo arco (ver eDesfechoFinal
+  // em costurarTexto).
+  totalArcosPlanejados = 1;
   const genero = document.getElementById('genero-semente').value;
   const heteronimo = document.getElementById('heteronimo').value.trim();
   const destino = document.getElementById('destino-semente').value;
@@ -1675,6 +1703,7 @@ Escreva o conto completo agora. Comece diretamente com a narrativa.`;
 
     liberarWakeLock();
     mostrarResultadoSemente(destino, palavras);
+    detectarCorteEAgendarCostura();
 
   } catch(e) {
     log('✗ ERRO: ' + e.message);
