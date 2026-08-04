@@ -932,6 +932,39 @@ async function salvarBiografiaGitHub(s) {
   } catch(e) { log('⚠ Erro ao salvar biografia: ' + e.message); }
 }
 
+// Tenta interpretar o JSON de personagens devolvido pela IA. Se a resposta
+// veio cortada (limite de tokens estourado no meio de um valor), tenta
+// recuperar fechando as chaves/colchetes que ficaram abertos em vez de
+// simplesmente falhar — assim um personagem secundário truncado no fim
+// não derruba o protagonista/antagonista que já vieram completos.
+function parseJsonPersonagens(txtBruto) {
+  const limpo = txtBruto.replace(/```json|```/g, '').trim();
+  try { return JSON.parse(limpo); } catch (e) {}
+
+  // Corta qualquer coisa depois do último valor completo (",", "}" ou "]")
+  // e fecha o que ficou pendente, na ordem inversa de abertura — usando a
+  // pilha exatamente como estava NAQUELE ponto do texto, não a pilha final
+  // (que já teria sido esvaziada pelos fechamentos seguintes).
+  let pilha = [];
+  let cortarEm = -1;
+  let pilhaNoCorte = null;
+  for (let i = 0; i < limpo.length; i++) {
+    const c = limpo[i];
+    if (c === '{' || c === '[') { pilha.push(c); }
+    else if (c === '}') { if (pilha[pilha.length-1] === '{') pilha.pop(); }
+    else if (c === ']') { if (pilha[pilha.length-1] === '[') pilha.pop(); }
+    if ((c === '}' || c === ']' || c === ',') && pilha.length <= 2) {
+      cortarEm = i;
+      pilhaNoCorte = pilha.slice();
+    }
+  }
+  if (cortarEm < 0) throw new Error('resposta da IA vazia ou irrecuperável');
+  let reconstruido = limpo.slice(0, cortarEm + 1);
+  if (reconstruido.trim().endsWith(',')) reconstruido = reconstruido.trim().slice(0, -1);
+  for (let i = pilhaNoCorte.length - 1; i >= 0; i--) reconstruido += pilhaNoCorte[i] === '{' ? '}' : ']';
+  return JSON.parse(reconstruido);
+}
+
 // ── EXTRAIR PERSONAGENS (apenas modo prosa) ───────────────────────────────────
 const SCHEMA_EXTRACAO_PERSONAGENS_DESAFIO = {
   type: 'object',
@@ -968,10 +1001,10 @@ async function extrairESalvarPersonagens(s) {
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6', max_tokens: 800,
+        model: 'claude-sonnet-4-6', max_tokens: 1500,
         output_config: { format: { type: 'json_schema', schema: SCHEMA_EXTRACAO_PERSONAGENS_DESAFIO } },
         messages: [{ role: 'user', content:
-          `Leia esta obra e extraia os personagens. Se não houver antagonista, deixe os campos vazios. Máximo 3 secundários.
+          `Leia esta obra e extraia os personagens. Se não houver antagonista, deixe os campos vazios. Máximo 3 secundários. Seja conciso nas descrições (1 frase curta cada).
 
 OBRA: ${s.titulo}
 ${s.corpo.substring(0, 3000)}`
@@ -980,7 +1013,10 @@ ${s.corpo.substring(0, 3000)}`
     });
     const d = await r.json();
     const txt = (d.content||[]).map(b=>b.text||'').join('').trim();
-    const personagens = JSON.parse(txt.trim());
+    // json_schema já obriga o formato — mas se mesmo assim vier cortada
+    // (limite de tokens estourado no meio de um valor), parseJsonPersonagens
+    // ainda recupera o que deu tempo de gerar em vez de perder tudo.
+    const personagens = parseJsonPersonagens(txt);
     personagens.obra = s.titulo;
     personagens.autor = s.het;
     personagens.data = new Date().toISOString();
