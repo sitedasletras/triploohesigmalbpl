@@ -114,6 +114,8 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 </style>
 <script src="config.js"></script>
 <script src="checklist_antiia.js"></script>
+<script src="motor_celeiro_v3.js"></script>
+<script src="motores_lapidar/motor_roteador_v1.js"></script>
 </head>
 <body>
 <div class="container">
@@ -351,6 +353,7 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
         <button class="btn-p" onclick="copiarLivro()">📋 COPIAR LIVRO</button>
         <button class="btn-roxo" onclick="exportarTexto()">⬇ EXPORTAR .TXT</button>
         <button id="btn-costurar" onclick="costurarTexto()" style="display:none;font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;padding:0.6rem 1rem;border:1px solid #f57f17;background:rgba(245,127,23,0.12);color:#f57f17;cursor:pointer;text-transform:uppercase;border-radius:4px;font-weight:700;">🧵 COSTURAR TEXTO</button>
+        <button onclick="enviarAoDiagramador()" style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;padding:0.6rem 1rem;border:1px solid #4caf50;background:rgba(76,175,80,0.12);color:#4caf50;cursor:pointer;text-transform:uppercase;border-radius:4px;font-weight:700;">🛠️ ENVIAR AO DIAGRAMADOR</button>
         <button class="btn-s" onclick="novaGeracao()">↺ NOVA GERAÇÃO</button>
         <button id="btn-fissuras" onclick="document.getElementById('relatorio-fissuras').scrollIntoView({behavior:'smooth'})" style="display:none;font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;padding:0.6rem 1rem;border:1px solid #9c27b0;background:transparent;color:#9c27b0;cursor:pointer;text-transform:uppercase;border-radius:4px;">🔍 FISSURAS</button>
       </div>
@@ -623,6 +626,10 @@ function selecionarModo(modo) {
     modo === 'expansao' ? 'block' : 'none';
   document.getElementById('painel-genero-semente').style.display =
     modo === 'semente' ? 'block' : 'none';
+  // Entrar em Expansão puxa a definição mestra da semente (título,
+  // heterônimo, jornada, texto-base) direto, sem precisar recarregar a
+  // página — só preenche o que ainda estiver vazio.
+  if (modo === 'expansao') carregarContoSementeSalvo();
 }
 
 // ── AVALIAÇÃO DE SAGA ─────────────────────────────────────
@@ -877,11 +884,12 @@ Jornada: ${jornada.nome}
 Volume: ${volume} páginas A4
 
 INSTRUÇÃO:
-1. Analise se algum dos 51 heterônimos tem território adequado
+${contoBase ? `1. Título e heterônimo JÁ ESTÃO DEFINIDOS ("${titulo}" / "${heteronimo || 'a definir'}") — vieram da criação do conto semente. NÃO redecida nenhum dos dois: repita-os exatamente nos campos abaixo.
+2. Defina só uma frase de tom/voz para guiar a escrita, coerente com o que já foi escrito no conto.` : `1. Analise se algum dos 51 heterônimos tem território adequado
 2. Se SIM: escolha o melhor
 3. Se NÃO: crie um novo com nome, eixo, territorio, formato, volumeMinimo, destino e justificativa
 4. Defina o título definitivo
-5. Defina uma frase de tom/voz para guiar a escrita
+5. Defina uma frase de tom/voz para guiar a escrita`}
 
 Responda EXATAMENTE:
 ---HETERÔNIMO---
@@ -909,10 +917,19 @@ justificativa: [motivo]
     const matchTit = resEstrutura.match(/---TÍTULO DEFINITIVO---\s*([\s\S]*?)---/);
     const matchTom = resEstrutura.match(/---TOM---\s*([\s\S]*?)$/);
 
-    if (matchHet) heteronimoEscolhido = matchHet[1].trim();
-    if (matchTit) tituloFinal = matchTit[1].trim();
+    if (contoBase) {
+      // Título e heterônimo já foram definidos na criação da semente (a
+      // definição mestra da obra) — expandir não pode trocá-los por uma
+      // nova decisão da IA, senão título/autor divergem entre a semente,
+      // o livro e os diagramadores. heteronimoEscolhido/tituloFinal já
+      // vieram corretos dos parâmetros (linhas acima).
+      log('🔒 Semente presente — mantendo título e heterônimo já definidos.');
+    } else {
+      if (matchHet) heteronimoEscolhido = matchHet[1].trim();
+      if (matchTit) tituloFinal = matchTit[1].trim();
+    }
     tomVozGlobal = matchTom ? matchTom[1].trim() : '';
-    const ehNovo = matchNovo && matchNovo[1].trim().toLowerCase() === 's';
+    const ehNovo = !contoBase && matchNovo && matchNovo[1].trim().toLowerCase() === 's';
 
     log('Heterônimo: ' + heteronimoEscolhido);
     log('Título: ' + tituloFinal);
@@ -1656,11 +1673,14 @@ Escreva o conto completo agora. Comece diretamente com a narrativa.`;
 
     livroCompleto = `🌱 CONTO SEMENTE\n${tituloFinal.toUpperCase()}\n${heteronimoEscolhido}\n${jornada.nome}\n${'═'.repeat(60)}\n\n${conto}`;
 
-    // Salvar no localStorage para uso como base de expansão
+    // Salvar no localStorage para uso como base de expansão — esta é a
+    // definição MESTRA da obra (título, heterônimo, jornada); a expansão
+    // pra livro completo tem que reusar isso, não redecidir do zero.
     localStorage.setItem('conto_semente_titulo', tituloFinal);
     localStorage.setItem('conto_semente_autor', heteronimoEscolhido);
     localStorage.setItem('conto_semente_texto', conto);
     localStorage.setItem('conto_semente_palavras', String(palavras));
+    localStorage.setItem('conto_semente_jornada', jornadaSelecionada);
 
     limparCheckpoints();
 
@@ -2159,20 +2179,30 @@ window.addEventListener('load', () => {
     document.getElementById('banner-retomada').style.display = 'flex';
   }
 
-  // Carregar conto semente salvo se existir
+  carregarContoSementeSalvo();
+});
+
+// Preenche conto-base/título/heterônimo/jornada com a definição MESTRA
+// da semente já gerada (localStorage) — só em campos ainda vazios, pra
+// não sobrescrever o que o usuário já tiver digitado/escolhido. Chamada
+// no load da página e também ao entrar no modo Expansão (selecionarModo),
+// pra funcionar na mesma sessão sem precisar recarregar a página — sem
+// isso, título/autor podiam divergir entre a semente e o livro expandido.
+function carregarContoSementeSalvo() {
   const contoSalvo = localStorage.getItem('conto_semente_texto');
   const titSalvo   = localStorage.getItem('conto_semente_titulo');
   const autSalvo   = localStorage.getItem('conto_semente_autor');
-  if (contoSalvo) {
-    const campoBase = document.getElementById('conto-base');
-    if (campoBase && !campoBase.value) campoBase.value = contoSalvo;
-    const campoTitulo = document.getElementById('titulo');
-    if (campoTitulo && !campoTitulo.value && titSalvo) campoTitulo.value = titSalvo;
-    const campoHet = document.getElementById('heteronimo');
-    if (campoHet && !campoHet.value && autSalvo) campoHet.value = autSalvo;
-    log(`✦ Conto semente disponível: "${titSalvo||'Sem título'}" — ${autSalvo||'autor'}`);
-  }
-});
+  const jorSalva   = localStorage.getItem('conto_semente_jornada');
+  if (!contoSalvo) return;
+  const campoBase = document.getElementById('conto-base');
+  if (campoBase && !campoBase.value) campoBase.value = contoSalvo;
+  const campoTitulo = document.getElementById('titulo');
+  if (campoTitulo && !campoTitulo.value && titSalvo) campoTitulo.value = titSalvo;
+  const campoHet = document.getElementById('heteronimo');
+  if (campoHet && !campoHet.value && autSalvo) campoHet.value = autSalvo;
+  if (jorSalva && !jornadaSelecionada && JORNADAS[jorSalva]) selecionarJornada(jorSalva);
+  log(`✦ Conto semente disponível: "${titSalvo||'Sem título'}" — ${autSalvo||'autor'}`);
+}
 
 // ── WAKE LOCK — impede a tela de apagar durante a geração ──
 let _wakeLock = null;
@@ -2389,6 +2419,41 @@ function exportarTexto() {
   const a = document.createElement('a');
   a.href = url; a.download = tituloFinal.replace(/\s+/g,'_') + '.txt'; a.click();
   URL.revokeObjectURL(url);
+}
+// Envia o livro gerado direto pro diagramador certo — sem isso, a única
+// saída daqui era COPIAR/EXPORTAR e colar manualmente num diagramador,
+// digitando título/autor de novo à mão (é assim que título/autor
+// divergiam entre o que foi gerado aqui e o que chegava no diagramador).
+// Usa o mesmo roteador de gênero (motor_roteador_v1.js) que o gerador
+// embutido no SIGMAL HQ já usa, pra cair automaticamente no diagramador
+// certo (Pólux, Castor, Apolo etc.) de acordo com o texto.
+function enviarAoDiagramador() {
+  if (!livroCompleto || !livroCompleto.trim()) {
+    alert('Nenhum texto gerado pra enviar.');
+    return;
+  }
+  if (!window.CeleiroRoteador) {
+    alert('Motor de roteamento não carregou — recarregue a página e tente de novo.');
+    return;
+  }
+  // Conto semente tem um cabeçalho decorativo ("🌱 CONTO SEMENTE\n...")
+  // que não é texto da obra — tira antes de rotear e enviar, senão o
+  // roteador classifica o texto errado e o cabeçalho aparece no miolo.
+  const textoParaEnvio = modoAtual === 'semente'
+    ? livroCompleto.replace(/^🌱 CONTO SEMENTE\n[\s\S]*?═+\n\n/, '')
+    : livroCompleto;
+  const resultado = window.CeleiroRoteador.encaminhar(textoParaEnvio);
+  if (!resultado.arquivo) {
+    alert('Não foi possível classificar o texto pra roteamento automático.');
+    return;
+  }
+  localStorage.setItem('obra_titulo', tituloFinal);
+  localStorage.setItem('obra_autor', heteronimoEscolhido);
+  localStorage.setItem('obra_ativa_texto', textoParaEnvio);
+  localStorage.setItem('obra_ativa_texto_nome', tituloFinal);
+  localStorage.setItem('lapidar_diagramar_automatico', 'true');
+  log(`🛠️ Detectei ${resultado.nome} — enviando "${tituloFinal}" (${heteronimoEscolhido})...`);
+  setTimeout(() => { window.location.href = resultado.arquivo; }, 600);
 }
 function novaGeracao() {
   document.getElementById('resultado-painel').classList.remove('visivel');
