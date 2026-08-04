@@ -810,17 +810,6 @@ function toast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// Pré-carrega texto se veio do analisador
-const textoPendente = localStorage.getItem('analisador_texto_pendente');
-if (textoPendente) {
-  document.getElementById('texto-obra').value = textoPendente;
-  localStorage.removeItem('analisador_texto_pendente');
-}
-const tituloPendente = localStorage.getItem('analisador_titulo_pendente');
-if (tituloPendente) {
-  document.getElementById('titulo-obra').value = tituloPendente;
-  localStorage.removeItem('analisador_titulo_pendente');
-}
 </script>
 </body>
 </html>

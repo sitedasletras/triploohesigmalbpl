@@ -1,9 +1,14 @@
 // Proxy server-side pra ElevenLabs Music — mesmo padrão de api/claude.js.
 // A chave (ELEVENLABS_API_KEY) fica só como variável de ambiente na Vercel,
 // nunca chega ao navegador.
+import { validarSessao } from '../lib/sessao.js';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+  if (!(await validarSessao(req))) {
+    return res.status(401).json({ error: 'Não autorizado.' });
   }
 
   const chave = process.env.ELEVENLABS_API_KEY;

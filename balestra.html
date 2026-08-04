@@ -864,6 +864,15 @@ function confirmarDespacho() {
       origem: 'Balestra · Masmorra'
     };
     localStorage.setItem('catapulta_ficha_tecnica', JSON.stringify(ficha));
+
+    // catapulta_ficha_tecnica nunca foi lida por ninguém — os diagramadores
+    // esperam obra_titulo/obra_autor (mesmas chaves que a Catapulta agora
+    // usa). Sem obra_ativa_texto de propósito: a Masmorra só guarda os
+    // primeiros 200 caracteres de cada obra (ver formarLivros acima), não
+    // o manuscrito completo — mandar isso como se fosse o texto inteiro
+    // faria o diagramador montar um livro cortado sem avisar ninguém.
+    localStorage.setItem('obra_titulo', ficha.titulo);
+    localStorage.setItem('obra_autor', ficha.heteronimo);
   }
 
   // Marca cela como expedida (remove da masmorra)
@@ -924,6 +933,11 @@ function despacharTodosProntos() {
         origem: 'Balestra · Lote · Masmorra'
       };
       localStorage.setItem('catapulta_ficha_tecnica', JSON.stringify(ficha));
+      // Mesmo motivo do despacho individual acima: sem obra_ativa_texto
+      // (só teríamos os 200 caracteres truncados de formarLivros), só as
+      // chaves de metadado que os diagramadores realmente leem.
+      localStorage.setItem('obra_titulo', ficha.titulo);
+      localStorage.setItem('obra_autor', ficha.heteronimo);
     }
 
     // Remove da masmorra

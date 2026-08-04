@@ -10,6 +10,7 @@
 // A cotação não precisa de senha (não é dado sensível).
 import { kv } from '@vercel/kv';
 import { obterGastoTotal } from '../lib/creditos.js';
+import { validarSessao } from '../lib/sessao.js';
 
 const CHAVE_KV_COTACAO = 'cotacao:usdbrl';
 const TTL_MS_COTACAO = 60 * 60 * 1000; // 1 hora
@@ -41,12 +42,8 @@ async function handleCotacao(req, res) {
 }
 
 async function handleGasto(req, res) {
-  const senhaEsperada = process.env.CELEIRO_BACKUP_SENHA;
-  if (!senhaEsperada) {
-    return res.status(500).json({ erro: 'CELEIRO_BACKUP_SENHA não configurada no servidor.' });
-  }
-  const senhaRecebida = req.headers['x-celeiro-senha'];
-  if (senhaRecebida !== senhaEsperada) {
+  const autenticado = await validarSessao(req);
+  if (!autenticado) {
     return res.status(401).json({ erro: 'Não autorizado.' });
   }
 

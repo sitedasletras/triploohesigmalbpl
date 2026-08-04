@@ -705,6 +705,18 @@ async function disparar() {
     };
     localStorage.setItem('catapulta_ficha_tecnica', JSON.stringify(ficha));
 
+    // catapulta_ficha_tecnica nunca foi lida por ninguém — os diagramadores
+    // (Pólux, Quironxadá, Castor etc.) esperam as chaves obra_ativa_texto /
+    // obra_titulo / obra_autor, o mesmo padrão usado pelo Lapidar. Se
+    // sobrar mais de um livro selecionado, o último do laço vence — mesmo
+    // comportamento que catapulta_ficha_tecnica já tinha.
+    if (livro.conteudo) {
+      localStorage.setItem('obra_ativa_texto', livro.conteudo);
+      localStorage.setItem('obra_ativa_texto_nome', '✦ ' + livro.titulo);
+    }
+    localStorage.setItem('obra_titulo', livro.titulo);
+    localStorage.setItem('obra_autor', livro.autor);
+
     // Marca como catapultado no localStorage
     CHAVES_CALABOUCO.forEach(k => {
       try {

@@ -3,9 +3,14 @@
 // api/gerar-imagem.js). Recebe {prompt, negativePrompt} em JSON e devolve a
 // imagem (bytes), igual a chamada direta que existia antes — só que a
 // chave agora só existe aqui.
+import { validarSessao } from '../lib/sessao.js';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+  if (!(await validarSessao(req))) {
+    return res.status(401).json({ error: 'Não autorizado.' });
   }
 
   const chave = process.env.STABILITY_API_KEY;

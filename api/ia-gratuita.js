@@ -2,6 +2,8 @@
 // OpenRouter) — usada só pra biografias/perfis, não pra escrita das obras
 // (isso continua no Claude, api/claude.js). Mesma lógica que existia no
 // navegador, só que as chaves agora ficam só aqui.
+import { validarSessao } from '../lib/sessao.js';
+
 async function chamarGemini(apiKey, systemPrompt, userPrompt, maxTokens) {
   const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
     method: 'POST',
@@ -52,6 +54,9 @@ async function chamarOpenRouter(apiKey, systemPrompt, userPrompt, maxTokens) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+  if (!(await validarSessao(req))) {
+    return res.status(401).json({ error: 'Não autorizado.' });
   }
 
   const { systemPrompt, userPrompt, maxTokens } = req.body || {};

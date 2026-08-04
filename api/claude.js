@@ -1,9 +1,13 @@
 import { kv } from '@vercel/kv';
 import { registrarGasto } from '../lib/creditos.js';
+import { validarSessao } from '../lib/sessao.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+  if (!(await validarSessao(req))) {
+    return res.status(401).json({ error: 'Não autorizado.' });
   }
 
   const chave = process.env.ANTHROPIC_API_KEY;
