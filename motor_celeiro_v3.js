@@ -490,12 +490,68 @@ function detectarOverflowPaginas(paginas, cfg, fmt){
   return overflow;
 }
 
+// Tipos de bloco cujo texto pode ser dividido no meio (por palavra
+// inteira) quando não cabe todo no espaço restante da página — o mesmo
+// que qualquer editor de texto faz com um parágrafo que atravessa uma
+// quebra de página. Formas fechadas (poesia, haicai, estrofe, soneto,
+// capítulo, subtítulo, imagem) nunca são divididas: cortar um verso no
+// meio destrói a forma.
+const TIPOS_DIVISIVEIS=new Set(['prosa','dialogo']);
+
+// Espaço mínimo pra valer a pena dividir um bloco (~2 linhas) — abaixo
+// disso, a divisão deixaria só uma linha órfã na página atual; melhor
+// mandar o bloco inteiro pra próxima página, como antes.
+function _alturaMinimaDivisao(cfg){
+  const fs=cfg.tamanhoFonte||12;
+  const lh=cfg.entrelinha||1.52;
+  return fs*1.333*lh*2;
+}
+
+// Divide o texto de um bloco em duas partes, por palavra inteira, de
+// forma que a primeira caiba em `alturaDisponivel` (medição real via
+// DOM, igual estimarAltura()). Retorna null se não há medidor, se o
+// bloco cabe inteiro, ou se nem uma palavra cabe.
+function _dividirTextoPorAltura(bloco, cfg, fmt, alturaDisponivel){
+  const medidor=_obterMedidor();
+  if(!medidor) return null;
+  const largUtil=fmt.w-(cfg.mI||57)-(cfg.mE||43);
+  _configurarMedidor(medidor,cfg,largUtil);
+
+  const tokens=bloco.conteudo.split(/(\s+)/); // mantém espaços/quebras originais
+  const cabe=(n)=>{
+    const parcial={...bloco,conteudo:tokens.slice(0,n).join('')};
+    medidor.innerHTML=renderizarBloco(parcial,cfg,false);
+    return medidor.scrollHeight<=alturaDisponivel;
+  };
+  if(cabe(tokens.length)) return null; // cabe inteiro, não precisa dividir
+
+  let lo=0, hi=tokens.length;
+  while(lo<hi){
+    const mid=Math.ceil((lo+hi)/2);
+    if(cabe(mid)) lo=mid; else hi=mid-1;
+  }
+  if(lo===0) return null; // nem uma palavra cabe
+
+  const texto1=tokens.slice(0,lo).join('').trimEnd();
+  const texto2=tokens.slice(lo).join('').trimStart();
+  if(!texto1||!texto2) return null;
+
+  return {
+    parte1:{...bloco,conteudo:texto1},
+    parte2:{...bloco,conteudo:texto2,_continuacao:true},
+  };
+}
+
 function paginar(blocos, cfg, fmt){
   const altUtil=fmt.h-(cfg.mT||52)-(cfg.mB||58);
+  const alturaMinDivisao=_alturaMinimaDivisao(cfg);
   const paginas=[];
   let pag={numero:1,lado:'recto',blocos:[],alturaUsada:0};
 
-  blocos.forEach(bloco=>{
+  const fila=blocos.slice();
+  let i=0;
+  while(i<fila.length){
+    const bloco=fila[i];
     const alt=estimarAltura(bloco,cfg,fmt);
     // Capítulo sempre começa em nova página — e, dentro do miolo, sempre
     // em página ímpar (recto/direita), regra editorial padrão. Se a nova
@@ -510,14 +566,42 @@ function paginar(blocos, cfg, fmt){
       }
       pag={numero:n,lado:'recto',blocos:[],alturaUsada:0};
     }
-    if(pag.blocos.length&&pag.alturaUsada+alt>altUtil){
-      paginas.push(pag);
-      const n=paginas.length+1;
-      pag={numero:n,lado:n%2===0?'verso':'recto',blocos:[],alturaUsada:0};
+
+    const espacoRestante=altUtil-pag.alturaUsada;
+    if(alt>espacoRestante){
+      // Bloco não cabe inteiro no espaço que sobra — tenta dividir por
+      // palavra em vez de jogar o parágrafo inteiro (e o espaço que
+      // sobrou) pra próxima página. Isso é o que evita a página ficar
+      // preenchida bem menos do que caberia.
+      if(TIPOS_DIVISIVEIS.has(bloco.tipo)&&espacoRestante>=alturaMinDivisao){
+        const divisao=_dividirTextoPorAltura(bloco,cfg,fmt,espacoRestante);
+        if(divisao){
+          const altParte1=estimarAltura(divisao.parte1,cfg,fmt);
+          pag.blocos.push({...divisao.parte1,altEstimada:altParte1});
+          pag.alturaUsada+=altParte1;
+          fila.splice(i,1,divisao.parte2);
+          paginas.push(pag);
+          const n=paginas.length+1;
+          pag={numero:n,lado:n%2===0?'verso':'recto',blocos:[],alturaUsada:0};
+          continue;
+        }
+      }
+      if(pag.blocos.length){
+        paginas.push(pag);
+        const n=paginas.length+1;
+        pag={numero:n,lado:n%2===0?'verso':'recto',blocos:[],alturaUsada:0};
+        continue;
+      }
+      // Página vazia e o bloco, mesmo sozinho, não cabe nem dividindo
+      // (ou não é divisível) — segue o mesmo comportamento de antes:
+      // aceita e deixa detectarOverflowPaginas() avisar, nunca corta
+      // texto silenciosamente.
     }
+
     pag.blocos.push({...bloco,altEstimada:alt});
     pag.alturaUsada+=alt;
-  });
+    i++;
+  }
   if(pag.blocos.length) paginas.push(pag);
   return paginas;
 }
@@ -685,7 +769,11 @@ function renderizarBloco(bloco, cfg, aplicaCapitular_){
         }
         return `<p style="margin:0 0 ${cfg.paragraphGap||0}em;text-indent:0;text-align:justify;">${aplicarCapitular(texto,cfg.capitular)}</p>`;
       }
-      return `<p style="${recuo}${gap}text-align:justify;">${texto}</p>`;
+      // Continuação de um parágrafo dividido entre páginas (ver
+      // _dividirTextoPorAltura) não é o início de um parágrafo novo —
+      // não leva o recuo de primeira linha.
+      const recuoAplicado=bloco._continuacao?'':recuo;
+      return `<p style="${recuoAplicado}${gap}text-align:justify;">${texto}</p>`;
     }
   }
 }
