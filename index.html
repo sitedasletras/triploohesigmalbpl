@@ -710,6 +710,7 @@ body::before {
 }
 .st-aguardando { border-color: rgba(201,168,76,0.3); color: var(--ouro); }
 .st-processando { border-color: rgba(0,200,83,0.4); color: var(--verde); animation: pisca 1.5s ease-in-out infinite; }
+.st-lido { border-color: rgba(21,101,192,0.4); color: #90caf9; }
 .st-masmorra { border-color: rgba(211,47,47,0.4); color: #ff6b6b; }
 .st-calabouco { border-color: rgba(106,27,154,0.4); color: #ce93d8; }
 .st-pronto { border-color: rgba(21,101,192,0.4); color: #90caf9; }
@@ -3025,6 +3026,27 @@ function enviarParaFila(tipo) {
 }
 
 // ===================== FILA =====================
+// Ação principal exibida por item da fila — separado do template maior
+// porque itens do tipo "imagem" (foto de edital) agora seguem um caminho
+// diferente: primeiro só lê o edital (status "lido"), depois abre no
+// Gerador de Obra em vez de gerar a obra ali mesmo.
+function renderAcaoFila(item, i) {
+  if (item.status === 'aguardando') {
+    const ehImagem = item.tipo === 'imagem';
+    return `<button class="fila-status st-aguardando" onclick="${ehImagem ? `processarImagemComoEdital(${i})` : `processarComFernandoPecanha(${i})`}" style="cursor:pointer;border:none;width:100%;text-align:left;padding:0.5rem 1rem;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ouro);background:rgba(201,168,76,0.08);">▶ ${ehImagem ? 'LER EDITAL COM FERNANDO PEÇANHA' : 'PROCESSAR COM FERNANDO PEÇANHA'}</button>`;
+  }
+  if (item.status === 'processando') {
+    return `<div class="fila-status st-processando">⏳ PROCESSANDO... ${item.progresso}%</div>`;
+  }
+  if (item.status === 'lido') {
+    return `<button class="fila-status st-lido" onclick="abrirNoGeradorDeObra(${i})" style="cursor:pointer;border:none;width:100%;text-align:left;padding:0.5rem 1rem;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;background:rgba(21,101,192,0.08);">→ ABRIR NO GERADOR DE OBRA</button>`;
+  }
+  if (item.status === 'processado') {
+    return `<div class="fila-status st-processado" style="cursor:pointer" onclick="verConteudo(${i})">✓ PROCESSADO — VER OBRA</div>`;
+  }
+  return `<div class="fila-status st-${item.status}">${item.status}</div>`;
+}
+
 function renderizarFila() {
   const el = document.getElementById('fila-ohe');
   if (!el) { setTimeout(renderizarFila, 100); return; }
@@ -3040,7 +3062,7 @@ function renderizarFila() {
         <div class="fila-meta">${item.tipo.toUpperCase()} · ${item.meta} · ${item.data}</div>
         <div class="barra-prog"><div class="barra-fill" style="width:${item.progresso}%"></div></div>
       </div>
-       ${item.status === 'aguardando' ? `<button class="fila-status st-aguardando" onclick="processarComFernandoPecanha(${i})" style="cursor:pointer;border:none;width:100%;text-align:left;padding:0.5rem 1rem;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ouro);background:rgba(201,168,76,0.08);">▶ PROCESSAR COM FERNANDO PEÇANHA</button>` : item.status === 'processando' ? `<div class="fila-status st-processando">⏳ PROCESSANDO... ${item.progresso}%</div>` : item.status === 'processado' ? `<div class="fila-status st-processado" style="cursor:pointer" onclick="verConteudo(${i})">✓ PROCESSADO — VER OBRA</div>` : `<div class="fila-status st-${item.status}">${item.status}</div>`}
+      ${renderAcaoFila(item, i)}
       <div class="fila-acoes">
         <button class="fa-btn" onclick="moverParaCalabouco(${i})">→ CALABOUÇO</button>
         <button class="fa-btn" onclick="moverParaMasmorra(${i})">→ MASMORRA</button>
@@ -3717,6 +3739,76 @@ async function processarComFernandoPecanha(i) {
     renderizarFila();
     notif('ERRO', `Falha: ${err.message}`, 'erro');
   }
+}
+
+// ===================== LEITURA DE EDITAL POR IMAGEM → GERADOR DE OBRA =====
+// Itens do tipo "imagem" não passam mais pela geração única de
+// processarComFernandoPecanha() (que tenta ler a foto E escrever a obra
+// inteira numa resposta só, limitada a 4096 tokens — só serve pra textos
+// curtos). Em vez disso, só extrai o texto do edital da foto e manda pro
+// motor de verdade em gerador_obra.html, que já escolhe/cria o heterônimo
+// e escreve o livro completo capítulo a capítulo.
+async function processarImagemComoEdital(i) {
+  const item = estado.fila[i];
+  if (!item) return;
+  if (!item.imagemBase64) { notif('IMAGEM NECESSÁRIA', 'Este item não tem imagem anexada.', 'erro'); return; }
+
+  item.status = 'processando';
+  item.progresso = 20;
+  renderizarFila();
+  notif('LEITURA DE EDITAL', `Lendo "${item.titulo}"...`, 'info');
+
+  const prompt = `Leia esta imagem de um edital, chamada de submissões ou concurso literário e transcreva/resuma em português TODAS as informações relevantes para um autor que for escrever uma obra para ele: tema/linha editorial, gênero e formato exigidos, extensão (número de páginas/palavras/versos), prazo de inscrição, regras específicas de estilo ou conteúdo, e qualquer restrição.
+
+Responda APENAS com o resumo estruturado do edital, em texto corrido ou tópicos — sem introdução, sem comentários seus.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1200,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: item.imagemTipo || 'image/jpeg', data: item.imagemBase64 } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+    item.progresso = 70;
+    renderizarFila();
+    if (!response.ok) throw new Error(`Erro ${response.status}`);
+    const data = await response.json();
+    const textoEdital = (data.content || []).map(b => b.text || '').join('').trim();
+    if (!textoEdital) throw new Error('Não consegui ler nenhum texto nesta imagem.');
+
+    item.status = 'lido';
+    item.progresso = 100;
+    item.textoEditalExtraido = textoEdital;
+    item.dataProcessamento = new Date().toLocaleDateString('pt-BR');
+    salvar();
+    renderizarFila();
+    notif('EDITAL LIDO', `"${item.titulo}" pronto — abra no Gerador de Obra pra Fernando Peçanha escolher o heterônimo.`, 'sucesso');
+  } catch(err) {
+    item.status = 'aguardando';
+    item.progresso = 0;
+    salvar();
+    renderizarFila();
+    notif('ERRO', `Falha ao ler o edital: ${err.message}`, 'erro');
+  }
+}
+
+function abrirNoGeradorDeObra(i) {
+  const item = estado.fila[i];
+  if (!item || !item.textoEditalExtraido) return;
+  // Texto do edital pode ser longo demais pra caber numa URL — vai via
+  // localStorage; gerador_obra.html lê essas chaves no carregamento.
+  localStorage.setItem('edital_pendente_tema', item.textoEditalExtraido);
+  localStorage.setItem('edital_pendente_titulo', item.titulo || '');
+  window.open('gerador_obra.html?entrada=imagem', '_blank');
 }
 
 function verConteudo(i) {
