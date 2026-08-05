@@ -429,8 +429,10 @@ function enviarExpedicao(){
   const dataURL=cv?cv.toDataURL('image/jpeg',0.92):'';
   localStorage.setItem('okapista_capa_jpg', dataURL);
   localStorage.setItem('okapista_perfil', 'polimata');
-  alert('✔ Capa enviada à Expedição Editorial!');
-  window.location.href='expedicao_editorial.html';
+  // 'expedicao_editorial.html' nunca existiu neste projeto — Qui(RON)xadá
+  // é o mesmo destino que o fluxo de Cordel usa depois de gerar a capa.
+  alert('✔ Capa enviada! Prossiga para o Qui(RON)xadá.');
+  window.location.href='quironxada_v3.html';
 }
 
 function enviarAoPaiol(){

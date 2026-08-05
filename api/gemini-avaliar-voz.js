@@ -1,6 +1,8 @@
 // Proxy server-side pro Gemini usado em criador_vozes.html — ouve um áudio
 // (nativamente, não só texto) e descreve a voz objetivamente. Mesma
 // mensagem amigável pro caso comum de limite de cota gratuita (429).
+import { validarSessao } from '../lib/sessao.js';
+
 function mensagemErroIA(status, errBody) {
   if (status === 429) {
     return 'Você atingiu o limite gratuito de uso da IA por agora. Espere alguns minutos e tente de novo — se continuar, pode ser o limite diário, aí só volta amanhã. Enquanto isso, dá pra digitar o nome do personagem direto no campo, sem precisar da sugestão.';
@@ -11,6 +13,9 @@ function mensagemErroIA(status, errBody) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+  if (!(await validarSessao(req))) {
+    return res.status(401).json({ error: 'Não autorizado.' });
   }
 
   const chave = process.env.GEMINI_API_KEY;

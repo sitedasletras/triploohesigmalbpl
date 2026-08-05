@@ -214,22 +214,6 @@ let fichasGeradas = {};
 // ===================== INIT =====================
 window.addEventListener('load', () => {
   renderizarGrid();
-
-  // Verificar se veio novo heterônimo da Maternidade
-  const novoHet = localStorage.getItem('novo_heteronimo_pendente');
-  if (novoHet) {
-    try {
-      const dados = JSON.parse(novoHet);
-      mudarModo('novo');
-      if (dados.nome) document.getElementById('novo-nome').value = dados.nome;
-      if (dados.eixo) document.getElementById('novo-eixo').value = dados.eixo;
-      if (dados.territorio) document.getElementById('novo-territorio').value = dados.territorio;
-      if (dados.formato) document.getElementById('novo-formato').value = dados.formato;
-      if (dados.justificativa) document.getElementById('novo-notas').value = dados.justificativa;
-      localStorage.removeItem('novo_heteronimo_pendente');
-      mostrarBanner('✓ Dados do novo heterônimo carregados automaticamente da Maternidade!');
-    } catch(e) {}
-  }
 });
 
 function mostrarBanner(msg) {

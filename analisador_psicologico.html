@@ -465,6 +465,22 @@ select option { background: var(--s1); }
 let analiseAtual = null;
 let contadorPer = 3;
 
+// Pré-carrega texto/título se veio da Leitura Emocional (enviarAnalisador()
+// grava essas chaves e abre esta página numa aba nova, mas até aqui nada
+// nunca lia de volta — o texto enviado simplesmente sumia).
+(function preCarregarDaLeituraEmocional() {
+  const textoPendente = localStorage.getItem('analisador_texto_pendente');
+  if (textoPendente) {
+    document.getElementById('texto-obra').value = textoPendente;
+    localStorage.removeItem('analisador_texto_pendente');
+  }
+  const tituloPendente = localStorage.getItem('analisador_titulo_pendente');
+  if (tituloPendente) {
+    document.getElementById('titulo-obra').value = tituloPendente;
+    localStorage.removeItem('analisador_titulo_pendente');
+  }
+})();
+
 // ── PERSONAGENS ──
 function adicionarPersonagem() {
   const lista = document.getElementById('personagens-lista');

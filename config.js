@@ -56,11 +56,30 @@ window.ANTHROPIC_MAX_TOKENS = CONFIG.MAX_TOKENS;
 // FETCH INTERCEPTOR — reescreve chamadas à Anthropic pro proxy seguro
 // (api/claude.js), que injeta a chave no servidor. Nenhuma chave passa
 // mais pelo navegador.
+//
+// Também injeta o token de sessão (guardado no localStorage pelo login do
+// Quartel General, index.html) em toda chamada aos proxies de API paga —
+// sem isso, qualquer um com a URL da Vercel usava a chave do servidor de
+// graça, mesmo sem nunca ter feito login (AUDITORIA 2026-08-04).
+const CAMINHOS_PROXY_PAGO = [
+  '/api/claude', '/api/gerar-imagem', '/api/stability-imagem',
+  '/api/elevenlabs-music', '/api/fishaudio-tts', '/api/fishaudio-model',
+  '/api/fishaudio-voice-design', '/api/gemini-avaliar-voz', '/api/ia-gratuita',
+];
 (function() {
   const _fetch = window.fetch;
   window.fetch = function(url, options) {
     if (typeof url === 'string' && url.includes('api.anthropic.com/v1/messages')) {
       url = '/api/claude';
+    }
+    if (typeof url === 'string' && CAMINHOS_PROXY_PAGO.some(p => url.startsWith(p))) {
+      options = options || {};
+      if (!(options.headers instanceof Headers)) {
+        options.headers = options.headers || {};
+        if (!options.headers['x-celeiro-senha']) {
+          options.headers['x-celeiro-senha'] = localStorage.getItem('sigmal_hq_token') || '';
+        }
+      }
     }
     return _fetch.call(this, url, options);
   };

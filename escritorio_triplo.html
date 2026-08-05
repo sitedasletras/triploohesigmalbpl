@@ -223,7 +223,10 @@ body {
 </div>
 
 <script>
-const SENHA = 'asdrubalorei';
+// Sem tela de login própria — reaproveita o token de sessão que o login do
+// Quartel General (index.html) já guardou no localStorage. Se não tiver
+// logado lá ainda, não tem como ver o gasto acumulado aqui.
+const TOKEN_SESSAO = localStorage.getItem('sigmal_hq_token') || null;
 
 function formatarUSD(v) {
   return 'US$ ' + (Number(v) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
@@ -241,8 +244,9 @@ async function carregarTudo() {
 }
 
 async function carregarGasto() {
+  if (!TOKEN_SESSAO) return null;
   try {
-    const r = await fetch('/api/creditos-status', { headers: { 'x-celeiro-senha': SENHA } });
+    const r = await fetch('/api/creditos-status', { headers: { 'x-celeiro-senha': TOKEN_SESSAO } });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return await r.json();
   } catch (e) {
@@ -267,7 +271,9 @@ function renderizarGasto(gasto, cotacao) {
   if (!gasto) {
     document.getElementById('gasto-usd').textContent = '—';
     document.getElementById('gasto-brl').textContent = '—';
-    status.textContent = '⚠ Não foi possível carregar o gasto acumulado — verifique se CELEIRO_BACKUP_SENHA está configurada na Vercel.';
+    status.textContent = TOKEN_SESSAO
+      ? '⚠ Não foi possível carregar o gasto acumulado — verifique se CELEIRO_BACKUP_SENHA está configurada na Vercel.'
+      : '⚠ Faça login no Quartel General (index.html) primeiro — sem sessão não dá pra ver o gasto acumulado.';
     return;
   }
   const usd = gasto.gastoClaudeUSD || 0;

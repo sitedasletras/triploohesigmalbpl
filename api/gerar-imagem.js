@@ -7,6 +7,8 @@
 // aceito no corpo da requisição por compatibilidade com quem ainda manda
 // ('barata'/'qualidade'), mas não muda mais o resultado — só existe uma
 // fonte paga agora, não tem "qualidade" pra escolher.
+import { validarSessao } from '../lib/sessao.js';
+
 const CUSTO_STABILITY = 0.035;
 
 async function gerarStability(prompt, negativePrompt) {
@@ -40,6 +42,9 @@ function gerarUrlPollinations(prompt, negativePrompt) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+  if (!(await validarSessao(req))) {
+    return res.status(401).json({ error: 'Não autorizado.' });
   }
 
   const { prompt, negativePrompt } = req.body || {};

@@ -2366,6 +2366,15 @@ BIOGRAFIA
 ${(() => {
   // Buscar biografia real no localStorage (salva pela Máquina Desafio ou extrator)
   try {
+    // Heterônimo criado na Maternidade (gerador_obra.html/confirmarNovoHeteronimo):
+    // publicarBiografiaGitHub() salva em celeiro_bio_<id>, com <id> gerado a
+    // partir do nome com o MESMO algoritmo replicado abaixo — sem isso, a
+    // biografia gerada na Maternidade nunca aparecia no livro exportado.
+    const idMaternidade = heteronimoEscolhido.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'').substring(0,30);
+    const bioMaternidade = localStorage.getItem('celeiro_bio_' + idMaternidade);
+    if (bioMaternidade) return bioMaternidade;
     const vitrine = JSON.parse(localStorage.getItem('vitrine_personagens') || '[]');
     const bioKey = 'bio_' + heteronimoEscolhido.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-');
     const bioSalva = localStorage.getItem(bioKey);

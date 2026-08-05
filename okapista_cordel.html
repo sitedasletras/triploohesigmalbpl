@@ -315,10 +315,21 @@ atualizarLombadaCordel();
 updatePreview();
 
 function enviarExpedicao(){
-  const dataURL=document.querySelector('canvas')?document.querySelector('canvas').toDataURL('image/jpeg',0.92):'';
-  localStorage.setItem('okapista_capa_jpg', dataURL);
-  localStorage.setItem('okapista_perfil', 'cordel');
-  alert('✔ Capa enviada! Prossiga para o Qui(RON)xadá.');
+  const canvas=document.querySelector('canvas');
+  const dataURL=canvas?canvas.toDataURL('image/jpeg',0.92):'';
+  if(dataURL){
+    localStorage.setItem('okapista_capa_jpg', dataURL);
+    localStorage.setItem('okapista_perfil', 'cordel');
+    // Ainda não existe nenhum lugar no sistema que recupere a capa a
+    // partir do localStorage — sem baixar aqui, o trabalho de desenhar a
+    // capa sumia ao sair da página (esta tela não tem botão "Baixar JPG").
+    const a=document.createElement('a');
+    a.href=dataURL;
+    const titulo=(document.getElementById('titulo').value||'cordel').toLowerCase().replace(/\s+/g,'-');
+    a.download=`capa-cordel-${titulo}.jpg`;
+    a.click();
+  }
+  alert('✔ Capa baixada! Prossiga para o Qui(RON)xadá.');
   window.location.href='quironxada_v3.html';
 }
 

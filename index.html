@@ -1569,7 +1569,6 @@ body::before {
       <span class="maq-chip" onclick="chipPreencher('maq-tema','Perda e luto')">Perda e luto</span>
       <span class="maq-chip" onclick="chipPreencher('maq-tema','Resistência popular')">Resistência popular</span>
       <span class="maq-chip" onclick="chipPreencher('maq-tema','Mistério e investigação')">Mistério/Investigação</span>
-      <span class="maq-chip maq-chip-especial" onclick="chipKardecista()">✦ Kardecista (Irmão Pullius)</span>
       <span class="maq-chip maq-chip-limpar" onclick="chipLimpar('maq-tema')">✕ limpar</span>
     </div>
   </div>
@@ -2623,7 +2622,10 @@ body::before {
 
 <script>
 // ===================== DADOS =====================
-const SENHA = 'asdrubalorei';
+// A senha real nunca mais fica em texto puro aqui — o login troca ela por
+// um token de sessão opaco (ver /api/estado?acao=login e lib/sessao.js no
+// backend), que é o que fica guardado e reenviado depois.
+let TOKEN_SESSAO = localStorage.getItem('sigmal_hq_token') || null;
 
 let estado = {
   sistemaParado: false,
@@ -2652,10 +2654,11 @@ async function salvarNaNuvem() {
   try {
     const resp = await fetch('/api/estado', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-celeiro-senha': SENHA },
+      headers: { 'Content-Type': 'application/json', 'x-celeiro-senha': TOKEN_SESSAO },
       body: JSON.stringify(estado),
     });
     if (!resp.ok) {
+      if (resp.status === 401) return forcarRelogin();
       const dados = await resp.json().catch(() => ({}));
       console.error('Falha ao salvar backup na nuvem:', dados.erro || resp.status);
       notif('BACKUP NA NUVEM FALHOU', dados.erro || `Erro ${resp.status} — o trabalho continua salvo neste navegador.`, 'erro');
@@ -2666,14 +2669,24 @@ async function salvarNaNuvem() {
 }
 async function carregarDaNuvem() {
   try {
-    const resp = await fetch('/api/estado', { headers: { 'x-celeiro-senha': SENHA } });
-    if (!resp.ok) return null;
+    const resp = await fetch('/api/estado', { headers: { 'x-celeiro-senha': TOKEN_SESSAO } });
+    if (!resp.ok) {
+      if (resp.status === 401) forcarRelogin();
+      return null;
+    }
     const dados = await resp.json();
     return dados.estado || null;
   } catch (e) {
     console.error('Falha ao carregar backup da nuvem:', e.message);
     return null;
   }
+}
+// Token de sessão expirado ou inválido — força voltar pra tela de login
+// em vez de continuar batendo 401 silenciosamente contra a API.
+function forcarRelogin() {
+  localStorage.removeItem('sigmal_hq_auth');
+  localStorage.removeItem('sigmal_hq_token');
+  location.reload();
 }
 
 function salvar() {
@@ -2721,16 +2734,28 @@ async function carregar() {
 }
 
 // ===================== LOGIN =====================
-function verificarLogin() {
+async function verificarLogin() {
   const v = document.getElementById('senha-input').value;
-  if (v === SENHA) {
-    document.getElementById('tela-login').classList.add('oculto');
-    document.getElementById('app').style.display = 'block';
-    localStorage.setItem('sigmal_hq_auth','1');
-    init();
-  } else {
+  try {
+    const resp = await fetch('/api/estado?acao=login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ senha: v }),
+    });
+    const dados = await resp.json().catch(() => ({}));
+    if (resp.ok && dados.ok && dados.token) {
+      TOKEN_SESSAO = dados.token;
+      localStorage.setItem('sigmal_hq_token', TOKEN_SESSAO);
+      document.getElementById('tela-login').classList.add('oculto');
+      document.getElementById('app').style.display = 'block';
+      localStorage.setItem('sigmal_hq_auth','1');
+      init();
+    } else {
+      document.getElementById('login-erro').style.display = 'block';
+      document.getElementById('senha-input').value = '';
+    }
+  } catch (e) {
     document.getElementById('login-erro').style.display = 'block';
-    document.getElementById('senha-input').value = '';
   }
 }
 document.getElementById('senha-input').addEventListener('keydown', e => {
@@ -2738,6 +2763,7 @@ document.getElementById('senha-input').addEventListener('keydown', e => {
 });
 function sair() {
   localStorage.removeItem('sigmal_hq_auth');
+  localStorage.removeItem('sigmal_hq_token');
   location.reload();
 }
 
@@ -6041,8 +6067,9 @@ async function init() {
   }
 }
 
-// Auto-login se já autenticado
-if (localStorage.getItem('sigmal_hq_auth') === '1') {
+// Auto-login se já autenticado — só entra direto se também tiver o token
+// de sessão (sem ele, salvarNaNuvem/carregarDaNuvem sempre voltam 401).
+if (localStorage.getItem('sigmal_hq_auth') === '1' && TOKEN_SESSAO) {
   document.getElementById('tela-login').classList.add('oculto');
   document.getElementById('app').style.display = 'block';
   init();

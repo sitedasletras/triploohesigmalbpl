@@ -2,6 +2,8 @@
 // áudio) — é upload multipart, então não dá pra deixar o Vercel parsear o
 // corpo como JSON: precisa repassar o stream bruto igual chegou, só trocando
 // quem assina a chamada (a chave, que só existe aqui).
+import { validarSessao } from '../lib/sessao.js';
+
 export const config = {
   api: { bodyParser: false },
 };
@@ -9,6 +11,9 @@ export const config = {
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+  if (!(await validarSessao(req))) {
+    return res.status(401).json({ error: 'Não autorizado.' });
   }
 
   const chave = process.env.FISH_AUDIO_API_KEY;
