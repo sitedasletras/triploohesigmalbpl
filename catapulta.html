@@ -535,6 +535,7 @@ function lerCalaboco() {
           eixo: item.eixo || item.categoria || item.tipo || 'Prosa',
           paginas: item.paginas || item.total_paginas || 0,
           sinopse: item.sinopse || item.descricao || '',
+          conteudo: item.conteudo || item.texto || item.content || '',
           adicionadoEm: item.adicionadoEm || item.em || item.data || new Date().toISOString(),
           catapultado: item.catapultado || false,
           catapultadoEm: item.catapultadoEm || null,

@@ -853,8 +853,10 @@ function confirmarDespacho() {
   // Montar ficha técnica para o obra_ativa receber
   if (livros.length > 0) {
     const primeiraObra = livros[0];
+    // formarLivros() guarda .obras como array de STRINGS (título direto),
+    // não objetos — .obras[0].titulo sempre foi undefined aqui.
     const ficha = {
-      titulo: primeiraObra.obras?.[0]?.titulo || cela.nome,
+      titulo: primeiraObra.obras?.[0] || cela.nome,
       heteronimo: cela.nome,
       eixo: cela.eixo || '',
       territorio: cela.territorio || '',
@@ -920,10 +922,10 @@ function despacharTodosProntos() {
       });
     });
 
-    // Ficha técnica para obra_ativa
+    // Ficha técnica para obra_ativa — .obras é array de strings (ver nota acima)
     if (livros.length > 0) {
       const ficha = {
-        titulo: livros[0].obras?.[0]?.titulo || cela.nome,
+        titulo: livros[0].obras?.[0] || cela.nome,
         heteronimo: cela.nome,
         eixo: cela.eixo || '',
         territorio: cela.territorio || '',
