@@ -725,7 +725,7 @@ function _dividirCapitularEmLinhas(bloco, cfg, fmt){
   if(t.length<2) return null;
   const primeira=t.charAt(0);
   const resto=t.slice(1);
-  const css=ESTILOS_CAPITULAR[cfg.capitular]||ESTILOS_CAPITULAR.classic;
+  const css=_estiloCapitularComTamanho(cfg.capitular, cfg);
 
   const p=document.createElement('p');
   p.style.margin='0';
@@ -1071,13 +1071,23 @@ function corrigirViuvasOrfas(paginas,cfg,fmt){
     // !ult._linha: linha da grade (ver _corrigirViuvasOrfasLinhas) tem
     // altura sempre <40 por ser 1 linha só — essa checagem genérica não é
     // pra ela, senão ficava tentando mover linha isolada sem sentido.
-    if(ult&&ult.tipo==='prosa'&&!ult._linha&&ult.altEstimada<40&&pag.blocos.length>1){
+    // Só move se a página de destino tiver espaço de verdade pro bloco —
+    // sem essa checagem, a correção de órfã/viúva empurrava uma linha a
+    // mais numa página que já estava cheia, criando overflow novo que
+    // corrigirOverflowPaginas() tentava consertar em cascata e, se
+    // esbarrasse num capítulo/página branca poucas páginas à frente,
+    // acabava revertendo TUDO (inclusive correções boas) — visto na
+    // prática ao mudar o tamanho do título/capitular, que desloca as
+    // quebras de página e cria mais casos de órfã/viúva do que o normal.
+    if(ult&&ult.tipo==='prosa'&&!ult._linha&&ult.altEstimada<40&&pag.blocos.length>1
+       &&(prox.alturaUsada||0)+ult.altEstimada<=altUtil){
       pag.blocos.pop();pag.alturaUsada-=ult.altEstimada;
       prox.blocos.unshift(ult);prox.alturaUsada+=ult.altEstimada;
       ult._corrigido='orfa';
     }
     const prim=prox.blocos[0];
-    if(prim&&prim.tipo==='prosa'&&!prim._linha&&prim.altEstimada<40&&prox.blocos.length>1){
+    if(prim&&prim.tipo==='prosa'&&!prim._linha&&prim.altEstimada<40&&prox.blocos.length>1
+       &&(pag.alturaUsada||0)+prim.altEstimada<=altUtil){
       prox.blocos.shift();prox.alturaUsada-=prim.altEstimada;
       pag.blocos.push(prim);pag.alturaUsada+=prim.altEstimada;
       prim._corrigido='viuva';
@@ -1094,16 +1104,21 @@ function corrigirViuvasOrfas(paginas,cfg,fmt){
 // anterior. Regra clássica de tipografia: nunca deixar só 1 linha de um
 // parágrafo isolada de um lado da quebra de página.
 function _corrigirViuvasOrfasLinhas(paginas,cfg,fmt){
+  const altUtil=fmt.h-(cfg.mT||52)-(cfg.mB||58);
   for(let pi=0;pi<paginas.length-1;pi++){
     const pag=paginas[pi];const prox=paginas[pi+1];
     const ult=pag.blocos[pag.blocos.length-1];
-    if(ult&&ult._linha&&ult._primeiraLinha&&!ult._ultimaLinha&&pag.blocos.length>1){
+    // Checagem de espaço na página de destino antes de mover — ver
+    // comentário equivalente em corrigirViuvasOrfas.
+    if(ult&&ult._linha&&ult._primeiraLinha&&!ult._ultimaLinha&&pag.blocos.length>1
+       &&(prox.alturaUsada||0)+(ult.altEstimada||0)<=altUtil){
       pag.blocos.pop();pag.alturaUsada-=(ult.altEstimada||0);
       prox.blocos.unshift(ult);prox.alturaUsada=(prox.alturaUsada||0)+(ult.altEstimada||0);
       ult._corrigido='orfa';
     }
     const prim=prox.blocos[0];
-    if(prim&&prim._linha&&prim._ultimaLinha&&!prim._primeiraLinha&&prox.blocos.length>1){
+    if(prim&&prim._linha&&prim._ultimaLinha&&!prim._primeiraLinha&&prox.blocos.length>1
+       &&(pag.alturaUsada||0)+(prim.altEstimada||0)<=altUtil){
       prox.blocos.shift();prox.alturaUsada-=(prim.altEstimada||0);
       pag.blocos.push(prim);pag.alturaUsada=(pag.alturaUsada||0)+(prim.altEstimada||0);
       prim._corrigido='viuva';
@@ -1123,6 +1138,19 @@ const ESTILOS_CAPITULAR={
   medieval:'float:left;font-size:4em;line-height:.82;margin:.02em .12em 0 0;font-weight:900;color:#3b1a08;border:2px double #d8a84c;padding:.04em .12em;background:#fffbe8;',
   iluminura:'float:left;font-size:4.2em;line-height:.82;margin:.02em .14em 0 0;font-weight:900;color:#7c1212;border:3px solid #d8b56d;outline:1px solid #7c1212;padding:.04em .14em;background:#fff3bd;',
 };
+// Tamanho-base (em em) de cada estilo — usado como referência pro
+// multiplicador de cfg.capitularTamanho (controle de tamanho da letra
+// capitular na UI do Pólux). Ficam em declaração separada, DEPOIS do CSS
+// base no style inline, pra sobrescrever o font-size fixo de cada estilo
+// (a última declaração da mesma propriedade vence num atributo style).
+const ESTILOS_CAPITULAR_EM_BASE={none:0,simple:3.2,classic:3.9,ornamental:4,medieval:4,iluminura:4.2};
+function _estiloCapitularComTamanho(estilo, cfg){
+  const base=ESTILOS_CAPITULAR[estilo]||ESTILOS_CAPITULAR.classic;
+  if(!base) return base;
+  const emBase=ESTILOS_CAPITULAR_EM_BASE[estilo]!==undefined?ESTILOS_CAPITULAR_EM_BASE[estilo]:3.9;
+  const mult=(cfg&&cfg.capitularTamanho)||1;
+  return `${base}font-size:${(emBase*mult).toFixed(2)}em;`;
+}
 
 // Fonte da letra capitular quando a decoração é por gênero (motor
 // CeleiroMotorDecoracaoEditorial) — mesmo mapeamento do gerarCSSBase()
@@ -1137,9 +1165,9 @@ const FONTE_CAPITULAR_POR_GENERO={
   infantil:"Georgia,serif",
 };
 
-function aplicarCapitular(texto,estilo){
+function aplicarCapitular(texto,estilo,cfg){
   if(!estilo||estilo==='none') return texto;
-  const css=ESTILOS_CAPITULAR[estilo]||ESTILOS_CAPITULAR.classic;
+  const css=_estiloCapitularComTamanho(estilo, cfg);
   return texto.replace(/^(.)/,`<span style="${css}">$1</span>`);
 }
 
@@ -1172,8 +1200,9 @@ function renderizarBloco(bloco, cfg, aplicaCapitular_){
       // itálico — em vez das duas coisas juntas na mesma linha/fonte.
       const {rotulo,titulo}=_dividirRotuloETitulo(bloco.conteudo);
       const rotuloHtml=`<div style="text-align:center;font-size:.72em;font-weight:700;letter-spacing:.22em;margin:0 0 .5em;line-height:1.2;">${escapar(rotulo)}</div>`;
+      const tamanhoTitulo=cfg.tituloTamanho||1.6;
       const tituloHtml=titulo
-        ? `<h1 style="text-align:center;font-size:1.6em;font-weight:400;font-style:italic;font-family:Georgia,'Times New Roman',serif;margin:0;line-height:1.3;">${escapar(titulo)}</h1>`
+        ? `<h1 style="text-align:center;font-size:${tamanhoTitulo}em;font-weight:400;font-style:italic;font-family:Georgia,'Times New Roman',serif;margin:0;line-height:1.3;">${escapar(titulo)}</h1>`
         : '';
       return `<div style="clear:both;page-break-before:always;">${rotuloHtml}${tituloHtml}</div>${divisor}`;
     }
@@ -1242,7 +1271,7 @@ function renderizarBloco(bloco, cfg, aplicaCapitular_){
           // A letra fica no próprio conteudo (1º caractere) — não num
           // campo à parte — pra quem só lê bloco.conteudo (exportação,
           // checagem de integridade) nunca perder essa letra.
-          const css=ESTILOS_CAPITULAR[cfg.capitular]||ESTILOS_CAPITULAR.classic;
+          const css=_estiloCapitularComTamanho(cfg.capitular, cfg);
           const letra=escapar(conteudoLinha.charAt(0));
           const restoLinha=escapar(conteudoLinha.slice(1));
           return `<p style="${margemLinha}${alinhamentoLinha}${limpezaLinha}${semHifenAuto}"><span style="${css}">${letra}</span>${restoLinha}</p>`;
@@ -1261,10 +1290,11 @@ function renderizarBloco(bloco, cfg, aplicaCapitular_){
           const primeira=escapar(t.charAt(0));
           const resto=escapar(t.slice(1));
           const fonteCap=FONTE_CAPITULAR_POR_GENERO[d.chave]||'';
-          const styleCap=`float:left;font-size:3.4em;line-height:.85;margin:.06em .12em 0 0;font-weight:bold;${fonteCap?`font-family:${fonteCap};`:''}`;
+          const multCap=(cfg&&cfg.capitularTamanho)||1;
+          const styleCap=`float:left;font-size:${(3.4*multCap).toFixed(2)}em;line-height:.85;margin:.06em .12em 0 0;font-weight:bold;${fonteCap?`font-family:${fonteCap};`:''}`;
           return `<p style="margin:0 0 ${cfg.paragraphGap||0}em;text-indent:0;text-align:justify;"><span style="${styleCap}">${primeira}</span>${resto}</p>`;
         }
-        return `<p style="margin:0 0 ${cfg.paragraphGap||0}em;text-indent:0;text-align:justify;">${aplicarCapitular(texto,cfg.capitular)}</p>`;
+        return `<p style="margin:0 0 ${cfg.paragraphGap||0}em;text-indent:0;text-align:justify;">${aplicarCapitular(texto,cfg.capitular,cfg)}</p>`;
       }
       // Continuação de um parágrafo dividido entre páginas (ver
       // _dividirTextoPorAltura) não é o início de um parágrafo novo —
