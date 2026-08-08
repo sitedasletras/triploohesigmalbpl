@@ -3313,7 +3313,8 @@ function renderizarPaiol() {
                 ${p.nome}
               </label>`).join('')}
           </div>
-          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          ${tickDestinoHtml('paiol', i, item)}
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
             <button class="fa-btn" onclick="verConteudoPaiol('literario', ${i})">👁 VER</button>
             <button class="fa-btn" style="color:#f57f17;border-color:#f57f17;" onclick="catapultarItem(${i})">🏹 CATAPULTAR</button>
             <button class="fa-btn" style="color:var(--vermelho);border-color:var(--vermelho);" onclick="removerPaiol('literario', ${i})">✕</button>
@@ -3793,6 +3794,7 @@ function renderizarMasmorra() {
           <button class="fa-btn" onclick="verConteudoMasmorra(${i})">👁 VER / COPIAR</button>
           <button class="fa-btn" style="color:var(--ouro);border-color:var(--ouro);" onclick="expandirParaLivro(${i}, 'masmorra')">📖 EXPANDIR PARA LIVRO</button>
         </div>` : ''}
+        ${tickDestinoHtml('masmorra', i, item)}
       </div>
     `;
   }).join('');
@@ -3959,6 +3961,7 @@ function renderizarCalabouco() {
       <div style="margin-top:0.5rem;">
         <button onclick="abrirAdicionarPersonagem(${i})" style="width:100%;background:rgba(201,168,76,0.04);border:1px dashed rgba(201,168,76,0.2);color:var(--prata);font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;padding:0.35rem;cursor:pointer;text-transform:uppercase;margin-bottom:0.5rem;">+ REGISTRAR PERSONAGEM</button>
       </div>
+      ${tickDestinoHtml('calabouco', i, item)}
       <div class="cal-acoes">
         <button class="fa-btn" onclick="abrirGerador(${i})">📖 GERAR LIVRO</button>
         <button class="fa-btn" style="color:#4caf50;border-color:#4caf50;" onclick="analisarObra(estado.calabouco[${i}].conteudo, estado.calabouco[${i}].titulo, 'calabouco', ${i})">🔍 ANALISAR</button>
@@ -4501,6 +4504,21 @@ let genArcoAtualNum = 0;
 let genTotalArcos = 3;
 let genArcoTextoAtual = '';
 
+// Remove linhas que repetem o título do livro dentro do corpo do texto —
+// a IA às vezes reabre um arco reescrevendo o título como se fosse uma
+// folha de rosto própria, mas o título já está fixo no cabeçalho
+// editorial (ver montagem de livroEditorial). Compara ignorando maiúsculas/
+// pontuação de borda pra pegar variações como "O Peso do Silêncio" vs
+// "O PESO DO SILÊNCIO".
+function removerTituloRepetidoNoCorpo(texto, titulo) {
+  if (!titulo || !titulo.trim()) return texto;
+  const normalizar = s => s.trim().toUpperCase().replace(/["“”'.!?:;]+$/g, '');
+  const tituloNorm = normalizar(titulo);
+  if (!tituloNorm) return texto;
+  const linhas = texto.split('\n').filter(linha => normalizar(linha) !== tituloNorm);
+  return linhas.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
 function limparTextoArco(texto) {
   let limpo = texto
     .replace(/<div[^>]*align[^>]*>/gi,'').replace(/<\/div>/gi,'')
@@ -4856,6 +4874,7 @@ ${ai > 0 ? 'ATENÇÃO CRÍTICA: Este NÃO é um novo começo. Os personagens já
 ${ai === 2 ? 'Este é o ÚLTIMO arco. Conclua a história de forma satisfatória e coerente com a estrutura escolhida. A cena culminante exige densidade sensorial plena: descreva o que se vê, ouve, sente fisicamente — não apenas o que acontece. Não acelere o ritmo no momento mais importante do livro.' : ''}
 
 REGRAS OBRIGATÓRIAS:
+- PROIBIDO escrever o título do livro ("${titulo}") em qualquer lugar do texto — nem como folha de rosto, nem repetido antes do nome do arco. O título já aparece fixo na capa/folha de rosto do livro montado. Comece direto pelo nome do arco (se for escrevê-lo) ou pela narrativa.
 - Diálogos com travessão (—) e verbo dicendi
 - NUNCA travessão no meio de frases narrativas — use vírgula
 - Cada parágrafo com linha em branco entre eles
@@ -4950,6 +4969,13 @@ Escreva o resumo em 5-7 parágrafos densos. Não interprete nem analise — apen
   genLivroCompleto = limparTextoArco(genLivroCompleto).replace(/\n{4,}/g,'\n\n');
 
   genLivroCompleto = genLivroCompleto.replace(/\n*─{10,}\n*/g, '\n\n');
+
+  // O título já vai fixo no cabeçalho editorial (linha abaixo). Se a IA
+  // reabrir algum arco reescrevendo o título do livro (viu-se acontecer
+  // no Arco 1, empurrando "Autor:" e o resto do texto pra baixo, com o
+  // título repetido logo em seguida), remove essas linhas repetidas do
+  // corpo — o título só pode aparecer uma vez, na capa/folha de rosto.
+  genLivroCompleto = removerTituloRepetidoNoCorpo(genLivroCompleto, titulo);
 
   const autorFinal = heteronimoFinal || 'A definir';
   const heteronimoUsado = HETERONIMOS.find(h => h.nome === heteronimoFinal);
@@ -5187,6 +5213,98 @@ function enviarLivroGeradoParaDiagramador() {
   localStorage.setItem('lapidar_diagramar_automatico', 'true');
   notif('ENVIANDO AO DIAGRAMADOR', `Detectei ${resultado.nome} — redirecionando...`, 'sucesso');
   setTimeout(() => { window.location.href = resultado.arquivo; }, 700);
+}
+
+// ── Tick de destino (Diagramador / Só Capa) para itens já salvos no
+// Calabouço, na Masmorra ou no Paiol — diferente de
+// enviarLivroGeradoParaDiagramador() acima, que só serve pro livro
+// recém-gerado nesta mesma sessão (genLivroCompleto). Aqui o material
+// já está salvo com índice fixo numa das três listas.
+function _listaOrigem(origemTipo) {
+  return origemTipo === 'paiol' ? estado.paiol.literario : estado[origemTipo];
+}
+
+function marcarDestinoProcessamento(origemTipo, i, valor) {
+  const item = _listaOrigem(origemTipo)?.[i];
+  if (!item) return;
+  item.destinoProcessamento = (item.destinoProcessamento === valor) ? '' : valor;
+  salvar();
+  if (origemTipo === 'calabouco') renderizarCalabouco();
+  else if (origemTipo === 'masmorra') renderizarMasmorra();
+  else renderizarPaiol();
+}
+
+function marcarItemRevisado(origemTipo, i, revisado) {
+  const item = _listaOrigem(origemTipo)?.[i];
+  if (!item) return;
+  item.revisado = revisado;
+  item.dataRevisao = revisado ? new Date().toLocaleDateString('pt-BR') : null;
+  salvar();
+  if (origemTipo === 'calabouco') renderizarCalabouco();
+  else if (origemTipo === 'masmorra') renderizarMasmorra();
+  else renderizarPaiol();
+}
+
+// Gera o bloco de HTML do tick de destino + botão de envio, reaproveitado
+// nos três cards (Calabouço, Masmorra, Paiol).
+function tickDestinoHtml(origemTipo, i, item) {
+  const destino = item.destinoProcessamento || '';
+  const botao = (valor, label, cor) => `<button class="fa-btn" style="${destino===valor?`background:${cor};color:#000;border-color:${cor};font-weight:700;`:`color:${cor};border-color:${cor};`}" onclick="marcarDestinoProcessamento('${origemTipo}',${i},'${valor}')">${label}</button>`;
+  const selo = item.revisado
+    ? `<div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:var(--verde);text-transform:uppercase;margin:0.3rem 0;">✓ REVISADO — PRONTO PARA PUBLICAÇÃO (${item.dataRevisao||''})</div>`
+    : '';
+  const envio = destino
+    ? `<button class="fa-btn" style="width:100%;background:var(--ouro);color:#000;border-color:var(--ouro);font-weight:700;margin-top:0.3rem;" onclick="enviarItemParaProcessamento('${origemTipo}',${i})">📤 ENVIAR ${destino==='so-capa'?'PARA A CAPA':'AO DIAGRAMADOR'}</button>`
+    : '';
+  return `
+    ${selo}
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;letter-spacing:0.1em;color:var(--prata);text-transform:uppercase;margin:0.4rem 0 0.2rem;">Destino do material:</div>
+    <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+      ${botao('diagramador','🛠️ DIAGRAMADOR','#4caf50')}
+      ${botao('so-capa','🎨 SÓ CAPA','#9c6dd6')}
+    </div>
+    ${envio}
+  `;
+}
+
+function enviarItemParaProcessamento(origemTipo, i) {
+  const item = _listaOrigem(origemTipo)?.[i];
+  if (!item) return;
+  const conteudo = item.conteudo || '';
+  const destino = item.destinoProcessamento;
+  if (!destino) { notif('SEM DESTINO', 'Marque "Diagramador" ou "Só Capa" antes de enviar.', 'erro'); return; }
+  if (destino === 'diagramador' && !conteudo.trim()) {
+    notif('SEM TEXTO', 'Essa obra não tem texto salvo pra diagramar.', 'erro');
+    return;
+  }
+  localStorage.setItem('obra_titulo', item.titulo || 'Obra sem título');
+  localStorage.setItem('obra_autor', item.autor || '');
+  if (conteudo.trim()) {
+    localStorage.setItem('obra_ativa_texto', conteudo);
+    localStorage.setItem('obra_ativa_texto_nome', item.titulo || '');
+  }
+  // Guarda a origem pra permitir devolver o material revisado pro Paiol
+  // depois que a diagramação/capa terminar (ver devolverAoPaiolRevisado).
+  localStorage.setItem('obra_origem_tipo', origemTipo);
+  localStorage.setItem('obra_origem_indice', String(i));
+
+  if (destino === 'so-capa') {
+    notif('ENVIANDO PARA A CAPA', `"${item.titulo}" — abrindo o Ateliê de Capas...`, 'sucesso');
+    setTimeout(() => { window.open('okapista_literario.html', '_blank'); }, 500);
+    return;
+  }
+
+  if (!window.CeleiroRoteador) {
+    notif('MOTOR NÃO CARREGOU', 'Roteador de gênero não carregou — recarregue a página.', 'erro');
+    return;
+  }
+  const resultado = window.CeleiroRoteador.encaminhar(conteudo);
+  if (!resultado.arquivo) {
+    notif('TEXTO VAZIO', 'Não foi possível classificar o texto para roteamento.', 'erro');
+    return;
+  }
+  notif('ENVIANDO AO DIAGRAMADOR', `Detectei ${resultado.nome} — abrindo...`, 'sucesso');
+  setTimeout(() => { window.open(resultado.arquivo, '_blank'); }, 500);
 }
 
 function sairDoGerador() {
