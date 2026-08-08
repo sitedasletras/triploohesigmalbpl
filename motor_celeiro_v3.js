@@ -604,13 +604,24 @@ function _medirAlturaLinha(cfg, fmt){
 // "Top" (posição vertical) do caractere na posição `offset` de um nó de
 // texto já renderizado — usado pra descobrir em que linha visual cada
 // caractere caiu.
+//
+// Usa o ÚLTIMO rect (não o primeiro) de propósito: no caractere logo depois
+// de uma quebra de linha causada por hífen suave (­), o Chromium devolve
+// DOIS rects pra esse único caractere — um "sobra" fantasma ainda grudado
+// no fim da linha anterior (mesma posição do hífen visível) e o rect real
+// dele já na linha nova. `rects[0]` pegava sempre o fantasma, fazendo a
+// busca binária achar que esse caractere ainda estava na linha de cima —
+// cortando a palavra um ou mais caracteres DEPOIS do hífen (ex.: "segmento"
+// virando "segmen"/"to", sem hífen visível nenhum ali). O último rect é
+// sempre o real nesse caso, e continua sendo o único/correto nos casos
+// normais (só 1 rect por caractere).
 function _topDoCaractere(range, textNode, offset){
   const fim=Math.min(offset+1, textNode.length);
   if(offset>=fim) return null;
   range.setStart(textNode, offset);
   range.setEnd(textNode, fim);
   const rects=range.getClientRects();
-  return rects.length ? rects[0].top : null;
+  return rects.length ? rects[rects.length-1].top : null;
 }
 
 // Divide um nó de texto já renderizado em linhas visuais (array de
@@ -644,6 +655,20 @@ function _dividirProsaEmLinhas(bloco, cfg, fmt){
   if(!medidor) return null;
   const largUtil=fmt.w-(cfg.mI||57)-(cfg.mE||43);
   _configurarMedidor(medidor,cfg,largUtil);
+  // hyphens:manual força a quebra a acontecer SÓ nos hífens invisíveis
+  // que hifenizarTexto() já inseriu no texto (ou só em espaços, se a
+  // hifenização estiver desligada) — nunca no dicionário de hifenização
+  // automática do próprio navegador (hyphens:auto). Com os dois ativos
+  // ao mesmo tempo, o navegador às vezes escolhia quebrar num ponto
+  // DIFERENTE de onde os hífens do app estão — inofensivo quando o
+  // parágrafo inteiro fica numa única tag, mas ao dividir em linhas
+  // separadas (grade de linhas) isso literalmente cortava a palavra num
+  // ponto sem hífen nenhum ali (bug real visto numa geração: "segmento"
+  // virando "segmen" numa linha e "to" solto na linha seguinte, sem
+  // hífen). Detectar a quebra sempre no mesmo critério do hífen manual
+  // elimina essa ambiguidade.
+  medidor.style.hyphens='manual';
+  medidor.style.webkitHyphens='manual';
   const p=document.createElement('p');
   p.style.margin='0';
   p.style.textAlign='justify';
@@ -692,6 +717,9 @@ function _dividirCapitularEmLinhas(bloco, cfg, fmt){
   if(!medidor) return null;
   const largUtil=fmt.w-(cfg.mI||57)-(cfg.mE||43);
   _configurarMedidor(medidor,cfg,largUtil);
+  // hyphens:manual — ver comentário equivalente em _dividirProsaEmLinhas.
+  medidor.style.hyphens='manual';
+  medidor.style.webkitHyphens='manual';
 
   const t=bloco.conteudo||'';
   if(t.length<2) return null;
@@ -1204,6 +1232,12 @@ function renderizarBloco(bloco, cfg, aplicaCapitular_){
         // parágrafo continuar estreitando a largura de parágrafos
         // seguintes depois que o texto dela termina.
         const limpezaLinha=bloco._ultimaLinha?'clear:both;':'';
+        // hyphens:manual aqui também: essa linha já foi cortada no ponto
+        // exato calculado por _dividirProsaEmLinhas (ver comentário lá) —
+        // deixar hyphens:auto ligado no render final serviria só pra
+        // reabrir a mesma ambiguidade que causava corte de palavra sem
+        // hífen, mesmo sendo bem mais raro aqui (a linha já cabe sozinha).
+        const semHifenAuto='hyphens:manual;-webkit-hyphens:manual;';
         if(bloco._capitularPrimeira){
           // A letra fica no próprio conteudo (1º caractere) — não num
           // campo à parte — pra quem só lê bloco.conteudo (exportação,
@@ -1211,10 +1245,10 @@ function renderizarBloco(bloco, cfg, aplicaCapitular_){
           const css=ESTILOS_CAPITULAR[cfg.capitular]||ESTILOS_CAPITULAR.classic;
           const letra=escapar(conteudoLinha.charAt(0));
           const restoLinha=escapar(conteudoLinha.slice(1));
-          return `<p style="${margemLinha}${alinhamentoLinha}${limpezaLinha}"><span style="${css}">${letra}</span>${restoLinha}</p>`;
+          return `<p style="${margemLinha}${alinhamentoLinha}${limpezaLinha}${semHifenAuto}"><span style="${css}">${letra}</span>${restoLinha}</p>`;
         }
         const textoLinha=escapar(conteudoLinha);
-        return `<p style="${recuoLinha}${margemLinha}${alinhamentoLinha}${limpezaLinha}">${textoLinha}</p>`;
+        return `<p style="${recuoLinha}${margemLinha}${alinhamentoLinha}${limpezaLinha}${semHifenAuto}">${textoLinha}</p>`;
       }
       const texto=escapar(bloco.conteudo);
       if(aplicaCapitular_){
