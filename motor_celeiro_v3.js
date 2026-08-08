@@ -703,6 +703,18 @@ function corrigirOverflowPaginas(paginas,cfg,fmt){
     return medidor.scrollHeight;
   };
 
+  // Pior overflow ANTES de mexer em qualquer coisa — usado no final pra
+  // decidir se a correção realmente ajudou. Visto numa geração real:
+  // corrigir o overflow de uma página empurra o excesso pra próxima, que
+  // também estoura, empurra pra próxima, e assim em cascata — se essa
+  // cascata esbarra numa página bloqueada (capítulo/branca) poucas
+  // páginas à frente, sobra uma página com overflow BEM maior do que o
+  // pequeno overflow original que disparou a correção. Sem essa trava,
+  // a "correção" piorava o problema em vez de resolver.
+  const piorOverflow=(lista)=>lista.reduce((pior,p)=>Math.max(pior,medirAlturaReal(p)-altUtil),0);
+  const piorAntes=piorOverflow(paginas);
+  const snapshot=JSON.parse(JSON.stringify(paginas));
+
   for(let pi=0;pi<paginas.length;pi++){
     const pag=paginas[pi];
     if(pag.blocos.length<2) continue;
@@ -724,6 +736,11 @@ function corrigirOverflowPaginas(paginas,cfg,fmt){
       guarda++;
     }
   }
+
+  const piorDepois=piorOverflow(paginas);
+  if(piorDepois>piorAntes+2){
+    return snapshot;
+  }
   return paginas;
 }
 
@@ -732,13 +749,17 @@ function corrigirViuvasOrfas(paginas,cfg,fmt){
   for(let pi=0;pi<paginas.length-1;pi++){
     const pag=paginas[pi];const prox=paginas[pi+1];
     const ult=pag.blocos[pag.blocos.length-1];
-    if(ult&&ult.tipo==='prosa'&&ult.altEstimada<40){
+    // pag.blocos.length>1: nunca tira o ÚNICO bloco de uma página — isso
+    // deixava a página inteira em branco (0 blocos), sem remover a página
+    // vazia da lista. Bug real visto numa geração real: um "buraco" 100%
+    // em branco no meio do livro, sem nenhum aviso.
+    if(ult&&ult.tipo==='prosa'&&ult.altEstimada<40&&pag.blocos.length>1){
       pag.blocos.pop();pag.alturaUsada-=ult.altEstimada;
       prox.blocos.unshift(ult);prox.alturaUsada+=ult.altEstimada;
       ult._corrigido='orfa';
     }
     const prim=prox.blocos[0];
-    if(prim&&prim.tipo==='prosa'&&prim.altEstimada<40){
+    if(prim&&prim.tipo==='prosa'&&prim.altEstimada<40&&prox.blocos.length>1){
       prox.blocos.shift();prox.alturaUsada-=prim.altEstimada;
       pag.blocos.push(prim);pag.alturaUsada+=prim.altEstimada;
       prim._corrigido='viuva';

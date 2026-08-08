@@ -477,6 +477,20 @@ window.addEventListener('load',()=>{
   if(titulo) $('titulo').value=titulo.replace(/^✦\s*/,'');
   const autor=localStorage.getItem('obra_autor')||localStorage.getItem('celeiro_autor');
   if(autor) $('autor').value=autor;
+  // Aviso de template não preenchido: itens salvos ANTES da correção do
+  // gerador (que refina o título quando ele só é um tema com colchetes)
+  // ainda podem carregar aqui com o próprio texto de instrução no lugar
+  // do título e/ou do corpo do texto — ex.: "[gênero: gótico/policial/
+  // histórico/etc]". Sem esse aviso, isso só era percebido depois, olhando
+  // página por página já diagramada. O texto em si não dá pra corrigir
+  // sozinho (não hà como adivinhar o título/corpo real) — só avisa alto
+  // pra revisar antes de diagramar.
+  const RE_TEMPLATE_NAO_PREENCHIDO=/\[[^\]]{3,80}\]/;
+  const tituloPareceTemplate=RE_TEMPLATE_NAO_PREENCHIDO.test($('titulo').value||'');
+  const textoPareceTemplate=RE_TEMPLATE_NAO_PREENCHIDO.test((texto||'').slice(0,300));
+  if(tituloPareceTemplate||textoPareceTemplate){
+    $('status').textContent='⚠ O '+(tituloPareceTemplate?'título':'texto')+' carregado parece um modelo/tema não preenchido (tem colchetes tipo "[gênero: ...]"), não o texto real da obra — confira e corrija antes de diagramar.';
+  }
   // Render inicial
   if(texto) render();
   // Diagramação automática — obra veio do Gerador de Livros pelo pipeline
