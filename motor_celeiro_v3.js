@@ -447,7 +447,7 @@ function _configurarMedidor(medidor, cfg, largUtil){
   medidor.lang='pt-BR';
 }
 
-function estimarAltura(bloco, cfg, fmt){
+function estimarAltura(bloco, cfg, fmt, aplicaCapitular_){
   const largUtil=fmt.w-(cfg.mI||57)-(cfg.mE||43);
   if(bloco.tipo==='imagem'){
     const altUtilPagina=fmt.h-(cfg.mT||52)-(cfg.mB||58);
@@ -462,11 +462,16 @@ function estimarAltura(bloco, cfg, fmt){
   const medidor=_obterMedidor();
   if(!medidor) return estimarAlturaFormula(bloco,cfg,fmt);
   _configurarMedidor(medidor,cfg,largUtil);
-  // Medição sem capitular: a letra capitular (float) só afeta um único
-  // parágrafo por página e a diferença de altura é pequena — a rede de
-  // segurança de detectarOverflowPaginas() cobre esse resíduo, medindo a
-  // página inteira já renderizada com o capitular real aplicado.
-  medidor.innerHTML=renderizarBloco(bloco,cfg,false);
+  // Quem chama (paginar(), pelo bloco identificado em
+  // _identificarBlocosCapitulares) pode pedir a medição já COM a
+  // capitular aplicada — sem isso, a estimativa ficava pequena demais
+  // (a letra capitular estreita as primeiras linhas, empurrando o
+  // parágrafo pra mais linhas do que o texto "reto" precisaria), e com a
+  // grade de linhas isso já não era mais um resíduo pequeno: dava pra
+  // estourar a página inteira e disparar uma cascata de correção que ia
+  // longe demais. Sem esse parâmetro, mede sem capitular (comportamento
+  // de sempre, usado nos outros blocos).
+  medidor.innerHTML=renderizarBloco(bloco,cfg,!!aplicaCapitular_);
   const altura=medidor.scrollHeight;
   return altura||estimarAlturaFormula(bloco,cfg,fmt);
 }
@@ -559,17 +564,192 @@ function _dividirTextoPorAltura(bloco, cfg, fmt, alturaDisponivel){
   };
 }
 
+// ═══════════════════════════════════════════════════════════
+// 8.5 GRADE DE LINHAS (prosa)
+// ═══════════════════════════════════════════════════════════
+// A abordagem antiga (estimar a altura do parágrafo inteiro e só dividir
+// quando ele não coubesse) tinha dois problemas visto numa geração real:
+// a altura de cada bloco é medida isoladamente e depois SOMADA
+// (pag.alturaUsada), então erro de arredondamento acumula entre blocos; e
+// a divisão de última hora só era tentada quando o espaço restante já dava
+// pra pelo menos ~1 linha, mas por causa do acúmulo o espaço real podia
+// ser bem menor que isso no momento da decisão — o parágrafo inteiro
+// então ia pra próxima página, jogando fora o espaço que sobrou (visto
+// numa página real que parou 120px antes da borda, por exemplo).
+//
+// A grade de linhas resolve isso na raiz: quebra cada parágrafo de prosa
+// comum nas linhas visuais REAIS dele (via medição real, mesma técnica de
+// sempre) ANTES de paginar. Cada linha vira um bloco atômico de altura
+// fixa e conhecida (alturaLinha) — paginar() só empilha linhas até a
+// página encher, sem estimativa nem divisão nenhuma. Toda página normal
+// passa a usar o número máximo de linhas que cabem no formato, do
+// primeiro ao último capítulo, em vez de parar por acaso de onde o
+// parágrafo termina.
+//
+// Fica de fora da grade o parágrafo que abre cada capítulo (o que recebe
+// a letra capitular) — a capitular muda a quebra das primeiras linhas de
+// um jeito que complicaria a detecção, e é só 1 parágrafo por capítulo;
+// esse continua usando a estimativa por bloco inteiro, como antes.
+
+// Mede a altura real de UMA linha de corpo de texto.
+function _medirAlturaLinha(cfg, fmt){
+  const medidor=_obterMedidor();
+  if(!medidor) return (cfg.tamanhoFonte||12)*1.333*(cfg.entrelinha||1.52);
+  const largUtil=fmt.w-(cfg.mI||57)-(cfg.mE||43);
+  _configurarMedidor(medidor,cfg,largUtil);
+  medidor.innerHTML='<p style="margin:0;text-align:justify;">x</p>';
+  return medidor.scrollHeight;
+}
+
+// "Top" (posição vertical) do caractere na posição `offset` de um nó de
+// texto já renderizado — usado pra descobrir em que linha visual cada
+// caractere caiu.
+function _topDoCaractere(range, textNode, offset){
+  const fim=Math.min(offset+1, textNode.length);
+  if(offset>=fim) return null;
+  range.setStart(textNode, offset);
+  range.setEnd(textNode, fim);
+  const rects=range.getClientRects();
+  return rects.length ? rects[0].top : null;
+}
+
+// Divide um nó de texto já renderizado em linhas visuais (array de
+// {start,end} em offsets de caractere) por busca binária por linha — bem
+// mais rápido que testar caractere por caractere em parágrafos longos.
+function _linhasVisuaisDoNo(textNode){
+  const total=textNode.length;
+  if(total===0) return [];
+  const range=document.createRange();
+  const linhas=[];
+  let inicio=0;
+  while(inicio<total){
+    const topInicio=_topDoCaractere(range,textNode,inicio);
+    let lo=inicio, hi=total-1;
+    while(lo<hi){
+      const mid=Math.ceil((lo+hi)/2);
+      const t=_topDoCaractere(range,textNode,mid);
+      if(t!==null&&Math.abs(t-topInicio)<1) lo=mid; else hi=mid-1;
+    }
+    linhas.push({start:inicio,end:lo+1});
+    inicio=lo+1;
+  }
+  return linhas;
+}
+
+// Quebra um bloco de prosa (parágrafo único) em micro-blocos de UMA linha
+// visual cada. Retorna null se o parágrafo é 1 linha só (não precisa
+// quebrar) ou se não há DOM disponível pra medir.
+function _dividirProsaEmLinhas(bloco, cfg, fmt){
+  const medidor=_obterMedidor();
+  if(!medidor) return null;
+  const largUtil=fmt.w-(cfg.mI||57)-(cfg.mE||43);
+  _configurarMedidor(medidor,cfg,largUtil);
+  const p=document.createElement('p');
+  p.style.margin='0';
+  p.style.textAlign='justify';
+  // O recuo (text-indent) da primeira linha PRECISA estar aqui — sem
+  // isso, a detecção de quebra usava a largura inteira também na 1ª
+  // linha, "cabendo" mais texto do que cabe de verdade quando essa linha
+  // é renderizada com recuo (ver renderizarBloco, caso _linha). O
+  // resultado real então quebrava essa linha em duas, bagunçando a
+  // contagem de linhas da página inteira a partir dali — bug real visto
+  // numa geração sintética, com páginas estourando bem além do previsto.
+  if(cfg.recuo) p.style.textIndent=cfg.recuo+'em';
+  p.textContent=bloco.conteudo;
+  medidor.innerHTML='';
+  medidor.appendChild(p);
+  const textNode=p.firstChild;
+  if(!textNode||!textNode.length) return null;
+  const linhas=_linhasVisuaisDoNo(textNode);
+  if(linhas.length<=1) return null;
+  return linhas.map((l,i)=>({
+    ...bloco,
+    id:`${bloco.id}-L${i+1}`,
+    conteudo:bloco.conteudo.slice(l.start,l.end),
+    _linha:true,
+    _primeiraLinha:i===0,
+    _ultimaLinha:i===linhas.length-1,
+  }));
+}
+
+// Identifica (por referência de objeto) qual bloco 'prosa' é o candidato
+// a capitular em cada capítulo: o primeiro 'prosa' depois de cada
+// 'capitulo' (ou o primeiro do documento, se vier antes de qualquer
+// capítulo) — a mesma regra que estimarAltura/detectarOverflowPaginas já
+// aplicam por página, calculada aqui uma vez pra todo o documento, já que
+// a ordem dos blocos nunca muda durante a paginação.
+function _identificarBlocosCapitulares(blocos){
+  const candidatos=new Set();
+  let capApl=false;
+  blocos.forEach(b=>{
+    if(b.tipo==='capitulo'){ capApl=false; return; }
+    if(b.tipo==='prosa'&&!capApl){ candidatos.add(b); capApl=true; }
+  });
+  return candidatos;
+}
+
+// Pré-processa os blocos pra paginação por grade de linhas: troca cada
+// bloco 'prosa' comum (fora o capitular de cada capítulo) pelas suas
+// linhas visuais. Blocos de outros tipos (capitulo, subtitulo, diálogo,
+// poesia, imagem etc.) passam direto, sem mudança nenhuma.
+function _prepararBlocosParaGrade(blocos, cfg, fmt){
+  const capitulares=_identificarBlocosCapitulares(blocos);
+  const medidor=_obterMedidor();
+  if(!medidor) return {blocos, alturaLinha:_alturaMinimaDivisao(cfg), capitulares};
+
+  const alturaLinha=_medirAlturaLinha(cfg,fmt);
+  const resultado=[];
+  blocos.forEach(bloco=>{
+    if(bloco.tipo!=='prosa'||capitulares.has(bloco)){
+      resultado.push(bloco);
+      return;
+    }
+    const linhas=_dividirProsaEmLinhas(bloco,cfg,fmt);
+    if(!linhas){ resultado.push(bloco); return; }
+    resultado.push(...linhas);
+  });
+  return {blocos:resultado, alturaLinha, capitulares};
+}
+
 function paginar(blocos, cfg, fmt){
   const altUtil=fmt.h-(cfg.mT||52)-(cfg.mB||58);
   const alturaMinDivisao=_alturaMinimaDivisao(cfg);
+  // Grade de linhas: quebra os parágrafos de prosa comuns (fora o que
+  // abre capítulo com capitular) nas linhas visuais reais deles antes de
+  // paginar — ver seção 8.5. Cada linha vira um bloco atômico de altura
+  // fixa (alturaLinha), então a página sempre enche até o máximo de
+  // linhas que cabem, em vez de parar antes por causa de um parágrafo
+  // inteiro que não coube.
+  const prep=_prepararBlocosParaGrade(blocos,cfg,fmt);
+  const blocosGrade=prep.blocos;
+  const alturaLinha=prep.alturaLinha;
+  const capitulares=prep.capitulares;
+  // Espaço extra depois da ÚLTIMA linha de cada parágrafo (margin-bottom
+  // do <p> real — ver gap em renderizarBloco) — sem somar isso na altura
+  // da linha final de cada parágrafo, a grade de linhas subestimava toda
+  // página com "Espaço §" (paragraphGap) configurado, tanto pior quanto
+  // mais parágrafos curtos a página tivesse.
+  const gapPx=(cfg.paragraphGap||0)*((cfg.tamanhoFonte||12)*1.333);
+
   const paginas=[];
   let pag={numero:1,lado:'recto',blocos:[],alturaUsada:0};
 
-  const fila=blocos.slice();
+  const fila=blocosGrade.slice();
   let i=0;
   while(i<fila.length){
     const bloco=fila[i];
-    const alt=estimarAltura(bloco,cfg,fmt);
+    // Linha da grade: altura fixa já conhecida, nunca precisa de
+    // estimarAltura nem de divisão — ou cabe inteira, ou vai pra próxima
+    // página inteira (é só uma linha, não tem "meio" pra dividir).
+    // O parágrafo que abre capítulo (candidato a capitular) é medido JÁ
+    // com a capitular aplicada — sem isso a estimativa saía pequena
+    // demais (a letra capitular estreita as primeiras linhas, exigindo
+    // mais linhas no total do que o texto "reto" precisaria) e a página
+    // estourava de verdade depois, tendo que torcer pra correção de
+    // overflow consertar um resíduo que na prática não era pequeno.
+    const alt=bloco._linha
+      ?alturaLinha+(bloco._ultimaLinha?gapPx:0)
+      :estimarAltura(bloco,cfg,fmt,capitulares.has(bloco));
     // Capítulo sempre começa em nova página — e, dentro do miolo, sempre
     // em página ímpar (recto/direita), regra editorial padrão. Se a nova
     // página cair em par (verso/esquerda), intercala uma página em branco
@@ -589,8 +769,10 @@ function paginar(blocos, cfg, fmt){
       // Bloco não cabe inteiro no espaço que sobra — tenta dividir por
       // palavra em vez de jogar o parágrafo inteiro (e o espaço que
       // sobrou) pra próxima página. Isso é o que evita a página ficar
-      // preenchida bem menos do que caberia.
-      if(TIPOS_DIVISIVEIS.has(bloco.tipo)&&espacoRestante>=alturaMinDivisao){
+      // preenchida bem menos do que caberia. (Linhas da grade nunca
+      // entram aqui — TIPOS_DIVISIVEIS não bate com bloco._linha porque
+      // elas já são a menor unidade possível.)
+      if(!bloco._linha&&TIPOS_DIVISIVEIS.has(bloco.tipo)&&espacoRestante>=alturaMinDivisao){
         const divisao=_dividirTextoPorAltura(bloco,cfg,fmt,espacoRestante);
         if(divisao){
           const altParte1=estimarAltura(divisao.parte1,cfg,fmt);
@@ -753,15 +935,44 @@ function corrigirViuvasOrfas(paginas,cfg,fmt){
     // deixava a página inteira em branco (0 blocos), sem remover a página
     // vazia da lista. Bug real visto numa geração real: um "buraco" 100%
     // em branco no meio do livro, sem nenhum aviso.
-    if(ult&&ult.tipo==='prosa'&&ult.altEstimada<40&&pag.blocos.length>1){
+    // !ult._linha: linha da grade (ver _corrigirViuvasOrfasLinhas) tem
+    // altura sempre <40 por ser 1 linha só — essa checagem genérica não é
+    // pra ela, senão ficava tentando mover linha isolada sem sentido.
+    if(ult&&ult.tipo==='prosa'&&!ult._linha&&ult.altEstimada<40&&pag.blocos.length>1){
       pag.blocos.pop();pag.alturaUsada-=ult.altEstimada;
       prox.blocos.unshift(ult);prox.alturaUsada+=ult.altEstimada;
       ult._corrigido='orfa';
     }
     const prim=prox.blocos[0];
-    if(prim&&prim.tipo==='prosa'&&prim.altEstimada<40&&prox.blocos.length>1){
+    if(prim&&prim.tipo==='prosa'&&!prim._linha&&prim.altEstimada<40&&prox.blocos.length>1){
       prox.blocos.shift();prox.alturaUsada-=prim.altEstimada;
       pag.blocos.push(prim);pag.alturaUsada+=prim.altEstimada;
+      prim._corrigido='viuva';
+    }
+  }
+  return paginas;
+}
+
+// Viúvas/órfãs pra linhas da grade (ver seção 8.5): órfã é a PRIMEIRA
+// linha de um parágrafo sozinha no fim de uma página, com o resto do
+// parágrafo começando só na página seguinte — junta ela ao resto. Viúva é
+// a ÚLTIMA linha de um parágrafo sozinha no topo de uma página, com o
+// resto do parágrafo na página anterior — devolve ela pra página
+// anterior. Regra clássica de tipografia: nunca deixar só 1 linha de um
+// parágrafo isolada de um lado da quebra de página.
+function _corrigirViuvasOrfasLinhas(paginas,cfg,fmt){
+  for(let pi=0;pi<paginas.length-1;pi++){
+    const pag=paginas[pi];const prox=paginas[pi+1];
+    const ult=pag.blocos[pag.blocos.length-1];
+    if(ult&&ult._linha&&ult._primeiraLinha&&!ult._ultimaLinha&&pag.blocos.length>1){
+      pag.blocos.pop();pag.alturaUsada-=(ult.altEstimada||0);
+      prox.blocos.unshift(ult);prox.alturaUsada=(prox.alturaUsada||0)+(ult.altEstimada||0);
+      ult._corrigido='orfa';
+    }
+    const prim=prox.blocos[0];
+    if(prim&&prim._linha&&prim._ultimaLinha&&!prim._primeiraLinha&&prox.blocos.length>1){
+      prox.blocos.shift();prox.alturaUsada-=(prim.altEstimada||0);
+      pag.blocos.push(prim);pag.alturaUsada=(pag.alturaUsada||0)+(prim.altEstimada||0);
       prim._corrigido='viuva';
     }
   }
@@ -855,6 +1066,34 @@ function renderizarBloco(bloco, cfg, aplicaCapitular_){
 
     default: {
       // Prosa
+      if(bloco._linha){
+        // Uma única linha visual pré-calculada da grade de linhas (ver
+        // _dividirProsaEmLinhas) — renderizada como o próprio parágrafo
+        // completo seria, só que já cortada nessa linha.
+        // Se a linha termina com um hífen invisível de hifenização
+        // (­, U+00AD) porque a quebra caiu bem ali, precisa virar um
+        // hífen visível: sozinha nessa linha, sem o resto da palavra na
+        // MESMA renderização, o navegador não tem motivo pra desenhar o
+        // hífen (ele só aparece quando é o próprio navegador que decide
+        // quebrar ali) — sem isso a sílaba cortada ficava sem hífen.
+        const conteudoLinha=bloco.conteudo.endsWith('­')
+          ? bloco.conteudo.slice(0,-1)+'-'
+          : bloco.conteudo;
+        const textoLinha=escapar(conteudoLinha);
+        const recuoLinha=bloco._primeiraLinha?recuo:'';
+        const margemLinha=bloco._ultimaLinha?gap:'margin-bottom:0;';
+        // text-align-last:justify força ESTA linha (que sozinha na sua
+        // própria tag <p> seria tratada como "última linha", e por
+        // padrão não é esticada) a se comportar como uma linha do MEIO
+        // de um parágrafo — esticada de margem a margem, igual ficava
+        // antes de virar uma linha própria da grade. A verdadeira última
+        // linha do parágrafo fica de fora disso, do jeito normal
+        // (alinhada à esquerda, sem esticar).
+        const alinhamentoLinha=bloco._ultimaLinha
+          ?'text-align:justify;'
+          :'text-align:justify;text-align-last:justify;';
+        return `<p style="${recuoLinha}${margemLinha}${alinhamentoLinha}">${textoLinha}</p>`;
+      }
       const texto=escapar(bloco.conteudo);
       if(aplicaCapitular_){
         // Com decoração de gênero ativa, a letra capitular usa a
@@ -1043,6 +1282,7 @@ function preparar(textoBruto, opcoes){
   else{
     paginas=paginar(blocos,cfg,fmt);
     paginas=corrigirViuvasOrfas(paginas,cfg,fmt);
+    paginas=_corrigirViuvasOrfasLinhas(paginas,cfg,fmt);
     paginas=corrigirOverflowPaginas(paginas,cfg,fmt);
   }
 
@@ -1193,6 +1433,12 @@ function _processarBlocoPDF(doc, bloco, cfg, x, y, larguraUtilMm, fontFamily, es
   if(desenhar) { doc.setFont(fontFamily,'normal'); doc.setFontSize(fs); }
   const linhas=doc.splitTextToSize(conteudo.replace(/\n/g,' ').trim(),larguraUtilMm);
   if(desenhar) doc.text(linhas,x,y+lh,{align:'justify',maxWidth:larguraUtilMm});
+  // Bloco de UMA linha da grade (ver seção 8.5 em motor_celeiro_v3.js):
+  // o espaço de fim-de-parágrafo só entra depois da ÚLTIMA linha de cada
+  // parágrafo — colocar depois de toda linha (como o bloco de parágrafo
+  // inteiro fazia) inflava o PDF com um espaço de parágrafo inteiro
+  // entre cada linha em vez de entre parágrafos.
+  if(bloco._linha) return y+lh*linhas.length+(bloco._ultimaLinha?lh*(cfg.paragraphGap||0):0);
   return y+lh*linhas.length+lh*(cfg.paragraphGap||0.4);
 }
 
@@ -1269,6 +1515,11 @@ global.CeleiroV3={
   paginar, paginarHaicai, paginarEstrofista,
   corrigirViuvasOrfas,
   corrigirOverflowPaginas,
+  _corrigirViuvasOrfasLinhas,
+  _prepararBlocosParaGrade,
+  _medirAlturaLinha,
+  _dividirProsaEmLinhas,
+  _identificarBlocosCapitulares,
   renderizarBloco, renderizarPagina,
   gerarPaginaRosto,
   gerarCSSImpressao,
