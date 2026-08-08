@@ -1366,7 +1366,7 @@ body::before {
           <div class="dash-sub">obras consolidadas</div>
         </div>
         <div class="dash-card dc-corsi clicavel" onclick="irAla('maternidade', document.querySelector('.ala-btn[onclick*=maternidade]'))" title="Ver Heterônimos">
-          <div class="dash-num" id="cnt-heteronimos">51</div>
+          <div class="dash-num" id="cnt-heteronimos">57</div>
           <div class="dash-label">Heterônimos</div>
           <div class="dash-sub">OHE-Peçanha ativos</div>
         </div>
@@ -4258,7 +4258,20 @@ function atualizarContadores() {
   const totalSingles = estado.estudios.reduce((a,e) => a + e.singles.length, 0);
   document.getElementById('cnt-singles').textContent = totalSingles;
   document.getElementById('cnt-estudios').textContent = estado.estudios.length;
+  document.getElementById('cnt-heteronimos').textContent = contarHeteronimosAtivos();
   atualizarContadoresSilo();
+}
+
+// Total de heterônimos ativos: os oficiais em HETERONIMOS + qualquer um
+// nascido em runtime pela Maternidade (localStorage 'heteronimos_extras',
+// mesma chave que gerador_obra.html/heteronimos_roster.js usam). O card do
+// dashboard estava com "51" fixo no HTML, nunca ligado à contagem real —
+// por isso não acompanhava os heterônimos adicionados depois.
+function contarHeteronimosAtivos() {
+  let extras = 0;
+  try { extras = JSON.parse(localStorage.getItem('heteronimos_extras') || '[]').length; }
+  catch (e) { extras = 0; }
+  return HETERONIMOS.length + extras;
 }
 
 // ===================== MODAL =====================
