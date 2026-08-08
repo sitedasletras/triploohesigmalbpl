@@ -4531,6 +4531,12 @@ function limparTextoArco(texto) {
     // deixa vazar entre colchetes (ex: "[Suprimir a linha ou substituir por...]").
     // Prosa legítima praticamente nunca usa colchetes com mais de ~40 caracteres.
     .replace(/\[[^\]]{40,}\]/g, '')
+    // Remove o rótulo "ARCO I — NOME DO ARCO" que a IA às vezes escreve como
+    // cabeçalho de seção dentro do próprio texto — é uma divisão interna do
+    // ROTEIRO de geração (arco 1/2/3), não algo que deveria aparecer no
+    // livro final pro leitor. Pedido do Wagner depois de precisar apagar
+    // isso manualmente numa geração real.
+    .replace(/^ARCO\s+[IVXLC\d]+(\s+DE\s+\d+)?\s*[—–:-]?\s*.{0,70}$/gim, '')
     .replace(/\n{3,}/g,'\n\n').trim();
 
   // Normaliza formato de capítulo: funde "CAPÍTULO N" + título em linha separada
