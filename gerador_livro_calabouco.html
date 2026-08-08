@@ -114,6 +114,10 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 </style>
 <script src="config.js"></script>
 <script src="checklist_antiia.js"></script>
+<script src="heteronimos_roster.js"></script>
+<script src="biografias_heteronimos.js"></script>
+<script src="perfis_voz.js"></script>
+<script src="ia_gratuita.js"></script>
 <script src="motor_celeiro_v3.js"></script>
 <script src="motores_lapidar/motor_roteador_v1.js"></script>
 </head>
@@ -325,7 +329,7 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
       <div class="modal-corpo">
         <p class="modal-desc">Nenhum dos 51 heterônimos existentes era adequado. Fernando Peçanha propõe o nascimento de uma nova identidade. Confirme para registrar e continuar.</p>
         <div class="ficha-het" id="ficha-novo-het"></div>
-        <p class="modal-desc" style="font-size:0.82rem;margin-top:0.5rem;">⚠ Após confirmar, atualize o array HETERONIMOS no triploohesigmalbpl e o registro_civil_heteronimico.json no OHE-Peçanha.</p>
+        <p class="modal-desc" style="font-size:0.82rem;margin-top:0.5rem;">⚠ Ao confirmar, o heterônimo e seu Perfil de Voz são registrados automaticamente neste sistema. Só falta atualizar o registro_civil_heteronimico.json no OHE-Peçanha (repositório separado).</p>
       </div>
       <div class="modal-acoes">
         <button class="btn-verde" onclick="confirmarNovoHet()">✓ CONFIRMAR E CONTINUAR</button>
@@ -429,7 +433,14 @@ const JORNADAS = {
   ]}
 };
 
-const HETERONIMOS_LISTA = [
+// Antes era uma cópia estática de 51 nomes, congelada na última vez que
+// alguém lembrou de atualizá-la à mão — já estava desatualizada (faltavam
+// 6 heterônimos recentes). Agora lê do roster compartilhado
+// (heteronimos_roster.js), a mesma fonte de verdade que gerador_obra.html e
+// cartografo_territorio.html usam — inclui os 57 oficiais + qualquer
+// heterônimo nascido em runtime pela Maternidade. Fallback estático só
+// entra em cena se o script não carregar.
+const HETERONIMOS_LISTA_FALLBACK = [
   'A.J. dos Santos','Amanda Fernanda Fisher Leão','Amélie Maia Hanna','Anísio Teixeira',
   'Articus da Persida','Aurora Wings','Padre Benedicttus Konstantinos','Birihani Selami Ina Tesifa',
   'Calíope Papazissis','Chesco Irlanda','Clara Mendes Rios','Claudiney Aristides Diaz',
@@ -445,6 +456,25 @@ const HETERONIMOS_LISTA = [
   'Mórigan Voss','Dona Catarina Trovante','Vladislava Karnstein',
   'Santiago Poetrix','Irmão Ezequias Luz','Marina das Vozes'
 ];
+const HETERONIMOS_LISTA = (typeof getRosterCompleto === 'function')
+  ? getRosterCompleto().map(h => h.nome)
+  : HETERONIMOS_LISTA_FALLBACK;
+
+// Monta biografia + Perfil de Voz (tradição/formação, estilo, nunca-faz) de
+// um heterônimo pronto pra injetar em qualquer system prompt de escrita
+// literária deste gerador — mesmo mecanismo de individualização de voz já
+// usado em gerador_obra.html, agora também aqui. Sem isso, este gerador só
+// tinha o "tomVozGlobal" (uma frase solta que a IA inventa a cada Fase 0),
+// sem nenhuma base real de biografia ou tradição literária por trás.
+function montarBlocoVozHeteronimo(nome) {
+  if (!nome) return '';
+  const bio = (typeof getBiografiaPorNome === 'function') ? getBiografiaPorNome(nome) : null;
+  const blocoBio = bio
+    ? `\n\nSUA BIOGRAFIA (use como base real do seu estilo de fala/escrita — origem, sotaque, cadência e vícios de linguagem vêm daqui, não de uma descrição genérica):\n${bio}`
+    : '';
+  const blocoPerfil = (typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(nome) : '';
+  return blocoBio + blocoPerfil;
+}
 
 // ===================== INIT =====================
 window.addEventListener('load', () => {
@@ -555,12 +585,74 @@ function mostrarModalNovoHet(dados) {
   });
 }
 
-function confirmarNovoHet() {
+async function confirmarNovoHet() {
   document.getElementById('modal-het').classList.remove('aberto');
   const novos = JSON.parse(localStorage.getItem('novos_heteronimos') || '[]');
   novos.push({ ...novoHetDados, data: new Date().toLocaleDateString('pt-BR') });
   localStorage.setItem('novos_heteronimos', JSON.stringify(novos));
+
+  // Registra de verdade no roster compartilhado (heteronimos_roster.js) —
+  // antes este heterônimo só ficava anotado em 'novos_heteronimos', uma
+  // fila que dependia de alguém atualizar o array HETERONIMOS à mão pra
+  // ele existir de fato. Agora entra no mesmo localStorage
+  // ('heteronimos_extras') que gerador_obra.html e cartografo_territorio.html
+  // já leem — fica visível e utilizável nos dois lugares imediatamente.
+  if (typeof registrarHeteronimoExtra === 'function') {
+    registrarHeteronimoExtra({
+      nome: novoHetDados.nome,
+      eixo: novoHetDados.eixo || 'Híbrido',
+      territorio: novoHetDados.territorio || '',
+      formato: novoHetDados.formato || 'variado',
+      volumeMinimo: parseInt(novoHetDados.volumeMinimo, 10) || 10,
+      destino: novoHetDados.destino || 'masmorra',
+      universoPadrao: [],
+      tomPadrao: []
+    });
+  }
+
+  // Gera e persiste o Perfil de Voz (tradição/formação + estilo + nunca-faz)
+  // deste heterônimo recém-nascido — mesmo mecanismo de individualização de
+  // voz já aplicado à Maternidade de gerador_obra.html.
+  await gerarEPersistirPerfilVozCalabouco(novoHetDados);
+
   if (resolveNovoHet) resolveNovoHet(true);
+}
+
+// ── GERA O PERFIL DE VOZ DE UM HETERÔNIMO NASCIDO NESTE GERADOR (via IA
+// gratuita, a partir de nome/eixo/território/justificativa) E PERSISTE EM
+// localStorage (perfis_voz.js/registrarPerfilVozExtra) ──
+async function gerarEPersistirPerfilVozCalabouco(dados) {
+  if (typeof chamarIAGratuita !== 'function' || typeof registrarPerfilVozExtra !== 'function') return;
+  try {
+    const systemPrompt = `Você é um crítico literário especializado em definir tradição, escola e estilo de escrita a partir da ficha de um autor novo. Responda APENAS em JSON válido, sem markdown, sem crases, sem texto antes ou depois.`;
+    const prompt = `Defina o PERFIL DE VOZ do heterônimo abaixo — a camada que diz "como" ele escreve, acima de "sobre o que" ele escreve.
+
+NOME: ${dados.nome}
+EIXO: ${dados.eixo}
+TERRITÓRIO NARRATIVO: ${dados.territorio}
+FORMATO: ${dados.formato || 'variado'}
+JUSTIFICATIVA DE CRIAÇÃO: ${dados.justificativa || 'não fornecida'}
+
+Defina três campos, nesta ordem de dependência:
+1. tradicaoFormacao: a que tradição/escola literária real este heterônimo pertence, mais uma formação/circunstância de vida concreta e coerente que você invente pra justificar essa escolha (nunca nacionalidade/estereótipo regional sozinho — é a corrente estética específica mais a biografia que explica as escolhas). 2 a 4 frases.
+2. estilo: ritmo de frase, vocabulário, tipo de imagem e pontuação, derivados diretamente da tradição/formação acima. 2 a 4 frases.
+3. nuncaFaz: lista de 4 a 5 maneirismos que soariam errado especificamente para este heterônimo.
+
+Responda no formato: {"tradicaoFormacao":"...","estilo":"...","nuncaFaz":["...","...","...","..."]}`;
+
+    const resposta = await chamarIAGratuita(systemPrompt, prompt, 900);
+    const perfilDados = parseJSONGratuito(resposta);
+    if (!perfilDados.tradicaoFormacao || !perfilDados.estilo || !Array.isArray(perfilDados.nuncaFaz)) return;
+
+    registrarPerfilVozExtra({
+      nome: dados.nome,
+      tradicao_formacao: perfilDados.tradicaoFormacao,
+      estilo: perfilDados.estilo,
+      nunca_faz: perfilDados.nuncaFaz
+    });
+  } catch (e) {
+    console.error('Erro ao gerar Perfil de Voz (calabouço):', e);
+  }
 }
 
 function cancelarNovoHet() {
@@ -978,12 +1070,13 @@ justificativa: [motivo]
     // normal em vez de reprocessada em cada um dos dezenas de fragmentos.
     const dnaSementeFixo = contoBase ? `\nDNA DA OBRA (conto semente — preserve personagens, tom, universo):\n${contoBase.substring(0, 3000)}\n` : '';
     const blocoAntiIAFragmento = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
+    const blocoVozFragmento = montarBlocoVozHeteronimo(heteronimoEscolhido);
     const systemFragmento = `Você é ${heteronimoEscolhido}, escritor da OHE.
 Tom de voz: ${tomVozGlobal}
 Livro: ${tituloFinal}
 Gênero: ${genero || 'A definir'}
 Sinopse: ${sinopse || 'Não fornecida'}
-Jornada: ${jornada.nome}${dnaSementeFixo}${blocoAntiIAFragmento}
+Jornada: ${jornada.nome}${dnaSementeFixo}${blocoVozFragmento}${blocoAntiIAFragmento}
 
 REGRAS NARRATIVAS PERMANENTES — NUNCA VIOLAR:
 
@@ -1634,12 +1727,13 @@ Analise e responda EXATAMENTE:
     document.getElementById('barra-semente').style.width = '30%';
 
     const blocoAntiIASemente = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
+    const blocoVozSemente = montarBlocoVozHeteronimo(heteronimoEscolhido);
     const promptSemente = `Você é ${heteronimoEscolhido}, escritor da OHE.
 Tom de voz: ${tomVozGlobal}
 Título: ${tituloFinal}
 Gênero: ${genero || 'conto literário'}
 Sinopse/tema: ${sinopse || 'Não fornecida'}
-Estrutura narrativa: ${jornada.nome}${blocoAntiIASemente}
+Estrutura narrativa: ${jornada.nome}${blocoVozSemente}${blocoAntiIASemente}
 
 MISSÃO — CONTO SEMENTE:
 Escreva um conto literário COMPLETO com INÍCIO, DESENVOLVIMENTO e DESFECHO.
@@ -1785,12 +1879,13 @@ async function gerarSaga(titulo, sinopse, volumeTotal, genero, heteronimo, desti
   // Parte fixa — idêntica em todo volume desta mesma saga — vai no system
   // com cache_control (ver comentário em chamarAPI).
   const blocoAntiIAVol = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
+  const blocoVozVol = montarBlocoVozHeteronimo(heteronimoEscolhido || heteronimo);
   const systemVol = `Você é ${heteronimoEscolhido||heteronimo||'o autor escolhido'}, escritor da OHE.
 Tom: ${tomVozGlobal||'literário elevado'}
 Saga: ${titulo}
 Gênero: ${genero||'romance'}
 Jornada: ${jornada.nome}
-${contoBase ? `CONTO SEMENTE (DNA DA SAGA):\n${contoBase.substring(0,2000)}\n` : ''}${blocoAntiIAVol}
+${contoBase ? `CONTO SEMENTE (DNA DA SAGA):\n${contoBase.substring(0,2000)}\n` : ''}${blocoVozVol}${blocoAntiIAVol}
 
 REGRAS:
 - Diálogos com travessão (—). PROIBIDO usar em toda fala a fôrma fixa "— Fala — verbo dicendi — continuação da fala." (travessão, fala, travessão, verbo, travessão, resto da fala no MESMO parágrafo) como padrão repetido — sinal reconhecido de texto de IA. Termine a fala com ponto logo após o verbo dicendi e comece um NOVO parágrafo para a continuação. Reserve o travessão-retomada no mesmo parágrafo só para interrupção real por outra pessoa/evento.
