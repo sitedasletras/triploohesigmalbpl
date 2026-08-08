@@ -510,13 +510,18 @@ function detectarOverflowPaginas(paginas, cfg, fmt){
 // meio destrói a forma.
 const TIPOS_DIVISIVEIS=new Set(['prosa','dialogo']);
 
-// Espaço mínimo pra valer a pena dividir um bloco (~2 linhas) — abaixo
+// Espaço mínimo pra valer a pena dividir um bloco (~1 linha) — abaixo
 // disso, a divisão deixaria só uma linha órfã na página atual; melhor
-// mandar o bloco inteiro pra próxima página, como antes.
+// mandar o bloco inteiro pra próxima página, como antes. Era 2 linhas
+// até aqui — jogava até quase 2 linhas de espaço fora toda vez que um
+// parágrafo terminava perto do fim da página (visto numa diagramação
+// real com vãos em branco maiores do que deveria). Baixado pra 1 linha;
+// se isso deixar uma linha órfã sozinha na página, corrigirViuvasOrfas()
+// já cuida de mover ela pra página seguinte depois.
 function _alturaMinimaDivisao(cfg){
   const fs=cfg.tamanhoFonte||12;
   const lh=cfg.entrelinha||1.52;
-  return fs*1.333*lh*2;
+  return fs*1.333*lh;
 }
 
 // Divide o texto de um bloco em duas partes, por palavra inteira, de
