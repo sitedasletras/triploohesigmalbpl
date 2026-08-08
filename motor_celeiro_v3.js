@@ -221,6 +221,18 @@ function hifenizarTexto(texto){
 // 6. DETECÇÃO DE BLOCOS
 // ═══════════════════════════════════════════════════════════
 const RE_CAPITULO=/^(cap[íi]tulo|cap\.|parte\s+|livro\s+|canto\s+|conto\s+|poema\s+|prólogo|epílogo|epilogo|prologo)\b/i;
+
+// Separa "CAPÍTULO 1 — O Homem que Caiu no Mapa" em rótulo ("CAPÍTULO 1")
+// e título do capítulo ("O Homem que Caiu no Mapa"), pra renderizar os
+// dois com hierarquia visual distinta em vez de uma linha só — sem
+// isso, capítulos com título longo quebravam de linha no meio do texto
+// corrido, misturando rótulo e título na mesma fonte/tamanho.
+const RE_ROTULO_CAPITULO=/^((?:cap[íi]tulo|cap\.|parte|livro|canto|conto|poema|pr[óo]logo|ep[íi]logo)[^—–:]*?)\s*[—–:]\s*(.+)$/i;
+function _dividirRotuloETitulo(conteudo){
+  const m=conteudo.match(RE_ROTULO_CAPITULO);
+  if(m) return {rotulo:m[1].trim(), titulo:m[2].trim()};
+  return {rotulo:conteudo.trim(), titulo:''};
+}
 const RE_TITULO_HAICAI=/^[—–\-\*\#]+\s*(.+)$|^([A-ZÁÉÍÓÚ][^.!?]{2,40})$/;
 
 // Imagem embutida no miolo: ![legenda opcional](url "LARGURAxALTURA")
@@ -498,13 +510,18 @@ function detectarOverflowPaginas(paginas, cfg, fmt){
 // meio destrói a forma.
 const TIPOS_DIVISIVEIS=new Set(['prosa','dialogo']);
 
-// Espaço mínimo pra valer a pena dividir um bloco (~2 linhas) — abaixo
+// Espaço mínimo pra valer a pena dividir um bloco (~1 linha) — abaixo
 // disso, a divisão deixaria só uma linha órfã na página atual; melhor
-// mandar o bloco inteiro pra próxima página, como antes.
+// mandar o bloco inteiro pra próxima página, como antes. Era 2 linhas
+// até aqui — jogava até quase 2 linhas de espaço fora toda vez que um
+// parágrafo terminava perto do fim da página (visto numa diagramação
+// real com vãos em branco maiores do que deveria). Baixado pra 1 linha;
+// se isso deixar uma linha órfã sozinha na página, corrigirViuvasOrfas()
+// já cuida de mover ela pra página seguinte depois.
 function _alturaMinimaDivisao(cfg){
   const fs=cfg.tamanhoFonte||12;
   const lh=cfg.entrelinha||1.52;
-  return fs*1.333*lh*2;
+  return fs*1.333*lh;
 }
 
 // Divide o texto de um bloco em duas partes, por palavra inteira, de
@@ -729,7 +746,15 @@ function renderizarBloco(bloco, cfg, aplicaCapitular_){
         const d=window.CeleiroMotorDecoracaoEditorial.gerarDecoracao(cfg.decoracao);
         divisor=`<div style="text-align:center;margin:.2em 0 1em;font-size:1.05em;letter-spacing:.15em;opacity:.75;clear:both;">${escapar(d.divisor)}</div>`;
       }
-      return `<h1 style="text-align:center;font-size:1.5em;font-weight:700;margin:0 0 .5em;line-height:1.2;clear:both;page-break-before:always;">${escapar(bloco.conteudo)}</h1>${divisor}`;
+      // Rótulo ("CAPÍTULO 1") e título do capítulo em hierarquia visual
+      // separada: rótulo pequeno e espaçado, título maior e serifado em
+      // itálico — em vez das duas coisas juntas na mesma linha/fonte.
+      const {rotulo,titulo}=_dividirRotuloETitulo(bloco.conteudo);
+      const rotuloHtml=`<div style="text-align:center;font-size:.72em;font-weight:700;letter-spacing:.22em;margin:0 0 .5em;line-height:1.2;">${escapar(rotulo)}</div>`;
+      const tituloHtml=titulo
+        ? `<h1 style="text-align:center;font-size:1.6em;font-weight:400;font-style:italic;font-family:Georgia,'Times New Roman',serif;margin:0;line-height:1.3;">${escapar(titulo)}</h1>`
+        : '';
+      return `<div style="clear:both;page-break-before:always;">${rotuloHtml}${tituloHtml}</div>${divisor}`;
     }
 
     case 'subtitulo':

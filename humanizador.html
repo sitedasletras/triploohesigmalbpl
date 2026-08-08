@@ -605,11 +605,13 @@ Tipos de marcas: simetria_excessiva, palavra_gatilho_ia, ritmo_mecanico, paragra
 
   const SCHEMA_DETECCAO_IA = {
     type: 'object',
+    additionalProperties: false,
     properties: {
       marcas: {
         type: 'array',
         items: {
           type: 'object',
+          additionalProperties: false,
           properties: {
             tipo: { type: 'string' },
             trecho: { type: 'string', description: 'até 60 chars' },
@@ -688,6 +690,7 @@ async function passagem4_verificacao(texto, het) {
 
   const SCHEMA_VERIFICACAO_HUMANIZACAO = {
     type: 'object',
+    additionalProperties: false,
     properties: {
       score_humanidade: { type: 'number', description: '0 a 100' },
       indetectavel: { type: 'boolean' },
@@ -697,6 +700,7 @@ async function passagem4_verificacao(texto, het) {
       recomendacao: { type: 'string', enum: ['aprovado', 'mais_uma_passagem', 'revisao_manual'] },
       metricas: {
         type: 'object',
+        additionalProperties: false,
         properties: {
           variedade_ritmica: { type: 'number', description: '0 a 100' },
           naturalidade_vocabular: { type: 'number', description: '0 a 100' },

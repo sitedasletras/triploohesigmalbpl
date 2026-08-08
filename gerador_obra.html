@@ -1146,9 +1146,52 @@ Escreva em terceira pessoa, tom literário elevado, entre 250 e 350 palavras.`;
     if(!textoBio){ toast('// ERRO AO GERAR BIOGRAFIA'); return; }
 
     await publicarBiografiaGitHub(autor, textoBio);
+
+    // 2. Gerar o Perfil de Voz completo a partir da biografia recém-escrita —
+    // mesma camada de individualização (tradição/formação + estilo + nunca-faz)
+    // que os 57 heterônimos oficiais têm em perfis_voz.js, pra este heterônimo
+    // nascido na Maternidade não ficar preso ao fallback voz=território.
+    await gerarEPersistirPerfilVoz(autor, textoBio);
   } catch(e) {
     toast(`// ERRO AO GERAR BIOGRAFIA (IA gratuita): ${e.message}`);
     console.error(e);
+  }
+}
+
+// ── GERA O PERFIL DE VOZ (tradição/formação + estilo + nunca-faz) DE UM
+// HETERÔNIMO NASCIDO NA MATERNIDADE, A PARTIR DA BIOGRAFIA JÁ ESCRITA, E
+// PERSISTE EM localStorage (perfis_voz.js/registrarPerfilVozExtra) ──
+async function gerarEPersistirPerfilVoz(autor, textoBio) {
+  if (typeof registrarPerfilVozExtra !== 'function') return;
+  try {
+    const systemPrompt = `Você é um crítico literário especializado em identificar tradição, escola e estilo de escrita a partir de uma biografia de autor. Responda APENAS em JSON válido, sem markdown, sem crases, sem texto antes ou depois.`;
+    const prompt = `A partir da biografia abaixo, defina o PERFIL DE VOZ do heterônimo — a camada que diz "como" ele escreve, acima de "sobre o que" ele escreve.
+
+NOME: ${autor.nome}
+EIXO: ${autor.eixo}
+TERRITÓRIO NARRATIVO: ${autor.territorio}
+BIOGRAFIA:
+${textoBio}
+
+Defina três campos, nesta ordem de dependência:
+1. tradicaoFormacao: a que tradição/escola literária real este heterônimo pertence, mais a formação/circunstância de vida concreta (extraída da biografia acima) que o levou a essa tradição. NUNCA é nacionalidade/estereótipo regional sozinho ("é japonês, logo é...") — é a corrente estética específica mais a biografia que explica as escolhas. 2 a 4 frases.
+2. estilo: ritmo de frase, vocabulário, tipo de imagem e pontuação, derivados diretamente da tradição/formação acima, nunca inventados soltos. 2 a 4 frases.
+3. nuncaFaz: lista de 4 a 5 maneirismos que soariam errado especificamente para este heterônimo, incluindo os que vêm da tradição/formação dele.
+
+Responda no formato: {"tradicaoFormacao":"...","estilo":"...","nuncaFaz":["...","...","...","..."]}`;
+
+    const resposta = await chamarIAGratuita(systemPrompt, prompt, 900);
+    const dados = parseJSONGratuito(resposta);
+    if (!dados.tradicaoFormacao || !dados.estilo || !Array.isArray(dados.nuncaFaz)) return;
+
+    registrarPerfilVozExtra({
+      nome: autor.nome,
+      tradicao_formacao: dados.tradicaoFormacao,
+      estilo: dados.estilo,
+      nunca_faz: dados.nuncaFaz
+    });
+  } catch (e) {
+    console.error('Erro ao gerar Perfil de Voz:', e);
   }
 }
 
@@ -1397,8 +1440,13 @@ async function criarHeteronimoAutomatico(tema) {
 
   const system = `Você é Fernando Peçanha, curador máximo da OHE — Oficina Heteronômica da Escrita. Quando nenhum heterônimo existente cobre um território temático, você cria um heterônimo novo: nome, eixo, território soberano, local de nascimento e biografia completa. O local de nascimento e a história de vida devem moldar de forma coerente o estilo de fala/escrita do heterônimo — sotaque, cadência, vícios de linguagem, grau de formalidade — para que cada heterônimo novo tenha uma voz distinta e não repetitiva em relação aos demais.
 
+Além da ficha básica, você também define o PERFIL DE VOZ completo deste heterônimo — a camada que vai acima do território e diz "como" ele escreve, não só "sobre o que". O Perfil de Voz tem três partes, nesta ordem de dependência:
+1. tradicaoFormacao: a que tradição/escola literária real este heterônimo pertence, mais a formação/circunstância de vida concreta (derivada do local de nascimento e biografia) que o levou a essa tradição. NUNCA é nacionalidade/estereótipo regional sozinho ("é japonês, logo é...") — é a corrente estética específica mais a biografia que explica as escolhas.
+2. estilo: descrição curta e específica de ritmo de frase, vocabulário, tipo de imagem e pontuação, derivada diretamente da tradição/formação acima — nunca inventada solta.
+3. nuncaFaz: lista de 4 a 5 maneirismos que soariam errado para este heterônimo especificamente, incluindo os que vêm da tradição/formação dele.
+
 Responda APENAS em JSON válido, sem markdown, sem crases, sem texto antes ou depois, no formato:
-{"nome":"nome completo do heterônimo","eixo":"Prosa|Poesia|Híbrido|Cordel","territorio":"descrição do território soberano, coerente com o tema pedido","localNascimento":"cidade e país/região (pode ser fictícia, mas coerente)","tracosDeVoz":"descrição breve do estilo de fala/escrita derivado do local de nascimento e história de vida","biografia":"biografia literária em terceira pessoa, tom literário elevado, 250 a 350 palavras, com origens/infância, descoberta da escrita, e obras/temas recorrentes"}`;
+{"nome":"nome completo do heterônimo","eixo":"Prosa|Poesia|Híbrido|Cordel","territorio":"descrição do território soberano, coerente com o tema pedido","localNascimento":"cidade e país/região (pode ser fictícia, mas coerente)","tracosDeVoz":"descrição breve do estilo de fala/escrita derivado do local de nascimento e história de vida","biografia":"biografia literária em terceira pessoa, tom literário elevado, 250 a 350 palavras, com origens/infância, descoberta da escrita, e obras/temas recorrentes","tradicaoFormacao":"tradição literária + formação/circunstância de vida concreta, 2 a 4 frases","estilo":"ritmo de frase, vocabulário, imagem, pontuação, 2 a 4 frases","nuncaFaz":["maneirismo 1","maneirismo 2","maneirismo 3","maneirismo 4"]}`;
 
   const user = `Tema da obra que precisa de um heterônimo novo: ${tema}\n\nCrie o heterônimo que vai assumir este território.`;
 
@@ -1417,6 +1465,18 @@ Responda APENAS em JSON válido, sem markdown, sem crases, sem texto antes ou de
     registrarHeteronimoExtra({
       nome: dados.nome, eixo, territorio, formato: 'variado', volumeMinimo: 10, destino: 'masmorra',
       universoPadrao: [], tomPadrao: [], localNascimento: dados.localNascimento || '', tracosDeVoz
+    });
+  }
+
+  // Perfil de Voz completo (tradição/formação + estilo + nunca-faz) — mesma
+  // camada de individualização dos 57 heterônimos oficiais, gerada aqui pela
+  // IA gratuita na mesma chamada, sem custo extra.
+  if (typeof registrarPerfilVozExtra === 'function' && dados.tradicaoFormacao && dados.estilo && Array.isArray(dados.nuncaFaz)) {
+    registrarPerfilVozExtra({
+      nome: dados.nome,
+      tradicao_formacao: dados.tradicaoFormacao,
+      estilo: dados.estilo,
+      nunca_faz: dados.nuncaFaz
     });
   }
 

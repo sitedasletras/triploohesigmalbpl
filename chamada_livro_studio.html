@@ -252,11 +252,13 @@ ${sinopse.slice(0,3000)}`;
 
     const SCHEMA_ROTEIRO_CHAMADA_LIVRO = {
       type: 'object',
+      additionalProperties: false,
       properties: {
         cenas: {
           type: 'array',
           items: {
             type: 'object',
+            additionalProperties: false,
             properties: {
               numero: { type: 'integer' },
               descricaoVisual: { type: 'string', description: 'descrição em inglês, cena visual pura e concreta, sem texto/tipografia, com foco no gancho emocional/narrativo desse momento da história' }

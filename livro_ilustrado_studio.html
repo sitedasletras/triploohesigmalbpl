@@ -261,6 +261,7 @@ ${sinopse.slice(0,4000)}`;
 
     const SCHEMA_ROTEIRO_CAPAS = {
       type: 'object',
+      additionalProperties: false,
       properties: {
         capa: { type: 'string', description: 'descrição visual em inglês pra a CAPA DIANTEIRA (a cena mais impactante/icônica do livro, com espaço negativo reservado no topo ou base pra encaixar título depois)' },
         contracapa: { type: 'string', description: 'descrição visual em inglês pra a CONTRACAPA (variação/continuação da mesma cena/atmosfera da capa, mais discreta)' },

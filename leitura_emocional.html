@@ -528,6 +528,7 @@ async function iniciarAvaliacao() {
 
   const SCHEMA_LEITURA_EMOCIONAL = {
     type: 'object',
+    additionalProperties: false,
     properties: {
       nota_geral: { type: 'number', description: 'nota geral de 0 a 10' },
       nota_descricao: { type: 'string', description: 'frase que resume a avaliação' },
@@ -535,6 +536,7 @@ async function iniciarAvaliacao() {
         type: 'array',
         items: {
           type: 'object',
+          additionalProperties: false,
           properties: {
             emoji: { type: 'string' },
             titulo: { type: 'string' },
@@ -549,6 +551,7 @@ async function iniciarAvaliacao() {
         type: 'array',
         items: {
           type: 'object',
+          additionalProperties: false,
           properties: {
             emoji: { type: 'string' },
             emocao: { type: 'string' },
@@ -562,6 +565,7 @@ async function iniciarAvaliacao() {
         type: 'array',
         items: {
           type: 'object',
+          additionalProperties: false,
           properties: { titulo: { type: 'string' }, texto: { type: 'string' } },
           required: ['titulo', 'texto']
         }
@@ -570,6 +574,7 @@ async function iniciarAvaliacao() {
         type: 'array',
         items: {
           type: 'object',
+          additionalProperties: false,
           properties: {
             emoji: { type: 'string' },
             titulo: { type: 'string' },
@@ -583,6 +588,7 @@ async function iniciarAvaliacao() {
         type: 'array',
         items: {
           type: 'object',
+          additionalProperties: false,
           properties: {
             tipo: { type: 'string', enum: ['positivo', 'atencao', 'critico', 'sugestao'] },
             titulo: { type: 'string' },

@@ -968,14 +968,17 @@ function parseJsonPersonagens(txtBruto) {
 // ── EXTRAIR PERSONAGENS (apenas modo prosa) ───────────────────────────────────
 const SCHEMA_EXTRACAO_PERSONAGENS_DESAFIO = {
   type: 'object',
+  additionalProperties: false,
   properties: {
     protagonista: {
       type: 'object',
+      additionalProperties: false,
       properties: { nome: { type: 'string' }, descricao: { type: 'string' }, papel: { type: 'string' } },
       required: ['nome', 'descricao', 'papel']
     },
     antagonista: {
       type: 'object',
+      additionalProperties: false,
       properties: { nome: { type: 'string' }, descricao: { type: 'string' }, papel: { type: 'string' } },
       required: ['nome', 'descricao', 'papel']
     },
@@ -983,6 +986,7 @@ const SCHEMA_EXTRACAO_PERSONAGENS_DESAFIO = {
       type: 'array',
       items: {
         type: 'object',
+        additionalProperties: false,
         properties: { nome: { type: 'string' }, descricao: { type: 'string' }, papel: { type: 'string' } },
         required: ['nome', 'descricao', 'papel']
       }

@@ -205,17 +205,20 @@ Identifique ONDE HÁ MATCH (um heterônimo cujo território cobre claramente a o
 
   const SCHEMA_CARTOGRAFO = {
     type: 'object',
+    additionalProperties: false,
     properties: {
       oportunidades: {
         type: 'array',
         items: {
           type: 'object',
+          additionalProperties: false,
           properties: {
             titulo: { type: 'string' },
             resumo: { type: 'string' },
             tipo: { type: 'string', enum: ['concurso', 'edital', 'festival', 'trend', 'outro'] },
             match: {
               type: 'object',
+              additionalProperties: false,
               properties: {
                 heteronimo: { anyOf: [{ type: 'string' }, { type: 'null' }], description: 'nome exato de um heterônimo da lista, ou null' },
                 justificativa: { type: 'string' }
