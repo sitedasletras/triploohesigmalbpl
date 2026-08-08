@@ -3345,12 +3345,89 @@ function renderizarPaiol() {
 }
 
 function verConteudoPaiol(tipo, i) {
-  const item = estado.paiol[tipo][i];
+  abrirVisualizadorConteudo(tipo === 'literario' ? 'paiol-literario' : 'paiol-musical', i);
+}
+
+// ── VISUALIZADOR/EDITOR DE CONTEÚDO — unificado pra Calabouço, Masmorra e
+// Paiol (literário e musical). Antes cada um tinha sua própria janela, a
+// do Paiol era só-leitura (window.open com <pre>) — pedido do Wagner pra
+// poder editar ali mesmo (ex.: apagar rótulos "ARCO 1/2/3" deixados pela
+// IA sem precisar sair do painel).
+function _escaparHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function _resolverListaConteudo(origemTipo) {
+  if (origemTipo === 'calabouco') return estado.calabouco;
+  if (origemTipo === 'masmorra') return estado.masmorra;
+  if (origemTipo === 'paiol-literario') return estado.paiol.literario;
+  if (origemTipo === 'paiol-musical') return estado.paiol.musical;
+  return null;
+}
+function _rerenderizarOrigemConteudo(origemTipo) {
+  if (origemTipo === 'calabouco') renderizarCalabouco();
+  else if (origemTipo === 'masmorra') renderizarMasmorra();
+  else renderizarPaiol();
+}
+function abrirVisualizadorConteudo(origemTipo, i) {
+  const lista = _resolverListaConteudo(origemTipo);
+  const item = lista && lista[i];
   if (!item) return;
-  const w = window.open('', '_blank');
-  const conteudo = item.conteudo || item.letra || item.arranjo || '[Sem conteúdo]';
-  w.document.write('<pre style="font-family:serif;padding:2rem;max-width:800px;margin:auto;white-space:pre-wrap;">' + conteudo + '</pre>');
-  w.document.title = item.titulo;
+  const campoConteudo = item.conteudo !== undefined ? 'conteudo' : (item.letra !== undefined ? 'letra' : (item.arranjo !== undefined ? 'arranjo' : 'conteudo'));
+  const textoAtual = item[campoConteudo] || '';
+
+  const modalExistente = document.getElementById('modal-ver-conteudo');
+  if (modalExistente) modalExistente.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'modal-ver-conteudo';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(4,8,15,0.97);z-index:999;display:flex;align-items:flex-start;justify-content:center;padding:1.5rem;overflow-y:auto;';
+  modal.innerHTML = `
+    <div style="background:#080f1a;border:1px solid rgba(201,168,76,0.2);width:100%;max-width:800px;margin:2rem auto;">
+      <div style="padding:1.2rem 1.5rem;border-bottom:1px solid rgba(201,168,76,0.1);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.8rem;">
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.2em;color:rgba(201,168,76,0.5);text-transform:uppercase;margin-bottom:0.3rem;">${_escaparHtml(origemTipo)} · ${_escaparHtml(item.autor||item.interprete||'Autor a definir')}</div>
+          <div style="font-family:'Cinzel',serif;font-size:1.1rem;color:#f0e8d0;">${_escaparHtml(item.titulo||'')}</div>
+        </div>
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+          <button id="btn-salvar-ver-conteudo" style="background:linear-gradient(135deg,#1a6b3a,#4caf50);color:#04080f;font-family:'Share Tech Mono',monospace;font-size:0.55rem;font-weight:700;letter-spacing:0.1em;padding:0.6rem 1rem;border:none;cursor:pointer;text-transform:uppercase;">💾 SALVAR</button>
+          <button id="btn-copiar-ver-conteudo" style="background:linear-gradient(135deg,#7a5f1a,#c9a84c);color:#04080f;font-family:'Share Tech Mono',monospace;font-size:0.55rem;font-weight:700;letter-spacing:0.1em;padding:0.6rem 1rem;border:none;cursor:pointer;text-transform:uppercase;">📋 COPIAR</button>
+          <button onclick="document.getElementById('modal-ver-conteudo').remove()" style="background:transparent;color:rgba(201,168,76,0.6);font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;padding:0.6rem 1rem;border:1px solid rgba(201,168,76,0.2);cursor:pointer;text-transform:uppercase;">✕ FECHAR</button>
+        </div>
+      </div>
+      <div style="padding:1.5rem 2rem;">
+        <textarea id="txt-ver-conteudo" style="width:100%;min-height:60vh;background:#0c1420;border:1px solid rgba(201,168,76,0.15);color:#f0e8d0;font-family:'Crimson Pro',Georgia,serif;font-size:1rem;line-height:1.9;padding:1rem;box-sizing:border-box;"></textarea>
+      </div>
+      <div id="ver-conteudo-stats" style="padding:0.8rem 1.5rem;border-top:1px solid rgba(201,168,76,0.08);font-family:'Share Tech Mono',monospace;font-size:0.42rem;color:rgba(201,168,76,0.2);text-transform:uppercase;"></div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  // .value em vez de embutir o texto no HTML — evita qualquer problema de
+  // injeção com conteúdo que tenha "</textarea>" ou tags soltas.
+  const textarea = document.getElementById('txt-ver-conteudo');
+  textarea.value = textoAtual;
+
+  const statsEl = document.getElementById('ver-conteudo-stats');
+  const atualizarStats = () => {
+    const t = textarea.value;
+    const palavras = t.trim() ? t.trim().split(/\s+/).length : 0;
+    statsEl.textContent = `${Math.ceil(palavras/250)} páginas A4 estimadas · ${palavras} palavras · ${t.length.toLocaleString('pt-BR')} caracteres`;
+  };
+  atualizarStats();
+  textarea.addEventListener('input', atualizarStats);
+
+  document.getElementById('btn-salvar-ver-conteudo').onclick = () => {
+    item[campoConteudo] = textarea.value;
+    salvar();
+    _rerenderizarOrigemConteudo(origemTipo);
+    notif('SALVO', `"${item.titulo||'Obra'}" atualizado.`, 'sucesso');
+  };
+  document.getElementById('btn-copiar-ver-conteudo').onclick = () => {
+    navigator.clipboard.writeText(`${item.titulo||''}\n${item.autor||item.interprete||''}\n\n${textarea.value}`).then(() => {
+      notif('COPIADO!', `"${item.titulo||'Obra'}" copiado para a área de transferência.`, 'sucesso');
+    });
+  };
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
 }
 
 function removerPaiol(tipo, i) {
