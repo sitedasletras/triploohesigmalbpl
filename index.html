@@ -5139,6 +5139,12 @@ function enviarLivroGeradoParaDiagramador() {
   }
   localStorage.setItem('obra_titulo', titulo);
   localStorage.setItem('obra_autor', heteronimo);
+  // O texto do livro em si nunca era salvo aqui — só título e autor. O
+  // diagramador (polux_v3.html etc.) carrega o texto de 'obra_ativa_texto'
+  // ao abrir; sem essa linha, ele chegava vazio (0 páginas, "nenhum texto
+  // para diagramar") mesmo com título/autor corretos na tela.
+  localStorage.setItem('obra_ativa_texto', genLivroCompleto);
+  localStorage.setItem('obra_ativa_texto_nome', titulo);
   localStorage.setItem('lapidar_diagramar_automatico', 'true');
   notif('ENVIANDO AO DIAGRAMADOR', `Detectei ${resultado.nome} — redirecionando...`, 'sucesso');
   setTimeout(() => { window.location.href = resultado.arquivo; }, 700);
