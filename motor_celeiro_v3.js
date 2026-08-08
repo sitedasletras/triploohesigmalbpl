@@ -671,6 +671,62 @@ function paginarEstrofista(blocos, cfg, fmt){
 // ═══════════════════════════════════════════════════════════
 // 9. VIÚVAS E ÓRFÃS
 // ═══════════════════════════════════════════════════════════
+// Corrige overflow real: detectarOverflowPaginas() só denunciava quando
+// a altura real (página inteira montada, com capitular aplicado) passava
+// do espaço disponível — o texto que sobrava ficava escondido atrás do
+// overflow:hidden do container, sem aparecer em lugar nenhum (bug visto
+// numa geração real: frase cortada no meio, sem continuar na página
+// seguinte). Esta função mede a altura real de cada página e, se
+// estourar, move o último bloco pra página seguinte e mede de novo —
+// repete até caber. Nunca empurra conteúdo pra dentro de uma página em
+// branco forçada (pagBranca) nem pra antes de um "capitulo" que abre
+// página nova — nesses dois casos raros, mexer na página seguinte
+// quebraria a regra de capítulo sempre começar em página ímpar própria;
+// aí o overflow segue só reportado pelo alerta, como antes.
+function corrigirOverflowPaginas(paginas,cfg,fmt){
+  const medidor=_obterMedidor();
+  if(!medidor) return paginas;
+  const altUtil=fmt.h-(cfg.mT||52)-(cfg.mB||58);
+  const largUtil=fmt.w-(cfg.mI||57)-(cfg.mE||43);
+  _configurarMedidor(medidor,cfg,largUtil);
+
+  const medirAlturaReal=(pag)=>{
+    let capApl=false;
+    const abreCap=pag.blocos.length>0&&pag.blocos[0].tipo==='capitulo';
+    const podeCap=pag.numero===1||abreCap;
+    const html=pag.blocos.map(b=>{
+      const aplica=(!capApl&&podeCap&&b.tipo==='prosa'&&cfg.capitular&&cfg.capitular!=='none');
+      if(b.tipo==='prosa') capApl=true;
+      return renderizarBloco(b,cfg,aplica);
+    }).join('');
+    medidor.innerHTML=html;
+    return medidor.scrollHeight;
+  };
+
+  for(let pi=0;pi<paginas.length;pi++){
+    const pag=paginas[pi];
+    if(pag.blocos.length<2) continue;
+    let guarda=0;
+    while(pag.blocos.length>1&&medirAlturaReal(pag)>altUtil+2&&guarda<50){
+      const prox=paginas[pi+1];
+      const proxBloqueada=prox&&(prox.pagBranca||(prox.blocos[0]&&prox.blocos[0].tipo==='capitulo'));
+      if(proxBloqueada) break;
+      const ultimo=pag.blocos.pop();
+      pag.alturaUsada-=(ultimo.altEstimada||0);
+      let alvo=prox;
+      if(!alvo){
+        const n=paginas.length+1;
+        alvo={numero:n,lado:n%2===0?'verso':'recto',blocos:[],alturaUsada:0};
+        paginas.push(alvo);
+      }
+      alvo.blocos.unshift(ultimo);
+      alvo.alturaUsada=(alvo.alturaUsada||0)+(ultimo.altEstimada||0);
+      guarda++;
+    }
+  }
+  return paginas;
+}
+
 function corrigirViuvasOrfas(paginas,cfg,fmt){
   const altUtil=fmt.h-(cfg.mT||52)-(cfg.mB||58);
   for(let pi=0;pi<paginas.length-1;pi++){
@@ -966,6 +1022,7 @@ function preparar(textoBruto, opcoes){
   else{
     paginas=paginar(blocos,cfg,fmt);
     paginas=corrigirViuvasOrfas(paginas,cfg,fmt);
+    paginas=corrigirOverflowPaginas(paginas,cfg,fmt);
   }
 
   // Stats
@@ -1190,6 +1247,7 @@ global.CeleiroV3={
   classificarObra,
   paginar, paginarHaicai, paginarEstrofista,
   corrigirViuvasOrfas,
+  corrigirOverflowPaginas,
   renderizarBloco, renderizarPagina,
   gerarPaginaRosto,
   gerarCSSImpressao,

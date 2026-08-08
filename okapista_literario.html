@@ -249,6 +249,7 @@ textarea.inp{min-height:70px;resize:vertical;}
   <button class="btn btn-verde" onclick="exportarCapa()">⬇ Exportar Capa</button>
   <button class="btn btn-soft" onclick="mostrarInfoEpub()">📱 Ficha ePub (grátis)</button>
   <button class="btn btn-ouro" onclick="enviarAoPaiol()">🏹 Enviar ao Paiol</button>
+  <button class="btn btn-ouro" id="btn-devolver-paiol" onclick="devolverAoPaiolRevisado()" style="display:none;">✓ Marcar Revisado e Devolver ao Paiol</button>
   <div id="infoEpubBox" style="display:none;margin-top:8px;padding:10px 12px;border-radius:10px;background:rgba(122,90,203,.08);border:1px solid rgba(122,90,203,.25);font-size:.82rem;"></div>
   <button class="btn btn-soft" id="btn-ficha" onclick="gerarFichaTecnica()" style="display:none;">📋 Gerar Ficha Técnica</button>
 </aside>
@@ -409,6 +410,13 @@ const PIXABAY_KEY=''; // Usuário deve configurar a chave Pixabay
   construirGridPlataformas();
   atualizarPrevia();
   $('status').textContent='✓ Pronto. Configure e gere sua capa.';
+  // Obra veio do Calabouço/Masmorra/Paiol marcada "Só Capa" (ver
+  // enviarItemParaProcessamento em index.html) — mostra o botão de
+  // devolver revisado, que já sabe pra onde mandar de volta.
+  if(localStorage.getItem('obra_origem_tipo') && localStorage.getItem('obra_origem_indice')!==null){
+    const btnDevolver=$('btn-devolver-paiol');
+    if(btnDevolver) btnDevolver.style.display='';
+  }
 })();
 
 // ── DIMENSÕES ────────────────────────────────────────────
@@ -755,6 +763,63 @@ function enviarAoPaiol(){
     titulo, autor, tipo:'Obra', paginas:pags, epubPronto, capaPronta:true
   }));
   window.location.href='index.html';
+}
+
+// ── DEVOLVER AO PAIOL REVISADO ────────────────────────────────────
+// Fecha o ciclo do caminho "Só Capa": material que veio do Calabouço/
+// Masmorra/Paiol só pra gerar capa (sem passar pelo diagramador) volta
+// pro Paiol Literário com o selo de revisado — mesma lógica usada em
+// polux_v3.html pro caminho "Diagramador".
+function devolverAoPaiolRevisado(){
+  const origemTipo=localStorage.getItem('obra_origem_tipo');
+  const origemIndiceStr=localStorage.getItem('obra_origem_indice');
+  if(!origemTipo||origemIndiceStr===null){
+    alert('Este material não veio do Calabouço/Masmorra/Paiol — não há pra onde devolver.');
+    return;
+  }
+  const origemIndice=parseInt(origemIndiceStr,10);
+  let estadoCompartilhado;
+  try{ estadoCompartilhado=JSON.parse(localStorage.getItem('sigmal_hq')||'{}'); }
+  catch(e){ alert('Não consegui ler o estado do SIGMAL HQ — abra o painel principal numa aba antes.'); return; }
+  if(!estadoCompartilhado.paiol) estadoCompartilhado.paiol={literario:[],musical:[]};
+  if(!estadoCompartilhado.paiol.literario) estadoCompartilhado.paiol.literario=[];
+
+  const lista=origemTipo==='paiol' ? estadoCompartilhado.paiol.literario : estadoCompartilhado[origemTipo];
+  const item=lista&&lista[origemIndice];
+  if(!item){
+    alert('Não encontrei mais o item original (pode ter sido movido ou removido) — nada foi devolvido.');
+    return;
+  }
+
+  const itemAtualizado={
+    ...item,
+    titulo:$('titulo').value||item.titulo,
+    autor:$('autor').value||item.autor,
+    revisado:true,
+    dataRevisao:new Date().toLocaleDateString('pt-BR'),
+    status:'pronto-publicacao',
+    destinoProcessamento:'',
+    capaPronta:true,
+  };
+
+  if(origemTipo==='paiol'){
+    estadoCompartilhado.paiol.literario[origemIndice]=itemAtualizado;
+  } else {
+    lista.splice(origemIndice,1);
+    estadoCompartilhado.paiol.literario.push({
+      ...itemAtualizado,
+      dataEntrada:itemAtualizado.dataEntrada||new Date().toLocaleDateString('pt-BR'),
+      postagens:itemAtualizado.postagens||{},
+    });
+  }
+
+  localStorage.setItem('sigmal_hq', JSON.stringify(estadoCompartilhado));
+  localStorage.removeItem('obra_origem_tipo');
+  localStorage.removeItem('obra_origem_indice');
+  const btnDevolver=$('btn-devolver-paiol');
+  if(btnDevolver) btnDevolver.style.display='none';
+  $('status').textContent='✓ Devolvido ao Paiol Literário com selo de revisado.';
+  alert('"'+(item.titulo||'Obra')+'" devolvido ao Paiol Literário, marcado como revisado e pronto pra publicação.');
 }
 
 // ── EVENT LISTENERS ───────────────────────────────────────
