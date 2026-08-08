@@ -672,6 +672,100 @@ function _dividirProsaEmLinhas(bloco, cfg, fmt){
   }));
 }
 
+// Quebra o parágrafo COM capitular em linhas visuais, do mesmo jeito que
+// _dividirProsaEmLinhas — mas reproduzindo a estrutura real da capitular
+// (<span flutuante>letra</span>resto do texto) durante a medição, porque
+// a letra flutuante estreita a largura útil só das primeiras linhas (até
+// a altura dela ser "vencida" pelo texto). Sem isso, mudar o tamanho da
+// capitular não refluía direito o resto da página — o pedido do Wagner
+// depois de ver a diagramação quebrar ao trocar o tamanho da letra.
+// Detalhe que faz isso funcionar: um float em CSS continua estreitando a
+// largura de QUALQUER conteúdo que vier depois dele no mesmo contexto de
+// bloco, mesmo em elementos <p> irmãos separados — não precisa manter
+// tudo numa tag só. Por isso dá pra continuar quebrando o parágrafo em
+// vários microblocos de uma linha cada (ver renderizarBloco, campo
+// _capitularPrimeira) e o efeito visual da letra flutuante continua
+// estreitando as linhas seguintes até a altura dela acabar, exatamente
+// como aconteceria com o parágrafo inteiro numa tag só.
+function _dividirCapitularEmLinhas(bloco, cfg, fmt){
+  const medidor=_obterMedidor();
+  if(!medidor) return null;
+  const largUtil=fmt.w-(cfg.mI||57)-(cfg.mE||43);
+  _configurarMedidor(medidor,cfg,largUtil);
+
+  const t=bloco.conteudo||'';
+  if(t.length<2) return null;
+  const primeira=t.charAt(0);
+  const resto=t.slice(1);
+  const css=ESTILOS_CAPITULAR[cfg.capitular]||ESTILOS_CAPITULAR.classic;
+
+  const p=document.createElement('p');
+  p.style.margin='0';
+  p.style.textAlign='justify';
+  const span=document.createElement('span');
+  span.setAttribute('style',css);
+  span.textContent=primeira;
+  p.appendChild(span);
+  const textNode=document.createTextNode(resto);
+  p.appendChild(textNode);
+  medidor.innerHTML='';
+  medidor.appendChild(p);
+
+  if(!textNode.length) return null;
+  const linhas=_linhasVisuaisDoNo(textNode);
+  if(linhas.length===0) return null;
+
+  // A letra capitular pode ser mais ALTA do que as poucas linhas de texto
+  // estreitas ao lado dela (comum em estilos grandes tipo "iluminura") —
+  // nesse caso o float "sobra" abaixo do texto, ocupando espaço vertical
+  // real que a soma simples de N linhas (cada uma valendo alturaLinha) não
+  // cobre. Em vez de estimar por uma razão altura-da-letra/altura-da-linha
+  // (testado e revelou instável — acertava um estilo e quebrava outro),
+  // mede a altura REAL acumulada até cada uma das primeiras linhas
+  // (parágrafo truncado bem naquele ponto) e usa a diferença entre uma
+  // medição e a anterior como o "custo" de verdade daquela linha
+  // específica. Só as poucas primeiras linhas (onde a letra ainda pode
+  // estar influenciando) precisam disso; a partir da que já bate com
+  // alturaLinha exata, para de medir e usa o valor padrão no resto.
+  // Sem isso, capitulares grandes estouravam a página real bem mais do
+  // que o previsto (achado testando os 5 estilos com Playwright).
+  const alturaLinha=_medirAlturaLinha(cfg,fmt);
+  const LIMITE_LINHAS_MEDIDAS=8; // generoso pra qualquer tamanho de capitular realista
+  const alturasCustom=[];
+  let alturaAnterior=0;
+  for(let i=0;i<Math.min(linhas.length,LIMITE_LINHAS_MEDIDAS);i++){
+    textNode.data=resto.slice(0,linhas[i].end);
+    const alturaAcumulada=medidor.scrollHeight;
+    const custoDestaLinha=alturaAcumulada-alturaAnterior;
+    alturasCustom.push(custoDestaLinha);
+    alturaAnterior=alturaAcumulada;
+    // Assim que uma linha já custar exatamente alturaLinha (± meio pixel
+    // de arredondamento), a letra parou de influenciar — não precisa
+    // medir as linhas seguintes, todas vão custar o padrão daqui pra
+    // frente.
+    if(Math.abs(custoDestaLinha-alturaLinha)<0.6) break;
+  }
+  textNode.data=resto; // restaura o texto completo no nó medido
+
+  return linhas.map((l,i)=>({
+    ...bloco,
+    id:`${bloco.id}-L${i+1}`,
+    // A 1ª linha guarda o texto COMPLETO (letra capitular + resto) no
+    // conteudo — igual a qualquer outro bloco, pra quem só lê .conteudo
+    // (exportação, checagem de integridade etc.) nunca perder a letra.
+    // renderizarBloco separa letra/resto de novo na hora de desenhar.
+    conteudo:i===0?(primeira+resto.slice(l.start,l.end)):resto.slice(l.start,l.end),
+    _linha:true,
+    // Override de altura pras primeiras linhas (medidas de verdade acima)
+    // — undefined nas linhas além do que foi medido, que usam alturaLinha
+    // padrão como qualquer outra linha da grade.
+    _alturaCustom:i<alturasCustom.length?alturasCustom[i]:undefined,
+    _primeiraLinha:i===0,
+    _ultimaLinha:i===linhas.length-1,
+    _capitularPrimeira:i===0,
+  }));
+}
+
 // Identifica (por referência de objeto) qual bloco 'prosa' é o candidato
 // a capitular em cada capítulo: o primeiro 'prosa' depois de cada
 // 'capitulo' (ou o primeiro do documento, se vier antes de qualquer
@@ -698,10 +792,21 @@ function _prepararBlocosParaGrade(blocos, cfg, fmt){
   if(!medidor) return {blocos, alturaLinha:_alturaMinimaDivisao(cfg), capitulares};
 
   const alturaLinha=_medirAlturaLinha(cfg,fmt);
+  const temCapitularFixa=cfg.capitular&&cfg.capitular!=='none'&&!cfg.decoracao;
   const resultado=[];
   blocos.forEach(bloco=>{
-    if(bloco.tipo!=='prosa'||capitulares.has(bloco)){
+    if(bloco.tipo!=='prosa'){
       resultado.push(bloco);
+      return;
+    }
+    if(capitulares.has(bloco)){
+      // Decoração de gênero ativa (CeleiroMotorDecoracaoEditorial) usa um
+      // jeito de desenhar a capitular que essa função não reproduz — cai
+      // no bloco inteiro, como antes.
+      if(!temCapitularFixa){ resultado.push(bloco); return; }
+      const linhasCap=_dividirCapitularEmLinhas(bloco,cfg,fmt);
+      if(!linhasCap){ resultado.push(bloco); return; }
+      resultado.push(...linhasCap);
       return;
     }
     const linhas=_dividirProsaEmLinhas(bloco,cfg,fmt);
@@ -748,7 +853,7 @@ function paginar(blocos, cfg, fmt){
     // estourava de verdade depois, tendo que torcer pra correção de
     // overflow consertar um resíduo que na prática não era pequeno.
     const alt=bloco._linha
-      ?alturaLinha+(bloco._ultimaLinha?gapPx:0)
+      ?(bloco._alturaCustom!==undefined?bloco._alturaCustom:alturaLinha)+(bloco._ultimaLinha?gapPx:0)
       :estimarAltura(bloco,cfg,fmt,capitulares.has(bloco));
     // Capítulo sempre começa em nova página — e, dentro do miolo, sempre
     // em página ímpar (recto/direita), regra editorial padrão. Se a nova
@@ -1079,8 +1184,9 @@ function renderizarBloco(bloco, cfg, aplicaCapitular_){
         const conteudoLinha=bloco.conteudo.endsWith('­')
           ? bloco.conteudo.slice(0,-1)+'-'
           : bloco.conteudo;
-        const textoLinha=escapar(conteudoLinha);
-        const recuoLinha=bloco._primeiraLinha?recuo:'';
+        // Capitular nunca leva recuo de primeira linha (igual ao bloco
+        // inteiro de sempre) — a letra flutuante já ocupa esse espaço.
+        const recuoLinha=(bloco._primeiraLinha&&!bloco._capitularPrimeira)?recuo:'';
         const margemLinha=bloco._ultimaLinha?gap:'margin-bottom:0;';
         // text-align-last:justify força ESTA linha (que sozinha na sua
         // própria tag <p> seria tratada como "última linha", e por
@@ -1092,7 +1198,23 @@ function renderizarBloco(bloco, cfg, aplicaCapitular_){
         const alinhamentoLinha=bloco._ultimaLinha
           ?'text-align:justify;'
           :'text-align:justify;text-align-last:justify;';
-        return `<p style="${recuoLinha}${margemLinha}${alinhamentoLinha}">${textoLinha}</p>`;
+        // clear:both na última linha de QUALQUER parágrafo: inofensivo
+        // quando não há nenhuma letra capitular flutuando (não existe
+        // float pra "limpar"), mas é o que impede a letra capitular de um
+        // parágrafo continuar estreitando a largura de parágrafos
+        // seguintes depois que o texto dela termina.
+        const limpezaLinha=bloco._ultimaLinha?'clear:both;':'';
+        if(bloco._capitularPrimeira){
+          // A letra fica no próprio conteudo (1º caractere) — não num
+          // campo à parte — pra quem só lê bloco.conteudo (exportação,
+          // checagem de integridade) nunca perder essa letra.
+          const css=ESTILOS_CAPITULAR[cfg.capitular]||ESTILOS_CAPITULAR.classic;
+          const letra=escapar(conteudoLinha.charAt(0));
+          const restoLinha=escapar(conteudoLinha.slice(1));
+          return `<p style="${margemLinha}${alinhamentoLinha}${limpezaLinha}"><span style="${css}">${letra}</span>${restoLinha}</p>`;
+        }
+        const textoLinha=escapar(conteudoLinha);
+        return `<p style="${recuoLinha}${margemLinha}${alinhamentoLinha}${limpezaLinha}">${textoLinha}</p>`;
       }
       const texto=escapar(bloco.conteudo);
       if(aplicaCapitular_){
