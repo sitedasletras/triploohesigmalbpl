@@ -66,14 +66,17 @@ function addLog(msg) {
 
 const SCHEMA_EXTRACAO_PERSONAGENS = {
   type: 'object',
+  additionalProperties: false,
   properties: {
     protagonista: {
       type: 'object',
+      additionalProperties: false,
       properties: { nome: { type: 'string' }, descricao: { type: 'string' } },
       required: ['nome', 'descricao']
     },
     antagonista: {
       type: 'object',
+      additionalProperties: false,
       properties: { nome: { type: 'string' }, descricao: { type: 'string' } },
       required: ['nome', 'descricao']
     },
@@ -81,6 +84,7 @@ const SCHEMA_EXTRACAO_PERSONAGENS = {
       type: 'array',
       items: {
         type: 'object',
+        additionalProperties: false,
         properties: { nome: { type: 'string' }, descricao: { type: 'string' } },
         required: ['nome', 'descricao']
       }

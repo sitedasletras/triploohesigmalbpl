@@ -494,11 +494,13 @@ ${historia.slice(0,12000)}`;
 
     const SCHEMA_ROTEIRO_QUADRINHO = {
       type: 'object',
+      additionalProperties: false,
       properties: {
         paineis: {
           type: 'array',
           items: {
             type: 'object',
+            additionalProperties: false,
             properties: {
               numero: { type: 'integer' },
               descricaoVisual: { type: 'string', description: 'descrição em inglês, cena visual pura e concreta, sem texto/tipografia, focada na ação/emoção daquele momento' },

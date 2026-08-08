@@ -2035,11 +2035,13 @@ Identifique as fissuras narrativas, com no máximo 3 itens por categoria. Para c
 
     const SCHEMA_FISSURAS = {
       type: 'object',
+      additionalProperties: false,
       properties: {
         personagens_com_historia_nao_contada: {
           type: 'array',
           items: {
             type: 'object',
+            additionalProperties: false,
             properties: {
               nome: { type: 'string' },
               fissura: { type: 'string' },
@@ -2053,6 +2055,7 @@ Identifique as fissuras narrativas, com no máximo 3 itens por categoria. Para c
           type: 'array',
           items: {
             type: 'object',
+            additionalProperties: false,
             properties: {
               lugar: { type: 'string' },
               fissura: { type: 'string' },
@@ -2066,6 +2069,7 @@ Identifique as fissuras narrativas, com no máximo 3 itens por categoria. Para c
           type: 'array',
           items: {
             type: 'object',
+            additionalProperties: false,
             properties: {
               conflito: { type: 'string' },
               fissura: { type: 'string' },
@@ -2079,6 +2083,7 @@ Identifique as fissuras narrativas, com no máximo 3 itens por categoria. Para c
           type: 'array',
           items: {
             type: 'object',
+            additionalProperties: false,
             properties: {
               pergunta: { type: 'string' },
               fissura: { type: 'string' },
@@ -2092,6 +2097,7 @@ Identifique as fissuras narrativas, com no máximo 3 itens por categoria. Para c
           type: 'array',
           items: {
             type: 'object',
+            additionalProperties: false,
             properties: {
               epoca: { type: 'string' },
               fissura: { type: 'string' },

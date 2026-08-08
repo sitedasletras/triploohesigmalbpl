@@ -5697,6 +5697,7 @@ Para "sugestoes_trecho": escolha no MÁXIMO 3 trechos — os que mais desvaloriz
 
   const SCHEMA_ANALISE_OBRA = {
     type: 'object',
+    additionalProperties: false,
     properties: {
       nota: { type: 'number', description: 'número de 0 a 10, com uma casa decimal, ex: 8.5' },
       resumo: { type: 'string', description: 'uma frase de avaliação geral' },
@@ -5708,6 +5709,7 @@ Para "sugestoes_trecho": escolha no MÁXIMO 3 trechos — os que mais desvaloriz
         type: 'array',
         items: {
           type: 'object',
+          additionalProperties: false,
           properties: {
             localizacao: { type: 'string', description: 'ex: Capítulo 4, terceiro parágrafo' },
             trecho_original: { type: 'string', description: 'cole aqui o trecho EXATO copiado do texto original, palavra por palavra, para que possa ser localizado e substituído' },

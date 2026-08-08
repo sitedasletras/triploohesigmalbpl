@@ -652,6 +652,7 @@ Você conhece profundamente a voz e o território de cada heterônimo. Você é 
 
   const SCHEMA_ANALISE_FERNANDO = {
     type: 'object',
+    additionalProperties: false,
     properties: {
       diagnostico_geral: { type: 'string', description: 'parágrafo rico — avaliação curatorial completa de Fernando Peçanha' },
       nota_geral: { type: 'number', description: 'nota de 0 a 10' },
@@ -659,6 +660,7 @@ Você conhece profundamente a voz e o território de cada heterônimo. Você é 
         type: 'array',
         items: {
           type: 'object',
+          additionalProperties: false,
           properties: {
             id: { type: 'string' },
             titulo: { type: 'string', description: 'nome do problema' },

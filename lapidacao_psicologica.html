@@ -421,12 +421,14 @@ async function iniciarLapidacao() {
 
   const SCHEMA_LAPIDACAO = {
     type: 'object',
+    additionalProperties: false,
     properties: {
       texto_lapidado: { type: 'string', description: 'texto completo após lapidação' },
       comparativo: {
         type: 'array',
         items: {
           type: 'object',
+          additionalProperties: false,
           properties: {
             original: { type: 'string', description: 'trecho original' },
             lapidado: { type: 'string', description: 'trecho reescrito' },
@@ -439,6 +441,7 @@ async function iniciarLapidacao() {
         type: 'array',
         items: {
           type: 'object',
+          additionalProperties: false,
           properties: {
             tipo: { type: 'string', enum: ['dialogo', 'reacao', 'antagonista', 'emocao', 'worldbuilding'] },
             titulo: { type: 'string' },

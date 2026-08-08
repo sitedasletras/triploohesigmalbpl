@@ -361,6 +361,7 @@ diagButton.addEventListener('click', runDiagnosis);
 
 const SCHEMA_DIAGNOSTICO_VIDEO = {
   type: 'object',
+  additionalProperties: false,
   properties: {
     tipo_de_conteudo: { type: 'string', description: 'string curta (ex: música, narrativa, curiosidade/documentário, situação real, publicidade, clipe abstrato)' },
     atmosfera: { type: 'string', description: 'string descrevendo a atmosfera predominante em poucas palavras' },
