@@ -59,6 +59,7 @@
     { id:'moldura-4-petalas-01', nome:'Moldura ornamental em 4 pétalas', arquivo:'moldura-4-petalas-01.png', tema:'moldura ornamental preto-e-branco elegante', fonte:'openclipart.org via publicdomainvectors.org', licenca:'cc0' },
     { id:'moldura-retangular-completa-01', nome:'Moldura ornamental retangular completa (com linha central no topo/base)', arquivo:'moldura-retangular-completa-01.png', tema:'moldura ornamental página completa preto-e-branco elegante', fonte:'openclipart.org (detail/222492) via publicdomainvectors.org', licenca:'cc0' },
     { id:'moldura-cata-vento-01', nome:'Moldura ornamental em cata-vento (4 cantos espelhados)', arquivo:'moldura-cata-vento-01.png', tema:'moldura ornamental preto-e-branco elegante', fonte:'openclipart.org via publicdomainvectors.org', licenca:'cc0' },
+    { id:'moldura-floral-coracoes-cantos-01', nome:'Moldura ornamental floral em corações (4 cantos)', arquivo:'moldura-floral-coracoes-cantos-01.png', tema:'moldura ornamental preto-e-branco elegante', fonte:'openclipart.org via publicdomainvectors.org', licenca:'cc0' },
   ];
   const ilustracoes = [
     { id:'ilust-sinal-neon-rock-house-01', nome:'Sinal de néon \'Ray\'s Rock House\'', arquivo:'ilust-sinal-neon-rock-house-01.png', tema:'néon retrô música', fonte:'https://publicdomainvectors.org/photos/Rays_RockHouse__Arvin61r58.png', licenca:'dominio-publico' },
