@@ -3934,66 +3934,16 @@ function verConteudoMasmorra(i) {
     notif('SEM CONTEÚDO', 'Este item não possui texto gerado ainda.', 'info');
     return;
   }
-
-  const modalExistente = document.getElementById('modal-masmorra-ver');
-  if (modalExistente) modalExistente.remove();
-
-  const isPoesia = item.tipo === 'poesia' ||
-    (item.meta && /soneto|haicai|cordel|ghazal|pantum|ode|trova|poetrix|poema|verso/i.test(item.meta)) ||
-    (item.autor && /Amélie|Birihani|Hernesto|Hama|Noraya|Juka|Michelangelo|Sebastião|Daniel|Dárius|Rovonilson|Jorge|Icabode|Din Kin|Calíope|Dona Catarina|Santiago/i.test(item.autor));
-
-  const modal = document.createElement('div');
-  modal.id = 'modal-masmorra-ver';
-  modal.style.cssText = `
-    position:fixed;inset:0;background:rgba(4,8,15,0.97);z-index:999;
-    display:flex;align-items:flex-start;justify-content:center;
-    padding:1.5rem;overflow-y:auto;
-  `;
-  modal.innerHTML = `
-    <div style="background:#080f1a;border:1px solid rgba(201,168,76,0.2);width:100%;max-width:800px;margin:2rem auto;">
-      <div style="padding:1.2rem 1.5rem;border-bottom:1px solid rgba(201,168,76,0.1);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.8rem;">
-        <div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.2em;color:rgba(201,168,76,0.5);text-transform:uppercase;margin-bottom:0.3rem;">
-            ⛓ MASMORRA · ${item.autor || 'Autor a definir'} · ${isPoesia ? 'POESIA' : 'PROSA'}
-          </div>
-          <div style="font-family:'Cinzel',serif;font-size:1.1rem;color:#f0e8d0;">${item.titulo}</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;color:rgba(201,168,76,0.3);text-transform:uppercase;margin-top:0.2rem;">
-            ${item.dataProcessamento || item.data || ''}
-          </div>
-        </div>
-        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
-          <button onclick="copiarConteudoMasmorra(${i})" style="background:linear-gradient(135deg,#7a5f1a,#c9a84c);color:#04080f;font-family:'Share Tech Mono',monospace;font-size:0.55rem;font-weight:700;letter-spacing:0.1em;padding:0.6rem 1rem;border:none;cursor:pointer;text-transform:uppercase;">
-            📋 COPIAR
-          </button>
-          <button onclick="expandirParaLivro(${i})" style="background:transparent;color:#ce93d8;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;padding:0.6rem 1rem;border:1px solid rgba(106,27,154,0.4);cursor:pointer;text-transform:uppercase;">
-            📖 EXPANDIR PARA LIVRO
-          </button>
-          <button onclick="document.getElementById('modal-masmorra-ver').remove()" style="background:transparent;color:rgba(201,168,76,0.6);font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;padding:0.6rem 1rem;border:1px solid rgba(201,168,76,0.2);cursor:pointer;text-transform:uppercase;">
-            ✕ FECHAR
-          </button>
-        </div>
-      </div>
-      <div style="padding:1.5rem 2rem;font-family:'Crimson Pro',Georgia,serif;${isPoesia ? 'font-style:italic;line-height:2.4;white-space:pre-wrap;text-align:center;' : 'line-height:1.9;white-space:pre-wrap;'}font-size:1rem;color:#f0e8d0;max-height:65vh;overflow-y:auto;">
-        ${item.conteudo.replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-      </div>
-      <div style="padding:0.8rem 1.5rem;border-top:1px solid rgba(201,168,76,0.08);font-family:'Share Tech Mono',monospace;font-size:0.42rem;color:rgba(201,168,76,0.2);text-transform:uppercase;">
-        ${item.conteudo ? Math.ceil(item.conteudo.split(' ').length / 250) + ' páginas A4 estimadas · ' + item.conteudo.split(' ').length + ' palavras · ' + item.conteudo.length.toLocaleString('pt-BR') + ' caracteres' : ''}${item.custoUSD ? ' · custo estimado: US$ ' + item.custoUSD.toFixed(2) : ''}
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modal);
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) modal.remove();
-  });
+  abrirVisualizadorConteudo('masmorra', i);
 }
 
-function copiarConteudoMasmorra(i) {
-  const item = estado.masmorra[i];
-  if (!item || !item.conteudo) return;
-  const textoCompleto = `${item.titulo}\n${item.autor || ''}\n\n${item.conteudo}`;
-  navigator.clipboard.writeText(textoCompleto).then(() => {
-    notif('COPIADO!', `"${item.titulo}" copiado para a área de transferência.`, 'sucesso');
-  });
+function verConteudoCalabouco(i) {
+  const item = estado.calabouco[i];
+  if (!item || !item.conteudo) {
+    notif('SEM CONTEÚDO', 'Este item não possui texto gerado ainda.', 'info');
+    return;
+  }
+  abrirVisualizadorConteudo('calabouco', i);
 }
 
 function expandirParaLivroMasmorra(i) {
@@ -4044,6 +3994,7 @@ function renderizarCalabouco() {
       </div>
       ${tickDestinoHtml('calabouco', i, item)}
       <div class="cal-acoes">
+        <button class="fa-btn" onclick="verConteudoCalabouco(${i})">👁 VER</button>
         <button class="fa-btn" onclick="abrirGerador(${i})">📖 GERAR LIVRO</button>
         <button class="fa-btn" style="color:#4caf50;border-color:#4caf50;" onclick="analisarObra(estado.calabouco[${i}].conteudo, estado.calabouco[${i}].titulo, 'calabouco', ${i})">🔍 ANALISAR</button>
         <button class="fa-btn" onclick="abrirHistoricoVersoes('calabouco', ${i})">🕓 VERSÕES</button>
