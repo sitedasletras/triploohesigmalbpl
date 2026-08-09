@@ -1448,8 +1448,14 @@ function renderizarBloco(bloco, cfg, aplicaCapitular_){
       return `<div style="white-space:pre-line;${gap}text-align:${aPoesia};clear:both;">${escapar(bloco.conteudo)}</div>`;
 
     case 'dialogo':
+      // A primeira fala do bloco leva margin-top próprio (.4em, o mesmo
+      // respiro usado entre falas) — sem isso, com "Espaço §" (cfg.
+      // paragraphGap) zerado, a última linha da narração anterior não
+      // deixa nenhuma margem, e como a fala não tem recuo de primeira
+      // linha (convenção de diálogo), o travessão fica sem NENHUM sinal
+      // visual de parágrafo novo, parecendo continuação da mesma frase.
       return bloco.conteudo.split('\n')
-        .map(l=>`<p style="margin:0 0 .4em;text-indent:0;">${escapar(l.trim())}</p>`).join('');
+        .map((l,i)=>`<p style="margin:${i===0?'.4em':'0'} 0 .4em;text-indent:0;">${escapar(l.trim())}</p>`).join('');
 
     case 'haicai':
       return renderizarHaicai(bloco, cfg);
