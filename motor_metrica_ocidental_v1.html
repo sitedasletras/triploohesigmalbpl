@@ -199,12 +199,17 @@
         <option value="Poetrix">Poetrix</option>
         <option value="Ode">Ode</option>
       </select>
+      <label style="display:flex;align-items:center;gap:6px;">
+        Quantidade por tema
+        <input type="number" id="qtdGerar" value="1" min="1" max="40" style="width:70px;padding:8px 10px;">
+      </label>
     </div>
-    <textarea id="temaGerar" style="min-height:56px;margin-top:12px;" placeholder="Tema ou inspiração (opcional) — deixe em branco pra Fernando Peçanha escolher livremente."></textarea>
+    <textarea id="temaGerar" style="min-height:56px;margin-top:12px;" placeholder="Tema ou inspiração (opcional). Um tema por linha — se a quantidade for maior que 1, cada linha vira um lote (ex.: uma linha 'inverno' e outra 'verão' com quantidade 20 gera 20 de cada, 40 no total, numa chamada só)."></textarea>
     <div class="actions">
       <button class="primary" id="btnGerar" onclick="gerarComFernandoPecanha()">🖋 Fernando Peçanha, escreva</button>
     </div>
     <p class="note" id="geradorHeteronimoNota"></p>
+    <div id="loteResultado" style="display:none;margin-top:16px;"></div>
   </div>
 
   <div class="step">
@@ -571,11 +576,29 @@ function _atualizarNotaHeteronimo(){
     : 'Nenhum heterônimo mapeado ainda para esta forma — o poema sai sem assinatura definida.';
 }
 
+// Estimativa de tokens de SAÍDA por poema, só pra calcular o teto (max_tokens)
+// de uma chamada em lote — não afeta o que é cobrado (isso é sempre pelo
+// tanto de token de saída real que a Anthropic devolve, não pelo teto pedido).
+const TOKENS_POR_POEMA = {
+  "Soneto": 320, "Trova": 90, "Ghazal": 220, "Pantum": 260, "Sextina": 700,
+  "Cordel — Sextilha": 100, "Cordel — Sétima": 110, "Cordel — Oitava": 120, "Cordel — Décima": 150,
+  "Poetrix": 60, "Ode": 350
+};
+
+function _escaparHtmlLote(s){
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
 async function gerarComFernandoPecanha(){
   const forma = document.getElementById('formaGerar').value;
+  const qtd = Math.max(1, parseInt(document.getElementById('qtdGerar').value, 10) || 1);
+  const temas = document.getElementById('temaGerar').value.split('\n').map(t => t.trim()).filter(Boolean);
+
+  if (qtd > 1 || temas.length > 1) return gerarLote(forma, qtd, temas);
+
   const rota = ROTEAMENTO[forma];
   const heteronimo = rota ? rota.heteronimo : '';
-  const tema = document.getElementById('temaGerar').value.trim();
+  const tema = temas[0] || '';
   const btn = document.getElementById('btnGerar');
   const regras = REGRAS_FORMA[forma] || '';
   const perfil = (heteronimo && typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(heteronimo) : '';
@@ -615,6 +638,128 @@ Escreva um poema ORIGINAL, em português, seguindo rigorosamente a métrica, a r
     btn.disabled = false;
     btn.textContent = textoOriginalBtn;
   }
+}
+
+// Geração em lote: vários poemas numa chamada só, pedido do Wagner pra
+// montar um livro de poemas curtos sem precisar de uma chamada por poema
+// (ex.: 20 sobre um tema + 20 sobre outro = 40 poemas, uma chamada só).
+// Cada poema vem delimitado por uma linha "@@@ N | tema @@@" na resposta —
+// mais seguro que confiar só em linha em branco, já que o Poetrix usa
+// linha em branco DENTRO do próprio poema (título + corpo).
+async function gerarLote(forma, qtd, temasInformados){
+  const temas = temasInformados.length ? temasInformados : [null];
+  const totalPoemas = temas.length * qtd;
+  const rota = ROTEAMENTO[forma];
+  const heteronimo = rota ? rota.heteronimo : '';
+  const btn = document.getElementById('btnGerar');
+  const regras = REGRAS_FORMA[forma] || '';
+  const perfil = (heteronimo && typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(heteronimo) : '';
+
+  btn.disabled = true;
+  const textoOriginalBtn = btn.textContent;
+  btn.textContent = `✎ escrevendo ${totalPoemas} poemas...`;
+  try {
+    const pedidos = temas.map(t => `- ${qtd} poema(s) sobre "${t || '(tema livre, à sua escolha, variando entre eles)'}"`).join('\n');
+    const system = `Você é Fernando Peçanha, curador máximo da OHE — Oficina Heteronômica da Escrita. Você está entregando esta tarefa de escrita ao heterônimo ${heteronimo || 'disponível na Confraria'}, que agora assume a autoria de todos os poemas abaixo.
+
+FORMA PEDIDA: ${forma}
+REGRAS DA FORMA (siga rigorosamente em TODOS os poemas): ${regras}${perfil}
+
+Escreva ${totalPoemas} poemas ORIGINAIS e DIFERENTES entre si, todos na forma pedida:
+${pedidos}
+
+Formate a resposta EXATAMENTE assim: cada poema antecedido por uma linha delimitadora sozinha no formato "@@@ N | tema @@@" (N = número sequencial de 1 a ${totalPoemas}; tema = o tema daquele poema específico, em poucas palavras). Não escreva nada antes do primeiro delimitador, nada entre os poemas além do delimitador do próximo, e nada depois do último poema. Não use markdown.${forma === 'Poetrix' ? ' Cada poema começa com o título numa linha isolada, seguida de uma linha em branco, e só depois os 3 versos.' : ' Não inclua título, a menos que a forma acima exija.'}`;
+
+    const tokensPorPoema = TOKENS_POR_POEMA[forma] || 300;
+    const maxTokens = Math.min(8192, 300 + totalPoemas * tokensPorPoema);
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: window.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+        max_tokens: maxTokens,
+        system,
+        messages: [{ role: 'user', content: `Gere o lote de ${totalPoemas} poemas pedido.` }]
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.content || !data.content[0]) throw new Error(data.error?.message || 'Falha ao gerar o lote.');
+
+    const poemas = _parsearLote(data.content[0].text);
+    if (!poemas.length) throw new Error('A resposta não veio no formato esperado — tente de novo.');
+    _renderizarLote(poemas, forma, heteronimo, 'Motor de Métrica Ocidental');
+    mostrarToast(`✦ ${heteronimo || 'O heterônimo'} escreveu ${poemas.length} de ${totalPoemas} poemas pedidos.`);
+  } catch (e) {
+    mostrarToast('Erro ao gerar lote: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = textoOriginalBtn;
+  }
+}
+
+function _parsearLote(bruto){
+  const partes = bruto.split(/@@@\s*\d+\s*\|\s*([^\n@]*?)\s*@@@/);
+  const poemas = [];
+  for (let i = 1; i < partes.length; i += 2){
+    const texto = (partes[i + 1] || '').trim();
+    if (texto) poemas.push({ tema: (partes[i] || '').trim(), texto });
+  }
+  return poemas;
+}
+
+function _renderizarLote(poemas, forma, heteronimo, origemMotor){
+  const box = document.getElementById('loteResultado');
+  window._loteAtual = { poemas, forma, heteronimo, origemMotor };
+  box.style.display = 'block';
+  box.innerHTML = `
+    <div class="step-label" style="margin-top:10px;">Lote gerado — ${poemas.length} poema(s)</div>
+    <div class="actions" style="margin:8px 0 14px;">
+      <button class="primary" onclick="enviarLoteAoPaiol()">📚 Enviar todos ao Paiol</button>
+    </div>
+    ${poemas.map((p, i) => `<div class="result-card" style="margin-bottom:10px;">
+      <div class="verse-detail" style="margin-bottom:6px;">#${i + 1}${p.tema ? ' · ' + _escaparHtmlLote(p.tema) : ''}</div>
+      <div style="white-space:pre-line;">${_escaparHtmlLote(p.texto)}</div>
+      <div class="actions" style="margin-top:8px;">
+        <button class="ghost" onclick="_carregarPoemaDoLote(${i})">Analisar este</button>
+      </div>
+    </div>`).join('')}
+  `;
+}
+
+function _carregarPoemaDoLote(i){
+  const lote = window._loteAtual;
+  if (!lote || !lote.poemas[i]) return;
+  document.getElementById('input').value = lote.poemas[i].texto;
+  analisar();
+  document.getElementById('resultsStep').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function enviarLoteAoPaiol(){
+  const lote = window._loteAtual;
+  if (!lote || !lote.poemas.length) return;
+  const chave = 'sigmal_hq';
+  let estadoHQ;
+  try { estadoHQ = JSON.parse(localStorage.getItem(chave) || 'null'); } catch (e) { estadoHQ = null; }
+  if (!estadoHQ){
+    estadoHQ = { sistemaParado:false, fila:[], masmorra:[], calabouco:[], paiol:{literario:[],musical:[]}, estudios:[], silo:{livros:[],singles:[],lps:[],clips:[]}, estudioAtivo:null };
+  }
+  if (!estadoHQ.paiol) estadoHQ.paiol = { literario: [], musical: [] };
+  if (!estadoHQ.paiol.literario) estadoHQ.paiol.literario = [];
+
+  lote.poemas.forEach((p, i) => {
+    estadoHQ.paiol.literario.push({
+      titulo: `${lote.forma}${p.tema ? ' — ' + p.tema : ''} #${i + 1}`,
+      autor: lote.heteronimo || 'A definir',
+      tipo: lote.forma,
+      conteudo: p.texto,
+      dataEntrada: new Date().toLocaleDateString('pt-BR'),
+      status: 'no-paiol',
+      origem_motor: `${lote.origemMotor} (lote)`
+    });
+  });
+  localStorage.setItem(chave, JSON.stringify(estadoHQ));
+  mostrarToast(`${lote.poemas.length} poemas enviados ao Paiol Literário real.`);
 }
 
 /* =========================================================

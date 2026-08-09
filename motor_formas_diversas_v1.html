@@ -142,6 +142,7 @@
     <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('balada')">Balada <span style="opacity:0.6;">28 versos (estrutura)</span></button>
     <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('vilanela')">Vilanela <span style="opacity:0.6;">19 versos (estrutura)</span></button>
     <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('elegia')">Elegia <span style="opacity:0.6;">temática</span></button>
+    <button class="ghost" style="font-size:11px;padding:8px 14px;" onclick="carregarExemplo('estrofista')">Estrofista <span style="opacity:0.6;">losango 1-2-3-4-3-2-1</span></button>
   </div>
 </div>
 
@@ -158,13 +159,19 @@
         <option value="Epigrama">Epigrama</option>
         <option value="Balada">Balada</option>
         <option value="Vilanela">Vilanela</option>
+        <option value="Estrofista">Estrofista (losango 1-2-3-4-3-2-1)</option>
       </select>
+      <label style="display:flex;align-items:center;gap:6px;">
+        Quantidade por tema
+        <input type="number" id="qtdGerar" value="1" min="1" max="40" style="width:70px;padding:8px 10px;">
+      </label>
     </div>
     <textarea id="temaGerar" style="min-height:56px;margin-top:12px;" placeholder="Tema ou inspiração (opcional) — deixe em branco pra Fernando Peçanha escolher livremente."></textarea>
     <div class="actions">
       <button id="btnGerar" onclick="gerarComFernandoPecanha()">🖋 Fernando Peçanha, escreva</button>
     </div>
     <p class="note" id="geradorHeteronimoNota"></p>
+    <div id="loteResultado" style="display:none;margin-top:16px;"></div>
   </div>
 
   <div class="step">
@@ -413,7 +420,8 @@ const ORIGENS = {
   "Epigrama": "Origem grega (inscrições votivas e funerárias curtas), refinado por poetas latinos como Marcial em sátiras de poucas linhas terminando num golpe de espírito. É a forma-relâmpago da poesia: síntese e ironia.",
   "Balada": "Forma fixa francesa medieval, popularizada por François Villon no século XV: três estrofes iguais mais um envio curto, todas fechadas pelo mesmo verso-refrão — uma insistência que vai ganhando peso a cada repetição.",
   "Vilanela": "Originou-se como canção rústica italiana (villanella) e foi fixada como forma fixa poética na França do século XVI. Sua marca é a obsessão: duas linhas-refrão que voltam e se cruzam ao longo de 19 versos, como um pensamento que não sai da cabeça.",
-  "Elegia": "Do grego 'elegos' (canto fúnebre), acompanhado originalmente por flauta. Não tem métrica fixa — é definida pelo tom de luto, perda ou lamento, não por uma estrutura de versos."
+  "Elegia": "Do grego 'elegos' (canto fúnebre), acompanhado originalmente por flauta. Não tem métrica fixa — é definida pelo tom de luto, perda ou lamento, não por uma estrutura de versos.",
+  "Estrofista": "Forma própria da casa (SIGMAL), não uma forma clássica herdada — organiza o poema em 7 estrofes num formato de losango (1-2-3-4-3-2-1 versos), com a estrofe central (4 versos) carregando o clímax e as pontas (1 verso cada) funcionando como semente e síntese. É a mesma estrutura que o Diagramador Estrofista (Espartano) usa pra paginar."
 };
 
 /* =========================================================
@@ -425,7 +433,8 @@ const ROTEAMENTO = {
   "Elegia": { heteronimo: "Dárius Ninus Vamus", obs: "" },
   "Epigrama": { heteronimo: "Riolando Kraze", obs: "" },
   "Balada": { heteronimo: "", obs: "sem heterônimo mapeado ainda — preencher manualmente" },
-  "Vilanela": { heteronimo: "Riolando Kraze", obs: "" }
+  "Vilanela": { heteronimo: "Riolando Kraze", obs: "" },
+  "Estrofista": { heteronimo: "Juka Pituskaq", obs: "por ora único heterônimo do Movimento Estrofista — mais devem entrar depois, ele está genérico demais pra cobrir todos os estilos do movimento sozinho" }
 };
 
 /* =========================================================
@@ -439,7 +448,8 @@ const REGRAS_FORMA = {
   "Elegia": "Sem métrica fixa. Tom de luto, perda ou lamento — sobre morte, ausência, saudade ou despedida.",
   "Epigrama": "1 a 4 versos curtos, terminando num golpe de ironia, síntese ou espírito afiado.",
   "Balada": "28 versos: 3 estrofes de 8 versos + um envio final de 4 versos. As 4 seções (as 3 estrofes e o envio) terminam TODAS no mesmo verso-refrão, repetido literalmente ao final de cada uma.",
-  "Vilanela": "19 versos em 5 tercetos + 1 quarteto final. O 1º verso (A1) e o 3º verso (A2) da primeira estrofe viram versos-refrão: A1 se repete como último verso das estrofes 2, 4 e 6; A2 se repete como último verso das estrofes 3 e 5; os dois (A1 e A2) fecham juntos, como os dois últimos versos do quarteto final."
+  "Vilanela": "19 versos em 5 tercetos + 1 quarteto final. O 1º verso (A1) e o 3º verso (A2) da primeira estrofe viram versos-refrão: A1 se repete como último verso das estrofes 2, 4 e 6; A2 se repete como último verso das estrofes 3 e 5; os dois (A1 e A2) fecham juntos, como os dois últimos versos do quarteto final.",
+  "Estrofista": "7 estrofes SEPARADAS POR LINHA EM BRANCO, em formato de losango: 1 verso, depois 2, depois 3, depois 4 (o clímax, no centro), depois 3, depois 2, depois 1 verso (total 16 versos). A 1ª estrofe (1 verso) é a semente do poema; as duas seguintes (2 e 3 versos) desenvolvem; a 4ª (4 versos, o centro) é o clímax; as duas seguintes (3 e 2 versos) resolvem; a última (1 verso) sintetiza — ecoando ou respondendo à semente do início."
 };
 
 function _atualizarNotaHeteronimo(){
@@ -451,19 +461,36 @@ function _atualizarNotaHeteronimo(){
     : 'Nenhum heterônimo mapeado ainda para esta forma — o poema sai sem assinatura definida.';
   const temaEl = document.getElementById('temaGerar');
   temaEl.placeholder = forma === 'Acróstico'
-    ? 'Palavra-alvo do acróstico (obrigatório) — ex: AMOR'
+    ? 'Palavra-alvo do acróstico (obrigatório) — ex: AMOR. Uma palavra por linha se quiser gerar vários de uma vez.'
     : 'Tema ou inspiração (opcional) — deixe em branco pra Fernando Peçanha escolher livremente.';
+}
+
+// Estimativa de tokens de SAÍDA por poema, só pra calcular o teto (max_tokens)
+// de uma chamada em lote — não afeta o que é cobrado (isso é sempre pelo
+// tanto de token de saída real que a Anthropic devolve, não pelo teto pedido).
+const TOKENS_POR_POEMA = {
+  "Acróstico": 120, "Limerique": 110, "Elegia": 130, "Epigrama": 60,
+  "Balada": 420, "Vilanela": 300, "Estrofista": 260
+};
+
+function _escaparHtmlLote(s){
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 async function gerarComFernandoPecanha(){
   const forma = document.getElementById('formaGerar').value;
-  const rota = ROTEAMENTO[forma];
-  const heteronimo = rota ? rota.heteronimo : '';
-  const tema = document.getElementById('temaGerar').value.trim();
-  if (forma === 'Acróstico' && !tema){
-    mostrarToast('Digite a palavra-alvo do acróstico no campo de tema primeiro.');
+  const qtd = Math.max(1, parseInt(document.getElementById('qtdGerar').value, 10) || 1);
+  const temas = document.getElementById('temaGerar').value.split('\n').map(t => t.trim()).filter(Boolean);
+  if (forma === 'Acróstico' && !temas.length){
+    mostrarToast('Digite a palavra-alvo do acróstico no campo de tema primeiro (uma por linha se quiser vários).');
     return;
   }
+
+  if (qtd > 1 || temas.length > 1) return gerarLote(forma, qtd, temas);
+
+  const rota = ROTEAMENTO[forma];
+  const heteronimo = rota ? rota.heteronimo : '';
+  const tema = temas[0] || '';
   const btn = document.getElementById('btnGerar');
   const regras = REGRAS_FORMA[forma] || '';
   const perfil = (heteronimo && typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(heteronimo) : '';
@@ -477,7 +504,7 @@ async function gerarComFernandoPecanha(){
 FORMA PEDIDA: ${forma}
 REGRAS DA FORMA (siga rigorosamente): ${regras}${perfil}
 
-Escreva um poema ORIGINAL, em português, seguindo rigorosamente a estrutura pedida acima. Responda APENAS com o texto do poema, um verso por linha — nunca com explicações, comentários, aspas ou marcação markdown. Não inclua título.`;
+Escreva um poema ORIGINAL, em português, seguindo rigorosamente a estrutura pedida acima. Responda APENAS com o texto do poema, um verso por linha — nunca com explicações, comentários, aspas ou marcação markdown. Não inclua título.${forma === 'Estrofista' ? ' As 7 estrofes precisam vir SEPARADAS por uma linha em branco cada uma (sem isso não dá pra confirmar o formato de losango).' : ''}`;
     const user = forma === 'Acróstico'
       ? `Palavra-alvo do acróstico: ${tema.toUpperCase()}`
       : (tema ? `Tema ou inspiração: ${tema}` : 'Escolha livremente um tema que combine com o território deste heterônimo.');
@@ -515,6 +542,142 @@ Escreva um poema ORIGINAL, em português, seguindo rigorosamente a estrutura ped
   }
 }
 
+// Geração em lote: vários poemas numa chamada só, pedido do Wagner pra
+// montar um livro de poemas curtos sem precisar de uma chamada por poema
+// (ex.: 20 sobre um tema + 20 sobre outro = 40 poemas, uma chamada só).
+// No Acróstico cada linha de tema é uma PALAVRA-ALVO diferente (não um
+// tema geral) — cada poema do lote guarda a sua própria palavra, usada
+// depois tanto no prompt quanto na hora de analisar individualmente.
+// Cada poema vem delimitado por uma linha "@@@ N | tema @@@" na resposta —
+// mais seguro que confiar só em linha em branco, já que o Estrofista usa
+// linha em branco DENTRO do próprio poema (entre as 7 estrofes).
+async function gerarLote(forma, qtd, temasInformados){
+  const temas = temasInformados.length ? temasInformados : [null];
+  const totalPoemas = temas.length * qtd;
+  const rota = ROTEAMENTO[forma];
+  const heteronimo = rota ? rota.heteronimo : '';
+  const btn = document.getElementById('btnGerar');
+  const regras = REGRAS_FORMA[forma] || '';
+  const perfil = (heteronimo && typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(heteronimo) : '';
+
+  btn.disabled = true;
+  const textoOriginalBtn = btn.textContent;
+  btn.textContent = `✎ escrevendo ${totalPoemas} poemas...`;
+  try {
+    const pedidos = forma === 'Acróstico'
+      ? temas.map(t => `- ${qtd} acróstico(s) com a palavra-alvo "${t.toUpperCase()}"`).join('\n')
+      : temas.map(t => `- ${qtd} poema(s) sobre "${t || '(tema livre, à sua escolha, variando entre eles)'}"`).join('\n');
+    const system = `Você é Fernando Peçanha, curador máximo da OHE — Oficina Heteronômica da Escrita. Você está entregando esta tarefa de escrita ao heterônimo ${heteronimo || 'disponível na Confraria'}, que agora assume a autoria de todos os poemas abaixo.
+
+FORMA PEDIDA: ${forma}
+REGRAS DA FORMA (siga rigorosamente em TODOS os poemas): ${regras}${perfil}
+
+Escreva ${totalPoemas} poemas ORIGINAIS e DIFERENTES entre si, todos na forma pedida:
+${pedidos}
+
+Formate a resposta EXATAMENTE assim: cada poema antecedido por uma linha delimitadora sozinha no formato "@@@ N | ${forma === 'Acróstico' ? 'PALAVRA' : 'tema'} @@@" (N = número sequencial de 1 a ${totalPoemas}${forma === 'Acróstico' ? '; PALAVRA = a palavra-alvo daquele acróstico específico, em maiúsculas' : '; tema = o tema daquele poema específico, em poucas palavras'}). Não escreva nada antes do primeiro delimitador, nada entre os poemas além do delimitador do próximo, e nada depois do último poema. Não inclua título. Não use markdown.${forma === 'Estrofista' ? ' As 7 estrofes de CADA poema precisam vir separadas por uma linha em branco (sem isso não dá pra confirmar o formato de losango).' : ''}`;
+
+    const tokensPorPoema = TOKENS_POR_POEMA[forma] || 200;
+    const maxTokens = Math.min(8192, 300 + totalPoemas * tokensPorPoema);
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: window.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+        max_tokens: maxTokens,
+        system,
+        messages: [{ role: 'user', content: `Gere o lote de ${totalPoemas} poemas pedido.` }]
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.content || !data.content[0]) throw new Error(data.error?.message || 'Falha ao gerar o lote.');
+
+    const poemas = _parsearLote(data.content[0].text);
+    if (!poemas.length) throw new Error('A resposta não veio no formato esperado — tente de novo.');
+    _renderizarLote(poemas, forma, heteronimo);
+    mostrarToast(`✦ ${heteronimo || 'O heterônimo'} escreveu ${poemas.length} de ${totalPoemas} poemas pedidos.`);
+  } catch (e) {
+    mostrarToast('Erro ao gerar lote: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = textoOriginalBtn;
+  }
+}
+
+function _parsearLote(bruto){
+  const partes = bruto.split(/@@@\s*\d+\s*\|\s*([^\n@]*?)\s*@@@/);
+  const poemas = [];
+  for (let i = 1; i < partes.length; i += 2){
+    const texto = (partes[i + 1] || '').trim();
+    if (texto) poemas.push({ tema: (partes[i] || '').trim(), texto });
+  }
+  return poemas;
+}
+
+function _renderizarLote(poemas, forma, heteronimo){
+  const box = document.getElementById('loteResultado');
+  window._loteAtual = { poemas, forma, heteronimo };
+  box.style.display = 'block';
+  box.innerHTML = `
+    <div class="step-label" style="margin-top:10px;">Lote gerado — ${poemas.length} poema(s)</div>
+    <div class="actions" style="margin:8px 0 14px;">
+      <button onclick="enviarLoteAoPaiol()">📚 Enviar todos ao Paiol</button>
+    </div>
+    ${poemas.map((p, i) => `<div class="result-card" style="margin-bottom:10px;">
+      <div class="verse-detail" style="margin-bottom:6px;">#${i + 1}${p.tema ? ' · ' + _escaparHtmlLote(p.tema) : ''}</div>
+      <div style="white-space:pre-line;">${_escaparHtmlLote(p.texto)}</div>
+      <div class="actions" style="margin-top:8px;">
+        <button class="ghost" onclick="_carregarPoemaDoLote(${i})">Analisar este</button>
+      </div>
+    </div>`).join('')}
+  `;
+}
+
+function _carregarPoemaDoLote(i){
+  const lote = window._loteAtual;
+  if (!lote || !lote.poemas[i]) return;
+  const p = lote.poemas[i];
+  document.getElementById('input').value = p.texto;
+  if (lote.forma === 'Acróstico'){
+    document.getElementById('formaAlvo').value = 'acrostico';
+    document.getElementById('campoPalavraAlvo').style.display = 'block';
+    document.getElementById('palavraAlvo').value = p.tema.toUpperCase();
+  } else {
+    document.getElementById('formaAlvo').value = 'auto';
+    document.getElementById('campoPalavraAlvo').style.display = 'none';
+  }
+  analisar();
+  document.getElementById('resultsStep').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function enviarLoteAoPaiol(){
+  const lote = window._loteAtual;
+  if (!lote || !lote.poemas.length) return;
+  const chave = 'sigmal_hq';
+  let estadoHQ;
+  try { estadoHQ = JSON.parse(localStorage.getItem(chave) || 'null'); } catch (e) { estadoHQ = null; }
+  if (!estadoHQ){
+    estadoHQ = { sistemaParado:false, fila:[], masmorra:[], calabouco:[], paiol:{literario:[],musical:[]}, estudios:[], silo:{livros:[],singles:[],lps:[],clips:[]}, estudioAtivo:null };
+  }
+  if (!estadoHQ.paiol) estadoHQ.paiol = { literario: [], musical: [] };
+  if (!estadoHQ.paiol.literario) estadoHQ.paiol.literario = [];
+
+  lote.poemas.forEach((p, i) => {
+    estadoHQ.paiol.literario.push({
+      titulo: `${lote.forma}${p.tema ? ' — ' + p.tema : ''} #${i + 1}`,
+      autor: lote.heteronimo || 'A definir',
+      tipo: lote.forma,
+      conteudo: p.texto,
+      dataEntrada: new Date().toLocaleDateString('pt-BR'),
+      status: 'no-paiol',
+      origem_motor: 'Motor de Formas Diversas (lote)'
+    });
+  });
+  localStorage.setItem(chave, JSON.stringify(estadoHQ));
+  mostrarToast(`${lote.poemas.length} poemas enviados ao Paiol Literário real.`);
+}
+
 /* =========================================================
    DETECTORES
    ========================================================= */
@@ -530,6 +693,28 @@ function detectarAcrostico(linhasRaw, palavraAlvo){
     return { forma: 'Acróstico', veredito, iniciais, alvo: palavraAlvo.toUpperCase() };
   }
   return { forma: 'Acróstico', veredito: 'deteccao', iniciais, alvo: null };
+}
+
+// Estrofista: mesmo "losango" 1-2-3-4-3-2-1 versos que o Diagramador
+// Estrofista (Espartano) usa pra paginar (ver LOSANGO em
+// motor_celeiro_v3.js) — ao contrário das outras formas deste arquivo,
+// que tratam o poema como uma lista plana de versos, aqui a divisão
+// por LINHA EM BRANCO entre estrofes importa de verdade (é o que
+// separa uma estrofe da outra), então este detector recebe o texto
+// bruto, não a lista já achatada.
+const LOSANGO_ESTROFISTA = [1,2,3,4,3,2,1];
+const PAPEL_ESTROFISTA = ['semente','desenvolvimento','desenvolvimento','clímax','resolução','resolução','síntese'];
+function detectarEstrofista(textoCompleto){
+  const estrofes = textoCompleto.split(/\n\s*\n+/)
+    .map(b => b.split('\n').map(l => l.trim()).filter(Boolean))
+    .filter(b => b.length > 0);
+  if (estrofes.length !== 7) return null;
+  const versosPorEstrofe = estrofes.map(e => e.length);
+  const veredito = versosPorEstrofe.every((n, i) => n === LOSANGO_ESTROFISTA[i]) ? 'classico' : 'nao-atende';
+  // Nome "versosPorEstrofe" (não "contagens") de propósito — classificarFormaDiversa
+  // sempre adiciona um campo "contagens" com as sílabas por verso (achatado),
+  // que sobrescreveria isto se o nome batesse.
+  return { forma: 'Estrofista', veredito, versosPorEstrofe, esperado: LOSANGO_ESTROFISTA, papeis: PAPEL_ESTROFISTA };
 }
 
 function detectarLimerique(analisadas, cont){
@@ -578,12 +763,13 @@ function detectarElegia(linhasRaw){
   return { forma: 'Elegia', veredito: 'tematica', termos };
 }
 
-function classificarFormaDiversa(linhasRaw, analisadas, usarSinalefa, forcarAcrostico, palavraAlvo){
+function classificarFormaDiversa(linhasRaw, analisadas, usarSinalefa, forcarAcrostico, palavraAlvo, textoCompleto){
   const cont = analisadas.map(a => usarSinalefa ? a.contagemFinal : a.contagemBruta);
   if (forcarAcrostico){
     return { ...detectarAcrostico(linhasRaw, palavraAlvo), contagens: cont };
   }
   let r;
+  r = detectarEstrofista(textoCompleto); if (r) return { ...r, contagens: cont };
   r = detectarVilanela(linhasRaw, analisadas); if (r) return { ...r, contagens: cont };
   r = detectarBalada(linhasRaw, analisadas); if (r) return { ...r, contagens: cont };
   r = detectarLimerique(analisadas, cont); if (r) return { ...r, contagens: cont };
@@ -610,7 +796,11 @@ const EXEMPLOS = {
     texto: "Não vou dormir enquanto o mundo dorme\nVerso de conteúdo número 2\nA noite cresce e ninguém me responde\nVerso de conteúdo número 4\nVerso de conteúdo número 5\nNão vou dormir enquanto o mundo dorme\nVerso de conteúdo número 7\nVerso de conteúdo número 8\nA noite cresce e ninguém me responde\nVerso de conteúdo número 10\nVerso de conteúdo número 11\nNão vou dormir enquanto o mundo dorme\nVerso de conteúdo número 13\nVerso de conteúdo número 14\nA noite cresce e ninguém me responde\nVerso de conteúdo número 16\nVerso de conteúdo número 17\nNão vou dormir enquanto o mundo dorme\nA noite cresce e ninguém me responde",
     nota: "Esqueleto estrutural (19 versos, os dois refrões nas posições certas) — troque os versos de conteúdo, mantendo os dois refrões fixos."
   },
-  elegia: { texto: "A saudade que ficou depois da partida\nÉ a única coisa que a morte não levou\nGuardo o luto em silêncio pela vida\nE na ausência, o teu nome ainda ecoou" }
+  elegia: { texto: "A saudade que ficou depois da partida\nÉ a única coisa que a morte não levou\nGuardo o luto em silêncio pela vida\nE na ausência, o teu nome ainda ecoou" },
+  estrofista: {
+    texto: "Semente: verso único\n\nDesenvolvimento, verso 1\nDesenvolvimento, verso 2\n\nDesenvolvimento, verso 1\nDesenvolvimento, verso 2\nDesenvolvimento, verso 3\n\nClímax, verso 1\nClímax, verso 2\nClímax, verso 3\nClímax, verso 4\n\nResolução, verso 1\nResolução, verso 2\nResolução, verso 3\n\nResolução, verso 1\nResolução, verso 2\n\nSíntese: verso único",
+    nota: "Esqueleto estrutural (7 estrofes separadas por linha em branco, no formato 1-2-3-4-3-2-1) — troque o conteúdo, mantendo o número de versos por estrofe e as linhas em branco entre elas."
+  }
 };
 
 function carregarExemplo(chave){
@@ -657,6 +847,8 @@ function detalhesForma(c){
       return `refrão A1 (linha 1) repete nas linhas 6,12,18: ${c.refraoA1_ok ? 'sim' : 'não'} · refrão A2 (linha 3) repete nas linhas 9,15,19: ${c.refraoA2_ok ? 'sim' : 'não'}`;
     case 'Elegia':
       return `termos de campo semântico fúnebre/luto encontrados: ${c.termos.join(', ')} — isso é sugestão temática, não uma regra estrutural`;
+    case 'Estrofista':
+      return `versos por estrofe: ${c.versosPorEstrofe.join('-')} (esperado: ${c.esperado.join('-')}) · papéis: ${c.papeis.join(', ')}`;
     default: return '';
   }
 }
@@ -693,7 +885,7 @@ function analisar(){
   }).join('');
   document.getElementById('resultsStep').style.display = 'block';
 
-  const classificacao = classificarFormaDiversa(linhas, analisadas, usarSinalefa, forcarAcrostico, palavraAlvo);
+  const classificacao = classificarFormaDiversa(linhas, analisadas, usarSinalefa, forcarAcrostico, palavraAlvo, texto);
   const formaContainer = document.getElementById('formResult');
   let html = '';
   if (classificacao.forma){
