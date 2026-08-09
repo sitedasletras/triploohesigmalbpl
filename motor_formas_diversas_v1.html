@@ -125,7 +125,10 @@
 
 <header>
   <h1>Motor de Formas <em>Diversas</em></h1>
-  <div class="sub">SIGMAL · terceira costela do triploohesigmalbpl</div>
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+    <div class="sub">SIGMAL · terceira costela do triploohesigmalbpl</div>
+    <a href="index.html" style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;background:transparent;color:var(--tinta);border:1px solid var(--tinta);padding:8px 14px;border-radius:2px;text-decoration:none;">← SIGMAL HQ</a>
+  </div>
 </header>
 
 <div style="max-width:940px;margin:0 auto;padding:20px 20px 0;">
@@ -143,6 +146,26 @@
 </div>
 
 <main>
+
+  <div class="step" id="geradorStep">
+    <div class="step-label">00 · Gerador automático</div>
+    <h2>Fernando Peçanha escreve pra você</h2>
+    <div class="controls" style="margin-top:0;">
+      <select id="formaGerar" onchange="_atualizarNotaHeteronimo()" style="width:auto;min-width:220px;padding:10px 14px;">
+        <option value="Acróstico">Acróstico</option>
+        <option value="Limerique">Limerique</option>
+        <option value="Elegia">Elegia</option>
+        <option value="Epigrama">Epigrama</option>
+        <option value="Balada">Balada</option>
+        <option value="Vilanela">Vilanela</option>
+      </select>
+    </div>
+    <textarea id="temaGerar" style="min-height:56px;margin-top:12px;" placeholder="Tema ou inspiração (opcional) — deixe em branco pra Fernando Peçanha escolher livremente."></textarea>
+    <div class="actions">
+      <button id="btnGerar" onclick="gerarComFernandoPecanha()">🖋 Fernando Peçanha, escreva</button>
+    </div>
+    <p class="note" id="geradorHeteronimoNota"></p>
+  </div>
 
   <div class="step">
     <div class="step-label">01 · Texto</div>
@@ -216,6 +239,10 @@ Roubando o sono, ferindo a paciência</textarea>
 
 <div class="toast" id="toast"></div>
 
+<script src="config.js"></script>
+<script src="heteronimos_roster.js"></script>
+<script src="biografias_heteronimos.js"></script>
+<script src="perfis_voz.js"></script>
 <script>
 /* =========================================================
    NÚCLEO DE SILABIZAÇÃO — PORTUGUÊS (idêntico aos outros dois motores)
@@ -400,6 +427,93 @@ const ROTEAMENTO = {
   "Balada": { heteronimo: "", obs: "sem heterônimo mapeado ainda — preencher manualmente" },
   "Vilanela": { heteronimo: "Riolando Kraze", obs: "" }
 };
+
+/* =========================================================
+   GERADOR AUTOMÁTICO — Fernando Peçanha entrega a tarefa ao
+   heterônimo mapeado em ROTEAMENTO pra escrever um poema original
+   nessa forma, que cai direto no fluxo normal de análise.
+   ========================================================= */
+const REGRAS_FORMA = {
+  "Acróstico": "As iniciais dos versos, lidas de cima pra baixo, devem soletrar exatamente a palavra-alvo pedida (uma letra por verso, na ordem). Sem métrica ou rima fixa além disso.",
+  "Limerique": "5 versos. Rima AABBA (versos 1, 2 e 5 rimam entre si; versos 3 e 4 rimam entre si, num som diferente). Versos 1, 2 e 5 mais longos; versos 3 e 4 mais curtos. Tom cômico, absurdo ou nonsense.",
+  "Elegia": "Sem métrica fixa. Tom de luto, perda ou lamento — sobre morte, ausência, saudade ou despedida.",
+  "Epigrama": "1 a 4 versos curtos, terminando num golpe de ironia, síntese ou espírito afiado.",
+  "Balada": "28 versos: 3 estrofes de 8 versos + um envio final de 4 versos. As 4 seções (as 3 estrofes e o envio) terminam TODAS no mesmo verso-refrão, repetido literalmente ao final de cada uma.",
+  "Vilanela": "19 versos em 5 tercetos + 1 quarteto final. O 1º verso (A1) e o 3º verso (A2) da primeira estrofe viram versos-refrão: A1 se repete como último verso das estrofes 2, 4 e 6; A2 se repete como último verso das estrofes 3 e 5; os dois (A1 e A2) fecham juntos, como os dois últimos versos do quarteto final."
+};
+
+function _atualizarNotaHeteronimo(){
+  const forma = document.getElementById('formaGerar').value;
+  const rota = ROTEAMENTO[forma];
+  const nota = document.getElementById('geradorHeteronimoNota');
+  nota.textContent = rota && rota.heteronimo
+    ? `Fernando Peçanha vai entregar esta escrita a ${rota.heteronimo}.`
+    : 'Nenhum heterônimo mapeado ainda para esta forma — o poema sai sem assinatura definida.';
+  const temaEl = document.getElementById('temaGerar');
+  temaEl.placeholder = forma === 'Acróstico'
+    ? 'Palavra-alvo do acróstico (obrigatório) — ex: AMOR'
+    : 'Tema ou inspiração (opcional) — deixe em branco pra Fernando Peçanha escolher livremente.';
+}
+
+async function gerarComFernandoPecanha(){
+  const forma = document.getElementById('formaGerar').value;
+  const rota = ROTEAMENTO[forma];
+  const heteronimo = rota ? rota.heteronimo : '';
+  const tema = document.getElementById('temaGerar').value.trim();
+  if (forma === 'Acróstico' && !tema){
+    mostrarToast('Digite a palavra-alvo do acróstico no campo de tema primeiro.');
+    return;
+  }
+  const btn = document.getElementById('btnGerar');
+  const regras = REGRAS_FORMA[forma] || '';
+  const perfil = (heteronimo && typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(heteronimo) : '';
+
+  btn.disabled = true;
+  const textoOriginalBtn = btn.textContent;
+  btn.textContent = '✎ escrevendo...';
+  try {
+    const system = `Você é Fernando Peçanha, curador máximo da OHE — Oficina Heteronômica da Escrita. Você está entregando esta tarefa de escrita ao heterônimo ${heteronimo || 'disponível na Confraria'}, que agora assume a autoria do poema.
+
+FORMA PEDIDA: ${forma}
+REGRAS DA FORMA (siga rigorosamente): ${regras}${perfil}
+
+Escreva um poema ORIGINAL, em português, seguindo rigorosamente a estrutura pedida acima. Responda APENAS com o texto do poema, um verso por linha — nunca com explicações, comentários, aspas ou marcação markdown. Não inclua título.`;
+    const user = forma === 'Acróstico'
+      ? `Palavra-alvo do acróstico: ${tema.toUpperCase()}`
+      : (tema ? `Tema ou inspiração: ${tema}` : 'Escolha livremente um tema que combine com o território deste heterônimo.');
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: window.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+        max_tokens: window.ANTHROPIC_MAX_TOKENS || 1200,
+        system,
+        messages: [{ role: 'user', content: user }]
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.content || !data.content[0]) throw new Error(data.error?.message || 'Falha ao gerar o poema.');
+
+    document.getElementById('input').value = data.content[0].text.trim();
+    if (forma === 'Acróstico'){
+      document.getElementById('formaAlvo').value = 'acrostico';
+      document.getElementById('campoPalavraAlvo').style.display = 'block';
+      document.getElementById('palavraAlvo').value = tema.toUpperCase();
+    } else {
+      document.getElementById('formaAlvo').value = 'auto';
+      document.getElementById('campoPalavraAlvo').style.display = 'none';
+    }
+    analisar();
+    document.getElementById('resultsStep').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    mostrarToast(`✦ ${heteronimo || 'O heterônimo'} escreveu um ${forma} novo.`);
+  } catch (e) {
+    mostrarToast('Erro ao gerar: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = textoOriginalBtn;
+  }
+}
 
 /* =========================================================
    DETECTORES
@@ -693,6 +807,7 @@ function baixarJSON(){
 }
 
 renderStagedList();
+_atualizarNotaHeteronimo();
 </script>
 </body>
 </html>

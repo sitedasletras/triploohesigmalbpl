@@ -159,7 +159,10 @@
 
 <header>
   <h1>Motor de Métrica <em>Ocidental</em></h1>
-  <div class="sub">SIGMAL · costela do triploohesigmalbpl</div>
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+    <div class="sub">SIGMAL · costela do triploohesigmalbpl</div>
+    <a href="index.html" style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;background:transparent;color:var(--tinta);border:1px solid var(--tinta);padding:8px 14px;border-radius:2px;text-decoration:none;">← SIGMAL HQ</a>
+  </div>
 </header>
 
 <div style="max-width:940px;margin:0 auto;padding:20px 20px 0;">
@@ -178,6 +181,31 @@
 </div>
 
 <main>
+
+  <div class="step" id="geradorStep">
+    <div class="step-label">00 · Gerador automático</div>
+    <h2>Fernando Peçanha escreve pra você</h2>
+    <div class="controls" style="margin-top:0;">
+      <select id="formaGerar" onchange="_atualizarNotaHeteronimo()" style="width:auto;min-width:220px;padding:10px 14px;">
+        <option value="Soneto">Soneto</option>
+        <option value="Trova">Trova</option>
+        <option value="Ghazal">Ghazal</option>
+        <option value="Pantum">Pantum</option>
+        <option value="Sextina">Sextina</option>
+        <option value="Cordel — Sextilha">Cordel — Sextilha</option>
+        <option value="Cordel — Sétima">Cordel — Sétima</option>
+        <option value="Cordel — Oitava">Cordel — Oitava</option>
+        <option value="Cordel — Décima">Cordel — Décima</option>
+        <option value="Poetrix">Poetrix</option>
+        <option value="Ode">Ode</option>
+      </select>
+    </div>
+    <textarea id="temaGerar" style="min-height:56px;margin-top:12px;" placeholder="Tema ou inspiração (opcional) — deixe em branco pra Fernando Peçanha escolher livremente."></textarea>
+    <div class="actions">
+      <button class="primary" id="btnGerar" onclick="gerarComFernandoPecanha()">🖋 Fernando Peçanha, escreva</button>
+    </div>
+    <p class="note" id="geradorHeteronimoNota"></p>
+  </div>
 
   <div class="step">
     <div class="step-label">01 · Texto</div>
@@ -256,6 +284,10 @@ De quem no amor perdido ainda se esconda.</textarea>
 
 <div class="toast" id="toast"></div>
 
+<script src="config.js"></script>
+<script src="heteronimos_roster.js"></script>
+<script src="biografias_heteronimos.js"></script>
+<script src="perfis_voz.js"></script>
 <script>
 /* =========================================================
    NÚCLEO DE SILABIZAÇÃO — PORTUGUÊS
@@ -509,6 +541,81 @@ const ROTEAMENTO = {
   "Cordel — Oitava": { heteronimo: "Jorge Cavalcanti", obs: "alternativa: Raimundo José da Silva Nonato (seca nordestina)" },
   "Cordel — Décima": { heteronimo: "Jorge Cavalcanti", obs: "alternativa: Raimundo José da Silva Nonato (seca nordestina)" }
 };
+
+/* =========================================================
+   GERADOR AUTOMÁTICO — Fernando Peçanha entrega a tarefa ao
+   heterônimo mapeado em ROTEAMENTO pra escrever um poema original
+   nessa forma, que cai direto no fluxo normal de análise (mesmo
+   texto que o usuário colaria à mão, só que gerado pela IA).
+   ========================================================= */
+const REGRAS_FORMA = {
+  "Soneto": "14 versos decassílabos (10 sílabas poéticas cada). Dois quartetos com rima ABBA ABBA, seguidos de dois tercetos com rima CDC DCD (ou CDE CDE). Sem título.",
+  "Trova": "4 versos heptassílabos (7 sílabas). Rima cruzada ABAB (versos 1-3 e 2-4 rimando entre si). Tom lírico/sentimental, popular brasileiro.",
+  "Ghazal": "Série de dísticos (no mínimo 4 versos, número par de versos), todos na mesma métrica. O 1º verso e o último verso de cada dístico seguinte terminam todos na MESMA palavra ou expressão fixa (o radif). A rima (qafia) vem logo antes do radif e deve ser consistente em todos esses versos.",
+  "Pantum": "Múltiplo de 4 versos (mínimo 8), organizados em quadras. O 2º e o 4º verso de cada quadra devem ser repetidos como o 1º e o 3º verso da quadra seguinte (encadeamento).",
+  "Sextina": "39 versos: 6 estrofes de 6 versos cada, mais um envio final de 3 versos. Usa 6 palavras-fim fixas que se repetem em TODAS as estrofes, rotacionando numa ordem espiral (a última palavra-fim da estrofe anterior vira a 1ª da próxima, e assim sucessivamente), e as 6 palavras-fim aparecem todas juntas no envio final.",
+  "Cordel — Sextilha": "6 versos setissílabos (7 sílabas cada). Rima nos versos pares (2º, 4º e 6º).",
+  "Cordel — Sétima": "7 versos setissílabos (7 sílabas cada). Rima entre os versos 2º, 4º, 5º e 7º.",
+  "Cordel — Oitava": "8 versos setissílabos (7 sílabas cada). Rima nos versos pares (2º, 4º, 6º e 8º).",
+  "Cordel — Décima": "10 versos setissílabos (7 sílabas cada). Rima nos versos pares (2º, 4º, 6º, 8º e 10º).",
+  "Poetrix": "3 versos + título obrigatório numa linha isolada antes, seguida de linha em branco (diferente do Haicai, que nunca leva título). Síntese extrema, multiplicidade de sentido, sem métrica fixa.",
+  "Ode": "Sem métrica fixa — tom elevado, celebratório ou contemplativo, estrutura livre em estrofes."
+};
+
+function _atualizarNotaHeteronimo(){
+  const forma = document.getElementById('formaGerar').value;
+  const rota = ROTEAMENTO[forma];
+  const nota = document.getElementById('geradorHeteronimoNota');
+  nota.textContent = rota && rota.heteronimo
+    ? `Fernando Peçanha vai entregar esta escrita a ${rota.heteronimo}.`
+    : 'Nenhum heterônimo mapeado ainda para esta forma — o poema sai sem assinatura definida.';
+}
+
+async function gerarComFernandoPecanha(){
+  const forma = document.getElementById('formaGerar').value;
+  const rota = ROTEAMENTO[forma];
+  const heteronimo = rota ? rota.heteronimo : '';
+  const tema = document.getElementById('temaGerar').value.trim();
+  const btn = document.getElementById('btnGerar');
+  const regras = REGRAS_FORMA[forma] || '';
+  const perfil = (heteronimo && typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(heteronimo) : '';
+
+  btn.disabled = true;
+  const textoOriginalBtn = btn.textContent;
+  btn.textContent = '✎ escrevendo...';
+  try {
+    const system = `Você é Fernando Peçanha, curador máximo da OHE — Oficina Heteronômica da Escrita. Você está entregando esta tarefa de escrita ao heterônimo ${heteronimo || 'disponível na Confraria'}, que agora assume a autoria do poema.
+
+FORMA PEDIDA: ${forma}
+REGRAS DA FORMA (siga rigorosamente): ${regras}${perfil}
+
+Escreva um poema ORIGINAL, em português, seguindo rigorosamente a métrica, a rima e a estrutura pedidas acima. Responda APENAS com o texto do poema — nunca com explicações, comentários, aspas ou marcação markdown.${forma === 'Poetrix' ? ' Comece com o título numa linha isolada, seguida de uma linha em branco, e só depois os 3 versos.' : ' Não inclua título, a menos que a forma acima exija.'}`;
+    const user = tema ? `Tema ou inspiração: ${tema}` : 'Escolha livremente um tema que combine com o território deste heterônimo.';
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: window.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+        max_tokens: window.ANTHROPIC_MAX_TOKENS || 1200,
+        system,
+        messages: [{ role: 'user', content: user }]
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.content || !data.content[0]) throw new Error(data.error?.message || 'Falha ao gerar o poema.');
+
+    document.getElementById('input').value = data.content[0].text.trim();
+    analisar();
+    document.getElementById('resultsStep').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    mostrarToast(`✦ ${heteronimo || 'O heterônimo'} escreveu um ${forma} novo.`);
+  } catch (e) {
+    mostrarToast('Erro ao gerar: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = textoOriginalBtn;
+  }
+}
 
 /* =========================================================
    DETECTORES DE FORMA
@@ -892,6 +999,7 @@ function baixarJSON(){
 }
 
 renderStagedList();
+_atualizarNotaHeteronimo();
 </script>
 </body>
 </html>
