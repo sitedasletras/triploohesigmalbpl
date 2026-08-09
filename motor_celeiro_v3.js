@@ -1089,14 +1089,27 @@ function corrigirViuvasOrfas(paginas,cfg,fmt){
     // acabava revertendo TUDO (inclusive correções boas) — visto na
     // prática ao mudar o tamanho do título/capitular, que desloca as
     // quebras de página e cria mais casos de órfã/viúva do que o normal.
-    if(ult&&ult.tipo==='prosa'&&!ult._linha&&ult.altEstimada<40&&pag.blocos.length>1
+    // ult._continuacao / primProx._continuacao+id: só reúne quando os dois
+    // pedaços são de fato metades do MESMO parágrafo dividido por altura
+    // (ver _dividirTextoPorAltura — parte2 carrega _continuacao e o mesmo
+    // id de parte1). Sem essa checagem, QUALQUER parágrafo completo e
+    // curto (uma frase só, tipo "Nael fechou a pasta.") que calhasse de
+    // ser o último bloco de uma página cheia era tratado como "órfão" e
+    // arrancado dali — às vezes indo parar sozinho numa página em branco
+    // reservada pro capítulo seguinte, mesmo sem ter irmão nenhum pra
+    // reunir. Bug real visto numa geração: página quase 100% vazia no
+    // meio do livro, com só essa frase solta, e a página anterior sobrando
+    // espaço que ela caberia tranquila.
+    const primProx=prox.blocos[0];
+    if(ult&&ult.tipo==='prosa'&&!ult._linha&&!ult._continuacao&&ult.altEstimada<40&&pag.blocos.length>1
+       &&primProx&&primProx._continuacao&&primProx.id===ult.id
        &&(prox.alturaUsada||0)+ult.altEstimada<=altUtil){
       pag.blocos.pop();pag.alturaUsada-=ult.altEstimada;
       prox.blocos.unshift(ult);prox.alturaUsada+=ult.altEstimada;
       ult._corrigido='orfa';
     }
     const prim=prox.blocos[0];
-    if(prim&&prim.tipo==='prosa'&&!prim._linha&&prim.altEstimada<40&&prox.blocos.length>1
+    if(prim&&prim.tipo==='prosa'&&!prim._linha&&prim._continuacao&&prim.altEstimada<40&&prox.blocos.length>1
        &&(pag.alturaUsada||0)+prim.altEstimada<=altUtil){
       prox.blocos.shift();prox.alturaUsada-=prim.altEstimada;
       pag.blocos.push(prim);pag.alturaUsada+=prim.altEstimada;
