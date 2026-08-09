@@ -166,6 +166,20 @@
         <input type="number" id="qtdGerar" value="1" min="1" max="40" style="width:70px;padding:8px 10px;">
       </label>
     </div>
+    <div id="campoClasseEstrofista" style="display:none;margin-top:12px;">
+      <label>Classe do Novo Movimento Estrofista</label>
+      <select id="classeEstrofista" style="width:auto;min-width:220px;padding:10px 14px;">
+        <option value="">Sem classe definida (livre)</option>
+        <option value="Gótica — Póstumo">Gótica — Póstumo</option>
+        <option value="Gótica — Milenar">Gótica — Milenar</option>
+        <option value="Gótica — Arquitetônico">Gótica — Arquitetônico</option>
+        <option value="Naturista">Naturista</option>
+        <option value="Platônico">Platônico</option>
+        <option value="Fábulas">Fábulas</option>
+        <option value="Singular">Singular</option>
+        <option value="Mista">Mista</option>
+      </select>
+    </div>
     <textarea id="temaGerar" style="min-height:56px;margin-top:12px;" placeholder="Tema ou inspiração (opcional) — deixe em branco pra Fernando Peçanha escolher livremente."></textarea>
     <div class="actions">
       <button id="btnGerar" onclick="gerarComFernandoPecanha()">🖋 Fernando Peçanha, escreva</button>
@@ -421,7 +435,7 @@ const ORIGENS = {
   "Balada": "Forma fixa francesa medieval, popularizada por François Villon no século XV: três estrofes iguais mais um envio curto, todas fechadas pelo mesmo verso-refrão — uma insistência que vai ganhando peso a cada repetição.",
   "Vilanela": "Originou-se como canção rústica italiana (villanella) e foi fixada como forma fixa poética na França do século XVI. Sua marca é a obsessão: duas linhas-refrão que voltam e se cruzam ao longo de 19 versos, como um pensamento que não sai da cabeça.",
   "Elegia": "Do grego 'elegos' (canto fúnebre), acompanhado originalmente por flauta. Não tem métrica fixa — é definida pelo tom de luto, perda ou lamento, não por uma estrutura de versos.",
-  "Estrofista": "Forma própria da casa (SIGMAL), não uma forma clássica herdada — organiza o poema em 7 estrofes num formato de losango (1-2-3-4-3-2-1 versos), com a estrofe central (4 versos) carregando o clímax e as pontas (1 verso cada) funcionando como semente e síntese. É a mesma estrutura que o Diagramador Estrofista (Espartano) usa pra paginar."
+  "Estrofista": "Movimento literário real, não uma forma clássica herdada — criado pelo heterônimo Juka Pituskaq em 28/05/2023. Organiza o poema (\"conjunto\") em 7 estrofes num formato de losango (1-2-3-4-3-2-1 versos), com a estrofe central (4 versos) carregando o clímax e as pontas (1 verso cada) funcionando como semente e síntese. Uma obra pode repetir o conjunto várias vezes (partes/capítulos). É a mesma estrutura que o Diagramador Estrofista (Espartano) usa pra paginar."
 };
 
 /* =========================================================
@@ -452,6 +466,21 @@ const REGRAS_FORMA = {
   "Estrofista": "7 estrofes SEPARADAS POR LINHA EM BRANCO, em formato de losango: 1 verso, depois 2, depois 3, depois 4 (o clímax, no centro), depois 3, depois 2, depois 1 verso (total 16 versos). A 1ª estrofe (1 verso) é a semente do poema; as duas seguintes (2 e 3 versos) desenvolvem; a 4ª (4 versos, o centro) é o clímax; as duas seguintes (3 e 2 versos) resolvem; a última (1 verso) sintetiza — ecoando ou respondendo à semente do início."
 };
 
+// Classes/subclasses temáticas do Novo Movimento Estrofista (Juka
+// Pituskaq, 28/05/2023) — cada uma define o universo temático que o
+// poema precisa habitar, injetada no prompt junto das REGRAS_FORMA
+// estruturais quando a forma pedida é "Estrofista".
+const CLASSES_ESTROFISTA = {
+  "Gótica — Póstumo": "Experiências próximas à morte, cemitérios, igrejas, templos, túmulos, criptas ou experiências pós-morte.",
+  "Gótica — Milenar": "Cruzadas, batalhas, guerras (independente da época — inclusive futuristas/ficção científica) e temas policiais. Evitar confundir com seres de fantasia.",
+  "Gótica — Arquitetônico": "Ruas, marquises, gárgulas e monumentos — elementos arquitetônicos góticos, sem entrar em temas póstumos ou de guerra.",
+  "Naturista": "O homem se integrando à natureza, ou a natureza em si.",
+  "Platônico": "O amor como algo a ser venerado — em formas e em sexo.",
+  "Fábulas": "Fábulas e seus personagens em atos, capítulos ou partes — figuras místicas, exceto gárgulas (que pertencem ao Gótica Arquitetônico).",
+  "Singular": "O autor busca o próprio eu através de mensagens ao mundo — pensamentos e ensinamentos diários da vida. Pode narrar em 1ª pessoa do singular (eu lírico), 3ª pessoa do singular (relatando algo/alguém), ou em 1ª/3ª pessoa do plural.",
+  "Mista": "Combina dois ou mais elementos de classes diferentes no mesmo poema (ex.: Naturista + Gótica Milenar — um deserto com a presença de um rei)."
+};
+
 function _atualizarNotaHeteronimo(){
   const forma = document.getElementById('formaGerar').value;
   const rota = ROTEAMENTO[forma];
@@ -463,6 +492,7 @@ function _atualizarNotaHeteronimo(){
   temaEl.placeholder = forma === 'Acróstico'
     ? 'Palavra-alvo do acróstico (obrigatório) — ex: AMOR. Uma palavra por linha se quiser gerar vários de uma vez.'
     : 'Tema ou inspiração (opcional) — deixe em branco pra Fernando Peçanha escolher livremente.';
+  document.getElementById('campoClasseEstrofista').style.display = forma === 'Estrofista' ? 'block' : 'none';
 }
 
 // Estimativa de tokens de SAÍDA por poema, só pra calcular o teto (max_tokens)
@@ -494,6 +524,8 @@ async function gerarComFernandoPecanha(){
   const btn = document.getElementById('btnGerar');
   const regras = REGRAS_FORMA[forma] || '';
   const perfil = (heteronimo && typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(heteronimo) : '';
+  const classe = forma === 'Estrofista' ? document.getElementById('classeEstrofista').value : '';
+  const regraClasse = classe ? `\nCLASSE DO NOVO MOVIMENTO ESTROFISTA (universo temático — siga rigorosamente): ${classe} — ${CLASSES_ESTROFISTA[classe]}` : '';
 
   btn.disabled = true;
   const textoOriginalBtn = btn.textContent;
@@ -502,7 +534,7 @@ async function gerarComFernandoPecanha(){
     const system = `Você é Fernando Peçanha, curador máximo da OHE — Oficina Heteronômica da Escrita. Você está entregando esta tarefa de escrita ao heterônimo ${heteronimo || 'disponível na Confraria'}, que agora assume a autoria do poema.
 
 FORMA PEDIDA: ${forma}
-REGRAS DA FORMA (siga rigorosamente): ${regras}${perfil}
+REGRAS DA FORMA (siga rigorosamente): ${regras}${regraClasse}${perfil}
 
 Escreva um poema ORIGINAL, em português, seguindo rigorosamente a estrutura pedida acima. Responda APENAS com o texto do poema, um verso por linha — nunca com explicações, comentários, aspas ou marcação markdown. Não inclua título.${forma === 'Estrofista' ? ' As 7 estrofes precisam vir SEPARADAS por uma linha em branco cada uma (sem isso não dá pra confirmar o formato de losango).' : ''}`;
     const user = forma === 'Acróstico'
@@ -559,6 +591,8 @@ async function gerarLote(forma, qtd, temasInformados){
   const btn = document.getElementById('btnGerar');
   const regras = REGRAS_FORMA[forma] || '';
   const perfil = (heteronimo && typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(heteronimo) : '';
+  const classe = forma === 'Estrofista' ? document.getElementById('classeEstrofista').value : '';
+  const regraClasse = classe ? `\nCLASSE DO NOVO MOVIMENTO ESTROFISTA (universo temático — siga rigorosamente em TODOS os poemas): ${classe} — ${CLASSES_ESTROFISTA[classe]}` : '';
 
   btn.disabled = true;
   const textoOriginalBtn = btn.textContent;
@@ -570,7 +604,7 @@ async function gerarLote(forma, qtd, temasInformados){
     const system = `Você é Fernando Peçanha, curador máximo da OHE — Oficina Heteronômica da Escrita. Você está entregando esta tarefa de escrita ao heterônimo ${heteronimo || 'disponível na Confraria'}, que agora assume a autoria de todos os poemas abaixo.
 
 FORMA PEDIDA: ${forma}
-REGRAS DA FORMA (siga rigorosamente em TODOS os poemas): ${regras}${perfil}
+REGRAS DA FORMA (siga rigorosamente em TODOS os poemas): ${regras}${regraClasse}${perfil}
 
 Escreva ${totalPoemas} poemas ORIGINAIS e DIFERENTES entre si, todos na forma pedida:
 ${pedidos}
