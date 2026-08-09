@@ -632,6 +632,11 @@ function getCfg(){
       :$('ornamento').value,
     capitularTamanho:parseFloat($('capitularTamanho').value)||1,
     tituloTamanho:parseFloat($('tituloTamanho').value)||1.6,
+    // Alinhamento individual de rótulo/título por capítulo — ver lista na
+    // Prévia do Sumário. Objeto vive fora do cfg (estado do módulo),
+    // repassado aqui pra CeleiroV3.preparar() aplicar na hora de desenhar
+    // cada capítulo.
+    alinhamentosCapitulo,
     hifenizacao:$('hifenizacao').value==='true',
     correcao:$('correcao').value,
     numeracao:$('numeracao').value,
@@ -695,18 +700,42 @@ function render(){
   }
 }
 
+// Alinhamento individual do rótulo/título de cada capítulo — {blocoId:
+// 'left'|'center'|'right'}. Estado local do módulo (não vem de
+// CeleiroV3.preparar()); persiste entre re-renders porque os ids dos
+// blocos são regenerados de forma determinística a partir do mesmo texto
+// (mesmo texto → mesmos ids), então a escolha continua valendo até o
+// usuário editar o texto de um jeito que desloque a ordem dos blocos.
+let alinhamentosCapitulo={};
+
+function _paginaDoBloco(id){
+  if(!resultado) return null;
+  for(let i=0;i<resultado.paginas.length;i++){
+    if(resultado.paginas[i].blocos.some(b=>b.id===id)) return i+1;
+  }
+  return null;
+}
+
 function atualizarPreviaSumario(){
   const box=$('previaSumarioBox'), lista=$('previaSumarioLista');
   if(!box||!lista||!resultado) return;
-  if(!window.CeleiroJuncao){ box.style.display='none'; return; }
-  const capitulos=CeleiroJuncao.extrairCapitulosDoMiolo(resultado.paginas||[], 1);
+  const capitulos=resultado.blocos.filter(b=>b.tipo==='capitulo');
   if(!capitulos.length){ box.style.display='none'; return; }
-  lista.innerHTML=capitulos.map(c=>`
-    <div onclick="irParaPaginaSumario(${c.pagina})" title="Ir para a página ${c.pagina}" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:.1em;padding:.2em .4em;border-radius:5px;cursor:pointer;transition:background .12s;" onmouseover="this.style.background='rgba(0,0,0,.06)'" onmouseout="this.style.background='transparent'">
-      <span>${(c.titulo||'').replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]))}</span>
-      <span style="border-bottom:1px dotted #ccc;flex:1;margin:0 6px;min-width:16px"></span>
-      <span style="color:var(--muted);flex-shrink:0">${c.pagina}</span>
-    </div>`).join('');
+  lista.innerHTML=capitulos.map(c=>{
+    const pag=_paginaDoBloco(c.id);
+    const titulo=(c.conteudo||'').replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]));
+    const alinhAtual=alinhamentosCapitulo[c.id]||'center';
+    return `
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:.15em;padding:.2em .4em;border-radius:5px;">
+      <span ${pag?`onclick="irParaPaginaSumario(${pag})" title="Ir para a página ${pag}" style="cursor:pointer;"`:''} style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${titulo}</span>
+      <select class="sel" style="width:auto;font-size:.68rem;padding:.1em .3em;flex-shrink:0;" title="Alinhamento deste capítulo" onchange="alinhamentosCapitulo['${c.id}']=this.value;render();">
+        <option value="left" ${alinhAtual==='left'?'selected':''}>⇤ Esquerda</option>
+        <option value="center" ${alinhAtual==='center'?'selected':''}>↔ Centro</option>
+        <option value="right" ${alinhAtual==='right'?'selected':''}>Direita ⇥</option>
+      </select>
+      <span style="color:var(--muted);flex-shrink:0;font-size:.75rem;">${pag||''}</span>
+    </div>`;
+  }).join('');
   box.style.display='block';
 }
 
