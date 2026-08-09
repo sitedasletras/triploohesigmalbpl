@@ -400,6 +400,31 @@ function parseFundoPagina(bloco){
   return { url:m[1], opacidade:opts.opacidade?parseFloat(opts.opacidade):0.12 };
 }
 
+// Autores costumam digitar o marcador ::fundo[] numa linha e seguir
+// direto pro parágrafo na linha de baixo (uma só quebra de linha, sem
+// linha em branco). Sem isso, o marcador fica colado ao parágrafo no
+// mesmo bloco e parseFundoPagina() (que exige o bloco INTEIRO seja só
+// o marcador) falha, deixando a sintaxe crua vazar pro texto final.
+// Aqui separamos a linha do marcador do resto do bloco antes desse
+// bloco virar objeto, então parseFundoPagina() sempre recebe o
+// marcador sozinho.
+function _separarFundoDoInicio(brutos){
+  const saida=[];
+  brutos.forEach(item=>{
+    if(typeof item!=='string'){ saida.push(item); return; }
+    const quebra=item.indexOf('\n');
+    const primeiraLinha=(quebra===-1?item:item.slice(0,quebra)).trim();
+    if(quebra!==-1 && RE_FUNDO_PAGINA.test(primeiraLinha)){
+      saida.push(primeiraLinha);
+      const resto=item.slice(quebra+1).trim();
+      if(resto) saida.push(resto);
+    } else {
+      saida.push(item);
+    }
+  });
+  return saida;
+}
+
 function quebrarBlocos(texto, modulo){
   // brutos mistura strings (texto normal, ainda por quebrar em
   // parágrafo) com objetos {pagina:true,...} (página especial, atômica)
@@ -414,6 +439,7 @@ function quebrarBlocos(texto, modulo){
   if(modulo==='espartano') return quebrarEstrofista(brutos.filter(b=>typeof b==='string'));
   if(modulo==='apolo') return quebrarSoneto(brutos.filter(b=>typeof b==='string'));
 
+  brutos=_separarFundoDoInicio(brutos);
   if(MODULOS_COM_DIALOGO.has(modulo)) brutos=_separarFalaColada(brutos);
 
   return brutos.map((item,i)=>{
