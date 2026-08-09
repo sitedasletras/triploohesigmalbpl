@@ -866,12 +866,22 @@ function _dividirCapitularEmLinhas(bloco, cfg, fmt){
 // Identifica (por referência de objeto) qual bloco 'prosa' é o candidato
 // a capitular em cada capítulo: o primeiro 'prosa' depois de cada
 // 'capitulo' (ou o primeiro do documento, se vier antes de qualquer
-// capítulo) — a mesma regra que estimarAltura/detectarOverflowPaginas já
-// aplicam por página, calculada aqui uma vez pra todo o documento, já que
-// a ordem dos blocos nunca muda durante a paginação.
+// capítulo, MAS só quando a obra não tem capítulo nenhum — conto sem
+// divisão, por exemplo) — a mesma regra que estimarAltura/
+// detectarOverflowPaginas já aplicam por página, calculada aqui uma vez
+// pra todo o documento, já que a ordem dos blocos nunca muda durante a
+// paginação.
+//
+// Antes disso, um livro com "Título\nAutor: Fulano" colado no topo do
+// texto colado (antes do 1º "CAPÍTULO 1") virava esse "primeiro prosa
+// da obra" e ganhava letra capitular gigante na página de rosto — bug
+// real visto numa geração. Quando a obra TEM capítulo, o prosa antes do
+// 1º capítulo (falso "miolo") nunca é candidato; só o que vem depois de
+// cada capítulo de verdade.
 function _identificarBlocosCapitulares(blocos){
   const candidatos=new Set();
-  let capApl=false;
+  const temCapitulos=blocos.some(b=>b.tipo==='capitulo');
+  let capApl=temCapitulos;
   blocos.forEach(b=>{
     if(b.tipo==='capitulo'){ capApl=false; return; }
     if(b.tipo==='prosa'&&!capApl){ candidatos.add(b); capApl=true; }
@@ -889,7 +899,13 @@ function _prepararBlocosParaGrade(blocos, cfg, fmt){
   if(!medidor) return {blocos, alturaLinha:_alturaMinimaDivisao(cfg), capitulares};
 
   const alturaLinha=_medirAlturaLinha(cfg,fmt);
-  const temCapitularFixa=cfg.capitular&&cfg.capitular!=='none'&&!cfg.decoracao;
+  // cfg.decoracao só acrescenta o divisor ornamental abaixo do título do
+  // capítulo (ver renderizarBloco, caso 'capitulo') — não muda como a
+  // LETRA capitular em si é desenhada, então não precisa desligar a
+  // medição precisa por grade de linhas (evita reintroduzir o estouro de
+  // página que motivou essa grade, só porque o usuário também escolheu
+  // um ornamento de capítulo).
+  const temCapitularFixa=cfg.capitular&&cfg.capitular!=='none';
   const resultado=[];
   blocos.forEach(bloco=>{
     if(bloco.tipo!=='prosa'){
