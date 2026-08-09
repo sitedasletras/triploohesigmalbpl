@@ -313,6 +313,22 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
       <div class="arcos-lista" id="arcos-lista"></div>
     </div>
 
+    <div class="fg">
+      <label class="fl">Textos Editoriais</label>
+      <div style="display:flex;gap:1.4rem;flex-wrap:wrap;font-family:'Crimson Pro',serif;font-size:.85rem;color:rgba(200,170,255,.85);">
+        <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;">
+          <input type="checkbox" id="gerar-sinopse" checked style="width:auto;"> Gerar sinopse
+        </label>
+        <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;">
+          <input type="checkbox" id="gerar-prefacio" checked style="width:auto;"> Gerar prefácio (2º autor)
+        </label>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:.58rem;color:rgba(200,170,255,.4);margin-top:.3rem;">
+        ✦ Sinopse: Fernando Peçanha escreve a partir do livro pronto — obra, gênero e território, sem entregar o final.<br>
+        ✦ Prefácio: escrito por um SEGUNDO heterônimo (nunca o autor principal) — Fernando Peçanha escolhe quem apresenta a obra.
+      </div>
+    </div>
+
     <div class="acoes">
       <button class="btn-p" onclick="iniciarGeracao()">⚡ GERAR LIVRO</button>
       <button class="btn-s" onclick="limpar()">✕ LIMPAR</button>
@@ -474,6 +490,83 @@ function montarBlocoVozHeteronimo(nome) {
     : '';
   const blocoPerfil = (typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(nome) : '';
   return blocoBio + blocoPerfil;
+}
+
+// ===================== SINOPSE + PREFÁCIO =====================
+// Pedido do Wagner: sinopse e prefácio gerados automaticamente ao final
+// de todo livro (prosa ou poesia), com opção de ligar/desligar cada um.
+// O prefácio é escrito por um SEGUNDO heterônimo (nunca o autor
+// principal do livro) — Fernando Peçanha escolhe quem, já que o autor
+// principal está ocupado escrevendo o próprio texto.
+let sinopseGerada = '';
+let prefacioGerado = '';
+let heteronimoPrefacio = '';
+
+async function gerarSinopseEPrefacio(titulo, heteronimoPrincipal, genero, livroTexto){
+  sinopseGerada = '';
+  prefacioGerado = '';
+  heteronimoPrefacio = '';
+  const querSinopse = document.getElementById('gerar-sinopse')?.checked;
+  const querPrefacio = document.getElementById('gerar-prefacio')?.checked;
+  if (!querSinopse && !querPrefacio) return;
+
+  // Início + fim do livro só, pra não gastar um prompt gigante em livros
+  // longos — dá contexto suficiente de premissa e tom sem custar caro.
+  const trecho = livroTexto.length > 6000
+    ? livroTexto.slice(0, 3000) + '\n\n[...]\n\n' + livroTexto.slice(-2000)
+    : livroTexto;
+
+  if (querSinopse){
+    log('Fernando Peçanha escrevendo a sinopse...');
+    const promptSinopse = `Você é Fernando Peçanha, curador da OHE. Acabou de supervisionar "${titulo}", de ${heteronimoPrincipal} (gênero: ${genero || 'não definido'}).
+
+TRECHO DO LIVRO (início e fim):
+${trecho}
+
+Escreva a SINOPSE de contracapa deste livro — 100 a 200 palavras, envolvente, que apresente a premissa e o tom da obra SEM entregar o desfecho. Responda APENAS com o texto da sinopse, sem título, sem introduções.`;
+    try {
+      sinopseGerada = (await chamarAPI(promptSinopse, 600)).trim();
+      log('✓ Sinopse gerada.');
+    } catch (e) {
+      console.error('Falha ao gerar sinopse:', e);
+      log('✗ Falha ao gerar sinopse: ' + e.message);
+    }
+  }
+
+  if (querPrefacio){
+    log('Fernando Peçanha escolhendo o segundo autor do prefácio...');
+    const promptEscolha = `Você é Fernando Peçanha, curador da OHE, com os seguintes heterônimos disponíveis:
+${HETERONIMOS_LISTA.join(', ')}
+
+O heterônimo ${heteronimoPrincipal} acabou de escrever "${titulo}" (gênero: ${genero || 'não definido'}). Como ${heteronimoPrincipal} já está ocupado com a autoria do texto principal, você precisa escolher um SEGUNDO heterônimo — diferente de ${heteronimoPrincipal} — para escrever o prefácio, apresentando a obra sob outro olhar (pode ser de território ou tradição diferente do autor principal, olhando de fora).
+
+Responda APENAS com o nome completo e exato de um heterônimo da lista acima — nunca ${heteronimoPrincipal}.`;
+    try {
+      const respostaNome = (await chamarAPI(promptEscolha, 60)).trim();
+      const alvo = (typeof getHeteronimoPorNome === 'function') ? getHeteronimoPorNome(respostaNome) : null;
+      heteronimoPrefacio = (alvo ? alvo.nome : respostaNome) || '';
+      if (heteronimoPrefacio && heteronimoPrefacio !== heteronimoPrincipal){
+        log(`${heteronimoPrefacio} escrevendo o prefácio...`);
+        const vozSegundoAutor = montarBlocoVozHeteronimo(heteronimoPrefacio);
+        const promptPrefacio = `Você é ${heteronimoPrefacio}, heterônimo da OHE.${vozSegundoAutor}
+
+Fernando Peçanha te convidou para escrever o PREFÁCIO do livro "${titulo}", de ${heteronimoPrincipal} (gênero: ${genero || 'não definido'}).
+
+TRECHO DO LIVRO (início e fim), pra você se basear:
+${trecho}
+
+Escreva o prefácio em sua própria voz (300 a 500 palavras) — apresentando a obra e o(a) autor(a) ao leitor, com sua perspectiva pessoal de colega de ofício, não um resumo do enredo. Responda APENAS com o texto do prefácio — sem o título "Prefácio" e sem assinatura ao final (a assinatura é adicionada automaticamente).`;
+        prefacioGerado = (await chamarAPI(promptPrefacio, 1200)).trim();
+        log('✓ Prefácio gerado por ' + heteronimoPrefacio + '.');
+      } else {
+        heteronimoPrefacio = '';
+        log('✗ Fernando Peçanha não conseguiu escolher um segundo autor válido — prefácio ficou sem gerar.');
+      }
+    } catch (e) {
+      console.error('Falha ao gerar prefácio:', e);
+      log('✗ Falha ao gerar prefácio: ' + e.message);
+    }
+  }
 }
 
 // ===================== INIT =====================
@@ -1316,6 +1409,7 @@ Escreva uma revisão editorial (máximo 3 parágrafos):
     // ── Limpar checkpoints — geração concluída com sucesso ──
     limparCheckpoints();
     liberarWakeLock();
+    await gerarSinopseEPrefacio(tituloFinal, heteronimoEscolhido, genero, livroCompleto);
     mostrarResultado(destinoFinal, novoHeteronimoCriado);
     detectarCorteEAgendarCostura();
 
@@ -1952,6 +2046,7 @@ Escreva ~${Math.round(pagsPorVol * 250)} palavras. Comece diretamente.`;
     limparCheckpoints();
 
     liberarWakeLock();
+    await gerarSinopseEPrefacio(titulo, heteronimoEscolhido || heteronimo, genero, livroCompleto);
     mostrarResultado(destino, false);
     log(`✦ SAGA COMPLETA — ${nVolumes} volumes gerados!`);
 
@@ -2400,6 +2495,12 @@ function mostrarResultado(destino, novoHet) {
   // Montar livro completo com estrutura editorial
   const anoAtual = new Date().getFullYear();
   const volumeVal = document.getElementById('volume').value;
+  const blocoSinopse = sinopseGerada
+    ? `SINOPSE\n\n${sinopseGerada}\n\n${'━'.repeat(60)}\n\n`
+    : '';
+  const blocoPrefacio = prefacioGerado
+    ? `PREFÁCIO\n\n${prefacioGerado}\n\n— ${heteronimoPrefacio}\n\nSite das Letras Edições Literárias\n\n${'━'.repeat(60)}\n\n`
+    : `PREFÁCIO\n\n[Não gerado nesta edição]\n\nSite das Letras Edições Literárias\n\n${'━'.repeat(60)}\n\n`;
   const livroEditorial = `SITE DAS LETRAS EDIÇÕES LITERÁRIAS
 #${heteronimoEscolhido}
 
@@ -2436,15 +2537,7 @@ B-869._
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-PREFÁCIO
-
-[A ser gerado por heterônimo secundário]
-
-Site das Letras Edições Literárias
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-SUMÁRIO
+${blocoSinopse}${blocoPrefacio}SUMÁRIO
 
 Prólogo (se houver)
 Capítulos

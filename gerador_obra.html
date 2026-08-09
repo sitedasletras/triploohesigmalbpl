@@ -846,6 +846,17 @@
         <input type="checkbox" id="exp-incluir-etapas" checked style="width:auto">
         Incluir etapa do arco em cada capítulo
       </label>
+      <div class="section-label" style="margin-bottom:0;margin-top:6px">// Textos editoriais</div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:11px;cursor:pointer">
+        <input type="checkbox" id="exp-gerar-sinopse" checked style="width:auto">
+        Gerar sinopse
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:11px;cursor:pointer">
+        <input type="checkbox" id="exp-gerar-prefacio" checked style="width:auto">
+        Gerar prefácio (2º autor, nunca o mesmo heterônimo do texto)
+      </label>
+      <button class="modo-btn" id="btn-gerar-sinopse-prefacio" onclick="gerarSinopseEPrefacioObra()" style="width:auto;align-self:flex-start;padding:6px 14px">🖋 Gerar Sinopse/Prefácio</button>
+      <div id="status-sinopse-prefacio" style="font-size:10.5px;letter-spacing:0.5px;min-height:14px"></div>
     </div>
 
     <!-- CONFIG MODO CONCURSO -->
@@ -2002,6 +2013,108 @@ function recalcularConcurso() {
     aviso.startsWith('⚠') ? 'var(--danger)' : 'var(--accent2)';
 }
 
+// ─── SINOPSE + PREFÁCIO (2º AUTOR) ────────────────────────────────────────────
+// Pedido do Wagner: todo gerador de livro (prosa ou poesia) precisa de um
+// gerador de sinopse e um de prefácio, com botão pra ligar/desligar cada um.
+// O prefácio é escrito por um SEGUNDO heterônimo — nunca o mesmo que já
+// escreveu o texto principal, que está ocupado com a autoria da obra.
+let sinopseObraGerada = '';
+let prefacioObraGerado = '';
+let heteronimoPrefacioObra = '';
+
+async function _chamarClaudeObra(system, user, maxTokens){
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: maxTokens,
+      system,
+      messages: [{ role: 'user', content: user }]
+    })
+  });
+  const data = await resp.json();
+  if (!resp.ok || !data.content || !data.content[0]) throw new Error(data.error?.message || 'Falha na chamada à IA.');
+  return data.content[0].text.trim();
+}
+
+async function gerarSinopseEPrefacioObra(){
+  const querSinopse = document.getElementById('exp-gerar-sinopse').checked;
+  const querPrefacio = document.getElementById('exp-gerar-prefacio').checked;
+  const status = document.getElementById('status-sinopse-prefacio');
+  if (!querSinopse && !querPrefacio){ status.textContent = 'Nenhum dos dois está marcado.'; return; }
+
+  const h = HETERONIMOS[estado.heteronimo];
+  const caps = estado.capitulos.filter(c => c.gerado);
+  if (!h || !caps.length){ status.textContent = 'Gere pelo menos um capítulo primeiro.'; return; }
+
+  const livroTexto = caps.map(c => c.conteudo).join('\n\n');
+  const trecho = livroTexto.length > 6000
+    ? livroTexto.slice(0, 3000) + '\n\n[...]\n\n' + livroTexto.slice(-2000)
+    : livroTexto;
+
+  const btn = document.getElementById('btn-gerar-sinopse-prefacio');
+  btn.disabled = true;
+  sinopseObraGerada = '';
+  prefacioObraGerado = '';
+  heteronimoPrefacioObra = '';
+
+  try {
+    if (querSinopse){
+      status.textContent = 'Fernando Peçanha escrevendo a sinopse...';
+      const promptSinopse = `Você é Fernando Peçanha, curador da OHE. Acabou de supervisionar "${estado.tituloObra}", de ${h.nome} (tema: ${estado.tema || 'não definido'}).
+
+TRECHO DO LIVRO (início e fim):
+${trecho}
+
+Escreva a SINOPSE de contracapa deste livro — 100 a 200 palavras, envolvente, que apresente a premissa e o tom da obra SEM entregar o desfecho. Responda APENAS com o texto da sinopse, sem título, sem introduções.`;
+      sinopseObraGerada = await _chamarClaudeObra(null, promptSinopse, 600);
+      status.textContent = '✓ Sinopse gerada.';
+    }
+
+    if (querPrefacio){
+      status.textContent = 'Fernando Peçanha escolhendo o segundo autor do prefácio...';
+      const listaNomes = Object.values(HETERONIMOS).map(x => x.nome);
+      const promptEscolha = `Você é Fernando Peçanha, curador da OHE, com os seguintes heterônimos disponíveis:
+${listaNomes.join(', ')}
+
+O heterônimo ${h.nome} acabou de escrever "${estado.tituloObra}" (tema: ${estado.tema || 'não definido'}). Como ${h.nome} já está ocupado com a autoria do texto principal, você precisa escolher um SEGUNDO heterônimo — diferente de ${h.nome} — para escrever o prefácio, apresentando a obra sob outro olhar (pode ser de território ou tradição diferente do autor principal, olhando de fora).
+
+Responda APENAS com o nome completo e exato de um heterônimo da lista acima — nunca ${h.nome}.`;
+      const respostaNome = await _chamarClaudeObra(null, promptEscolha, 60);
+      const alvo = (typeof getHeteronimoPorNome === 'function') ? getHeteronimoPorNome(respostaNome) : null;
+      heteronimoPrefacioObra = (alvo ? alvo.nome : respostaNome) || '';
+
+      if (heteronimoPrefacioObra && heteronimoPrefacioObra !== h.nome){
+        status.textContent = `${heteronimoPrefacioObra} escrevendo o prefácio...`;
+        const bioSegundo = (typeof getBiografiaPorNome === 'function') ? getBiografiaPorNome(heteronimoPrefacioObra) : null;
+        const blocoBioSegundo = bioSegundo
+          ? `\n\nSUA BIOGRAFIA (use como base real do seu estilo de fala/escrita):\n${bioSegundo}`
+          : '';
+        const blocoPerfilSegundo = (typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(heteronimoPrefacioObra) : '';
+        const systemPrefacio = `Você é ${heteronimoPrefacioObra}, heterônimo da OHE.${blocoBioSegundo}${blocoPerfilSegundo}`;
+        const promptPrefacio = `Fernando Peçanha te convidou para escrever o PREFÁCIO do livro "${estado.tituloObra}", de ${h.nome} (tema: ${estado.tema || 'não definido'}).
+
+TRECHO DO LIVRO (início e fim), pra você se basear:
+${trecho}
+
+Escreva o prefácio em sua própria voz (300 a 500 palavras) — apresentando a obra e o(a) autor(a) ao leitor, com sua perspectiva pessoal de colega de ofício, não um resumo do enredo. Responda APENAS com o texto do prefácio — sem o título "Prefácio" e sem assinatura ao final (a assinatura é adicionada automaticamente).`;
+        prefacioObraGerado = await _chamarClaudeObra(systemPrefacio, promptPrefacio, 1200);
+        status.textContent = '✓ Sinopse e prefácio prontos.';
+      } else {
+        heteronimoPrefacioObra = '';
+        status.textContent = '✗ Fernando Peçanha não conseguiu escolher um segundo autor válido — prefácio não gerado.';
+      }
+    } else {
+      status.textContent = '✓ Sinopse pronta.';
+    }
+  } catch (e) {
+    status.textContent = '✗ Erro: ' + e.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 // ─── MONTAR TEXTO FINAL ───────────────────────────────────────────────────────
 function montarTexto(modoConcurso) {
   const h = HETERONIMOS[estado.heteronimo];
@@ -2065,8 +2178,10 @@ function montarTexto(modoConcurso) {
       textoBase += `\n${cap.conteudo}`;
     });
 
-    const cabecalho = `${estado.tituloObra.toUpperCase()}\n${h.nome}\n`;
+    let cabecalho = `${estado.tituloObra.toUpperCase()}\n${h.nome}\n`;
     if (incluirArco) cabecalho + `\n${h.arco} · ${h.eixo}\n`;
+    if (sinopseObraGerada) cabecalho += `\n${'─'.repeat(40)}\n\nSINOPSE\n\n${sinopseObraGerada}\n`;
+    if (prefacioObraGerado) cabecalho += `\n${'─'.repeat(40)}\n\nPREFÁCIO\n\n${prefacioObraGerado}\n\n— ${heteronimoPrefacioObra}\n`;
     return { texto: cabecalho + textoBase, titulo: estado.tituloObra, autor: h.nome };
   }
 }
