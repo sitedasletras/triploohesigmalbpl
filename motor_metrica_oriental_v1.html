@@ -275,6 +275,11 @@
         <option value="Katauta">Katauta (5-7-7)</option>
         <option value="Renga / Renku">Renga / Renku (estrofes 5-7-5 / 7-7)</option>
       </select>
+    </div>
+    <label style="display:block;margin-top:14px;">Instrução livre (opcional)</label>
+    <textarea id="instrucaoLivre" style="min-height:70px;" placeholder='Escreva livremente o que você quer, sobre o que, quantos, como agrupar etc. Ex.: "quero Haicais que falem sobre as 4 estações do ano, separados em blocos". Preenchendo aqui, os campos de tema/quantidade abaixo são ignorados — Fernando Peçanha decide sozinho quantos poemas escrever a partir da sua instrução.'></textarea>
+    <label style="display:block;margin-top:14px;">— ou use os campos estruturados —</label>
+    <div class="controls" style="margin-top:0;">
       <label style="display:flex;align-items:center;gap:6px;">
         Quantidade por tema
         <input type="number" id="qtdGerar" value="1" min="1" max="40" style="width:70px;padding:8px 10px;">
@@ -602,6 +607,9 @@ function _escaparHtmlLote(s){
 
 async function gerarComFernandoPecanha(){
   const forma = document.getElementById('formaGerar').value;
+  const instrucaoLivre = document.getElementById('instrucaoLivre').value.trim();
+  if (instrucaoLivre) return gerarComInstrucaoLivre(forma, instrucaoLivre);
+
   const qtd = Math.max(1, parseInt(document.getElementById('qtdGerar').value, 10) || 1);
   const temas = document.getElementById('temaGerar').value.split('\n').map(t => t.trim()).filter(Boolean);
 
@@ -700,6 +708,55 @@ Formate a resposta EXATAMENTE assim: cada poema antecedido por uma linha delimit
     mostrarToast(`✦ ${HETERONIMO_ORIENTAL} escreveu ${poemas.length} de ${totalPoemas} poemas pedidos.`);
   } catch (e) {
     mostrarToast('Erro ao gerar lote: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = textoOriginalBtn;
+  }
+}
+
+// Instrução livre: em vez dos campos estruturados (tema por linha ×
+// quantidade), o usuário escreve num campo só o que quer, sobre o que,
+// quantos e como agrupar — Fernando Peçanha decide sozinho quantos
+// poemas escrever a partir disso. Sempre passa pelo mesmo parser de
+// lote (mesmo formato "@@@ N | tema @@@"), mesmo que decida escrever
+// só 1 poema — a lista de resultado funciona igual com 1 ou com 40.
+async function gerarComInstrucaoLivre(forma, instrucao){
+  const btn = document.getElementById('btnGerar');
+  const regras = REGRAS_FORMA[forma] || '';
+  const perfil = (typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(HETERONIMO_ORIENTAL) : '';
+
+  btn.disabled = true;
+  const textoOriginalBtn = btn.textContent;
+  btn.textContent = '✎ escrevendo...';
+  try {
+    const system = `Você é Fernando Peçanha, curador máximo da OHE — Oficina Heteronômica da Escrita. Você está entregando esta tarefa de escrita ao heterônimo ${HETERONIMO_ORIENTAL}, especialista nas formas poéticas orientais, que agora assume a autoria de tudo que for pedido abaixo.
+
+FORMA PEDIDA: ${forma}
+REGRAS DA FORMA (siga rigorosamente a contagem silábica de cada verso, em TODOS os poemas): ${regras}${perfil}
+
+INSTRUÇÃO DO USUÁRIO — siga à risca pra decidir quantos poemas escrever, sobre o que, e como agrupá-los: "${instrucao}"
+
+Decida sozinho, a partir da instrução acima, quantos poemas escrever (pode ser 1 só ou vários). Formate a resposta EXATAMENTE assim: cada poema antecedido por uma linha delimitadora sozinha no formato "@@@ N | tema @@@" (N = número sequencial a partir de 1; tema = o tema/bloco daquele poema específico, em poucas palavras — mesmo que seja só 1 poema, use o delimitador). Não escreva nada antes do primeiro delimitador, nada entre os poemas além do delimitador do próximo, e nada depois do último poema. Não inclua título. Não use markdown.`;
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: window.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+        max_tokens: 8192,
+        system,
+        messages: [{ role: 'user', content: 'Siga a instrução acima e escreva o que for pedido.' }]
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.content || !data.content[0]) throw new Error(data.error?.message || 'Falha ao gerar.');
+
+    const poemas = _parsearLote(data.content[0].text);
+    if (!poemas.length) throw new Error('A resposta não veio no formato esperado — tente de novo.');
+    _renderizarLote(poemas, forma, HETERONIMO_ORIENTAL, 'Motor de Métrica Oriental');
+    mostrarToast(`✦ ${HETERONIMO_ORIENTAL} escreveu ${poemas.length} poema(s) a partir da sua instrução.`);
+  } catch (e) {
+    mostrarToast('Erro ao gerar: ' + e.message);
   } finally {
     btn.disabled = false;
     btn.textContent = textoOriginalBtn;

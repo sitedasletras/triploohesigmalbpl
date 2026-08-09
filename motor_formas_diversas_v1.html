@@ -161,6 +161,11 @@
         <option value="Vilanela">Vilanela</option>
         <option value="Estrofista">Estrofista (losango 1-2-3-4-3-2-1)</option>
       </select>
+    </div>
+    <label style="display:block;margin-top:14px;">Instrução livre (opcional)</label>
+    <textarea id="instrucaoLivre" style="min-height:70px;" placeholder='Escreva livremente o que você quer, sobre o que, quantos, como agrupar etc. Ex.: "quero Limeriques que falem sobre as 4 estações do ano, separados em blocos". Preenchendo aqui, os campos de tema/quantidade abaixo são ignorados — Fernando Peçanha decide sozinho quantos poemas escrever a partir da sua instrução.'></textarea>
+    <label style="display:block;margin-top:14px;">— ou use os campos estruturados —</label>
+    <div class="controls" style="margin-top:0;">
       <label style="display:flex;align-items:center;gap:6px;">
         Quantidade por tema
         <input type="number" id="qtdGerar" value="1" min="1" max="40" style="width:70px;padding:8px 10px;">
@@ -509,6 +514,9 @@ function _escaparHtmlLote(s){
 
 async function gerarComFernandoPecanha(){
   const forma = document.getElementById('formaGerar').value;
+  const instrucaoLivre = document.getElementById('instrucaoLivre').value.trim();
+  if (instrucaoLivre) return gerarComInstrucaoLivre(forma, instrucaoLivre);
+
   const qtd = Math.max(1, parseInt(document.getElementById('qtdGerar').value, 10) || 1);
   const temas = document.getElementById('temaGerar').value.split('\n').map(t => t.trim()).filter(Boolean);
   if (forma === 'Acróstico' && !temas.length){
@@ -633,6 +641,61 @@ Formate a resposta EXATAMENTE assim: cada poema antecedido por uma linha delimit
     mostrarToast(`✦ ${heteronimo || 'O heterônimo'} escreveu ${poemas.length} de ${totalPoemas} poemas pedidos.`);
   } catch (e) {
     mostrarToast('Erro ao gerar lote: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = textoOriginalBtn;
+  }
+}
+
+// Instrução livre: em vez dos campos estruturados (tema por linha ×
+// quantidade), o usuário escreve num campo só o que quer, sobre o que,
+// quantos e como agrupar — Fernando Peçanha decide sozinho quantos
+// poemas escrever a partir disso. Sempre passa pelo mesmo parser de
+// lote (mesmo formato "@@@ N | tema @@@"), mesmo que decida escrever
+// só 1 poema. No Acróstico, o "tema" de cada delimitador ainda é a
+// palavra-alvo daquele poema — a IA extrai isso sozinha da instrução
+// (ex.: "acrósticos com AMOR, PAZ e LUZ").
+async function gerarComInstrucaoLivre(forma, instrucao){
+  const rota = ROTEAMENTO[forma];
+  const heteronimo = rota ? rota.heteronimo : '';
+  const btn = document.getElementById('btnGerar');
+  const regras = REGRAS_FORMA[forma] || '';
+  const perfil = (heteronimo && typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(heteronimo) : '';
+  const classe = forma === 'Estrofista' ? document.getElementById('classeEstrofista').value : '';
+  const regraClasse = classe ? `\nCLASSE DO NOVO MOVIMENTO ESTROFISTA (universo temático — siga rigorosamente): ${classe} — ${CLASSES_ESTROFISTA[classe]}` : '';
+
+  btn.disabled = true;
+  const textoOriginalBtn = btn.textContent;
+  btn.textContent = '✎ escrevendo...';
+  try {
+    const system = `Você é Fernando Peçanha, curador máximo da OHE — Oficina Heteronômica da Escrita. Você está entregando esta tarefa de escrita ao heterônimo ${heteronimo || 'disponível na Confraria'}, que agora assume a autoria de tudo que for pedido abaixo.
+
+FORMA PEDIDA: ${forma}
+REGRAS DA FORMA (siga rigorosamente em TODOS os poemas): ${regras}${regraClasse}${perfil}
+
+INSTRUÇÃO DO USUÁRIO — siga à risca pra decidir quantos poemas escrever, sobre o que (ou, no caso do Acróstico, quais palavras-alvo), e como agrupá-los: "${instrucao}"
+
+Decida sozinho, a partir da instrução acima, quantos poemas escrever (pode ser 1 só ou vários). Formate a resposta EXATAMENTE assim: cada poema antecedido por uma linha delimitadora sozinha no formato "@@@ N | ${forma === 'Acróstico' ? 'PALAVRA' : 'tema'} @@@" (N = número sequencial a partir de 1${forma === 'Acróstico' ? '; PALAVRA = a palavra-alvo daquele acróstico específico, em maiúsculas' : '; tema = o tema/bloco daquele poema específico, em poucas palavras'} — mesmo que seja só 1 poema, use o delimitador). Não escreva nada antes do primeiro delimitador, nada entre os poemas além do delimitador do próximo, e nada depois do último poema. Não inclua título. Não use markdown.${forma === 'Estrofista' ? ' As 7 estrofes de CADA poema precisam vir separadas por uma linha em branco (sem isso não dá pra confirmar o formato de losango).' : ''}`;
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: window.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+        max_tokens: 8192,
+        system,
+        messages: [{ role: 'user', content: 'Siga a instrução acima e escreva o que for pedido.' }]
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.content || !data.content[0]) throw new Error(data.error?.message || 'Falha ao gerar.');
+
+    const poemas = _parsearLote(data.content[0].text);
+    if (!poemas.length) throw new Error('A resposta não veio no formato esperado — tente de novo.');
+    _renderizarLote(poemas, forma, heteronimo);
+    mostrarToast(`✦ ${heteronimo || 'O heterônimo'} escreveu ${poemas.length} poema(s) a partir da sua instrução.`);
+  } catch (e) {
+    mostrarToast('Erro ao gerar: ' + e.message);
   } finally {
     btn.disabled = false;
     btn.textContent = textoOriginalBtn;
