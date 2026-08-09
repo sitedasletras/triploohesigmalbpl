@@ -229,15 +229,22 @@ function hifenizarPalavra(palavra){
   return r;
 }
 
+// Linhas de marcação estrutural (delimitadores de página especial e o
+// marcador de imagem de fundo) — nunca hifenizadas, mesma lógica de
+// RE_IMAGEM abaixo: são sintaxe, não prosa, e podem carregar URL que um
+// hífen invisível no meio corromperia.
+const RE_MARCADOR_PAGINA=/^:::pagina\b|^:::\s*$|^::fundo\[\]/;
+
 function hifenizarTexto(texto){
   // Linha de imagem em Markdown carrega uma URL (às vezes um data: URI
   // em base64) que não pode ganhar hífen invisível no meio — corromperia
   // os bytes da imagem. Pula a linha inteira nesse caso.
-  return texto.split('\n').map(linha=>
-    RE_IMAGEM.test(linha.trim())
+  return texto.split('\n').map(linha=>{
+    const t=linha.trim();
+    return (RE_IMAGEM.test(t)||RE_MARCADOR_PAGINA.test(t))
       ? linha
-      : linha.replace(/\b([a-záéíóúâêôãõàäëïöü]{6,})\b/gi,p=>hifenizarPalavra(p))
-  ).join('\n');
+      : linha.replace(/\b([a-záéíóúâêôãõàäëïöü]{6,})\b/gi,p=>hifenizarPalavra(p));
+  }).join('\n');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -325,6 +332,9 @@ const RE_INICIO_FALA=/^[-–—]\s/;
 function _separarFalaColada(blocosBrutos){
   const saida=[];
   blocosBrutos.forEach(bloco=>{
+    // Página especial (objeto, não string) passa direto — não tem fala
+    // pra separar, é conteúdo atômico.
+    if(typeof bloco!=='string'){ saida.push(bloco); return; }
     const linhas=bloco.split('\n');
     let atual=[linhas[0]];
     for(let i=1;i<linhas.length;i++){
@@ -340,23 +350,86 @@ function _separarFalaColada(blocosBrutos){
   return saida;
 }
 
+// ─── PÁGINA ESPECIAL (dedicatória, epígrafe, "in memoriam" etc.) ──────
+// Sintaxe:
+//   :::pagina fundo=#0a0a0a texto=#f0e8d0 alinhamento=centro
+//   Texto da página, pode ter
+//   vários parágrafos — inclusive linha em branco entre eles.
+//   :::
+// Extraído do texto bruto ANTES da quebra normal por linha em branco
+// (que ia cortar o conteúdo do meio da página especial em vários blocos
+// soltos) — cada ocorrência vira um bloco atômico só, com página própria
+// garantida na paginação (ver paginar()).
+const RE_PAGINA_ESPECIAL=/^:::pagina([^\n]*)\n([\s\S]*?)\n:::[ \t]*$/gim;
+
+function _parseOpcoesFence(str){
+  const opts={};
+  String(str||'').replace(/(\w+)=("[^"]*"|\S+)/g,(_,k,v)=>{
+    opts[k]=v.replace(/^"|"$/g,'');
+    return '';
+  });
+  return opts;
+}
+
+// Separa o texto bruto em segmentos, na ordem em que aparecem: strings
+// (texto normal, ainda por quebrar em parágrafos) e objetos {pagina:true,
+// conteudo, opts} (página especial, já atômica).
+function _extrairPaginasEspeciais(texto){
+  const segmentos=[];
+  let ultimo=0, m;
+  RE_PAGINA_ESPECIAL.lastIndex=0;
+  while((m=RE_PAGINA_ESPECIAL.exec(texto))){
+    if(m.index>ultimo) segmentos.push(texto.slice(ultimo,m.index));
+    segmentos.push({pagina:true,conteudo:m[2].trim(),opts:_parseOpcoesFence(m[1])});
+    ultimo=RE_PAGINA_ESPECIAL.lastIndex;
+  }
+  if(ultimo<texto.length) segmentos.push(texto.slice(ultimo));
+  return segmentos;
+}
+
+// ─── IMAGEM DE FUNDO (atrás do texto corrido) ─────────────────────────
+// Sintaxe: ::fundo[](url){opacidade:0.12}
+// Marcador de altura zero — não ocupa espaço na paginação, só anexa uma
+// imagem de fundo (o texto normal flui por cima dela) à página onde cai.
+const RE_FUNDO_PAGINA=/^::fundo\[\]\(\s*(\S+?)\s*\)(?:\{([^}]*)\})?\s*$/;
+
+function parseFundoPagina(bloco){
+  const m=RE_FUNDO_PAGINA.exec(bloco.trim());
+  if(!m) return null;
+  const opts=_parseOpcoesFence((m[2]||'').replace(/,/g,' ').replace(/:/g,'='));
+  return { url:m[1], opacidade:opts.opacidade?parseFloat(opts.opacidade):0.12 };
+}
+
 function quebrarBlocos(texto, modulo){
-  let blocos=normalizar(texto).split(/\n\s*\n/)
-    .map(b=>b.trim()).filter(Boolean);
+  // brutos mistura strings (texto normal, ainda por quebrar em
+  // parágrafo) com objetos {pagina:true,...} (página especial, atômica)
+  // — mantém a ordem original de aparição no texto colado.
+  let brutos=[];
+  _extrairPaginasEspeciais(normalizar(texto)).forEach(seg=>{
+    if(typeof seg!=='string'){ brutos.push(seg); return; }
+    brutos=brutos.concat(seg.split(/\n\s*\n/).map(b=>b.trim()).filter(Boolean));
+  });
 
-  if(modulo==='samurai') return quebrarHaicai(blocos);
-  if(modulo==='espartano') return quebrarEstrofista(blocos);
-  if(modulo==='apolo') return quebrarSoneto(blocos);
+  if(modulo==='samurai') return quebrarHaicai(brutos.filter(b=>typeof b==='string'));
+  if(modulo==='espartano') return quebrarEstrofista(brutos.filter(b=>typeof b==='string'));
+  if(modulo==='apolo') return quebrarSoneto(brutos.filter(b=>typeof b==='string'));
 
-  if(MODULOS_COM_DIALOGO.has(modulo)) blocos=_separarFalaColada(blocos);
+  if(MODULOS_COM_DIALOGO.has(modulo)) brutos=_separarFalaColada(brutos);
 
-  return blocos.map((conteudo,i)=>({
-    id:`B${String(i+1).padStart(4,'0')}`,
-    ordem:i+1,
-    tipo:tipoBlocoGeral(conteudo, modulo),
-    conteudo,
-    palavras:(conteudo.match(/\b[\wÀ-ÿ'-]+\b/g)||[]).length,
-  }));
+  return brutos.map((item,i)=>{
+    const id=`B${String(i+1).padStart(4,'0')}`;
+    if(typeof item!=='string'){
+      return { id, ordem:i+1, tipo:'pagina_especial', conteudo:item.conteudo, opts:item.opts||{}, palavras:0 };
+    }
+    const fundo=parseFundoPagina(item);
+    if(fundo) return { id, ordem:i+1, tipo:'fundo_pagina', conteudo:item, fundo, palavras:0 };
+    return {
+      id, ordem:i+1,
+      tipo:tipoBlocoGeral(item, modulo),
+      conteudo:item,
+      palavras:(item.match(/\b[\wÀ-ÿ'-]+\b/g)||[]).length,
+    };
+  });
 }
 
 // ─── HAICAI ───────────────────────────────────────────────
@@ -866,12 +939,22 @@ function _dividirCapitularEmLinhas(bloco, cfg, fmt){
 // Identifica (por referência de objeto) qual bloco 'prosa' é o candidato
 // a capitular em cada capítulo: o primeiro 'prosa' depois de cada
 // 'capitulo' (ou o primeiro do documento, se vier antes de qualquer
-// capítulo) — a mesma regra que estimarAltura/detectarOverflowPaginas já
-// aplicam por página, calculada aqui uma vez pra todo o documento, já que
-// a ordem dos blocos nunca muda durante a paginação.
+// capítulo, MAS só quando a obra não tem capítulo nenhum — conto sem
+// divisão, por exemplo) — a mesma regra que estimarAltura/
+// detectarOverflowPaginas já aplicam por página, calculada aqui uma vez
+// pra todo o documento, já que a ordem dos blocos nunca muda durante a
+// paginação.
+//
+// Antes disso, um livro com "Título\nAutor: Fulano" colado no topo do
+// texto colado (antes do 1º "CAPÍTULO 1") virava esse "primeiro prosa
+// da obra" e ganhava letra capitular gigante na página de rosto — bug
+// real visto numa geração. Quando a obra TEM capítulo, o prosa antes do
+// 1º capítulo (falso "miolo") nunca é candidato; só o que vem depois de
+// cada capítulo de verdade.
 function _identificarBlocosCapitulares(blocos){
   const candidatos=new Set();
-  let capApl=false;
+  const temCapitulos=blocos.some(b=>b.tipo==='capitulo');
+  let capApl=temCapitulos;
   blocos.forEach(b=>{
     if(b.tipo==='capitulo'){ capApl=false; return; }
     if(b.tipo==='prosa'&&!capApl){ candidatos.add(b); capApl=true; }
@@ -889,7 +972,13 @@ function _prepararBlocosParaGrade(blocos, cfg, fmt){
   if(!medidor) return {blocos, alturaLinha:_alturaMinimaDivisao(cfg), capitulares};
 
   const alturaLinha=_medirAlturaLinha(cfg,fmt);
-  const temCapitularFixa=cfg.capitular&&cfg.capitular!=='none'&&!cfg.decoracao;
+  // cfg.decoracao só acrescenta o divisor ornamental abaixo do título do
+  // capítulo (ver renderizarBloco, caso 'capitulo') — não muda como a
+  // LETRA capitular em si é desenhada, então não precisa desligar a
+  // medição precisa por grade de linhas (evita reintroduzir o estouro de
+  // página que motivou essa grade, só porque o usuário também escolheu
+  // um ornamento de capítulo).
+  const temCapitularFixa=cfg.capitular&&cfg.capitular!=='none';
   const resultado=[];
   blocos.forEach(bloco=>{
     if(bloco.tipo!=='prosa'){
@@ -940,6 +1029,32 @@ function paginar(blocos, cfg, fmt){
   let i=0;
   while(i<fila.length){
     const bloco=fila[i];
+
+    // Página especial: sempre sozinha na própria página (fecha a atual se
+    // tiver conteúdo, empurra ela pra lista, e já deixa a PRÓXIMA página
+    // pronta pro que vier depois — nunca divide espaço com mais nada).
+    if(bloco.tipo==='pagina_especial'){
+      if(pag.blocos.length>0){
+        paginas.push(pag);
+        const n=paginas.length+1;
+        pag={numero:n,lado:n%2===0?'verso':'recto',blocos:[],alturaUsada:0};
+      }
+      pag.blocos.push({...bloco,altEstimada:0});
+      paginas.push(pag);
+      const n=paginas.length+1;
+      pag={numero:n,lado:n%2===0?'verso':'recto',blocos:[],alturaUsada:0};
+      i++;
+      continue;
+    }
+    // Imagem de fundo: marcador de altura zero, só anexa a config de
+    // fundo à página atual (renderizarPagina lê isso depois) sem ocupar
+    // espaço nem disputar posição com o texto normal.
+    if(bloco.tipo==='fundo_pagina'){
+      pag.blocos.push({...bloco,altEstimada:0});
+      i++;
+      continue;
+    }
+
     // Linha da grade: altura fixa já conhecida, nunca precisa de
     // estimarAltura nem de divisão — ou cabe inteira, ou vai pra próxima
     // página inteira (é só uma linha, não tem "meio" pra dividir).
@@ -1269,6 +1384,12 @@ function renderizarBloco(bloco, cfg, aplicaCapitular_){
       return `<figure style="margin:0 0 ${cfg.paragraphGap||0}em;clear:both;text-align:center;"><img src="${escapar(img.url)}" alt="${escapar(img.legenda)}" style="max-width:100%;height:auto;display:block;margin:0 auto;">${legenda}</figure>`;
     }
 
+    // Página especial e imagem de fundo não entram no fluxo comum de
+    // conteúdo — renderizarPagina() desenha a página inteira (página
+    // especial) ou a camada de fundo (imagem de fundo) separadamente.
+    case 'pagina_especial': case 'fundo_pagina':
+      return '';
+
     case 'capitulo': {
       // Ornamento sob o título — só quando há decoração de gênero ativa
       // (cfg.decoracao) e o motor de decoração está carregado na página.
@@ -1280,11 +1401,16 @@ function renderizarBloco(bloco, cfg, aplicaCapitular_){
       // Rótulo ("CAPÍTULO 1") e título do capítulo em hierarquia visual
       // separada: rótulo pequeno e espaçado, título maior e serifado em
       // itálico — em vez das duas coisas juntas na mesma linha/fonte.
+      // Alinhamento é individual por capítulo (cfg.alinhamentosCapitulo,
+      // chaveado pelo id do bloco 'capitulo') — cada capítulo pode ter o
+      // rótulo/título à esquerda, centralizado ou à direita, em vez de um
+      // alinhamento único pra obra inteira.
       const {rotulo,titulo}=_dividirRotuloETitulo(bloco.conteudo);
-      const rotuloHtml=`<div style="text-align:center;font-size:.72em;font-weight:700;letter-spacing:.22em;margin:0 0 .5em;line-height:1.2;">${escapar(rotulo)}</div>`;
+      const alinhCap=(cfg.alinhamentosCapitulo&&cfg.alinhamentosCapitulo[bloco.id])||cfg.alinhamentoCapituloPadrao||'center';
+      const rotuloHtml=`<div style="text-align:${alinhCap};font-size:.72em;font-weight:700;letter-spacing:.22em;margin:0 0 .5em;line-height:1.2;">${escapar(rotulo)}</div>`;
       const tamanhoTitulo=cfg.tituloTamanho||1.6;
       const tituloHtml=titulo
-        ? `<h1 style="text-align:center;font-size:${tamanhoTitulo}em;font-weight:400;font-style:italic;font-family:Georgia,'Times New Roman',serif;margin:0;line-height:1.3;">${escapar(titulo)}</h1>`
+        ? `<h1 style="text-align:${alinhCap};font-size:${tamanhoTitulo}em;font-weight:400;font-style:italic;font-family:Georgia,'Times New Roman',serif;margin:0;line-height:1.3;">${escapar(titulo)}</h1>`
         : '';
       return `<div style="clear:both;page-break-before:always;">${rotuloHtml}${tituloHtml}</div>${divisor}`;
     }
@@ -1431,6 +1557,24 @@ function renderizarPagina(pagina, cfg, fmt, numeracao){
   const lh=cfg.entrelinha||1.52;
   const ff=cfg.fonte||"Georgia,'Times New Roman',serif";
 
+  // Página especial: página inteira com fundo/cor de texto próprios,
+  // sem a caixa de margem normal — layout totalmente à parte do miolo
+  // comum, sempre sozinha na página (garantido por paginar()).
+  const especial=pagina.blocos.find(b=>b.tipo==='pagina_especial');
+  if(especial){
+    const opts=especial.opts||{};
+    const fundoCor=opts.fundo||'#0a0a0a';
+    const textoCor=opts.texto||'#f0e8d0';
+    const alinh=opts.alinhamento==='esquerda'?'left':opts.alinhamento==='direita'?'right':'center';
+    const imagemFundo=opts.imagem?`background-image:url('${escapar(opts.imagem)}');background-size:cover;background-position:center;`:'';
+    const paragrafos=especial.conteudo.split(/\n\s*\n/).map(p=>
+      `<p style="margin:0 0 1em;">${escapar(p.trim()).replace(/\n/g,'<br>')}</p>`
+    ).join('');
+    return `<div style="width:${W}px;height:${H}px;background:${escapar(fundoCor)};${imagemFundo}color:${escapar(textoCor)};position:relative;box-shadow:0 10px 28px rgba(0,0,0,.12);border-radius:2px;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:60px;box-sizing:border-box;">
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05em;line-height:1.8;text-align:${alinh};max-width:100%;">${paragrafos}</div>
+    </div>`;
+  }
+
   // Capitular: no 1º parágrafo de prosa da 1ª página do livro, e também
   // no 1º parágrafo de prosa de toda página que abre um capítulo — a
   // paginação (paginar()) sempre força capítulo a começar página nova,
@@ -1456,7 +1600,17 @@ function renderizarPagina(pagina, cfg, fmt, numeracao){
     numHtml=`<div style="position:absolute;bottom:${Math.round(mB/2)}px;left:${margL}px;right:${margR}px;text-align:${align};font-size:.78em;color:#888;">${pagina.numero}</div>`;
   }
 
+  // Imagem de fundo (marcador ::fundo[]): camada atrás do texto, cobrindo
+  // a página inteira — o texto normal (dentro da caixa de margem) flui
+  // por cima dela naturalmente, sem precisar de nada especial no lado do
+  // conteúdo.
+  const fundoMarcador=pagina.blocos.find(b=>b.tipo==='fundo_pagina');
+  const fundoHtml=fundoMarcador
+    ? `<div style="position:absolute;inset:0;background-image:url('${escapar(fundoMarcador.fundo.url)}');background-size:cover;background-position:center;opacity:${fundoMarcador.fundo.opacidade};pointer-events:none;"></div>`
+    : '';
+
   return `<div style="width:${W}px;height:${H}px;background:#fff;position:relative;box-shadow:0 10px 28px rgba(0,0,0,.12);border-radius:2px;flex-shrink:0;overflow:hidden;">
+  ${fundoHtml}
   <div style="position:absolute;left:${margL}px;top:${mT}px;right:${margR}px;bottom:${mB}px;font-family:${ff};font-size:${fs}pt;line-height:${lh};overflow:hidden;hyphens:${cfg.hifenizacao?'auto':'manual'};-webkit-hyphens:${cfg.hifenizacao?'auto':'manual'};word-break:break-word;" lang="pt-BR">
     ${conteudo}
   </div>
