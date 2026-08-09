@@ -47,8 +47,38 @@
   //   "cc0") — nunca "verificar" ou vazio; só entra no catálogo depois de
   //   confirmado.
   const capitulares = [];
-  const molduras = [];
-  const ilustracoes = [];
+  const molduras = [
+    { id:'moldura-quadros-ouro-01', nome:'Conjunto de molduras douradas (circular e retangular)', arquivo:'moldura-quadros-ouro-01.png', tema:'moldura decorativa dourada foto', fonte:'https://publicdomainvectors.org/photos/Chrisdesign-gold-frames-set.png', licenca:'dominio-publico' },
+  ];
+  const ilustracoes = [
+    { id:'ilust-sinal-neon-rock-house-01', nome:'Sinal de néon \'Ray\'s Rock House\'', arquivo:'ilust-sinal-neon-rock-house-01.png', tema:'néon retrô música', fonte:'https://publicdomainvectors.org/photos/Rays_RockHouse__Arvin61r58.png', licenca:'dominio-publico' },
+    { id:'ilust-simbolo-rock-01', nome:'Símbolo de rock and roll', arquivo:'ilust-simbolo-rock-01.png', tema:'música rock', fonte:'https://publicdomainvectors.org/photos/1577616439Seals in the sunset.png', licenca:'dominio-publico' },
+    { id:'ilust-musicista-feminina-01', nome:'Musicista feminina fazendo sinal de rock (ilustração colorida)', arquivo:'ilust-musicista-feminina-01.jpg', tema:'música pessoas', fonte:'https://publicdomainvectors.org/photos/female-rock-musician.jpg', licenca:'dominio-publico' },
+    { id:'ilust-guitarrista-01', nome:'Guitarrista de rock (foto)', arquivo:'ilust-guitarrista-01.jpg', tema:'música pessoas foto', fonte:'https://publicdomainvectors.org/photos/heavy-rock-musician.jpg', licenca:'dominio-publico' },
+    { id:'ilust-musico-guitarra-01', nome:'Músico de rock com uma guitarra (ilustração)', arquivo:'ilust-musico-guitarra-01.png', tema:'música pessoas', fonte:'https://publicdomainvectors.org/photos/rock-musician-with-guitar.png', licenca:'dominio-publico' },
+    { id:'ilust-guitarrista-02', nome:'Guitarrista de rock (foto 2)', arquivo:'ilust-guitarrista-02.jpg', tema:'música pessoas foto', fonte:'https://publicdomainvectors.org/photos/rock-music-guitarist-publicdomain.jpg', licenca:'dominio-publico' },
+    { id:'ilust-flores-silhueta-01', nome:'Flores em silhueta (divisor decorativo)', arquivo:'ilust-flores-silhueta-01.png', tema:'flores natureza divisor', fonte:'https://publicdomainvectors.org/photos/Floral-Silhouette-By-RebeccaRead.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-black-skimmer-01', nome:'Black Skimmer (ave, ilustração de linha)', arquivo:'ilust-ave-black-skimmer-01.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Black_Skimmer.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-corvo-marinho-01', nome:'Corvos-marinhos / Cormorants (ave, ilustração de linha)', arquivo:'ilust-ave-corvo-marinho-01.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Cormorants.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-aguia-careca-01', nome:'Águia careca / Bald Eagle (ave, ilustração de linha)', arquivo:'ilust-ave-aguia-careca-01.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Bald_Eagle_2.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-loon-comum-01', nome:'Loon comum / Common Loon (ave, ilustração de linha)', arquivo:'ilust-ave-loon-comum-01.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Common_Loon.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-western-grebe-01', nome:'Western Grebe / Mergulhão-ocidental (ave, ilustração de linha, variante 1)', arquivo:'ilust-ave-western-grebe-01.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Western_Grebe_2.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-caimao-01', nome:'Ave Caimão / Gallinule (ave, ilustração de linha)', arquivo:'ilust-ave-caimao-01.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Gallinule.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-bristle-thighed-curlew-01', nome:'Bristle-thighed Curlew (ave, ilustração de linha)', arquivo:'ilust-ave-bristle-thighed-curlew-01.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Bristle-thighed_Curlew.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-sooty-tern-01', nome:'Sooty Tern / Trinta-réis-escuro (ave, ilustração de linha)', arquivo:'ilust-ave-sooty-tern-01.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Sooty_Tern.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-trinta-reis-negro-01', nome:'Trinta-réis-negro / Black Tern (ave, ilustração de linha)', arquivo:'ilust-ave-trinta-reis-negro-01.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Black_Tern.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-ruddy-turnstone-01', nome:'Ruddy Turnstone / Vira-pedras (ave, ilustração de linha)', arquivo:'ilust-ave-ruddy-turnstone-01.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Ruddy_Turnstone.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-yellowleg-maior-01', nome:'Yellowleg maior / Greater Yellowlegs (ave, ilustração de linha)', arquivo:'ilust-ave-yellowleg-maior-01.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Yellow_Leg.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-western-grebe-02', nome:'Western Grebe / Mergulhão-ocidental (ave, ilustração de linha, variante 2)', arquivo:'ilust-ave-western-grebe-02.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Western_Grebe_3.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-western-grebe-03', nome:'Western Grebe / Mergulhão-ocidental (ave, ilustração de linha, variante 3)', arquivo:'ilust-ave-western-grebe-03.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Western_Grebe.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-anhinga-01', nome:'Anhinga (ave, ilustração de linha preto e branco)', arquivo:'ilust-ave-anhinga-01.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_anhinga.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-arctic-tern-01', nome:'Andorinha do Ártico / Arctic Tern (ave, ilustração de linha, variante 1)', arquivo:'ilust-ave-arctic-tern-01.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Arctic_Tern_1.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-arctic-tern-02', nome:'Andorinha do Ártico / Arctic Tern (ave, ilustração de linha, variante 2)', arquivo:'ilust-ave-arctic-tern-02.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Arctic_Tern_2.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-avocet-01', nome:'Avocet (ave, ilustração de linha, variante 1)', arquivo:'ilust-ave-avocet-01.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Avocet_3.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-avocet-02', nome:'Avocet (ave, ilustração de linha, variante 2)', arquivo:'ilust-ave-avocet-02.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Avocet_4.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-avocet-03', nome:'Avocet (ave, ilustração de linha, variante 3)', arquivo:'ilust-ave-avocet-03.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Avocet_1.png', licenca:'dominio-publico' },
+    { id:'ilust-ave-avocet-04', nome:'Avocet (ave, ilustração de linha, variante 4)', arquivo:'ilust-ave-avocet-04.png', tema:'aves natureza', fonte:'https://publicdomainvectors.org/photos/ryanlerch_Avocet_2.png', licenca:'dominio-publico' },
+  ];
 
   const SEGMENTOS = { capitulares, molduras, ilustracoes };
 
