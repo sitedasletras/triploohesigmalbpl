@@ -186,6 +186,15 @@ const PREFIXOS_HIFENIZACAO = [
 ];
 const VOGAIS = /[aeiouáéíóúâêôãõàäëïöü]/i;
 
+// Encontros consonantais que o português NUNCA separa (a consoante dupla
+// fica inteira com a vogal seguinte: "li-vro", nunca "liv-ro") — todos os
+// outros pares de consoante (a maioria: rc, rn, rd, ss, nt, lm...) são
+// separáveis e o hífen tem que cair ENTRE as duas, não antes das duas.
+const CLUSTERS_INSEPARAVEIS = new Set([
+  'bl','br','cl','cr','dr','fl','fr','gl','gr','pl','pr','tl','tr','vl','vr',
+  'lh','nh','ch',
+]);
+
 function hifenizarPalavra(palavra){
   if(palavra.length<=4) return palavra;
   if(/[A-ZÁÉÍÓÚ]{3,}/.test(palavra)) return palavra; // siglas
@@ -196,11 +205,25 @@ function hifenizarPalavra(palavra){
     }
   }
   let r='';
-  for(let i=0;i<palavra.length-2;i++){
+  let i=0;
+  while(i<palavra.length-2){
     r+=palavra[i];
     const v1=VOGAIS.test(palavra[i]),v2=VOGAIS.test(palavra[i+1]),v3=VOGAIS.test(palavra[i+2]);
-    if(v1&&!v2&&v3&&i>0) r+='\u00AD';
-    if(v1&&!v2&&!v3&&i+3<palavra.length&&VOGAIS.test(palavra[i+3])&&i>0) r+='\u00AD';
+    if(v1&&!v2&&v3&&i>0){
+      r+='\u00AD';
+    }else if(v1&&!v2&&!v3&&i+3<palavra.length&&VOGAIS.test(palavra[i+3])&&i>0){
+      // Duas consoantes entre vogais: só gruda as duas com a vogal seguinte
+      // (hífen antes das duas, "li-vro") quando o par é realmente
+      // inseparável. No caso comum (par separável — "pa-rcial" antes desta
+      // correção, sempre errado por 1 letra), consome a 1ª consoante aqui
+      // e o hífen cai depois dela: "par-cial", não "pa-rcial".
+      if(!CLUSTERS_INSEPARAVEIS.has((palavra[i+1]+palavra[i+2]).toLowerCase())){
+        i++;
+        r+=palavra[i];
+      }
+      r+='\u00AD';
+    }
+    i++;
   }
   r+=palavra.slice(r.replace(/\u00AD/g,'').length);
   return r;
@@ -283,13 +306,49 @@ function tipoBlocoGeral(bloco, modulo){
   return 'prosa';
 }
 
+// Módulos onde diálogo direto pode aparecer misturado com narração —
+// exclui os puramente em verso (castor/poesia, quironxadá/cordel), onde
+// uma linha começando com travessão pode ser recurso poético legítimo,
+// não fala de personagem.
+const MODULOS_COM_DIALOGO=new Set(['polux','centauro','hercules']);
+const RE_INICIO_FALA=/^[-–—]\s/;
+
+// Separa em blocos próprios qualquer fala que veio colada à narração (ou
+// a outra fala) por uma quebra de linha simples em vez de parágrafo
+// (linha em branco) — comum no rascunho gerado pela IA. Sem isso, o
+// parágrafo inteiro (narração + falas) virava um só bloco de prosa; a
+// classificação olha só a 1ª linha pra decidir o tipo, então a fala no
+// meio não virava 'dialogo' — virava só mais uma linha "enrolada" do
+// parágrafo de narração, sem recuo zero nem respiro de parágrafo
+// próprios (bug real visto numa geração: fala colada direto embaixo da
+// narração, sem parecer início de parágrafo nenhum).
+function _separarFalaColada(blocosBrutos){
+  const saida=[];
+  blocosBrutos.forEach(bloco=>{
+    const linhas=bloco.split('\n');
+    let atual=[linhas[0]];
+    for(let i=1;i<linhas.length;i++){
+      if(RE_INICIO_FALA.test(linhas[i])){
+        saida.push(atual.join('\n'));
+        atual=[linhas[i]];
+      }else{
+        atual.push(linhas[i]);
+      }
+    }
+    saida.push(atual.join('\n'));
+  });
+  return saida;
+}
+
 function quebrarBlocos(texto, modulo){
-  const blocos=normalizar(texto).split(/\n\s*\n/)
+  let blocos=normalizar(texto).split(/\n\s*\n/)
     .map(b=>b.trim()).filter(Boolean);
 
   if(modulo==='samurai') return quebrarHaicai(blocos);
   if(modulo==='espartano') return quebrarEstrofista(blocos);
   if(modulo==='apolo') return quebrarSoneto(blocos);
+
+  if(MODULOS_COM_DIALOGO.has(modulo)) blocos=_separarFalaColada(blocos);
 
   return blocos.map((conteudo,i)=>({
     id:`B${String(i+1).padStart(4,'0')}`,
