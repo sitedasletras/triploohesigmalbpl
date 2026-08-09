@@ -242,6 +242,24 @@ label{display:block;font-size:.72rem;font-weight:700;color:#9bb8e0;letter-spacin
       <option value="iluminura">Iluminura</option>
       <option value="none">Sem capitular</option>
     </select>
+    <div class="row2">
+      <div><label>Tamanho da capitular</label>
+        <select class="sel" id="capitularTamanho">
+          <option value="0.8">Menor</option>
+          <option value="1" selected>Padrão</option>
+          <option value="1.15">Maior</option>
+          <option value="1.3">Bem maior</option>
+        </select>
+      </div>
+      <div><label>Tamanho do título</label>
+        <select class="sel" id="tituloTamanho">
+          <option value="1.3">Menor</option>
+          <option value="1.6" selected>Padrão</option>
+          <option value="1.9">Maior</option>
+          <option value="2.2">Bem maior</option>
+        </select>
+      </div>
+    </div>
     <label>Hifenização PT-BR</label>
     <select class="sel" id="hifenizacao">
       <option value="true" selected>Ativa</option>
@@ -590,6 +608,8 @@ function getCfg(){
     // capítulo) casada com o que o Lapidar detectou da obra; escolher um
     // estilo específico na lista acima desliga a decoração automática.
     decoracao:$('capitular').value==='auto'?(localStorage.getItem('lapidar_genero_obra')||localStorage.getItem('lapidar_tipo_obra')||''):'',
+    capitularTamanho:parseFloat($('capitularTamanho').value)||1,
+    tituloTamanho:parseFloat($('tituloTamanho').value)||1.6,
     hifenizacao:$('hifenizacao').value==='true',
     correcao:$('correcao').value,
     numeracao:$('numeracao').value,
@@ -755,7 +775,7 @@ function exportarTXT(){
 
 // ── EVENT LISTENERS ───────────────────────────────────────
 ['formato','fontSize','lineHeight','margem','fontFamily','recuo',
- 'paragraphGap','capitular','hifenizacao','viuvasOrfas','correcao','numeracao']
+ 'paragraphGap','capitular','capitularTamanho','tituloTamanho','hifenizacao','viuvasOrfas','correcao','numeracao']
   .forEach(id=>{
     $(id).addEventListener('change',()=>{render();});
   });
