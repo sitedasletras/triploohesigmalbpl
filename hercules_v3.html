@@ -167,6 +167,31 @@ label{display:block;font-size:.72rem;font-weight:700;color:#90c890;letter-spacin
 
   <div class="card">
     <div class="card-titulo">Recursos</div>
+    <label>Capitular</label>
+    <select class="sel" id="capitular">
+      <option value="none" selected>Sem capitular</option>
+      <option value="auto">✨ Automática (por gênero da obra)</option>
+      <option value="classic">Clássica</option>
+      <option value="simple">Simples</option>
+      <option value="ornamental">Ornamental</option>
+      <option value="medieval">Medieval</option>
+      <option value="iluminura">Iluminura</option>
+    </select>
+    <label>Ornamento do capítulo</label>
+    <select class="sel" id="ornamento">
+      <option value="none" selected>Sem ornamento</option>
+      <option value="auto">✨ Automático (por gênero salvo, se houver)</option>
+      <option value="classico">Clássico editorial (❦)</option>
+      <option value="medieval">Medieval (✥ ⚜ ✥)</option>
+      <option value="fantasia_epica">Fantasia épica (✦ ✧ ✦)</option>
+      <option value="ficcao_cientifica">Ficção científica (◇ ─ ◇)</option>
+      <option value="cordel">Cordel / Xilogravura (✸ — ✸)</option>
+      <option value="terror">Terror / Horror (☾ ✦ ☽)</option>
+      <option value="infantil">Infantil (★ ❀ ★)</option>
+      <option value="biblico">Bíblico / Sacro (✢ ✦ ✢)</option>
+      <option value="historico">Histórico / Documental (— ❖ —)</option>
+      <option value="minimalista">Minimalista (—)</option>
+    </select>
     <label>Hifenização</label>
     <select class="sel" id="hifenizacao">
       <option value="true" selected>Ativa</option>
@@ -356,8 +381,17 @@ function getCfg(){
     fonte:$('fontFamily').value,
     recuo:parseFloat($('recuo').value)||0,
     paragraphGap:parseFloat($('paragraphGap').value)||0.8,
-    capitular:'none',hifenizacao:$('hifenizacao').value==='true',
-    decoracao:localStorage.getItem('lapidar_genero_obra')||localStorage.getItem('lapidar_tipo_obra')||'',
+    capitular:$('capitular').value==='auto'?'classic':$('capitular').value,
+    hifenizacao:$('hifenizacao').value==='true',
+    // Ornamento do capítulo escolhido à parte do estilo da letra capitular
+    // (ambos "Sem..." por padrão aqui — Hércules é técnico/manual por
+    // definição, então decoração só entra se o usuário pedir).
+    decoracao:$('ornamento').value==='none'?''
+      :$('ornamento').value==='auto'?(localStorage.getItem('lapidar_genero_obra')||localStorage.getItem('lapidar_tipo_obra')||'')
+      :$('ornamento').value,
+    // Alinhamento individual de rótulo/título por capítulo — ver lista na
+    // Prévia do Sumário.
+    alinhamentosCapitulo,
     correcao:$('correcao').value,numeracao:$('numeracao').value,
   };
 }
@@ -384,18 +418,40 @@ function render(){
   }catch(e){$('status').textContent='Erro: '+e.message;console.error(e);}
 }
 
+// Alinhamento individual do rótulo/título de cada capítulo — {blocoId:
+// 'left'|'center'|'right'}. Estado local do módulo; persiste entre
+// re-renders porque os ids dos blocos são regenerados de forma
+// determinística a partir do mesmo texto.
+let alinhamentosCapitulo={};
+
+function _paginaDoBloco(id){
+  if(!resultado) return null;
+  for(let i=0;i<resultado.paginas.length;i++){
+    if(resultado.paginas[i].blocos.some(b=>b.id===id)) return i+1;
+  }
+  return null;
+}
+
 function atualizarPreviaSumario(){
   const box=$('previaSumarioBox'), lista=$('previaSumarioLista');
   if(!box||!lista||!resultado) return;
-  if(!window.CeleiroJuncao){ box.style.display='none'; return; }
-  const capitulos=CeleiroJuncao.extrairCapitulosDoMiolo(resultado.paginas||[], 1);
+  const capitulos=resultado.blocos.filter(b=>b.tipo==='capitulo');
   if(!capitulos.length){ box.style.display='none'; return; }
-  lista.innerHTML=capitulos.map(c=>`
-    <div onclick="irParaPaginaSumario(${c.pagina})" title="Ir para a página ${c.pagina}" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:.1em;padding:.2em .4em;border-radius:5px;cursor:pointer;transition:background .12s;" onmouseover="this.style.background='rgba(0,0,0,.06)'" onmouseout="this.style.background='transparent'">
-      <span>${(c.titulo||'').replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]))}</span>
-      <span style="border-bottom:1px dotted #ccc;flex:1;margin:0 6px;min-width:16px"></span>
-      <span style="color:var(--muted);flex-shrink:0">${c.pagina}</span>
-    </div>`).join('');
+  lista.innerHTML=capitulos.map(c=>{
+    const pag=_paginaDoBloco(c.id);
+    const titulo=(c.conteudo||'').replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]));
+    const alinhAtual=alinhamentosCapitulo[c.id]||'center';
+    return `
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:.15em;padding:.2em .4em;border-radius:5px;">
+      <span ${pag?`onclick="irParaPaginaSumario(${pag})" title="Ir para a página ${pag}" style="cursor:pointer;"`:''} style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${titulo}</span>
+      <select class="sel" style="width:auto;font-size:.68rem;padding:.1em .3em;flex-shrink:0;" title="Alinhamento deste capítulo" onchange="alinhamentosCapitulo['${c.id}']=this.value;render();">
+        <option value="left" ${alinhAtual==='left'?'selected':''}>⇤ Esquerda</option>
+        <option value="center" ${alinhAtual==='center'?'selected':''}>↔ Centro</option>
+        <option value="right" ${alinhAtual==='right'?'selected':''}>Direita ⇥</option>
+      </select>
+      <span style="color:var(--muted);flex-shrink:0;font-size:.75rem;">${pag||''}</span>
+    </div>`;
+  }).join('');
   box.style.display='block';
 }
 
@@ -525,7 +581,7 @@ function exportarPDFRealCompleto(aoConcluir){
   },100);
 }
 
-['formato','fontSize','lineHeight','fontFamily','recuo','paragraphGap','hifenizacao','numeracao','correcao']
+['formato','fontSize','lineHeight','fontFamily','recuo','paragraphGap','capitular','ornamento','hifenizacao','numeracao','correcao']
   .forEach(id=>{$(id).addEventListener('change',()=>{render();});});
 </script>
 <script>
