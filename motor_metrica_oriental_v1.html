@@ -238,7 +238,10 @@
 
 <header>
   <h1>Motor de Métrica <em>Oriental</em></h1>
-  <div class="sub">SIGMAL · costela do triploohesigmalbpl</div>
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+    <div class="sub">SIGMAL · costela do triploohesigmalbpl</div>
+    <a href="index.html" style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;background:transparent;color:var(--sumi);border:1px solid var(--sumi);padding:8px 14px;border-radius:2px;text-decoration:none;">← SIGMAL HQ</a>
+  </div>
 </header>
 
 <div style="max-width:940px;margin:0 auto;padding:20px 20px 0;">
@@ -258,6 +261,27 @@
 </div>
 
 <main>
+
+  <div class="step" id="geradorStep">
+    <div class="step-label">00 · Gerador automático</div>
+    <h2>Fernando Peçanha escreve pra você</h2>
+    <div class="controls" style="margin-top:0;">
+      <select id="formaGerar" style="width:auto;min-width:220px;padding:10px 14px;">
+        <option value="Haicai">Haicai (5-7-5)</option>
+        <option value="Senryū">Senryū (5-7-5, humor)</option>
+        <option value="Tanka">Tanka (5-7-5-7-7)</option>
+        <option value="Sedōka">Sedōka (5-7-7-5-7-7)</option>
+        <option value="Chōka">Chōka (5-7... encerrando 7-7)</option>
+        <option value="Katauta">Katauta (5-7-7)</option>
+        <option value="Renga / Renku">Renga / Renku (estrofes 5-7-5 / 7-7)</option>
+      </select>
+    </div>
+    <textarea id="temaGerar" style="min-height:56px;margin-top:12px;" placeholder="Tema ou inspiração (opcional) — deixe em branco pra Fernando Peçanha escolher livremente."></textarea>
+    <div class="actions">
+      <button class="primary" id="btnGerar" onclick="gerarComFernandoPecanha()">🖋 Fernando Peçanha, escreva</button>
+    </div>
+    <p class="note" id="geradorHeteronimoNota">Fernando Peçanha vai entregar esta escrita a Noraya Sakamoto.</p>
+  </div>
 
   <div class="step">
     <div class="step-label">01 · Texto</div>
@@ -329,6 +353,10 @@ E um galho nu</textarea>
 
 <div class="toast" id="toast"></div>
 
+<script src="config.js"></script>
+<script src="heteronimos_roster.js"></script>
+<script src="biografias_heteronimos.js"></script>
+<script src="perfis_voz.js"></script>
 <script>
 /* =========================================================
    MOTOR DE SILABIZAÇÃO — PORTUGUÊS
@@ -538,6 +566,67 @@ const ORIGENS = {
   "Chōka": "O 'poema longo' da Man'yōshū: alterna versos de 5 e 7 sílabas livremente, sempre fechando com um dístico 7-7. Perdeu espaço para a Tanka, mais curta, a partir do período Heian.",
   "Renga / Renku": "Poesia colaborativa encadeada: múltiplos poetas alternam estrofes de 5-7-5 e 7-7 em sequência. A primeira estrofe (hokku) dessa cadeia é justamente a semente de onde nasceu o Haicai independente."
 };
+
+/* =========================================================
+   GERADOR AUTOMÁTICO — Fernando Peçanha entrega a escrita a
+   Noraya Sakamoto (único heterônimo mapeado pra forma oriental por
+   ora), no molde exato da forma escolhida. Cai direto no fluxo normal
+   de análise, igual a um texto colado à mão.
+   ========================================================= */
+const HETERONIMO_ORIENTAL = 'Noraya Sakamoto';
+const REGRAS_FORMA = {
+  "Haicai": "3 versos, métrica 5-7-5 sílabas. Sem título. Sem rima. Tema de natureza/estações do ano (um kigo — palavra-de-estação — se possível), com um corte de percepção (kireji) entre duas imagens.",
+  "Senryū": "3 versos, métrica 5-7-5 sílabas. Sem título. Sem rima. Tema humano — comportamento, cotidiano, ironia ou humor, ao contrário do Haicai (que é sobre natureza).",
+  "Tanka": "5 versos, métrica 5-7-5-7-7 sílabas. Sem título. Sem rima. Tom pessoal e emocional.",
+  "Sedōka": "6 versos, métrica 5-7-7-5-7-7 sílabas (dois blocos de 5-7-7, como um par de Katauta) — pode ter estrutura de pergunta e resposta entre os dois blocos.",
+  "Chōka": "Alterna livremente versos de 5 e 7 sílabas, com pelo menos 4 versos, e encerra obrigatoriamente com um dístico final de 7-7 sílabas.",
+  "Katauta": "3 versos, métrica 5-7-7 sílabas — uma 'meia-estrofe', tradicionalmente incompleta em si mesma.",
+  "Renga / Renku": "Sequência de pelo menos 5 estrofes alternando o padrão 5-7-5 e 7-7 (1ª estrofe 5-7-5, 2ª 7-7, 3ª 5-7-5, e assim por diante)."
+};
+
+async function gerarComFernandoPecanha(){
+  const forma = document.getElementById('formaGerar').value;
+  const tema = document.getElementById('temaGerar').value.trim();
+  const btn = document.getElementById('btnGerar');
+  const regras = REGRAS_FORMA[forma] || '';
+  const perfil = (typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(HETERONIMO_ORIENTAL) : '';
+
+  btn.disabled = true;
+  const textoOriginalBtn = btn.textContent;
+  btn.textContent = '✎ escrevendo...';
+  try {
+    const system = `Você é Fernando Peçanha, curador máximo da OHE — Oficina Heteronômica da Escrita. Você está entregando esta tarefa de escrita ao heterônimo ${HETERONIMO_ORIENTAL}, especialista nas formas poéticas orientais, que agora assume a autoria do poema.
+
+FORMA PEDIDA: ${forma}
+REGRAS DA FORMA (siga rigorosamente a contagem silábica de cada verso): ${regras}${perfil}
+
+Escreva um poema ORIGINAL, em português, seguindo rigorosamente a métrica pedida acima. Responda APENAS com o texto do poema, um verso por linha — nunca com explicações, comentários, aspas ou marcação markdown. Não inclua título.`;
+    const user = tema ? `Tema ou inspiração: ${tema}` : 'Escolha livremente um tema que combine com esta forma.';
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: window.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+        max_tokens: window.ANTHROPIC_MAX_TOKENS || 1200,
+        system,
+        messages: [{ role: 'user', content: user }]
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.content || !data.content[0]) throw new Error(data.error?.message || 'Falha ao gerar o poema.');
+
+    document.getElementById('input').value = data.content[0].text.trim();
+    analisar();
+    document.getElementById('resultsStep').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    mostrarToast(`✦ ${HETERONIMO_ORIENTAL} escreveu um ${forma} novo.`);
+  } catch (e) {
+    mostrarToast('Erro ao gerar: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = textoOriginalBtn;
+  }
+}
 
 function classificarForma(linhasAnalisadas, usarSinalefa){
   const contagens = linhasAnalisadas.map(l => usarSinalefa ? l.contagemFinal : l.contagemBruta);
