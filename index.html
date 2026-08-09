@@ -3387,7 +3387,7 @@ function abrirVisualizadorConteudo(origemTipo, i) {
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(4,8,15,0.97);z-index:999;display:flex;align-items:flex-start;justify-content:center;padding:1.5rem;overflow-y:auto;';
   modal.innerHTML = `
     <div style="background:#080f1a;border:1px solid rgba(201,168,76,0.2);width:100%;max-width:800px;margin:2rem auto;">
-      <div style="padding:1.2rem 1.5rem;border-bottom:1px solid rgba(201,168,76,0.1);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.8rem;">
+      <div style="position:sticky;top:0;z-index:1;background:#080f1a;padding:1.2rem 1.5rem;border-bottom:1px solid rgba(201,168,76,0.1);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.8rem;">
         <div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;letter-spacing:0.2em;color:rgba(201,168,76,0.5);text-transform:uppercase;margin-bottom:0.3rem;">${_escaparHtml(origemTipo)} · ${_escaparHtml(item.autor||item.interprete||'Autor a definir')}</div>
           <div style="font-family:'Cinzel',serif;font-size:1.1rem;color:#f0e8d0;">${_escaparHtml(item.titulo||'')}</div>
@@ -3395,7 +3395,7 @@ function abrirVisualizadorConteudo(origemTipo, i) {
         <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
           <button id="btn-salvar-ver-conteudo" style="background:linear-gradient(135deg,#1a6b3a,#4caf50);color:#04080f;font-family:'Share Tech Mono',monospace;font-size:0.55rem;font-weight:700;letter-spacing:0.1em;padding:0.6rem 1rem;border:none;cursor:pointer;text-transform:uppercase;">💾 SALVAR</button>
           <button id="btn-copiar-ver-conteudo" style="background:linear-gradient(135deg,#7a5f1a,#c9a84c);color:#04080f;font-family:'Share Tech Mono',monospace;font-size:0.55rem;font-weight:700;letter-spacing:0.1em;padding:0.6rem 1rem;border:none;cursor:pointer;text-transform:uppercase;">📋 COPIAR</button>
-          <button onclick="document.getElementById('modal-ver-conteudo').remove()" style="background:transparent;color:rgba(201,168,76,0.6);font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;padding:0.6rem 1rem;border:1px solid rgba(201,168,76,0.2);cursor:pointer;text-transform:uppercase;">✕ FECHAR</button>
+          <button id="btn-fechar-ver-conteudo" style="background:transparent;color:rgba(201,168,76,0.6);font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;padding:0.6rem 1rem;border:1px solid rgba(201,168,76,0.2);cursor:pointer;text-transform:uppercase;">✕ FECHAR</button>
         </div>
       </div>
       <div style="padding:1.5rem 2rem;">
@@ -3431,7 +3431,17 @@ function abrirVisualizadorConteudo(origemTipo, i) {
       notif('COPIADO!', `"${item.titulo||'Obra'}" copiado para a área de transferência.`, 'sucesso');
     });
   };
-  modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+  // Esc como saída extra além do clique — sem isso, num texto longo,
+  // editar perto do fim rolava o cabeçalho (SALVAR/COPIAR/FECHAR) pra
+  // fora da vista e a única saída era rolar tudo de volta pro topo
+  // (pedido do Wagner: "não consigo sair de lá depois de editar"). O
+  // cabeçalho agora também é sticky (fica sempre visível ao rolar), mas
+  // o Esc cobre qualquer caso que a fixação não pegue.
+  const fecharModal = () => { modal.remove(); document.removeEventListener('keydown', fecharComEsc); };
+  const fecharComEsc = (e) => { if (e.key === 'Escape') fecharModal(); };
+  document.getElementById('btn-fechar-ver-conteudo').onclick = fecharModal;
+  modal.addEventListener('click', (e) => { if (e.target === modal) fecharModal(); });
+  document.addEventListener('keydown', fecharComEsc);
 }
 
 function removerPaiol(tipo, i) {
