@@ -46,13 +46,19 @@
   // - licenca: string curta confirmando o status (ex. "dominio-publico",
   //   "cc0") — nunca "verificar" ou vazio; só entra no catálogo depois de
   //   confirmado.
-  const capitulares = [];
+  const capitulares = [
+    { id:'capitular-n-ornamental-1480-1490-alemao-01', nome:'Letra N ornamental, alemã, 1480-1490 (gravura histórica)', arquivo:'capitular-n-ornamental-1480-1490-alemao-01.jpg', tema:'medieval histórico clássico gravura', fonte:'rawpixel.com — Ornamental Alphabet (1480/1490) German 15th', licenca:'dominio-publico' },
+  ];
   const molduras = [
     { id:'moldura-quadros-ouro-01', nome:'Conjunto de molduras douradas (circular e retangular)', arquivo:'moldura-quadros-ouro-01.png', tema:'moldura decorativa dourada foto', fonte:'https://publicdomainvectors.org/photos/Chrisdesign-gold-frames-set.png', licenca:'dominio-publico' },
     { id:'moldura-cantos-ouro-azul-01', nome:'Elementos decorativos de ouro e azul pra canto de página', arquivo:'moldura-cantos-ouro-azul-01.png', tema:'moldura canto de página dourado floral elegante', fonte:'https://publicdomainvectors.org/photos/Floral-Flourish-Frame-7-Variation-3.png', licenca:'dominio-publico' },
     { id:'moldura-floral-grade-01', nome:'Grade de molduras florais (padrão 3x3)', arquivo:'moldura-floral-grade-01.png', tema:'moldura floral padrão preto-e-branco', fonte:'https://publicdomainvectors.org/photos/Floral-Flourish-Silhouette-Design-10.png', licenca:'dominio-publico' },
     { id:'moldura-rosas-01', nome:'Guirlanda de rosas (borda superior/esquerda)', arquivo:'moldura-rosas-01.png', tema:'moldura floral rosas divisor', fonte:'https://publicdomainvectors.org/photos/frames.png', licenca:'dominio-publico' },
     { id:'moldura-espelho-duplo-01', nome:'Moldura de espelho decorado duplo (art nouveau)', arquivo:'moldura-espelho-duplo-01.png', tema:'moldura art-nouveau preto-e-branco elegante', fonte:'https://publicdomainvectors.org/photos/doubleframe.png', licenca:'dominio-publico' },
+    { id:'moldura-canto-losango-01', nome:'Moldura ornamental em losango (cantos)', arquivo:'moldura-canto-losango-01.png', tema:'moldura ornamental preto-e-branco elegante', fonte:'openclipart.org (detail/222492) via publicdomainvectors.org', licenca:'cc0' },
+    { id:'moldura-4-petalas-01', nome:'Moldura ornamental em 4 pétalas', arquivo:'moldura-4-petalas-01.png', tema:'moldura ornamental preto-e-branco elegante', fonte:'openclipart.org via publicdomainvectors.org', licenca:'cc0' },
+    { id:'moldura-retangular-completa-01', nome:'Moldura ornamental retangular completa (com linha central no topo/base)', arquivo:'moldura-retangular-completa-01.png', tema:'moldura ornamental página completa preto-e-branco elegante', fonte:'openclipart.org (detail/222492) via publicdomainvectors.org', licenca:'cc0' },
+    { id:'moldura-cata-vento-01', nome:'Moldura ornamental em cata-vento (4 cantos espelhados)', arquivo:'moldura-cata-vento-01.png', tema:'moldura ornamental preto-e-branco elegante', fonte:'openclipart.org via publicdomainvectors.org', licenca:'cc0' },
   ];
   const ilustracoes = [
     { id:'ilust-sinal-neon-rock-house-01', nome:'Sinal de néon \'Ray\'s Rock House\'', arquivo:'ilust-sinal-neon-rock-house-01.png', tema:'néon retrô música', fonte:'https://publicdomainvectors.org/photos/Rays_RockHouse__Arvin61r58.png', licenca:'dominio-publico' },
