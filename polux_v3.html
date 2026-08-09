@@ -342,6 +342,8 @@ label{display:block;font-size:.72rem;font-weight:700;color:#9bb8e0;letter-spacin
       <span class="pg-info" id="pgInfo">—</span>
       <button class="btn-pg" id="btnProx" onclick="proximaPagina()" disabled>Próxima →</button>
       <button class="btn-pg" id="btnEditarPagina" onclick="abrirEditorPagina()" disabled style="margin-left:auto;">✎ Editar esta página</button>
+      <button class="btn-pg" id="btnSalvarEdicaoPagina" onclick="salvarEdicaoPagina()" style="display:none;">💾 Salvar e Rediagramar</button>
+      <button class="btn-pg" id="btnCancelarEdicaoPagina" onclick="cancelarEdicaoPagina()" style="display:none;">✕ Cancelar</button>
     </div>
     <div class="stage" id="preview">
       <div style="color:#8a7a5a;font-style:italic;font-size:.9rem;padding:40px;text-align:center;">A prévia aparecerá aqui após carregar o texto.</div>
@@ -733,22 +735,24 @@ function proximaPagina(){if(resultado&&pagAtual<resultado.paginas.length){pagAtu
 
 // ── EDIÇÃO DIRETA NA PÁGINA DA PRÉVIA ──────────────────────
 // Pedido do Wagner: poder corrigir erros (rótulo "ARCO" esquecido, uma
-// palavra errada etc.) direto onde ele está vendo a página, em vez de
-// procurar o trecho no textão lá em cima — e, ao salvar, o Pólux
-// rediagrama o livro inteiro automaticamente a partir do texto corrigido.
+// palavra errada etc.) direto ONDE ELE ESTÁ VENDO A PÁGINA — não numa
+// janela/modal separada — e, ao salvar, o Pólux rediagrama o livro
+// inteiro automaticamente a partir do texto corrigido.
 //
-// Em vez de tornar a prévia renderizada (cheia de <p> fragmentados pela
-// grade de linhas) diretamente editável — o que exigiria reconstruir de
-// volta o texto corrido a partir de fragmentos de linha, um retrabalho
-// frágil — a edição usa os blocos ORIGINAIS (resultado.blocos, a lista
-// plana de parágrafos/títulos antes da paginação): identifica quais
-// blocos aparecem nesta página (pelo id, removendo o sufixo "-L<n>" que
-// a grade de linhas usa pra cada fragmento), mostra o texto completo
-// deles pra edição, e ao salvar substitui o .conteudo de cada um,
-// reconstrói o texto inteiro do livro a partir de TODOS os blocos
-// (garantindo nada se perde) e manda de volta pro textarea principal,
-// que dispara o render() normal — a mesma rotina usada em qualquer
-// mudança de config, garantindo que a paginação nova sai 100% consistente.
+// Em vez de tornar a prévia PAGINADA (cheia de <p> fragmentados pela
+// grade de linhas, com largura/altura fixas) diretamente editável — o
+// que quebraria a cada tecla, já que o texto editado não bate mais com
+// as posições calculadas pra a paginação atual — a edição troca o
+// conteúdo de #preview por uma versão "solta" (sem grade de linhas,
+// sem paginação) dos parágrafos ORIGINAIS (resultado.blocos, a lista
+// plana de parágrafos/títulos antes da paginação) que aparecem nesta
+// página, com contenteditable=true, no MESMO lugar onde a página
+// normalmente é mostrada. Ao salvar: lê cada <p> editado, atualiza
+// .conteudo de cada bloco original, reconstrói o texto inteiro do
+// livro a partir de TODOS os blocos e manda de volta pro textarea
+// principal, que dispara o render() normal — a mesma rotina usada em
+// qualquer mudança de config, garantindo que a paginação nova sai
+// 100% consistente. Ao cancelar, só re-renderiza a página normal.
 function _idsOriginaisDaPagina(pag){
   const ids=[];
   const vistos=new Set();
@@ -758,6 +762,8 @@ function _idsOriginaisDaPagina(pag){
   });
   return ids;
 }
+
+let _edicaoPaginaAtual=null; // {ids, qtdOriginal} enquanto em modo de edição
 
 function abrirEditorPagina(){
   if(!resultado||pagAtual===0) return;
@@ -769,53 +775,58 @@ function abrirEditorPagina(){
     alert('Esta página não tem texto editável (só elementos estruturais).');
     return;
   }
-  const textoEditavel=blocosOriginais.map(b=>b.conteudo.replace(/­/g,'')).join('\n\n');
+  _edicaoPaginaAtual={ids, qtdOriginal:blocosOriginais.length};
 
-  const modalExistente=document.getElementById('modal-editor-pagina');
-  if(modalExistente) modalExistente.remove();
-  const modal=document.createElement('div');
-  modal.id='modal-editor-pagina';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(10,14,20,0.85);z-index:999;display:flex;align-items:flex-start;justify-content:center;padding:2rem;overflow-y:auto;';
-  modal.innerHTML=`
-    <div style="background:#fff;border-radius:10px;width:100%;max-width:720px;box-shadow:0 20px 60px rgba(0,0,0,.4);">
-      <div style="padding:1rem 1.4rem;border-bottom:1px solid #e5ddc8;display:flex;justify-content:space-between;align-items:center;gap:.8rem;">
-        <div>
-          <div style="font:700 .95rem Georgia,serif;color:#1a2540;">✎ Editar página ${pagAtual}</div>
-          <div style="font-size:.72rem;color:#8a7a5a;margin-top:.15em;">Só dá pra editar dentro dos parágrafos já existentes — não adicione nem remova linhas em branco aqui. Depois de salvar, o livro inteiro é rediagramado.</div>
-        </div>
-        <button onclick="document.getElementById('modal-editor-pagina').remove()" style="background:transparent;border:1px solid #ccc;color:#666;padding:.4rem .7rem;border-radius:6px;cursor:pointer;font-size:.8rem;">✕</button>
+  const cfg=resultado.cfg;
+  const fmt=resultado.fmt;
+  const larguraPagina=fmt.w-(cfg.mI||57)-(cfg.mE||43);
+  const parasHtml=blocosOriginais.map(b=>
+    `<p style="margin:0 0 1em;text-indent:1.2em;">${CeleiroV3.escapar(b.conteudo.replace(/­/g,''))}</p>`
+  ).join('');
+
+  $('preview').innerHTML=`
+    <div style="background:#fff;width:${larguraPagina}px;max-width:100%;box-shadow:0 4px 24px rgba(0,0,0,.3);padding:22px;box-sizing:border-box;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:#8a6d1a;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.9rem;border-bottom:1px dashed #d8cfae;padding-bottom:.6rem;">
+        ✎ Editando esta página — dentro dos parágrafos já existentes só (não adicione nem remova parágrafo aqui). Salve pra rediagramar o livro inteiro.
       </div>
-      <div style="padding:1.2rem 1.4rem;">
-        <textarea id="txt-editor-pagina" style="width:100%;min-height:50vh;box-sizing:border-box;border:1px solid #d8cfae;border-radius:6px;padding:.8rem;font:1rem/1.7 Georgia,'Times New Roman',serif;color:#222;"></textarea>
-      </div>
-      <div style="padding:0 1.4rem 1.2rem;display:flex;gap:.6rem;justify-content:flex-end;">
-        <button onclick="document.getElementById('modal-editor-pagina').remove()" style="background:transparent;border:1.5px solid #ccc;color:#555;padding:.6rem 1.2rem;border-radius:999px;cursor:pointer;font:700 .82rem Georgia,serif;">Cancelar</button>
-        <button onclick="salvarEdicaoPagina()" style="background:linear-gradient(135deg,#8a6d1a,#c9a84c);border:none;color:#1a1206;padding:.6rem 1.4rem;border-radius:999px;cursor:pointer;font:700 .82rem Georgia,serif;">💾 Salvar e Rediagramar</button>
-      </div>
+      <div id="area-editavel-pagina" contenteditable="true" spellcheck="false"
+        style="font-family:${cfg.fonte||"Georgia,'Times New Roman',serif"};font-size:${cfg.tamanhoFonte||12}pt;line-height:${cfg.entrelinha||1.52};color:#222;outline:none;text-align:justify;">${parasHtml}</div>
     </div>`;
-  document.body.appendChild(modal);
-  // .value em vez de embutir no HTML — evita problema com conteúdo que
-  // tenha "</textarea>" ou tags soltas (ex.: texto colado de outro lugar).
-  document.getElementById('txt-editor-pagina').value=textoEditavel;
-  modal._idsBlocos=ids;
-  modal._qtdOriginal=blocosOriginais.length;
+
+  $('btnAnt').style.display='none';
+  $('btnProx').style.display='none';
+  $('btnEditarPagina').style.display='none';
+  $('btnSalvarEdicaoPagina').style.display='inline-block';
+  $('btnCancelarEdicaoPagina').style.display='inline-block';
+  document.getElementById('area-editavel-pagina').focus();
+}
+
+function cancelarEdicaoPagina(){
+  _edicaoPaginaAtual=null;
+  $('btnAnt').style.display='';
+  $('btnProx').style.display='';
+  $('btnEditarPagina').style.display='';
+  $('btnSalvarEdicaoPagina').style.display='none';
+  $('btnCancelarEdicaoPagina').style.display='none';
+  renderPag();
 }
 
 function salvarEdicaoPagina(){
-  const modal=document.getElementById('modal-editor-pagina');
-  if(!modal||!resultado) return;
-  const novoTexto=document.getElementById('txt-editor-pagina').value;
-  const partes=novoTexto.split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
-  if(partes.length!==modal._qtdOriginal){
-    alert(`Esta página tinha ${modal._qtdOriginal} parágrafo(s)/bloco(s). Agora o texto tem ${partes.length} — não dá pra adicionar ou remover parágrafos por aqui (edite o texto completo lá em cima pra isso). Ajuste sem mudar a quantidade de linhas em branco entre blocos.`);
+  if(!_edicaoPaginaAtual||!resultado) return;
+  const area=document.getElementById('area-editavel-pagina');
+  const paragrafos=Array.from(area.querySelectorAll('p'))
+    .map(p=>p.innerText.trim())
+    .filter(Boolean);
+  if(paragrafos.length!==_edicaoPaginaAtual.qtdOriginal){
+    alert(`Esta página tinha ${_edicaoPaginaAtual.qtdOriginal} parágrafo(s)/bloco(s). Agora ficaram ${paragrafos.length} — não dá pra adicionar ou remover parágrafos por aqui (edite o texto completo lá em cima pra isso). Desfaça essa mudança de estrutura antes de salvar.`);
     return;
   }
   const cfg=resultado.cfg;
   const corr=cfg.correcao==='media'?CeleiroV3.correcaoMedia:CeleiroV3.correcaoLeve;
-  modal._idsBlocos.forEach((id,i)=>{
+  _edicaoPaginaAtual.ids.forEach((id,i)=>{
     const bloco=resultado.blocos.find(b=>b.id===id);
     if(!bloco) return;
-    let texto=corr(partes[i]);
+    let texto=corr(paragrafos[i]);
     if(cfg.hifenizacao) texto=CeleiroV3.hifenizarTexto(texto);
     bloco.conteudo=texto;
   });
@@ -829,7 +840,13 @@ function salvarEdicaoPagina(){
   const textoReconstruido=resultado.blocos.map(b=>b.conteudo.replace(/­/g,'')).join('\n\n');
   $('texto').value=textoReconstruido;
 
-  modal.remove();
+  _edicaoPaginaAtual=null;
+  $('btnAnt').style.display='';
+  $('btnProx').style.display='';
+  $('btnEditarPagina').style.display='';
+  $('btnSalvarEdicaoPagina').style.display='none';
+  $('btnCancelarEdicaoPagina').style.display='none';
+
   const paginaAlvo=pagAtual;
   render();
   pagAtual=Math.min(paginaAlvo,resultado?resultado.paginas.length:0);
