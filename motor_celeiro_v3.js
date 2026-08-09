@@ -252,7 +252,16 @@ function parseImagem(bloco){
   };
 }
 
-function tipoBlocoGeral(bloco){
+// Módulos cujo preset é puramente prosa/texto técnico (PRESETS[x].tipo
+// 'prosa' ou 'tecnico') nunca devem classificar um bloco como verso —
+// um parágrafo de romance às vezes chega com quebras de linha internas
+// (o rascunho da IA "enrola" a frase em linhas curtas em vez de uma
+// linha só), e a heurística de "linhas curtas = poesia" abaixo tomava
+// isso por haicai/cordel/poesia e renderizava sem recuo, uma linha
+// visual por quebra — o parágrafo virava vários pedaços soltos na página.
+const MODULOS_SO_PROSA=new Set(['polux','hercules']);
+
+function tipoBlocoGeral(bloco, modulo){
   // Se hifenização já rodou, o bloco pode ter hífens invisíveis (­)
   // partindo palavras como "Ca­pí­tu­lo" — isso quebra RE_CAPITULO e os
   // testes de comprimento de linha. Classificação precisa ser cega a
@@ -264,6 +273,7 @@ function tipoBlocoGeral(bloco){
   if(RE_CAPITULO.test(ls[0])) return 'capitulo';
   if(ls.length===1&&ls[0].length<60&&!/[.!?]$/.test(ls[0])) return 'subtitulo';
   if(/^[-–—]\s/.test(ls[0])) return 'dialogo';
+  if(MODULOS_SO_PROSA.has(modulo)) return 'prosa';
   // sextilha (cordel): 6 linhas com até 70 chars cada
   if(ls.length===6&&ls.every(l=>l.length<=72)) return 'sextilha';
   // décima (cordel): 10 linhas
@@ -284,7 +294,7 @@ function quebrarBlocos(texto, modulo){
   return blocos.map((conteudo,i)=>({
     id:`B${String(i+1).padStart(4,'0')}`,
     ordem:i+1,
-    tipo:tipoBlocoGeral(conteudo),
+    tipo:tipoBlocoGeral(conteudo, modulo),
     conteudo,
     palavras:(conteudo.match(/\b[\wÀ-ÿ'-]+\b/g)||[]).length,
   }));
