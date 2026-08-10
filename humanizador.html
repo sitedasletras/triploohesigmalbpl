@@ -111,8 +111,9 @@ select option { background: var(--s1); }
 }
 .p1::before { background: var(--quente); }
 .p2::before { background: var(--ouro); }
-.p3::before { background: var(--violeta); }
-.p4::before { background: var(--verde); }
+.p3::before { background: var(--rosa); }
+.p4::before { background: var(--violeta); }
+.p5::before { background: var(--verde); }
 .passagem-num { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-bottom: 6px; }
 .passagem-nome { font-family: var(--playfair); font-size: 15px; color: var(--ouro2); margin-bottom: 4px; }
 .passagem-desc { font-size: 13px; font-style: italic; color: rgba(240,232,224,0.5); line-height: 1.5; }
@@ -268,6 +269,46 @@ select option { background: var(--s1); }
 .comp-depois .comp-label { color: var(--verde); }
 .comp-txt { font-family: var(--crimson); font-size: 16px; line-height: 1.8; font-style: italic; }
 
+/* REVISÃO POR TRECHO */
+.revisao {
+  display: none; background: var(--s1); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 28px;
+}
+.revisao.visivel { display: block; }
+.revisao-titulo { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 3px; margin-bottom: 8px; }
+.revisao-sub { font-size: 15px; font-style: italic; color: rgba(240,232,224,0.6); margin-bottom: 24px; line-height: 1.7; }
+.trecho-card { background: var(--s2); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 16px; }
+.trecho-tipo { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--rosa); text-transform: uppercase; margin-bottom: 6px; }
+.trecho-motivo { font-size: 13px; font-style: italic; color: rgba(240,232,224,0.55); margin-bottom: 14px; }
+.opcoes-linha { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 10px; }
+.opcao-card {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 14px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 8px;
+}
+.opcao-card:hover { border-color: rgba(212,130,74,0.4); }
+.opcao-card.selecionada { border-color: var(--verde); background: rgba(76,175,122,0.06); }
+.opcao-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.opcao-nome { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+.opcao-score { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 2px 9px; border-radius: 999px; border: 1px solid; }
+.opcao-texto { font-size: 15px; line-height: 1.7; color: rgba(240,232,224,0.85); }
+.opcao-card.selecionada .opcao-texto { color: var(--texto); }
+.btn-continuar {
+  font-family: var(--playfair); font-size: 16px; font-weight: 900;
+  padding: 14px 32px; border: 1px solid var(--verde); border-radius: 999px;
+  color: var(--verde2); background: rgba(76,175,122,0.1); cursor: pointer;
+  margin-top: 8px; transition: all 0.2s;
+}
+.btn-continuar:hover { background: rgba(76,175,122,0.2); }
+
+/* CHECKLIST FINAL */
+.checklist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 8px; }
+.checklist-item {
+  display: flex; align-items: center; gap: 10px; background: var(--s2);
+  border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 13px;
+}
+.checklist-ok { color: var(--verde2); }
+.checklist-falta { color: var(--rosa); }
+
 /* MARCAS DETECTADAS */
 .marca-item {
   display: flex; align-items: flex-start; gap: 12px;
@@ -324,11 +365,16 @@ select option { background: var(--s1); }
 }
 </style>
 <script src="config.js"></script>
+<script src="checklist_antiia.js"></script>
+<script src="heteronimos_roster.js"></script>
+<script src="perfis_voz.js"></script>
+<script src="motor_celeiro_v3.js"></script>
+<script src="motores_lapidar/motor_roteador_v1.js"></script>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="marca">HUMANIZADOR · OHE-PEÇANHA<small>REMOÇÃO DE MARCAS DE IA · VOZ DO HETERÔNIMO · 4 PASSAGENS</small></div>
+  <div class="marca">HUMANIZADOR · OHE-PEÇANHA<small>CHECKLIST ANTI-IA · TRECHO A TRECHO · VOZ DO HETERÔNIMO OBRIGATÓRIA</small></div>
   <nav class="tnav">
     <a href="lapidacao_psicologica.html">← Lapidação Psi</a>
     <a href="espinha_dorsal.html">Espinha Dorsal</a>
@@ -337,10 +383,10 @@ select option { background: var(--s1); }
 </div>
 
 <header class="hero">
-  <div class="hero-badge">✍ HUMANIZADOR · 4 PASSAGENS · INDETECTÁVEL · VOZ DO HETERÔNIMO</div>
+  <div class="hero-badge">✍ CHECKLIST DE 13 VÍCIOS · VOCÊ ESCOLHE A SUBSTITUIÇÃO · SEMPRE NA VOZ DO HETERÔNIMO</div>
   <h1>Humanizador</h1>
-  <div class="hero-sub">OHE-PEÇANHA · HUMANIZAÇÃO PROFUNDA · REMOÇÃO TOTAL DE MARCAS DE IA</div>
-  <p class="hero-desc">4 passagens progressivas — detecção, purificação, injeção de voz e verificação final. A obra sai indistinguível de escrita humana, com a assinatura do heterônimo.</p>
+  <div class="hero-sub">OHE-PEÇANHA · REVISÃO CONTRA O CHECKLIST ANTI-PADRÃO-DE-IA</div>
+  <p class="hero-desc">Nenhum detector é confiável — nem os externos, nem uma nota que o próprio modelo se dá. Por isso aqui a pontuação vem de contar, objetivamente, quantos dos 14 vícios do checklist cada trecho ainda carrega — e é você quem escolhe qual opção de reescrita entra no texto final.</p>
 </header>
 
 <main class="wrap">
@@ -360,22 +406,10 @@ select option { background: var(--s1); }
 
       <div class="grid2">
         <div>
-          <label class="campo-label">// HETERÔNIMO (voz a injetar)</label>
+          <label class="campo-label">// HETERÔNIMO (voz a injetar — obrigatório)</label>
           <select id="heteronimo-sel">
             <option value="">— selecionar —</option>
-            <option value="amanda">Amanda Fernanda Fisher Leão</option>
-            <option value="imediato">Imediato Thompson</option>
-            <option value="aurora">Aurora Wings</option>
-            <option value="aj">A.J. dos Santos</option>
-            <option value="amelie">Amélie Maia Hanna</option>
-            <option value="anisio">Anísio Teixeira</option>
-            <option value="articus">Articus da Pérsida</option>
-            <option value="birihani">Birihani Selami Ina Tesifa</option>
-            <option value="caliope">Calíope Papazissis</option>
-            <option value="chesco">Chesco Irlanda</option>
-            <option value="creone">Creone Porfírio</option>
-            <option value="darius">Dárius Ninus Vamus</option>
-            <option value="wagner">Wagner Planas</option>
+            <!-- populado em runtime a partir do roster completo (heteronimos_roster.js) -->
             <option value="custom">Outro — descrever abaixo</option>
           </select>
         </div>
@@ -392,33 +426,38 @@ select option { background: var(--s1); }
 
       <!-- PASSAGENS -->
       <div>
-        <label class="campo-label">// AS 4 PASSAGENS DO HUMANIZADOR</label>
+        <label class="campo-label">// COMO O HUMANIZADOR FUNCIONA</label>
         <div class="passagens-config">
           <div class="passagem-card p1">
             <div class="passagem-num">PASSAGEM 01</div>
             <div class="passagem-nome">Detecção & Mapeamento</div>
-            <div class="passagem-desc">Identifica todas as marcas de IA — simetria, palavras-gatilho, ritmo mecânico, uniformidade</div>
+            <div class="passagem-desc">Varre o texto contra os 14 vícios do checklist anti-IA e marca cada trecho flagrado</div>
           </div>
           <div class="passagem-card p2">
             <div class="passagem-num">PASSAGEM 02</div>
-            <div class="passagem-nome">Purificação Estrutural</div>
-            <div class="passagem-desc">Remove marcas detectadas — quebra simetria, varia parágrafos, insere respirações e hesitações</div>
+            <div class="passagem-nome">Geração de Opções</div>
+            <div class="passagem-desc">Escreve 2 alternativas de reescrita pra cada trecho marcado, preservando o sentido</div>
           </div>
           <div class="passagem-card p3">
             <div class="passagem-num">PASSAGEM 03</div>
-            <div class="passagem-nome">Injeção de Voz</div>
-            <div class="passagem-desc">Injeta a assinatura do heterônimo — vocabulário, cadência, marcas únicas, imperfeições humanas</div>
+            <div class="passagem-nome">Classificação por Checklist</div>
+            <div class="passagem-desc">Uma chamada independente conta quantos dos 14 vícios sobram em cada opção — nota objetiva, não autoavaliação</div>
           </div>
           <div class="passagem-card p4">
+            <div class="passagem-num">SUA VEZ</div>
+            <div class="passagem-nome">Revisão Trecho a Trecho</div>
+            <div class="passagem-desc">Você vê cada trecho destacado com as opções e a nota — escolhe qual entra no texto final</div>
+          </div>
+          <div class="passagem-card p5">
             <div class="passagem-num">PASSAGEM 04</div>
-            <div class="passagem-nome">Verificação & Blindagem</div>
-            <div class="passagem-desc">Claude avalia o próprio texto — se detectar marcas, faz rodada extra até considerar indetectável</div>
+            <div class="passagem-nome">Voz do Heterônimo & Verificação Final</div>
+            <div class="passagem-desc">Injeta o Perfil de Voz completo do heterônimo (tradição, estilo, "nunca faz"); depois roda o checklist de novo no texto inteiro</div>
           </div>
         </div>
       </div>
 
       <button class="btn-humanizar" id="btn-humanizar" onclick="iniciarHumanizacao()">
-        ✍ INICIAR HUMANIZAÇÃO — 4 PASSAGENS
+        ✍ INICIAR ANÁLISE — DETECÇÃO E OPÇÕES
       </button>
 
     </div>
@@ -438,22 +477,29 @@ select option { background: var(--s1); }
     <div class="etapa-pipeline aguardando" id="etapa-2">
       <div class="etapa-circulo" id="circ-2">02</div>
       <div class="etapa-info">
-        <div class="etapa-nome">Purificação Estrutural</div>
+        <div class="etapa-nome">Geração de Opções</div>
         <div class="etapa-detalhe" id="det-2">Aguardando passagem 1...</div>
       </div>
     </div>
     <div class="etapa-pipeline aguardando" id="etapa-3">
       <div class="etapa-circulo" id="circ-3">03</div>
       <div class="etapa-info">
-        <div class="etapa-nome">Injeção de Voz do Heterônimo</div>
+        <div class="etapa-nome">Classificação por Checklist</div>
         <div class="etapa-detalhe" id="det-3">Aguardando passagem 2...</div>
       </div>
     </div>
     <div class="etapa-pipeline aguardando" id="etapa-4">
       <div class="etapa-circulo" id="circ-4">04</div>
       <div class="etapa-info">
-        <div class="etapa-nome">Verificação & Blindagem Final</div>
-        <div class="etapa-detalhe" id="det-4">Aguardando passagem 3...</div>
+        <div class="etapa-nome">Voz do Heterônimo</div>
+        <div class="etapa-detalhe" id="det-4">Aguardando sua revisão...</div>
+      </div>
+    </div>
+    <div class="etapa-pipeline aguardando" id="etapa-5">
+      <div class="etapa-circulo" id="circ-5">05</div>
+      <div class="etapa-info">
+        <div class="etapa-nome">Verificação Final (checklist)</div>
+        <div class="etapa-detalhe" id="det-5">Aguardando passagem 4...</div>
       </div>
     </div>
 
@@ -462,9 +508,19 @@ select option { background: var(--s1); }
     </button>
   </div>
 
+  <!-- REVISÃO TRECHO A TRECHO -->
+  <div class="revisao" id="revisao">
+    <div class="revisao-titulo">// SUA VEZ · ESCOLHA A SUBSTITUIÇÃO DE CADA TRECHO</div>
+    <div class="revisao-sub" id="revisao-resumo">—</div>
+    <div id="trechos-content"></div>
+    <button class="btn-continuar" id="btn-continuar" onclick="aplicarEscolhasEContinuar()">
+      → APLICAR ESCOLHAS E CONTINUAR
+    </button>
+  </div>
+
   <!-- PLACAR DE HUMANIDADE -->
   <div class="placar" id="placar">
-    <div class="placar-titulo">// PLACAR DE HUMANIDADE APÓS 4 PASSAGENS</div>
+    <div class="placar-titulo">// PLACAR FINAL · CONTAGEM OBJETIVA DO CHECKLIST</div>
     <div class="placar-nota-wrap">
       <div class="placar-nota" id="placar-nota">—</div>
       <div class="placar-info">
@@ -472,7 +528,7 @@ select option { background: var(--s1); }
         <div class="placar-badges" id="placar-badges"></div>
       </div>
     </div>
-    <div class="metricas-grid" id="metricas-grid"></div>
+    <div class="checklist-grid" id="metricas-grid"></div>
   </div>
 
   <!-- RESULTADO -->
@@ -498,6 +554,7 @@ select option { background: var(--s1); }
     </div>
 
     <div class="acoes-bar">
+      <button class="btn-acao btn-proximo" id="btn-ir-diagramador" style="display:none;background:var(--quente3);font-weight:700;" onclick="irParaDiagramador()">🛠️ CONTINUAR PARA O DIAGRAMADOR</button>
       <button class="btn-acao btn-proximo" onclick="irParaRevisao()">→ REVISÃO FERNANDO PEÇANHA</button>
       <button class="btn-acao btn-mais" onclick="maisUmaPassagem()">↺ MAIS UMA PASSAGEM</button>
       <button class="btn-acao btn-dl" onclick="baixarHumanizado()">↓ BAIXAR</button>
@@ -516,32 +573,117 @@ select option { background: var(--s1); }
 // 4 Passagens · Remoção de IA · Voz do Heterônimo
 // ══════════════════════════════════════════════════════════════
 
-const HETERONIMOS_VOZ = {
-  amanda: { nome: 'Amanda Fernanda Fisher Leão', voz: 'Narrativa oceânica visceral. Frases que respiram como ondas — algumas longas e arrastadas, outras cortantes como recife. Vocabulário marítimo mesclado ao mítico. Usa elipses inesperadas. Imagens sensoriais densas do mar. Nunca explica o sobrenatural — apenas mostra. Às vezes uma frase incompleta proposital. Coloquialismo pontual em diálogos.' },
-  imediato: { nome: 'Imediato Thompson', voz: 'Épico cosmológico de tempo dilatado. Frases longas e subordinadas, como órbitas. Vocabulário científico mesclado ao mítico. Números e coordenadas estelares aparecem no meio da prosa. Pausas longas entre ideias. Nunca há pressa. O narrador sabe mais do que conta.' },
-  aurora: { nome: 'Aurora Wings', voz: 'Tech-noir espacial. Frases curtas e precisas intercaladas com longas técnicas. Frieza calculada que esconde humanidade. Jargão cibernético naturalizado. O corpo humano descrito como hardware. Emoções traduzidas em falhas de sistema.' },
-  aj: { nome: 'A.J. dos Santos', voz: 'Urbano e cru. Frases curtas. Sem floreio. Vocabulário da rua misturado ao literário de forma inesperada. Diálogos secos. O narrador não julga. Detalhes físicos concretos — cheiro, calor, barulho. Ironia sutil.' },
-  amelie: { nome: 'Amélie Maia Hanna', voz: 'Prosa poética densa. Tempo não-linear — memória e presente se misturam sem aviso. Frases que começam em um lugar e terminam em outro. Imagens europeias de interior. Melancolia lírica. Silêncios entre parágrafos que pesam.' },
-  anisio: { nome: 'Anísio Teixeira', voz: 'Narrador compassivo e lento. Oralidade nordestina naturalizada. O coletivo como personagem. Tempo circular — as mesmas coisas acontecem gerações depois. Descrições da terra e do corpo. Sabedoria popular integrada à narrativa.' },
-  articus: { nome: 'Articus da Pérsida', voz: 'Contador de histórias ancestral. Narrativa em espiral — a história dentro da história. Aforismos que aparecem sem aviso. Voz de quem sabe o fim desde o início. Oriente mítico no vocabulário. Tempo como ilusão.' },
-  birihani: { nome: 'Birihani Selami Ina Tesifa', voz: 'Verso-prosa ritualístico. Ritmo percussivo — pode-se bater o pé lendo. Natureza como entidade com voz. Repetições intencionais como refrão. Oralidade africana do leste. O corpo e a terra são a mesma coisa.' },
-  caliope: { nome: 'Calíope Papazissis', voz: 'Poesia densa com ecos trágicos. O corpo como território de guerra. Grécia interior — não turística. Imagens que sangram. Frases que parecem incompletas mas são cirúrgicas. Mito grego vivendo no cotidiano.' },
-  chesco: { nome: 'Chesco Irlanda', voz: 'Realismo mágico com ironia sutil. Narrador não-confiável que mente com elegância. América Latina onde o impossível é banal. Humor negro discreto. Mistura de registros — culto e popular. O sobrenatural sem explicação.' },
-  creone: { nome: 'Creone Porfírio', voz: 'Narrador clínico e frio. Expõe sem julgar. Linguagem burocrática e literária alternadas. O horror no cotidiano institucional. Frases longas e bem-construídas que escondem monstruosidades. Nunca usa adjetivos morais.' },
-  darius: { nome: 'Dárius Ninus Vamus', voz: 'Tensão paranóica constante. Linguagem que fragmenta sob pressão. Frases interrompidas. O leitor sabe mais que o protagonista — ou menos. Distopia onde a língua é arma. Repetição de palavras como obsessão.' },
-  wagner: { nome: 'Wagner Planas', voz: 'Metaficcional e filosófico. O autor aparece dentro da obra. A forma é o conteúdo. Citações que podem ser reais ou inventadas — nunca se sabe. Humor intelectual. A escrita comentando a si mesma.' },
-};
+// ── HETERÔNIMOS: roster completo (heteronimos_roster.js) + Perfil de Voz
+// curado (perfis_voz.js) — nunca a lista pequena de antes (13 hardcoded
+// aqui mesmo). Cada heterônimo tem tradição/formação, estilo e "nunca
+// faz" específicos (montarBlocoPerfilVoz), que a passagem de voz tem
+// que respeitar — não é um estilo genérico resumido numa frase.
+function popularSelectHeteronimos() {
+  const sel = document.getElementById('heteronimo-sel');
+  const roster = (typeof getRosterCompleto === 'function') ? getRosterCompleto() : [];
+  const nomes = roster.map(h => h.nome).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  const optCustom = sel.querySelector('option[value="custom"]');
+  nomes.forEach(nome => {
+    const opt = document.createElement('option');
+    opt.value = nome;
+    opt.textContent = nome;
+    sel.insertBefore(opt, optCustom);
+  });
+}
+popularSelectHeteronimos();
 
 let estadoAtual = {
   textoOriginal: '',
   textoPorPassagem: [],
   marcasDetectadas: [],
+  trechos: [],        // um item por marca: {padrao, titulo, motivo, original, opcaoA, opcaoB, scoreOriginal, scoreA, scoreB, escolha}
+  repeticoes: [],     // frases/parágrafos repetidos: {nivel, texto, ocorrencias, escolha}
+  textoRevisado: '',  // texto original com as escolhas do usuário já aplicadas
   heteronimo: null,
   titulo: '',
   rodando: false,
   parado: false,
   resultadoFinal: null
 };
+
+// ── CHECKLIST ANTI-IA (checklist_antiia.js) ──
+// Título curto de cada vício, pra exibir na UI (o array completo tem a
+// explicação inteira, boa pro prompt mas longa demais pro card).
+function tituloPadrao(indice) {
+  const p = PADROES_ANTI_IA[indice];
+  return p ? p.split(':')[0] : `Padrão ${indice + 1}`;
+}
+// Pontuação objetiva: quantos dos N vícios do checklist NÃO aparecem
+// nessa lista de índices presentes, em percentual. Nunca pede pro
+// modelo "se dar uma nota" — só conta contra a lista fixa.
+function pontuarPorChecklist(indicesPresentes) {
+  const presentes = new Set(indicesPresentes || []);
+  return Math.round((PADROES_ANTI_IA.length - presentes.size) / PADROES_ANTI_IA.length * 100);
+}
+function corPontuacao(score) {
+  return score >= 90 ? 'var(--verde2)' : score >= 70 ? 'var(--quente2)' : 'var(--rosa)';
+}
+
+// ── DETECÇÃO DE REPETIÇÃO (parágrafo/frase igual aparecendo 2x+) ──
+// Puramente client-side, sem chamada à API — às vezes a geração roda o
+// texto de novo e repete um trecho inteiro; isso não é um vício de
+// estilo de IA, é uma falha de geração, então detecta por comparação de
+// texto exata, não pelo checklist.
+function detectarRepeticoes(texto) {
+  const normalizar = s => s.trim().replace(/\s+/g, ' ');
+  const encontrados = [];
+  const jaReportado = new Set();
+
+  // Parágrafos duplicados (blocos separados por linha em branco) —
+  // granularidade principal, cobre o caso de "o texto inteiro repetiu".
+  const paragrafos = texto.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+  const contagemParag = new Map();
+  paragrafos.forEach(p => {
+    const norm = normalizar(p);
+    if (norm.length < 40) return;
+    contagemParag.set(norm, (contagemParag.get(norm) || 0) + 1);
+  });
+  paragrafos.forEach(p => {
+    const norm = normalizar(p);
+    if (jaReportado.has(norm)) return;
+    const n = contagemParag.get(norm) || 0;
+    if (n > 1) {
+      encontrados.push({ nivel: 'parágrafo', texto: p, ocorrencias: n, escolha: 'remover' });
+      jaReportado.add(norm);
+    }
+  });
+
+  // Frases duplicadas DENTRO do mesmo parágrafo (ex.: "Era uma noite
+  // fria. Era uma noite fria. O vento..." — a geração engasgou e
+  // repetiu a própria frase antes de seguir em frente). Importante:
+  // escaneia TODO parágrafo, inclusive os já flagrados como parágrafo
+  // duplicado acima — remover a cópia inteira do parágrafo (achado 1)
+  // não resolve uma frase repetida DENTRO da cópia que sobra. Só não
+  // compara frases ENTRE parágrafos diferentes, pra não confundir um
+  // refrão/frase de efeito repetida de propósito em pontos distantes
+  // do texto com uma falha de geração.
+  const jaReportadoFrase = new Set();
+  paragrafos.forEach(p => {
+    const frases = p.split(/(?<=[.!?])\s+(?=[A-ZÀ-Ú—\-])/).map(f => f.trim()).filter(Boolean);
+    const contagemFrase = new Map();
+    frases.forEach(f => {
+      const norm = normalizar(f);
+      if (norm.length < 50) return; // frases curtas repetem por razão legítima (tag de diálogo etc.)
+      contagemFrase.set(norm, (contagemFrase.get(norm) || 0) + 1);
+    });
+    frases.forEach(f => {
+      const norm = normalizar(f);
+      if (jaReportadoFrase.has(norm)) return;
+      const n = contagemFrase.get(norm) || 0;
+      if (n > 1) {
+        encontrados.push({ nivel: 'frase', texto: f, ocorrencias: n, escolha: 'remover' });
+        jaReportadoFrase.add(norm);
+      }
+    });
+  });
+
+  return encontrados;
+}
 
 // ── UI HELPERS ──
 document.getElementById('heteronimo-sel').addEventListener('change', function() {
@@ -596,14 +738,22 @@ async function chamarClaudeJSON(system, user, maxTokens = 3000, schema = null) {
 }
 
 // ── PASSAGEM 1: DETECÇÃO ──
-async function passagem1_deteccao(texto) {
-  setEtapa(1, 'ativa', 'Varrendo o texto em busca de marcas de IA...');
+// Mesma função usada na detecção inicial (texto bruto) e na verificação
+// final (texto já revisado) — o placar só é comparável entre "antes" e
+// "depois" porque é sempre a MESMA régua fixa medindo os dois lados,
+// nunca uma nota que o texto (ou o modelo que o escreveu) dá a si mesmo.
+async function detectarPadroes(texto, etapaNum) {
+  setEtapa(etapaNum, 'ativa', 'Varrendo o texto contra o checklist anti-IA...');
 
-  const system = `Você é um detector especializado em marcas de escrita gerada por IA. Analise o texto e identifique TODAS as marcas.
+  const listaChecklist = PADROES_ANTI_IA.map((p, i) => `${i}. ${p}`).join('\n');
+  const system = `Você é um classificador que aplica um checklist FIXO de ${PADROES_ANTI_IA.length} vícios de escrita de IA. Não invente categorias novas — use só os índices abaixo.
 
-Tipos de marcas: simetria_excessiva, palavra_gatilho_ia, ritmo_mecanico, paragrafo_uniforme, transicao_artificial, explicacao_desnecessaria, adjetivacao_generica, ausencia_imperfeicao, estrutura_previsivel, voz_neutra_demais`;
+CHECKLIST (índice: descrição):
+${listaChecklist}
 
-  const SCHEMA_DETECCAO_IA = {
+Para cada ocorrência de um vício no texto, identifique o índice do padrão, o trecho exato (até 70 caracteres, cópia literal do texto) e o motivo específico daquela ocorrência. O mesmo padrão pode ocorrer várias vezes — reporte cada ocorrência separadamente.`;
+
+  const SCHEMA_DETECCAO = {
     type: 'object',
     additionalProperties: false,
     properties: {
@@ -613,113 +763,168 @@ Tipos de marcas: simetria_excessiva, palavra_gatilho_ia, ritmo_mecanico, paragra
           type: 'object',
           additionalProperties: false,
           properties: {
-            tipo: { type: 'string' },
-            trecho: { type: 'string', description: 'até 60 chars' },
+            padrao: { type: 'integer', description: `índice 0 a ${PADROES_ANTI_IA.length - 1}` },
+            trecho: { type: 'string', description: 'até 70 chars, cópia exata do texto' },
             motivo: { type: 'string' }
           },
-          required: ['tipo', 'trecho', 'motivo']
+          required: ['padrao', 'trecho', 'motivo']
         }
-      },
-      score_ia: { type: 'number', description: '0 a 100' },
-      principais_problemas: { type: 'array', items: { type: 'string' } },
-      texto_com_nivel: { type: 'string', enum: ['baixo', 'medio', 'alto', 'critico'] }
+      }
     },
-    required: ['marcas', 'score_ia', 'principais_problemas', 'texto_com_nivel']
+    required: ['marcas']
   };
 
-  const resultado = await chamarClaudeJSON(system, `Analise este texto:\n\n${texto}`, 3000, SCHEMA_DETECCAO_IA);
-  setEtapa(1, 'concluida', `${resultado.marcas?.length || 0} marcas detectadas · Score IA: ${resultado.score_ia}%`);
-  return resultado;
+  const resultado = await chamarClaudeJSON(system, `Analise este texto:\n\n${texto}`, 3000, SCHEMA_DETECCAO);
+  const marcas = resultado.marcas || [];
+  const score = pontuarPorChecklist(marcas.map(m => m.padrao));
+  const distintos = new Set(marcas.map(m => m.padrao)).size;
+  setEtapa(etapaNum, 'concluida', `${marcas.length} ocorrência(s) · ${distintos} padrão(ões) distinto(s) · Checklist: ${score}%`);
+  return { marcas, score };
 }
 
-// ── PASSAGEM 2: PURIFICAÇÃO ──
-async function passagem2_purificacao(texto, marcas) {
-  setEtapa(2, 'ativa', 'Removendo marcas e quebrando padrões artificiais...');
+// ── PASSAGEM 2: GERAÇÃO DE OPÇÕES POR TRECHO ──
+async function passagem2_gerarOpcoes(marcas) {
+  if (marcas.length === 0) {
+    setEtapa(2, 'concluida', 'Nenhum trecho marcado — nada para reescrever');
+    return [];
+  }
+  setEtapa(2, 'ativa', `Escrevendo 2 opções de reescrita para cada um dos ${marcas.length} trecho(s)...`);
 
-  const listaMarcas = (marcas || []).map(m => `- ${m.tipo}: "${m.trecho}" → ${m.motivo}`).join('\n');
+  const listaTrechos = marcas.map((m, i) =>
+    `${i}. TRECHO: "${m.trecho}"\n   VÍCIO (${tituloPadrao(m.padrao)}): ${m.motivo}`
+  ).join('\n\n');
 
-  const system = `Você é um purificador de texto literário. Sua missão é remover TODAS as marcas de escrita de IA mantendo o sentido e a qualidade literária.
+  const system = `Você é um editor literário. Para cada trecho marcado abaixo, escreva DUAS reescritas alternativas que corrijam o vício apontado.
 
-REGRAS ABSOLUTAS:
-1. Varie radicalmente o tamanho dos parágrafos — alguns longos, alguns curtíssimos, alguns de uma linha
-2. Quebre a simetria — frases de tamanhos irregulares
-3. Elimine palavras-gatilho de IA: ademais, portanto, além disso, é importante ressaltar, em suma, no entanto (quando repetidos), cabe destacar, vale ressaltar
-4. Insira hesitações, elipses, respirações naturais
-5. Varie a pontuação de forma orgânica
-6. Introduza pequenas "imperfeições" estilísticas que escritores humanos cometem
-7. Mantenha o conteúdo narrativo intacto — só mude a forma
+REGRAS:
+1. Preserve o sentido e o conteúdo do trecho original — só mude a forma
+2. As duas opções devem ser diferentes entre si, não variações triviais uma da outra
+3. Corrija o vício apontado sem introduzir outro vício de IA na reescrita
+4. Mantenha o tamanho aproximado do trecho original — ele precisa encaixar no lugar de onde saiu, no meio do texto
+5. Responda com exatamente ${marcas.length} item(ns), na mesma ordem em que os trechos foram listados`;
 
-Responda APENAS com o texto purificado, sem comentários.`;
+  const SCHEMA_OPCOES = {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      opcoes: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            opcao_a: { type: 'string' },
+            opcao_b: { type: 'string' }
+          },
+          required: ['opcao_a', 'opcao_b']
+        }
+      }
+    },
+    required: ['opcoes']
+  };
 
-  const resultado = await chamarClaude(system,
-    `MARCAS DETECTADAS PARA CORRIGIR:\n${listaMarcas}\n\nTEXTO ORIGINAL:\n${texto}`, 5000);
-  setEtapa(2, 'concluida', 'Simetria quebrada · Marcas removidas · Respirações inseridas');
-  return resultado;
+  const resultado = await chamarClaudeJSON(system, `TRECHOS MARCADOS:\n\n${listaTrechos}`, 4000, SCHEMA_OPCOES);
+  const opcoes = resultado.opcoes || [];
+  setEtapa(2, 'concluida', `${opcoes.length} par(es) de opções gerado(s)`);
+  return opcoes;
 }
 
-// ── PASSAGEM 3: INJEÇÃO DE VOZ ──
-async function passagem3_voz(texto, het) {
-  setEtapa(3, 'ativa', `Injetando a voz de ${het.nome}...`);
+// ── PASSAGEM 3: CLASSIFICAÇÃO POR CHECKLIST (independente da geração) ──
+// Quem gerou as opções não é quem as avalia — essa chamada nem sabe qual
+// texto é o original e quais são as opções (rotulados X/Y/Z, embaralhado
+// de propósito), só classifica cada um contra os índices fixos.
+async function passagem3_classificarOpcoes(marcas, opcoes) {
+  if (marcas.length === 0) {
+    setEtapa(3, 'concluida', 'Nada para classificar');
+    return [];
+  }
+  setEtapa(3, 'ativa', 'Classificando cada opção contra o checklist, de forma independente...');
 
+  const listaChecklist = PADROES_ANTI_IA.map((p, i) => `${i}. ${tituloPadrao(i)}`).join('\n');
+  const blocos = marcas.map((m, i) => {
+    const op = opcoes[i] || { opcao_a: m.trecho, opcao_b: m.trecho };
+    return `GRUPO ${i}\nX: "${m.trecho}"\nY: "${op.opcao_a}"\nZ: "${op.opcao_b}"`;
+  }).join('\n\n');
+
+  const system = `Você é um classificador. Para cada texto curto abaixo, identifique quais dos vícios da lista fixa ele ainda contém — só os índices, sem comentário.
+
+CHECKLIST (índice: título):
+${listaChecklist}
+
+Cada texto (X, Y, Z de cada grupo) é independente — classifique cada um sozinho, sem comparar com os outros do grupo. Pode haver zero, um ou vários índices por texto.`;
+
+  const SCHEMA_CLASSIFICACAO = {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      classificacoes: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            grupo: { type: 'integer' },
+            padroes_x: { type: 'array', items: { type: 'integer' } },
+            padroes_y: { type: 'array', items: { type: 'integer' } },
+            padroes_z: { type: 'array', items: { type: 'integer' } }
+          },
+          required: ['grupo', 'padroes_x', 'padroes_y', 'padroes_z']
+        }
+      }
+    },
+    required: ['classificacoes']
+  };
+
+  const resultado = await chamarClaudeJSON(system, blocos, 3000, SCHEMA_CLASSIFICACAO);
+  const porGrupo = new Map((resultado.classificacoes || []).map(c => [c.grupo, c]));
+
+  const trechos = marcas.map((m, i) => {
+    const op = opcoes[i] || { opcao_a: m.trecho, opcao_b: m.trecho };
+    const c = porGrupo.get(i) || { padroes_x: [m.padrao], padroes_y: [], padroes_z: [] };
+    const t = {
+      padrao: m.padrao,
+      titulo: tituloPadrao(m.padrao),
+      motivo: m.motivo,
+      original: m.trecho,
+      opcaoA: op.opcao_a,
+      opcaoB: op.opcao_b,
+      scoreOriginal: pontuarPorChecklist(c.padroes_x),
+      scoreA: pontuarPorChecklist(c.padroes_y),
+      scoreB: pontuarPorChecklist(c.padroes_z),
+      escolha: 'a'
+    };
+    // Pré-seleciona a opção com maior nota (empate favorece a opção A,
+    // já que manter o "original" nunca corrige o vício apontado).
+    const maior = Math.max(t.scoreOriginal, t.scoreA, t.scoreB);
+    t.escolha = maior === t.scoreA ? 'a' : (maior === t.scoreB ? 'b' : 'original');
+    return t;
+  });
+
+  setEtapa(3, 'concluida', `${trechos.length} trecho(s) classificado(s)`);
+  return trechos;
+}
+
+// ── PASSAGEM 4: VOZ DO HETERÔNIMO (obrigatória) ──
+async function passagem4_voz(texto, het) {
+  setEtapa(4, 'ativa', `Injetando a voz de ${het.nome}...`);
+
+  const antiIA = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
   const system = `Você é ${het.nome}, heterônimo literário com voz e território únicos.
+${het.vozBloco}
+${antiIA}
 
-SUA VOZ E ASSINATURA:
-${het.voz}
-
-MISSÃO: Reescreva o texto integralmente na SUA voz. O texto deve soar como se VOCÊ o tivesse escrito do zero — não como uma adaptação.
+MISSÃO: Reescreva o texto integralmente na SUA voz. O texto deve soar como se VOCÊ o tivesse escrito do zero — não como uma adaptação. As regras de "NUNCA FAZ" do seu Perfil de Voz são absolutas — nenhuma delas pode aparecer no resultado.
 
 REGRAS:
 1. Mantenha TODO o conteúdo narrativo — personagens, eventos, diálogos, trama
 2. Transforme a forma completamente — vocabulário, ritmo, cadência, marcas linguísticas
 3. Insira suas peculiaridades únicas — as que um leitor reconheceria como suas
 4. Nenhuma frase deve soar como IA — cada uma deve soar como escrita à mão por você
-5. Inclua imperfeições humanas naturais da sua escrita específica
 
 Responda APENAS com o texto reescrito na sua voz.`;
 
   const resultado = await chamarClaude(system, `TEXTO PARA REESCREVER NA SUA VOZ:\n\n${texto}`, 5000);
-  setEtapa(3, 'concluida', `Voz de ${het.nome} injetada · Assinatura estabelecida`);
-  return resultado;
-}
-
-// ── PASSAGEM 4: VERIFICAÇÃO ──
-async function passagem4_verificacao(texto, het) {
-  setEtapa(4, 'ativa', 'Claude verificando o próprio texto — procurando marcas residuais...');
-
-  const system = `Você é um avaliador especialista em detectar texto gerado por IA. Avalie este texto com máxima rigorosidade.`;
-
-  const SCHEMA_VERIFICACAO_HUMANIZACAO = {
-    type: 'object',
-    additionalProperties: false,
-    properties: {
-      score_humanidade: { type: 'number', description: '0 a 100' },
-      indetectavel: { type: 'boolean' },
-      marcas_residuais: { type: 'array', items: { type: 'string' } },
-      pontos_fortes: { type: 'array', items: { type: 'string' } },
-      avaliacao: { type: 'string', description: 'parágrafo honesto' },
-      recomendacao: { type: 'string', enum: ['aprovado', 'mais_uma_passagem', 'revisao_manual'] },
-      metricas: {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
-          variedade_ritmica: { type: 'number', description: '0 a 100' },
-          naturalidade_vocabular: { type: 'number', description: '0 a 100' },
-          imperfeicoes_humanas: { type: 'number', description: '0 a 100' },
-          voz_autoral: { type: 'number', description: '0 a 100' },
-          ausencia_marcas_ia: { type: 'number', description: '0 a 100' }
-        },
-        required: ['variedade_ritmica', 'naturalidade_vocabular', 'imperfeicoes_humanas', 'voz_autoral', 'ausencia_marcas_ia']
-      }
-    },
-    required: ['score_humanidade', 'indetectavel', 'marcas_residuais', 'pontos_fortes', 'avaliacao', 'recomendacao', 'metricas']
-  };
-
-  const resultado = await chamarClaudeJSON(system,
-    `Avalie se este texto parece escrito por ${het.nome} (humano) ou por IA:\n\n${texto}`, 3000, SCHEMA_VERIFICACAO_HUMANIZACAO);
-
-  const nota = resultado.score_humanidade || 0;
-  const status = nota >= 90 ? '✓ INDETECTÁVEL' : nota >= 75 ? '⚠ QUASE LÁ' : '✗ PRECISA MAIS';
-  setEtapa(4, 'concluida', `Score de humanidade: ${nota}% · ${status}`);
+  setEtapa(4, 'concluida', `Voz de ${het.nome} injetada`);
   return resultado;
 }
 
@@ -730,20 +935,26 @@ async function iniciarHumanizacao() {
   const titulo = document.getElementById('titulo-obra').value.trim() || 'Obra sem título';
 
   if (!texto) { toast('Cole o texto para humanizar'); return; }
-  if (!hetKey) { toast('Selecione o heterônimo'); return; }
+  if (!hetKey) { toast('Selecione o heterônimo — a voz dele é obrigatória'); return; }
 
-  let het = HETERONIMOS_VOZ[hetKey];
+  let het;
   if (hetKey === 'custom') {
-    het = {
-      nome: 'Heterônimo personalizado',
-      voz: document.getElementById('custom-het').value.trim() || 'Escritor humano com voz única'
-    };
+    const desc = document.getElementById('custom-het').value.trim();
+    if (!desc) { toast('Descreva a voz do heterônimo personalizado'); return; }
+    het = { nome: 'Heterônimo personalizado', vozBloco: `\n\nVOZ E ASSINATURA:\n${desc}` };
+  } else {
+    const vozBloco = (typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(hetKey) : '';
+    if (!vozBloco) { toast(`Perfil de Voz de "${hetKey}" não encontrado — recarregue a página`); return; }
+    het = { nome: hetKey, vozBloco };
   }
 
   estadoAtual = {
     textoOriginal: texto,
     textoPorPassagem: [texto],
     marcasDetectadas: [],
+    trechos: [],
+    repeticoes: [],
+    textoRevisado: '',
     heteronimo: het,
     titulo,
     rodando: true,
@@ -753,46 +964,43 @@ async function iniciarHumanizacao() {
 
   document.getElementById('btn-humanizar').disabled = true;
   document.getElementById('pipeline').classList.add('visivel');
+  document.getElementById('revisao').classList.remove('visivel');
   document.getElementById('placar').classList.remove('visivel');
   document.getElementById('resultado-wrap').classList.remove('visivel');
   document.getElementById('btn-emergencia').disabled = false;
 
   // Reset etapas
-  for (let i = 1; i <= 4; i++) setEtapa(i, 'aguardando', i === 1 ? 'Iniciando...' : `Aguardando passagem ${i-1}...`);
+  for (let i = 1; i <= 5; i++) setEtapa(i, 'aguardando', i === 1 ? 'Iniciando...' : `Aguardando passagem ${i-1}...`);
 
   try {
-    // PASSAGEM 1
-    if (estadoAtual.parado) return;
-    const deteccao = await passagem1_deteccao(texto);
-    estadoAtual.marcasDetectadas = deteccao.marcas || [];
+    // Repetições: client-side, instantâneo, não gasta chamada de API.
+    estadoAtual.repeticoes = detectarRepeticoes(texto);
 
-    // PASSAGEM 2
+    // PASSAGEM 1 — detecção contra o checklist
     if (estadoAtual.parado) return;
-    const purificado = await passagem2_purificacao(texto, estadoAtual.marcasDetectadas);
-    estadoAtual.textoPorPassagem.push(purificado);
+    const deteccao = await detectarPadroes(texto, 1);
+    estadoAtual.marcasDetectadas = deteccao.marcas;
 
-    // PASSAGEM 3
+    // PASSAGEM 2 — gera 2 opções por trecho marcado
     if (estadoAtual.parado) return;
-    const comVoz = await passagem3_voz(purificado, het);
-    estadoAtual.textoPorPassagem.push(comVoz);
+    const opcoes = await passagem2_gerarOpcoes(estadoAtual.marcasDetectadas);
 
-    // PASSAGEM 4
+    // PASSAGEM 3 — classifica original/opções de forma independente
     if (estadoAtual.parado) return;
-    const verificacao = await passagem4_verificacao(comVoz, het);
-    estadoAtual.resultadoFinal = { texto: comVoz, verificacao, deteccao };
-
-    // Se score baixo, faz mais uma passagem automática
-    if (verificacao.score_humanidade < 85 && !estadoAtual.parado) {
-      setEtapa(4, 'ativa', `Score ${verificacao.score_humanidade}% — rodada extra automática...`);
-      const extra = await passagem3_voz(comVoz, het);
-      const verificacao2 = await passagem4_verificacao(extra, het);
-      estadoAtual.resultadoFinal = { texto: extra, verificacao: verificacao2, deteccao };
-      estadoAtual.textoPorPassagem.push(extra);
-      setEtapa(4, 'concluida', `Score final: ${verificacao2.score_humanidade}% · Rodada extra aplicada`);
-    }
+    estadoAtual.trechos = await passagem3_classificarOpcoes(estadoAtual.marcasDetectadas, opcoes);
 
     estadoAtual.rodando = false;
-    renderResultado();
+    document.getElementById('btn-humanizar').disabled = false;
+    document.getElementById('btn-emergencia').disabled = true;
+
+    if (estadoAtual.trechos.length === 0 && estadoAtual.repeticoes.length === 0) {
+      // Nada marcado — pula direto pra voz/verificação com o texto original
+      toast('✓ Nenhum vício ou repetição encontrado — seguindo pra verificação final');
+      estadoAtual.textoRevisado = texto;
+      await continuarAposRevisao();
+    } else {
+      renderRevisao();
+    }
 
   } catch(e) {
     estadoAtual.rodando = false;
@@ -802,72 +1010,239 @@ async function iniciarHumanizacao() {
   }
 }
 
+// ── RENDER DA TELA DE REVISÃO ──
+function renderRevisao() {
+  const { trechos, repeticoes } = estadoAtual;
+  const partesResumo = [];
+  if (repeticoes.length) partesResumo.push(`${repeticoes.length} repetição(ões) de texto`);
+  if (trechos.length) partesResumo.push(`${trechos.length} trecho(s) com vício de checklist`);
+  document.getElementById('revisao-resumo').textContent =
+    partesResumo.join(' e ') + '. Clique pra escolher o que entra no texto final (a opção de maior nota já vem pré-selecionada).';
+
+  const repeticoesHtml = repeticoes.map((r, i) => `
+    <div class="trecho-card" style="border-color:rgba(155,111,208,0.35)">
+      <div class="trecho-tipo" style="color:var(--violeta)">${r.nivel.toUpperCase()} REPETIDO ${r.ocorrencias}X — NÃO É VÍCIO DE ESTILO, É TEXTO DUPLICADO</div>
+      <div class="trecho-motivo">"${escaparHtml(r.texto.slice(0, 200))}${r.texto.length > 200 ? '…' : ''}"</div>
+      <div class="opcoes-linha">
+        <div class="opcao-card ${r.escolha === 'remover' ? 'selecionada' : ''}" onclick="escolherRepeticao(${i},'remover')">
+          <div class="opcao-cabecalho"><span class="opcao-nome">Remover repetição(ões)</span></div>
+          <div class="opcao-texto">Mantém só a primeira ocorrência, remove as demais.</div>
+        </div>
+        <div class="opcao-card ${r.escolha === 'manter' ? 'selecionada' : ''}" onclick="escolherRepeticao(${i},'manter')">
+          <div class="opcao-cabecalho"><span class="opcao-nome">Manter tudo</span></div>
+          <div class="opcao-texto">Deixa as repetições como estão no texto.</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  const trechosHtml = trechos.map((t, i) => {
+    const opcoesInfo = [
+      { chave: 'original', nome: 'Manter original', texto: t.original, score: t.scoreOriginal },
+      { chave: 'a', nome: 'Opção A', texto: t.opcaoA, score: t.scoreA },
+      { chave: 'b', nome: 'Opção B', texto: t.opcaoB, score: t.scoreB },
+    ];
+    return `
+      <div class="trecho-card">
+        <div class="trecho-tipo">${escaparHtml(t.titulo)}</div>
+        <div class="trecho-motivo">${escaparHtml(t.motivo)}</div>
+        <div class="opcoes-linha">
+          ${opcoesInfo.map(o => `
+            <div class="opcao-card ${t.escolha === o.chave ? 'selecionada' : ''}" onclick="escolherOpcao(${i},'${o.chave}')">
+              <div class="opcao-cabecalho">
+                <span class="opcao-nome">${o.nome}</span>
+                <span class="opcao-score" style="color:${corPontuacao(o.score)};border-color:${corPontuacao(o.score)}">${o.score}%</span>
+              </div>
+              <div class="opcao-texto">${escaparHtml(o.texto)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('trechos-content').innerHTML = repeticoesHtml + trechosHtml;
+  document.getElementById('revisao').classList.add('visivel');
+  document.getElementById('revisao').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function escolherOpcao(indice, chave) {
+  estadoAtual.trechos[indice].escolha = chave;
+  renderRevisao();
+}
+
+function escolherRepeticao(indice, valor) {
+  estadoAtual.repeticoes[indice].escolha = valor;
+  renderRevisao();
+}
+
+function escaparHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+// Monta o texto final substituindo cada trecho pela escolha do usuário —
+// procura sempre a partir de onde a última substituição parou, então
+// trechos repetidos no texto (mesma frase aparecendo 2x) não colidem.
+// Remove todas as ocorrências de `alvo` em `texto` DEPOIS da primeira
+// (a primeira fica — só as repetições saem).
+function _removerRepeticoes(texto, alvo) {
+  let resultado = '';
+  let pos = 0;
+  let primeira = true;
+  while (true) {
+    const idx = texto.indexOf(alvo, pos);
+    if (idx === -1) { resultado += texto.slice(pos); break; }
+    if (primeira) {
+      resultado += texto.slice(pos, idx + alvo.length);
+      primeira = false;
+    } else {
+      resultado += texto.slice(pos, idx); // pula a repetição em si
+    }
+    pos = idx + alvo.length;
+  }
+  return resultado;
+}
+
+function montarTextoComEscolhas() {
+  let texto = estadoAtual.textoOriginal;
+
+  // 1) Repetições primeiro — são unidades maiores (parágrafo/frase) que
+  // podem conter um trecho de checklist dentro; remover depois faria a
+  // busca de trecho falhar sem necessidade.
+  estadoAtual.repeticoes.forEach(r => {
+    if (r.escolha !== 'remover') return;
+    texto = _removerRepeticoes(texto, r.texto);
+  });
+  texto = texto.replace(/\n{3,}/g, '\n\n'); // limpa linhas em branco sobrando
+  texto = texto.replace(/[ \t]{2,}/g, ' '); // limpa espaço duplo deixado por uma frase removida no meio do parágrafo
+
+  // 2) Escolhas do checklist por cima do texto já sem repetições.
+  let cursor = 0;
+  let resultado = '';
+  estadoAtual.trechos.forEach(t => {
+    if (t.escolha === 'original') return; // nada a trocar
+    const substituto = t.escolha === 'a' ? t.opcaoA : t.opcaoB;
+    const idx = texto.indexOf(t.original, cursor);
+    if (idx === -1) return; // trecho não encontrado (removido junto com uma repetição, por ex.) — deixa como está
+    resultado += texto.slice(cursor, idx) + substituto;
+    cursor = idx + t.original.length;
+  });
+  resultado += texto.slice(cursor);
+  return resultado;
+}
+
+async function aplicarEscolhasEContinuar() {
+  estadoAtual.textoRevisado = montarTextoComEscolhas();
+  document.getElementById('revisao').classList.remove('visivel');
+  document.getElementById('pipeline').classList.add('visivel');
+  document.getElementById('btn-emergencia').disabled = false;
+  await continuarAposRevisao();
+}
+
+// ── FASE 2: VOZ DO HETERÔNIMO + VERIFICAÇÃO FINAL ──
+async function continuarAposRevisao() {
+  const het = estadoAtual.heteronimo;
+  estadoAtual.rodando = true;
+  document.getElementById('btn-humanizar').disabled = true;
+
+  try {
+    // PASSAGEM 4 — voz do heterônimo, só se selecionado
+    if (estadoAtual.parado) return;
+    const comVoz = await passagem4_voz(estadoAtual.textoRevisado, het);
+    estadoAtual.textoPorPassagem.push(comVoz);
+
+    // PASSAGEM 5 — verificação final com a MESMA régua da passagem 1
+    if (estadoAtual.parado) return;
+    const verificacaoFinal = await detectarPadroes(comVoz, 5);
+    estadoAtual.resultadoFinal = { texto: comVoz, verificacaoFinal };
+
+    estadoAtual.rodando = false;
+    document.getElementById('btn-humanizar').disabled = false;
+    document.getElementById('btn-emergencia').disabled = true;
+    renderResultado();
+
+  } catch(e) {
+    estadoAtual.rodando = false;
+    document.getElementById('btn-humanizar').disabled = false;
+    toast('Erro na etapa final — tente novamente');
+    console.error(e);
+  }
+}
+
 // ── RENDER RESULTADO ──
 function renderResultado() {
-  const { resultadoFinal, marcasDetectadas, textoOriginal, heteronimo } = estadoAtual;
+  const { resultadoFinal, marcasDetectadas, trechos, textoOriginal, heteronimo } = estadoAtual;
   if (!resultadoFinal) return;
 
-  const { texto, verificacao } = resultadoFinal;
-  const nota = verificacao.score_humanidade || 0;
-  const corNota = nota >= 90 ? 'var(--verde2)' : nota >= 75 ? 'var(--quente2)' : 'var(--rosa)';
+  const { texto, verificacaoFinal } = resultadoFinal;
+  const nota = verificacaoFinal.score;
+  const notaInicial = pontuarPorChecklist(marcasDetectadas.map(m => m.padrao));
+  const corNota = corPontuacao(nota);
 
   // PLACAR
   document.getElementById('placar').classList.add('visivel');
   document.getElementById('placar-nota').textContent = nota + '%';
   document.getElementById('placar-nota').style.color = corNota;
-  document.getElementById('placar-desc').textContent = verificacao.avaliacao || '—';
+  const escolhidas = trechos.filter(t => t.escolha !== 'original').length;
+  document.getElementById('placar-desc').textContent =
+    `Checklist antes da revisão: ${notaInicial}% · depois: ${nota}%. `
+    + (trechos.length ? `${escolhidas} de ${trechos.length} trecho(s) marcado(s) foram substituídos por escolha sua. ` : '')
+    + (verificacaoFinal.marcas.length > 0
+        ? `O texto final ainda carrega ${verificacaoFinal.marcas.length} ocorrência(s) do checklist.`
+        : `Nenhuma ocorrência do checklist restou no texto final.`);
 
   const badges = [];
-  if (nota >= 90) badges.push({ txt: '✓ INDETECTÁVEL', cor: 'var(--verde)', border: 'rgba(76,175,122,0.4)' });
-  if (nota >= 80) badges.push({ txt: `✦ ${heteronimo.nome.split(' ')[0]}`, cor: 'var(--quente2)', border: 'rgba(212,130,74,0.4)' });
-  if (verificacao.recomendacao === 'aprovado') badges.push({ txt: '✓ APROVADO', cor: 'var(--verde)', border: 'rgba(76,175,122,0.4)' });
+  if (nota === 100) badges.push({ txt: '✓ CHECKLIST LIMPO', cor: 'var(--verde)', border: 'rgba(76,175,122,0.4)' });
+  else if (nota >= 80) badges.push({ txt: '⚠ QUASE LÁ', cor: 'var(--quente2)', border: 'rgba(212,130,74,0.4)' });
+  else badges.push({ txt: '✗ AINDA PRECISA', cor: 'var(--rosa)', border: 'rgba(212,104,154,0.4)' });
+  if (heteronimo) badges.push({ txt: `✦ ${heteronimo.nome.split(' ')[0]}`, cor: 'var(--quente2)', border: 'rgba(212,130,74,0.4)' });
 
   document.getElementById('placar-badges').innerHTML = badges.map(b =>
     `<span class="placar-badge" style="color:${b.cor};border-color:${b.border}">${b.txt}</span>`
   ).join('');
 
-  // MÉTRICAS
-  const met = verificacao.metricas || {};
-  const metricasList = [
-    { label: 'Variedade Rítmica', val: met.variedade_ritmica || 0, cor: 'var(--quente2)' },
-    { label: 'Vocabulário Natural', val: met.naturalidade_vocabular || 0, cor: 'var(--ouro2)' },
-    { label: 'Imperfeições Humanas', val: met.imperfeicoes_humanas || 0, cor: 'var(--violeta)' },
-    { label: 'Voz Autoral', val: met.voz_autoral || 0, cor: 'var(--verde)' },
-    { label: 'Ausência de Marcas IA', val: met.ausencia_marcas_ia || 0, cor: 'var(--verde2)' },
-  ];
-  document.getElementById('metricas-grid').innerHTML = metricasList.map(m => `
-    <div class="metrica">
-      <div class="met-label">${m.label}</div>
-      <div class="met-barra"><div class="met-fill" style="width:${m.val}%;background:${m.cor}"></div></div>
-      <div class="met-valor">${m.val}%</div>
-    </div>
-  `).join('');
+  // CHECKLIST FINAL — quais dos vícios ainda aparecem, item a item
+  const presentesFinal = new Set(verificacaoFinal.marcas.map(m => m.padrao));
+  document.getElementById('metricas-grid').innerHTML = PADROES_ANTI_IA.map((p, i) => {
+    const falta = presentesFinal.has(i);
+    return `
+      <div class="checklist-item ${falta ? 'checklist-falta' : 'checklist-ok'}">
+        <span>${falta ? '✗' : '✓'}</span>
+        <span>${tituloPadrao(i)}</span>
+      </div>
+    `;
+  }).join('');
 
   // TEXTO HUMANIZADO
   document.getElementById('texto-humanizado-content').textContent = texto;
 
-  // MARCAS
+  // MARCAS (detecção inicial vs residuais no texto final)
   document.getElementById('marcas-content').innerHTML = `
     <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:16px">
-      // ${marcasDetectadas.length} MARCAS DETECTADAS E CORRIGIDAS
+      // ${marcasDetectadas.length} OCORRÊNCIA(S) NA DETECÇÃO INICIAL
     </div>
     ${marcasDetectadas.map(m => `
       <div class="marca-item">
-        <span class="marca-tipo marca-corrigida">CORRIGIDA</span>
+        <span class="marca-tipo marca-corrigida">${trechos.find(t=>t.original===m.trecho)?.escolha !== 'original' ? 'SUBSTITUÍDA' : 'MANTIDA'}</span>
         <div class="marca-txt">
-          <strong style="font-family:var(--mono);font-size:10px;color:var(--quente2);display:block;margin-bottom:4px">${m.tipo?.replace(/_/g,' ').toUpperCase()}</strong>
-          "${m.trecho}" — ${m.motivo}
+          <strong style="font-family:var(--mono);font-size:10px;color:var(--quente2);display:block;margin-bottom:4px">${escaparHtml(tituloPadrao(m.padrao))}</strong>
+          "${escaparHtml(m.trecho)}" — ${escaparHtml(m.motivo)}
         </div>
       </div>
     `).join('')}
-    ${(verificacao.marcas_residuais || []).length > 0 ? `
+    ${verificacaoFinal.marcas.length > 0 ? `
       <div style="font-family:var(--mono);font-size:10px;color:var(--rosa);letter-spacing:2px;margin:16px 0 10px">
-        // MARCAS RESIDUAIS (se houver)
+        // ${verificacaoFinal.marcas.length} OCORRÊNCIA(S) RESIDUAL(IS) NO TEXTO FINAL
       </div>
-      ${verificacao.marcas_residuais.map(m => `
+      ${verificacaoFinal.marcas.map(m => `
         <div class="marca-item">
           <span class="marca-tipo marca-ia-tip">RESIDUAL</span>
-          <div class="marca-txt">${m}</div>
+          <div class="marca-txt">
+            <strong style="font-family:var(--mono);font-size:10px;color:var(--rosa);display:block;margin-bottom:4px">${escaparHtml(tituloPadrao(m.padrao))}</strong>
+            "${escaparHtml(m.trecho)}" — ${escaparHtml(m.motivo)}
+          </div>
         </div>
       `).join('')}
     ` : ''}
@@ -879,54 +1254,48 @@ function renderResultado() {
   document.getElementById('comparativo-content').innerHTML = `
     <div class="comp-par">
       <div class="comp-antes">
-        <div class="comp-label">// TEXTO ORIGINAL (com marcas de IA)</div>
-        <div class="comp-txt">${original}${textoOriginal.length > 800 ? '...' : ''}</div>
+        <div class="comp-label">// TEXTO ORIGINAL (${notaInicial}% no checklist)</div>
+        <div class="comp-txt">${escaparHtml(original)}${textoOriginal.length > 800 ? '...' : ''}</div>
       </div>
       <div class="comp-depois">
-        <div class="comp-label">// TEXTO HUMANIZADO (voz de ${heteronimo.nome})</div>
-        <div class="comp-txt">${humanizado}${texto.length > 800 ? '...' : ''}</div>
+        <div class="comp-label">// TEXTO FINAL${heteronimo ? ` (voz de ${escaparHtml(heteronimo.nome)})` : ''} (${nota}% no checklist)</div>
+        <div class="comp-txt">${escaparHtml(humanizado)}${texto.length > 800 ? '...' : ''}</div>
       </div>
     </div>
   `;
 
   // VOZ
   document.getElementById('voz-content').innerHTML = `
-    <div style="background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px">
-      <div style="font-family:var(--mono);font-size:10px;color:var(--quente2);letter-spacing:2px;margin-bottom:10px">// HETERÔNIMO · VOZ INJETADA</div>
-      <div style="font-family:var(--playfair);font-size:18px;color:var(--ouro2);margin-bottom:8px">${heteronimo.nome}</div>
-      <div style="font-size:15px;font-style:italic;color:rgba(240,232,224,0.6);line-height:1.8">${heteronimo.voz}</div>
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:20px">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--quente2);letter-spacing:2px;margin-bottom:10px">// HETERÔNIMO · VOZ INJETADA (PERFIL DE VOZ COMPLETO)</div>
+      <div style="font-family:var(--playfair);font-size:18px;color:var(--ouro2);margin-bottom:8px">${escaparHtml(heteronimo.nome)}</div>
+      <div style="font-size:14px;font-style:italic;color:rgba(240,232,224,0.6);line-height:1.8;white-space:pre-wrap">${escaparHtml(heteronimo.vozBloco.trim())}</div>
     </div>
-    ${(verificacao.pontos_fortes || []).map(p => `
-      <div style="display:flex;gap:10px;margin-bottom:10px;align-items:flex-start">
-        <span style="color:var(--verde);flex-shrink:0">✓</span>
-        <span style="font-size:15px;line-height:1.7;color:rgba(240,232,224,0.75)">${p}</span>
-      </div>
-    `).join('')}
   `;
 
   document.getElementById('resultado-wrap').classList.add('visivel');
   document.getElementById('btn-humanizar').disabled = false;
   document.getElementById('btn-emergencia').disabled = true;
+  document.getElementById('btn-ir-diagramador').style.display = irParaDiagramadorApos ? 'block' : 'none';
 
-  toast(`✦ Humanização concluída · ${nota}% de humanidade`);
+  toast(`✦ Concluído · ${nota}% no checklist (era ${notaInicial}%)`);
   document.getElementById('placar').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ── AÇÕES ──
-function pararEmergencia() {
+async function pararEmergencia() {
   estadoAtual.parado = true;
   estadoAtual.rodando = false;
   document.getElementById('btn-emergencia').disabled = true;
   document.getElementById('btn-humanizar').disabled = false;
 
-  // Salva o que tiver até aqui
-  const ultimo = estadoAtual.textoPorPassagem[estadoAtual.textoPorPassagem.length - 1];
+  // Salva o que tiver até aqui — roda o checklist nesse texto parcial
+  // também, pra não inventar uma nota; sem isso não temos como saber.
+  const ultimo = estadoAtual.textoRevisado || estadoAtual.textoPorPassagem[estadoAtual.textoPorPassagem.length - 1];
   if (ultimo && ultimo !== estadoAtual.textoOriginal) {
-    estadoAtual.resultadoFinal = {
-      texto: ultimo,
-      verificacao: { score_humanidade: 0, avaliacao: 'Processo interrompido por emergência.', metricas: {} },
-      deteccao: {}
-    };
+    toast('⚠ Processo interrompido — medindo o que tiver pronto...');
+    const verificacaoFinal = await detectarPadroes(ultimo, 5);
+    estadoAtual.resultadoFinal = { texto: ultimo, verificacaoFinal };
     renderResultado();
     toast('⚠ Processo interrompido — exibindo resultado parcial');
   } else {
@@ -941,14 +1310,14 @@ async function maisUmaPassagem() {
 
   document.getElementById('resultado-wrap').classList.remove('visivel');
   document.getElementById('placar').classList.remove('visivel');
-  setEtapa(3, 'ativa', 'Passagem extra — reforçando a voz...');
+  document.getElementById('pipeline').classList.add('visivel');
 
-  const extra = await passagem3_voz(textoAtual, het);
-  const verificacao = await passagem4_verificacao(extra, het);
-  estadoAtual.resultadoFinal = { texto: extra, verificacao, deteccao: estadoAtual.resultadoFinal.deteccao };
+  const extra = het ? await passagem4_voz(textoAtual, het) : textoAtual;
+  const verificacaoFinal = await detectarPadroes(extra, 5);
+  estadoAtual.resultadoFinal = { texto: extra, verificacaoFinal };
   estadoAtual.textoPorPassagem.push(extra);
   renderResultado();
-  toast(`↺ Passagem extra concluída · ${verificacao.score_humanidade}%`);
+  toast(`↺ Passagem extra concluída · ${verificacaoFinal.score}%`);
 }
 
 function irParaRevisao() {
@@ -956,8 +1325,34 @@ function irParaRevisao() {
   localStorage.setItem('revisao_fp_texto', estadoAtual.resultadoFinal.texto);
   localStorage.setItem('revisao_fp_titulo', estadoAtual.titulo);
   localStorage.setItem('revisao_fp_heteronimo', estadoAtual.heteronimo?.nome || '');
-  localStorage.setItem('revisao_fp_score', estadoAtual.resultadoFinal.verificacao?.score_humanidade || 0);
+  localStorage.setItem('revisao_fp_score', estadoAtual.resultadoFinal.verificacaoFinal?.score || 0);
   window.location.href = 'revisao_fernando.html';
+}
+
+// Etapa final do gate obrigatório (ver enviarLivroGeradoParaDiagramador
+// e enviarItemParaProcessamento em index.html): manda o texto JÁ
+// humanizado pro diagramador certo, roteado pelo mesmo motor que os
+// dois pontos de entrada usariam se fossem direto — só que agora
+// rodando em cima do texto final, não do rascunho cru.
+function irParaDiagramador() {
+  if (!estadoAtual.resultadoFinal) return;
+  if (!window.CeleiroRoteador) {
+    toast('Motor roteador não carregou — recarregue a página');
+    return;
+  }
+  const texto = estadoAtual.resultadoFinal.texto;
+  const resultado = window.CeleiroRoteador.encaminhar(texto);
+  if (!resultado.arquivo) {
+    toast('Não foi possível classificar o texto pra roteamento automático');
+    return;
+  }
+  localStorage.setItem('obra_titulo', estadoAtual.titulo);
+  localStorage.setItem('obra_autor', estadoAtual.heteronimo?.nome || '');
+  localStorage.setItem('obra_ativa_texto', texto);
+  localStorage.setItem('obra_ativa_texto_nome', estadoAtual.titulo);
+  localStorage.setItem('lapidar_diagramar_automatico', 'true');
+  toast(`Detectei ${resultado.nome} — redirecionando...`);
+  setTimeout(() => { window.location.href = resultado.arquivo; }, 600);
 }
 
 function baixarHumanizado() {
@@ -965,7 +1360,7 @@ function baixarHumanizado() {
   const { texto } = estadoAtual.resultadoFinal;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob(
-    [`${estadoAtual.titulo}\n${estadoAtual.heteronimo?.nome}\n${'═'.repeat(60)}\n\n${texto}`],
+    [`${estadoAtual.titulo}\n${estadoAtual.heteronimo?.nome || '(sem heterônimo)'}\n${'═'.repeat(60)}\n\n${texto}`],
     { type: 'text/plain;charset=utf-8' }
   ));
   a.download = `humanizado_${estadoAtual.titulo.replace(/\s+/g,'-').toLowerCase()}.txt`;
@@ -985,7 +1380,7 @@ function salvarNaBiblioteca() {
     sinopse: '',
     texto: estadoAtual.resultadoFinal.texto,
     adicionadoEm: new Date().toISOString(),
-    scoreHumanidade: estadoAtual.resultadoFinal.verificacao?.score_humanidade || 0,
+    scoreChecklist: estadoAtual.resultadoFinal.verificacaoFinal?.score || 0,
     origem: 'humanizador'
   });
   localStorage.setItem('biblioteca_obras', JSON.stringify(obras));
@@ -998,7 +1393,12 @@ function novaHumanizacao() {
   document.getElementById('resultado-wrap').classList.remove('visivel');
   document.getElementById('placar').classList.remove('visivel');
   document.getElementById('pipeline').classList.remove('visivel');
-  estadoAtual = { textoOriginal:'',textoPorPassagem:[],marcasDetectadas:[],heteronimo:null,titulo:'',rodando:false,parado:false,resultadoFinal:null };
+  document.getElementById('revisao').classList.remove('visivel');
+  document.getElementById('btn-ir-diagramador').style.display = 'none';
+  estadoAtual = {
+    textoOriginal:'', textoPorPassagem:[], marcasDetectadas:[], trechos:[], repeticoes:[], textoRevisado:'',
+    heteronimo:null, titulo:'', rodando:false, parado:false, resultadoFinal:null
+  };
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1016,11 +1416,20 @@ if (tituloLap) {
 const hetLap = localStorage.getItem('humanizador_heteronimo_pendente');
 if (hetLap) {
   const sel = document.getElementById('heteronimo-sel');
-  const opt = Array.from(sel.options).find(o =>
-    HETERONIMOS_VOZ[o.value]?.nome?.toLowerCase().includes(hetLap.toLowerCase().split(' ')[0])
-  );
+  const canonico = (typeof getHeteronimoPorNome === 'function') ? getHeteronimoPorNome(hetLap) : null;
+  const nomeAlvo = canonico?.nome || hetLap;
+  const opt = Array.from(sel.options).find(o => o.value === nomeAlvo);
   if (opt) sel.value = opt.value;
   localStorage.removeItem('humanizador_heteronimo_pendente');
+}
+
+// Se veio do Paiol/Gerador de Livro pra passar pela humanização ANTES
+// da diagramação (gate obrigatório — ver index.html), guarda a intenção
+// pra mostrar o botão "Continuar para o Diagramador" quando terminar.
+let irParaDiagramadorApos = false;
+if (localStorage.getItem('humanizador_ir_diagramador') === 'true') {
+  irParaDiagramadorApos = true;
+  localStorage.removeItem('humanizador_ir_diagramador');
 }
 </script>
 </body>

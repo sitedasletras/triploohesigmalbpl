@@ -5239,28 +5239,23 @@ function enviarLivroGeradoParaDiagramador() {
     notif('NADA PARA ENVIAR', 'Nenhum livro gerado nesta sessão ainda.', 'erro');
     return;
   }
-  if (!window.CeleiroRoteador) {
-    notif('MOTOR NÃO CARREGOU', 'Roteador de gênero não carregou — recarregue a página.', 'erro');
-    return;
-  }
   const titulo = document.getElementById('gen-titulo').value || 'Obra sem título';
   const heteronimo = document.getElementById('gen-heteronimo').value || '';
-  const resultado = window.CeleiroRoteador.encaminhar(genLivroCompleto);
-  if (!resultado.arquivo) {
-    notif('TEXTO VAZIO', 'Não foi possível classificar o texto para roteamento.', 'erro');
+  if (!heteronimo) {
+    notif('HETERÔNIMO NECESSÁRIO', 'A Humanização exige a voz do heterônimo — selecione um antes de enviar.', 'erro');
     return;
   }
-  localStorage.setItem('obra_titulo', titulo);
-  localStorage.setItem('obra_autor', heteronimo);
-  // O texto do livro em si nunca era salvo aqui — só título e autor. O
-  // diagramador (polux_v3.html etc.) carrega o texto de 'obra_ativa_texto'
-  // ao abrir; sem essa linha, ele chegava vazio (0 páginas, "nenhum texto
-  // para diagramar") mesmo com título/autor corretos na tela.
-  localStorage.setItem('obra_ativa_texto', genLivroCompleto);
-  localStorage.setItem('obra_ativa_texto_nome', titulo);
-  localStorage.setItem('lapidar_diagramar_automatico', 'true');
-  notif('ENVIANDO AO DIAGRAMADOR', `Detectei ${resultado.nome} — redirecionando...`, 'sucesso');
-  setTimeout(() => { window.location.href = resultado.arquivo; }, 700);
+  // Gate obrigatório: nenhum texto vai direto pro diagramador mais —
+  // sempre passa primeiro pelo Humanizador (checklist anti-IA + voz do
+  // heterônimo). O roteamento pro diagramador certo (CeleiroRoteador)
+  // acontece lá, depois que o texto já saiu humanizado — ver
+  // irParaDiagramador() em humanizador.html.
+  localStorage.setItem('humanizador_texto_pendente', genLivroCompleto);
+  localStorage.setItem('humanizador_titulo_pendente', titulo);
+  localStorage.setItem('humanizador_heteronimo_pendente', heteronimo);
+  localStorage.setItem('humanizador_ir_diagramador', 'true');
+  notif('ENVIANDO PARA HUMANIZAÇÃO', 'Antes do diagramador, o texto passa pela Humanização (checklist anti-IA).', 'sucesso');
+  setTimeout(() => { window.location.href = 'humanizador.html'; }, 700);
 }
 
 // ── Tick de destino (Diagramador / Só Capa) para itens já salvos no
@@ -5342,17 +5337,23 @@ function enviarItemParaProcessamento(origemTipo, i) {
     return;
   }
 
-  if (!window.CeleiroRoteador) {
-    notif('MOTOR NÃO CARREGOU', 'Roteador de gênero não carregou — recarregue a página.', 'erro');
+  // Gate obrigatório: nenhum texto vai direto pro diagramador — sempre
+  // passa primeiro pelo Humanizador (checklist anti-IA + voz do
+  // heterônimo). O roteamento pro diagramador certo acontece lá, depois
+  // que o texto já saiu humanizado — ver irParaDiagramador() em
+  // humanizador.html. obra_origem_tipo/indice (acima) sobrevivem à
+  // passagem pelo Humanizador — ficam em localStorage até o diagramador
+  // ser aberto de verdade.
+  if (!item.autor) {
+    notif('HETERÔNIMO NECESSÁRIO', 'Essa obra não tem autor salvo — a Humanização exige a voz do heterônimo.', 'erro');
     return;
   }
-  const resultado = window.CeleiroRoteador.encaminhar(conteudo);
-  if (!resultado.arquivo) {
-    notif('TEXTO VAZIO', 'Não foi possível classificar o texto para roteamento.', 'erro');
-    return;
-  }
-  notif('ENVIANDO AO DIAGRAMADOR', `Detectei ${resultado.nome} — abrindo...`, 'sucesso');
-  setTimeout(() => { window.open(resultado.arquivo, '_blank'); }, 500);
+  localStorage.setItem('humanizador_texto_pendente', conteudo);
+  localStorage.setItem('humanizador_titulo_pendente', item.titulo || 'Obra sem título');
+  localStorage.setItem('humanizador_heteronimo_pendente', item.autor);
+  localStorage.setItem('humanizador_ir_diagramador', 'true');
+  notif('ENVIANDO PARA HUMANIZAÇÃO', `"${item.titulo}" — antes do diagramador, passa pela Humanização...`, 'sucesso');
+  setTimeout(() => { window.open('humanizador.html', '_blank'); }, 500);
 }
 
 function sairDoGerador() {

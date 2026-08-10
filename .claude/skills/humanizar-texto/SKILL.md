@@ -11,7 +11,7 @@ Este repo já tem uma camada automática que injeta um checklist anti-IA e perfi
 
 ## Seja honesto sobre o que isso é (e o que não é)
 
-Nenhum checklist garante escapar de detectores de IA — detectores são famosos por dar falso positivo em texto humano perfeitamente bom e falso negativo em texto de IA bem revisado. Não trate isso como uma fórmula de evasão. O objetivo real é escrever melhor: os dez padrões abaixo não são "coisas que os detectores procuram", são vícios retóricos genuínos que deixam qualquer texto — de IA ou de humano cansado — burocrático, genérico e sem timbre próprio. Corrigir isso melhora o texto por si só, com ou sem detector no meio.
+Nenhum checklist garante escapar de detectores de IA — detectores são famosos por dar falso positivo em texto humano perfeitamente bom e falso negativo em texto de IA bem revisado. Não trate isso como uma fórmula de evasão. O objetivo real é escrever melhor: os catorze padrões abaixo não são "coisas que os detectores procuram", são vícios retóricos genuínos que deixam qualquer texto — de IA ou de humano cansado — burocrático, genérico e sem timbre próprio. Corrigir isso melhora o texto por si só, com ou sem detector no meio.
 
 Se o pedido do usuário for algo como "escreve isso de um jeito que passe no GPTZero", vale dizer isso direto: você vai escrever o melhor texto possível seguindo o checklist abaixo, não vai prometer que passa em nenhum detector específico.
 
@@ -23,7 +23,7 @@ Se o heterônimo ainda não tem Perfil de Voz registrado, siga só o checklist g
 
 ## O checklist
 
-Pesquisa de base: o ensaio da Wikipédia em inglês ["Signs of AI writing"](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), compilado por editores a partir de milhares de edições suspeitas de IA — cruzado com cobertura da Forbes ("The 10 Giveaway Signs Of AI Writing, Wikipedia Reveals", set/2025) e da Grammarly sobre vocabulário de IA. Os dez itens abaixo são os padrões mais citados nessas fontes — a mesma lista já injetada na geração automática via `checklist_antiia.js`.
+Pesquisa de base: o ensaio da Wikipédia em inglês ["Signs of AI writing"](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), compilado por editores a partir de milhares de edições suspeitas de IA — cruzado com cobertura da Forbes ("The 10 Giveaway Signs Of AI Writing, Wikipedia Reveals", set/2025) e da Grammarly sobre vocabulário de IA, mais quatro itens específicos de diálogo/ritmo de prosa acrescentados depois. Os catorze itens abaixo são a mesma lista já injetada na geração automática via `checklist_antiia.js` — se esse arquivo mudar, atualize aqui também.
 
 1. **Regra de três** — enumerar tudo em trincas ("adjetivo, adjetivo e adjetivo") pra parecer mais completo do que é. Varie a contagem: dois, quatro, um só.
 2. **Cláusulas penduradas** — gerúndio ou particípio jogado no fim da frase só pra soar mais importante, sem informação nova ("...moldando um novo capítulo da história"). Corte, ou troque por uma imagem concreta.
@@ -35,7 +35,11 @@ Pesquisa de base: o ensaio da Wikipédia em inglês ["Signs of AI writing"](http
 8. **Atribuição vaga** — "dizem que", "é visto como", "especialistas apontam" sem nomear quem. Se não há fonte concreta na ficção, não finja que há.
 9. **Tom promocional parelho** — adjetivo de propaganda ("de tirar o fôlego", "imperdível") aplicado a qualquer coisa, sem hierarquia real de intensidade.
 10. **Simetria de superfície** — parágrafos e frases do mesmo tamanho, ritmo regular demais. Varie de propósito: frase curta ao lado de uma longa, parágrafo quebrando o bloco.
+11. **Diálogo em fôrma fixa** — sempre "— Fala — verbo dicendi — continuação da fala." no mesmo parágrafo. Reserve isso pra interrupção real; senão termine a fala com ponto e comece parágrafo novo, ou dispense o verbo dicendi.
+12. **Fala sem marcação** — diálogo direto solto no meio da narração sem travessão. Toda fala abre com "—" no início da linha.
+13. **Parágrafo maratona** — parágrafo esticado por quase meia página. Quando a cena pedir fôlego, quebre em dois ou três parágrafos curtos.
+14. **Frase maratona** — o limite é por FRASE, não por parágrafo: mire até ~30 palavras por frase, sem estourar muito acima disso (abaixo de 30 é livre). Um parágrafo pode ter qualquer tamanho desde que seja feito de frases dentro desse limite — a frase longa demais, com orações encadeadas por vírgula até perder o fôlego, é o sinal de piloto automático, não o parágrafo em si.
 
 ## Antes de entregar o texto
 
-Releia o rascunho contra os dez itens acima (e contra o Perfil de Voz, se houver) e corrija o que encontrar — não entregue a primeira versão sem essa checagem. Isso não precisa virar um relatório visível pro usuário; é um passo interno antes de mostrar o resultado final.
+Releia o rascunho contra os catorze itens acima (e contra o Perfil de Voz, se houver) e corrija o que encontrar — não entregue a primeira versão sem essa checagem. Isso não precisa virar um relatório visível pro usuário; é um passo interno antes de mostrar o resultado final.
