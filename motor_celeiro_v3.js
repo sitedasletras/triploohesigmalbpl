@@ -1735,8 +1735,10 @@ function preparar(textoBruto, opcoes){
   else if(modulo==='espartano') paginas=paginarEstrofista(blocos,cfg,fmt);
   else{
     paginas=paginar(blocos,cfg,fmt);
-    paginas=corrigirViuvasOrfas(paginas,cfg,fmt);
-    paginas=_corrigirViuvasOrfasLinhas(paginas,cfg,fmt);
+    if(cfg.viuvasOrfas!=='off'){
+      paginas=corrigirViuvasOrfas(paginas,cfg,fmt);
+      paginas=_corrigirViuvasOrfasLinhas(paginas,cfg,fmt);
+    }
     paginas=corrigirOverflowPaginas(paginas,cfg,fmt);
   }
 
@@ -1849,42 +1851,70 @@ function _processarBlocoPDF(doc, bloco, cfg, x, y, larguraUtilMm, fontFamily, es
     return y;
   }
 
+  // Título de capítulo/subtítulo pode ser mais longo que a largura útil
+  // da página (ex.: "CAPÍTULO 3 — Uma Longa Jornada Através do Tempo e
+  // do Espaço Que Não Cabe Numa Linha Só") — sem quebra automática, o
+  // jsPDF desenhava a linha inteira e estourava a margem direita
+  // silenciosamente (o texto some da página, sem erro nenhum). Quebra
+  // igual à prosa, e a altura devolvida agora soma TODAS as linhas do
+  // título, não só a primeira.
   if(bloco.tipo==='capitulo'){
-    if(desenhar){ doc.setFont(fontFamily,'bold'); doc.setFontSize(fs*1.35); doc.text(conteudo,centro,y+lh,{align:'center'}); }
-    return y+lh*2.4;
+    const fsTitulo=fs*1.35, lhTitulo=lh*1.35;
+    // setFont/setFontSize rodam mesmo na passada seca (desenhar=false):
+    // splitTextToSize usa a fonte/tamanho ATUAIS do doc pra decidir onde
+    // quebrar linha, então medir com fonte errada (a que sobrou do bloco
+    // anterior) dava uma estimativa de altura inconsistente com o que a
+    // passada real ia desenhar depois.
+    doc.setFont(fontFamily,'bold'); doc.setFontSize(fsTitulo);
+    const linhas=doc.splitTextToSize(conteudo,larguraUtilMm);
+    if(desenhar) doc.text(linhas,centro,y+lhTitulo,{align:'center'});
+    return y+lhTitulo*linhas.length+lh*1.05;
   }
   if(bloco.tipo==='subtitulo'){
-    if(desenhar){ doc.setFont(fontFamily,'italic'); doc.setFontSize(fs*0.95); doc.text(conteudo,centro,y+lh,{align:'center'}); }
-    return y+lh*1.8;
+    const fsSub=fs*0.95, lhSub=lh*0.95;
+    doc.setFont(fontFamily,'italic'); doc.setFontSize(fsSub);
+    const linhas=doc.splitTextToSize(conteudo,larguraUtilMm);
+    if(desenhar) doc.text(linhas,centro,y+lhSub,{align:'center'});
+    return y+lhSub*linhas.length+lh*0.85;
   }
   if(bloco.tipo==='poesia'||bloco.tipo==='sextilha'||bloco.tipo==='decima'||bloco.tipo==='dialogo'){
     const alinh=bloco.tipo==='dialogo'?'left':(cfg.alinhPoesia||'center');
-    if(desenhar){ doc.setFont(fontFamily,'normal'); doc.setFontSize(fs); }
+    doc.setFont(fontFamily,'normal'); doc.setFontSize(fs);
     let yy=y;
     conteudo.split('\n').forEach(l=>{
       const linha=l.trim();
       if(!linha){ yy+=lh*0.5; return; }
-      if(desenhar) doc.text(linha,alinh==='left'?x:centro,yy+lh,{align:alinh==='left'?'left':'center'});
-      yy+=lh;
+      // Verso/fala longa demais pra largura útil: quebra em mais de uma
+      // linha de PDF em vez de vazar pra fora da página.
+      const quebradas=doc.splitTextToSize(linha,larguraUtilMm);
+      quebradas.forEach(q=>{
+        if(desenhar) doc.text(q,alinh==='left'?x:centro,yy+lh,{align:alinh==='left'?'left':'center'});
+        yy+=lh;
+      });
     });
     return yy+lh*0.5;
   }
   if(bloco.tipo==='haicai'||bloco.tipo==='estrofe'||bloco.tipo==='estrofe_soneto'||bloco.tipo==='estrofe_livre'){
     let yy=y;
     if(bloco.titulo){
-      if(desenhar){ doc.setFont(fontFamily,'italic'); doc.setFontSize(fs*0.85); doc.text(bloco.titulo,centro,yy+lh,{align:'center'}); }
-      yy+=lh*1.4;
+      doc.setFont(fontFamily,'italic'); doc.setFontSize(fs*0.85);
+      const linhasTitulo=doc.splitTextToSize(bloco.titulo,larguraUtilMm);
+      if(desenhar) doc.text(linhasTitulo,centro,yy+lh,{align:'center'});
+      yy+=lh*0.4+lh*linhasTitulo.length;
     }
-    if(desenhar){ doc.setFont(fontFamily,'normal'); doc.setFontSize(fs); }
+    doc.setFont(fontFamily,'normal'); doc.setFontSize(fs);
     (bloco.versos||conteudo.split('\n').filter(Boolean)).forEach(v=>{
-      if(desenhar) doc.text(String(v).trim(),centro,yy+lh,{align:'center'});
-      yy+=lh*1.25;
+      const linhasVerso=doc.splitTextToSize(String(v).trim(),larguraUtilMm);
+      linhasVerso.forEach((lv,i)=>{
+        if(desenhar) doc.text(lv,centro,yy+lh,{align:'center'});
+        yy+=(i<linhasVerso.length-1)?lh:lh*1.25;
+      });
     });
     return yy+lh*0.6;
   }
 
   // prosa (default) — texto corrido, quebra automática, justificado
-  if(desenhar) { doc.setFont(fontFamily,'normal'); doc.setFontSize(fs); }
+  doc.setFont(fontFamily,'normal'); doc.setFontSize(fs);
   const linhas=doc.splitTextToSize(conteudo.replace(/\n/g,' ').trim(),larguraUtilMm);
   if(desenhar) doc.text(linhas,x,y+lh,{align:'justify',maxWidth:larguraUtilMm});
   // Bloco de UMA linha da grade (ver seção 8.5 em motor_celeiro_v3.js):
