@@ -8,6 +8,14 @@
 // só existindo aqui, um proxy sem essa trava aceitaria {repo: "outracoisa"}
 // e usaria o mesmo token pra escrever em repositórios fora do escopo
 // pretendido.
+//
+// exige sessão (validarSessao) igual a todo outro proxy pago do sistema
+// (api/claude.js, api/gerar-imagem.js etc.) — faltava aqui, e sem isso
+// qualquer um que descobrisse a URL conseguia gravar (PUT) arquivo em
+// qualquer um dos três repositórios da allowlist, inclusive código-fonte
+// deste próprio site, sem nunca ter feito login.
+import { validarSessao } from '../lib/sessao.js';
+
 const OWNER = 'sitedasletras';
 const REPOS_PERMITIDOS = new Set(['triploohesigmalbpl', 'CeleiroLiterario', 'OHE-PECANHA']);
 
@@ -62,6 +70,10 @@ async function handlePut(req, res, chave) {
 }
 
 export default async function handler(req, res) {
+  if (!(await validarSessao(req))) {
+    return res.status(401).json({ error: 'Não autorizado.' });
+  }
+
   const chave = process.env.GITHUB_TOKEN;
   if (!chave) {
     return res.status(500).json({ error: 'GITHUB_TOKEN não configurada no servidor.' });

@@ -526,9 +526,14 @@ let artistas = [...ARTISTAS]
 let artistaSelecionado = null
 let convocacoes = JSON.parse(localStorage.getItem('bpl_convocacoes')||'[]')
 let artistas_gerados = JSON.parse(localStorage.getItem('bpl_artistas_gerados')||'[]')
+// Fotos geradas pros 50 artistas fundadores — ARTISTAS vem de elenco_bpl.js
+// (array estático, não dá pra gravar a foto direto nele), então guarda como
+// mapa separado id->url e reaplica por cima a cada carga da página.
+let fotosFundadores = JSON.parse(localStorage.getItem('bpl_fotos_fundadores')||'{}')
 
 // Adiciona artistas gerados pela Maternidade ao banco
 artistas = [...ARTISTAS, ...artistas_gerados]
+artistas.forEach(a => { if (fotosFundadores[a.id]) a.fotoUrl = fotosFundadores[a.id]; })
 
 function iniciais(nome){ return nome.split(' ').filter((_,i,a)=>i===0||i===a.length-1).map(n=>n[0]).join('') }
 
@@ -944,7 +949,15 @@ async function gerarRostoPersonagem(id) {
   if (urlImagem) {
     // Salvar URL no artista
     artista.fotoUrl = urlImagem;
-    localStorage.setItem('bpl_artistas_gerados', JSON.stringify(artistas_gerados));
+    // Fundador (vem de ARTISTAS/elenco_bpl.js, array estático) usa o mapa
+    // separado; gerado pela Maternidade já é salvo dentro do próprio
+    // artistas_gerados — salvar só ali não persistia nada pros fundadores.
+    if (ARTISTAS.some(a => a.id === id)) {
+      fotosFundadores[id] = urlImagem;
+      localStorage.setItem('bpl_fotos_fundadores', JSON.stringify(fotosFundadores));
+    } else {
+      localStorage.setItem('bpl_artistas_gerados', JSON.stringify(artistas_gerados));
+    }
 
     // Atualizar visual na ficha
     const iniciais = document.querySelector(`[data-iniciais="${id}"]`);
