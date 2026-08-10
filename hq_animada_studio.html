@@ -253,6 +253,18 @@ function escalarElencoDaHistoria(paineis) {
   return mapeamento;
 }
 
+// escalarElencoDaHistoria() guarda `null` pra personagem sem voz premium
+// disponível (pool vazio) — então mapeamento.size sempre conta todo
+// personagem falante, mesmo sem ninguém escalado de verdade. Usar essa
+// contagem em vez de .size evita o painel "ELENCO DE VOZES" aparecer vazio
+// (só o título, sem nomes) e consumir ~3s do vídeo à toa quando nenhum
+// personagem tem voz cadastrada no Criador de Vozes.
+function _contarElencoReal(mapeamento) {
+  let n = 0;
+  mapeamento.forEach(info => { if (info && info.perfil) n++; });
+  return n;
+}
+
 // ===================== PAINEL DE CRÉDITOS (gerado localmente, sem custo de API) =====================
 function _criarImagemCreditos(mapeamento) {
   return new Promise((resolve) => {
@@ -478,7 +490,7 @@ ${historia.slice(0,12000)}`;
     log(`✓ ${paineis.length} painéis roteirizados.`);
 
     const mapeamentoElenco = escalarElencoDaHistoria(paineis);
-    if (mapeamentoElenco.size) {
+    if (_contarElencoReal(mapeamentoElenco)) {
       log('🎭 Escalando vozes:');
       mapeamentoElenco.forEach((info) => {
         if (!info) return;
@@ -523,14 +535,14 @@ ${historia.slice(0,12000)}`;
     }
 
     // Painel de créditos final (gerado localmente, sem custo de API)
-    if (mapeamentoElenco.size) {
+    if (_contarElencoReal(mapeamentoElenco)) {
       const imgCreditos = await _criarImagemCreditos(mapeamentoElenco);
       painelPronto.push({ img: imgCreditos, audio: null, legenda: null, ehCreditos: true });
     }
 
     log('🎬 Montando timeline e gravando vídeo final...');
     const DURACAO_PADRAO_SEG = 3.0;
-    const DURACAO_CREDITOS_SEG = Math.min(9, 3 + mapeamentoElenco.size * 1.1);
+    const DURACAO_CREDITOS_SEG = Math.min(9, 3 + _contarElencoReal(mapeamentoElenco) * 1.1);
     const BUFFER_APOS_FALA_SEG = 0.4;
     let acumuladoSeg = 0;
     const timeline = painelPronto.map(p => {

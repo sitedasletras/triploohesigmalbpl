@@ -1410,8 +1410,12 @@ async function publicarBioArtista() {
   await publicarBioArtistaId(artistaSelecionado.id);
 }
 
-async function publicarBioArtistaId(id) {
-  const artista = [...ARTISTAS_BASE, ...BANDAS_BASE.map(b => ({
+async function publicarBioArtistaId(id, artistaOverride) {
+  // artistaOverride: pra entidades que não vivem em ARTISTAS_BASE/BANDAS_BASE
+  // (hoje só a Orquestra) — sem isso, o find() abaixo nunca acha 'ORQUESTRA'
+  // e a função retornava sem fazer nada nem avisar (bug: botão "Publicar
+  // Biografia" da Orquestra não fazia literalmente nada).
+  const artista = artistaOverride || [...ARTISTAS_BASE, ...BANDAS_BASE.map(b => ({
     id: b.id, nome: b.nome, ic: '🎸', orig: '', cat: 'banda', estilo: 'banda', inst: b.tipo
   }))].find(a => a.id === id);
 
@@ -1459,7 +1463,7 @@ function registrarObraOrquestra() {
 
 async function publicarBioOrquestra() {
   const artista = { id:'ORQUESTRA', nome:'Orquestra Filarmônica do Celeiro Literário', ic:'🎻', orig:'Celeiro Literário — Instituto Cultural', cat:'orquestra', estilo:'classico', inst:'Entidade musical permanente do Instituto. Formação flexível — Cordas, Sopros Metais, Sopros Madeiras, Percussão & Teclados.' };
-  await publicarBioArtistaId('ORQUESTRA');
+  await publicarBioArtistaId('ORQUESTRA', artista);
 }
 
 // ===== PUBLICAR TODAS =====
