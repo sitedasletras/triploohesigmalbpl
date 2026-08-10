@@ -97,7 +97,7 @@
     const largura = numero(opcoes.larguraManual, 21);
     const altura = numero(opcoes.alturaManual, 29.7);
     const paginas = numero(opcoes.paginas, 0);
-    const fator = numero(opcoes.fatorManual, 0.0021);
+    const fator = numero(opcoes.fatorManual, 0.010);
     const sangria = numero(opcoes.sangria, 0.3);
     const orelha = numero(opcoes.orelha, 0);
     const lombada = paginas * fator;

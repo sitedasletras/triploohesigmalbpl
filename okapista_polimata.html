@@ -414,8 +414,9 @@ async function sugerirIA(){
   $('iaSpin').style.display='block';$('iaResposta').style.display='none';$('iaResposta').textContent='';
   const prompt=`Você é um diretor de arte especializado em capas de livros brasileiros.\n\nCrie uma sugestão detalhada de capa para o seguinte ${cfg.descIA}:\n\nTÍTULO: ${titulo}\nSUBTÍTULO: ${subtit||'(não informado)'}\nAUTOR: ${autor||'(não informado)'}\nSINOPSE: ${sinopse||'(não informada)'}\n\nResponda em português com estas seções:\n**Conceito visual** — A ideia central em 2-3 frases\n**Paleta de cores** — 3 a 4 cores com hex e justificativa\n**Tipografia** — Fonte ideal com justificativa\n**Elemento central** — O que deve aparecer como arte principal\n**Atmosfera** — A sensação que a capa deve passar\n**Dica prática** — Conselho direto para contratar um designer\n\nSeja específico para o tipo "${cfg.label}". Máximo 320 palavras.`;
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
     const d=await r.json();
+    if(!d.content) throw new Error(d.error?.message||'resposta sem conteúdo');
     $('iaResposta').textContent=d.content.map(b=>b.text||'').join('');
     $('iaResposta').style.display='block';
   }catch(e){
@@ -424,16 +425,6 @@ async function sugerirIA(){
   }finally{$('iaSpin').style.display='none';}
 }
 setModo('infantil');
-
-function enviarExpedicao(){
-  const dataURL=cv?cv.toDataURL('image/jpeg',0.92):'';
-  localStorage.setItem('okapista_capa_jpg', dataURL);
-  localStorage.setItem('okapista_perfil', 'polimata');
-  // 'expedicao_editorial.html' nunca existiu neste projeto — Qui(RON)xadá
-  // é o mesmo destino que o fluxo de Cordel usa depois de gerar a capa.
-  alert('✔ Capa enviada! Prossiga para o Qui(RON)xadá.');
-  window.location.href='quironxada_v3.html';
-}
 
 function enviarAoPaiol(){
   const titulo=$('titulo').value||'Obra sem título';

@@ -215,15 +215,26 @@ const PLATAFORMAS = {
  */
 function calcularLombada(paginas, plataformaKey, gsm){
   const plat = PLATAFORMAS[plataformaKey]||PLATAFORMAS.uiclap;
-  const espMM = plat.espessuraPaginaMM || 0.1;
-  const gsmFinal = gsm || plat.papelGSM || 75;
 
-  // Ajuste por gramatura
-  let espAdj = espMM;
-  if(gsmFinal <= 60) espAdj = 0.0572;
-  else if(gsmFinal <= 75) espAdj = 0.10;
-  else if(gsmFinal <= 90) espAdj = 0.12;
-  else espAdj = 0.15;
+  // Espessura por página: se um gsm explícito for passado (papel diferente
+  // do padrão da plataforma), deriva da faixa de gramatura genérica. Sem
+  // gsm explícito — o caso de todo chamador atual —, usa a espessura que a
+  // própria plataforma já declara (plat.espessuraPaginaMM), que é mais
+  // precisa que a faixa genérica pro papel específico dela (ex.: "papel
+  // cream" da Amazon KDP). Antes, as faixas genéricas sempre sobrescreviam
+  // o valor declarado da plataforma, mesmo sem gsm explícito — só não dava
+  // resultado errado porque cada plataforma cadastrada hoje já tinha o
+  // valor declarado igual ao da faixa correspondente; uma plataforma nova
+  // com papel fora do comum cairia nessa armadilha silenciosamente.
+  let espAdj;
+  if(gsm){
+    if(gsm <= 60) espAdj = 0.0572;
+    else if(gsm <= 75) espAdj = 0.10;
+    else if(gsm <= 90) espAdj = 0.12;
+    else espAdj = 0.15;
+  } else {
+    espAdj = plat.espessuraPaginaMM || 0.10;
+  }
 
   const lombadaMM = paginas * espAdj;
   // Mínimo de 2mm para lombada visível
