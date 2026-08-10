@@ -14,7 +14,6 @@
 <script src="motor_pretextuais_v2.js"></script>
 <script src="motor_juncao_v1.js"></script>
 <script src="motores_lapidar/motor_upload_manuscrito_v1.js"></script>
-<script src="motores_lapidar/motor_exportacao_pdf_v1.js"></script>
 <script src="motores_lapidar/finais/motor_paginacao_real_v1.js"></script>
 <script src="motores_lapidar/finais/motor_exportacao_final_pdf_epub_v1.js"></script>
 <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
@@ -639,6 +638,7 @@ function getCfg(){
     // cada capítulo.
     alinhamentosCapitulo,
     hifenizacao:$('hifenizacao').value==='true',
+    viuvasOrfas:$('viuvasOrfas').value,
     correcao:$('correcao').value,
     numeracao:$('numeracao').value,
   };
