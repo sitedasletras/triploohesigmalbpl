@@ -286,9 +286,16 @@ select option { background: var(--s1); }
   padding: 12px 14px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 8px;
 }
 .opcao-card:hover { border-color: rgba(212,130,74,0.4); }
-.opcao-card.selecionada { border-color: var(--verde); background: rgba(76,175,122,0.06); }
+.opcao-card.selecionada {
+  border-color: var(--ouro2); border-width: 2px; background: rgba(200,169,110,0.1);
+  box-shadow: 0 0 0 1px rgba(240,216,150,0.25);
+}
 .opcao-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .opcao-nome { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+.opcao-escolhida-badge {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px; font-weight: 700;
+  color: #1a1508; background: var(--ouro2); padding: 2px 8px; border-radius: 999px;
+}
 .opcao-score { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 2px 9px; border-radius: 999px; border: 1px solid; }
 .opcao-texto { font-size: 15px; line-height: 1.7; color: rgba(240,232,224,0.85); }
 .opcao-card.selecionada .opcao-texto { color: var(--texto); }
@@ -729,12 +736,23 @@ async function chamarClaude(system, user, maxTokens = 4000, schema = null) {
     body: JSON.stringify(body)
   });
   const data = await resp.json();
+  if (!data.content) throw new Error(data.error?.message || `Resposta sem conteúdo da API (status ${resp.status}).`);
   return data.content.map(c => c.text || '').join('');
 }
 
+// Uma tentativa extra automática se o JSON vier truncado/malformado — isso
+// acontece de vez em quando com saída estruturada longa (ex.: texto com
+// muitos trechos marcados) e, até agora, exigia o usuário perceber o erro
+// e clicar em humanizar de novo na mão. Só repete a MESMA chamada; se
+// falhar de novo, sobe o erro normalmente pro try/catch de quem chamou.
 async function chamarClaudeJSON(system, user, maxTokens = 3000, schema = null) {
   const txt = await chamarClaude(system, user, maxTokens, schema);
-  return JSON.parse(txt.trim());
+  try {
+    return JSON.parse(txt.trim());
+  } catch (e) {
+    const txt2 = await chamarClaude(system, user, maxTokens, schema);
+    return JSON.parse(txt2.trim());
+  }
 }
 
 // ── PASSAGEM 1: DETECÇÃO ──
@@ -1011,7 +1029,7 @@ async function iniciarHumanizacao() {
 }
 
 // ── RENDER DA TELA DE REVISÃO ──
-function renderRevisao() {
+function renderRevisao(scrollParaTopo = true) {
   const { trechos, repeticoes } = estadoAtual;
   const partesResumo = [];
   if (repeticoes.length) partesResumo.push(`${repeticoes.length} repetição(ões) de texto`);
@@ -1025,11 +1043,11 @@ function renderRevisao() {
       <div class="trecho-motivo">"${escaparHtml(r.texto.slice(0, 200))}${r.texto.length > 200 ? '…' : ''}"</div>
       <div class="opcoes-linha">
         <div class="opcao-card ${r.escolha === 'remover' ? 'selecionada' : ''}" onclick="escolherRepeticao(${i},'remover')">
-          <div class="opcao-cabecalho"><span class="opcao-nome">Remover repetição(ões)</span></div>
+          <div class="opcao-cabecalho"><span class="opcao-nome">Remover repetição(ões)</span>${r.escolha === 'remover' ? '<span class="opcao-escolhida-badge">✓ ESCOLHIDA</span>' : ''}</div>
           <div class="opcao-texto">Mantém só a primeira ocorrência, remove as demais.</div>
         </div>
         <div class="opcao-card ${r.escolha === 'manter' ? 'selecionada' : ''}" onclick="escolherRepeticao(${i},'manter')">
-          <div class="opcao-cabecalho"><span class="opcao-nome">Manter tudo</span></div>
+          <div class="opcao-cabecalho"><span class="opcao-nome">Manter tudo</span>${r.escolha === 'manter' ? '<span class="opcao-escolhida-badge">✓ ESCOLHIDA</span>' : ''}</div>
           <div class="opcao-texto">Deixa as repetições como estão no texto.</div>
         </div>
       </div>
@@ -1050,7 +1068,7 @@ function renderRevisao() {
           ${opcoesInfo.map(o => `
             <div class="opcao-card ${t.escolha === o.chave ? 'selecionada' : ''}" onclick="escolherOpcao(${i},'${o.chave}')">
               <div class="opcao-cabecalho">
-                <span class="opcao-nome">${o.nome}</span>
+                <span class="opcao-nome">${o.nome}${t.escolha === o.chave ? ' <span class="opcao-escolhida-badge">✓ ESCOLHIDA</span>' : ''}</span>
                 <span class="opcao-score" style="color:${corPontuacao(o.score)};border-color:${corPontuacao(o.score)}">${o.score}%</span>
               </div>
               <div class="opcao-texto">${escaparHtml(o.texto)}</div>
@@ -1063,17 +1081,23 @@ function renderRevisao() {
 
   document.getElementById('trechos-content').innerHTML = repeticoesHtml + trechosHtml;
   document.getElementById('revisao').classList.add('visivel');
-  document.getElementById('revisao').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Só rola a tela pro topo do painel na PRIMEIRA vez que a revisão
+  // aparece — chamar isso de novo a cada clique numa opção (eram dezenas
+  // de trechos numa lista longa) jogava a tela de volta pro topo toda
+  // vez, fazendo perder o lugar onde estava lendo/escolhendo.
+  if (scrollParaTopo) {
+    document.getElementById('revisao').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 function escolherOpcao(indice, chave) {
   estadoAtual.trechos[indice].escolha = chave;
-  renderRevisao();
+  renderRevisao(false);
 }
 
 function escolherRepeticao(indice, valor) {
   estadoAtual.repeticoes[indice].escolha = valor;
-  renderRevisao();
+  renderRevisao(false);
 }
 
 function escaparHtml(s) {
@@ -1350,7 +1374,17 @@ function irParaDiagramador() {
   localStorage.setItem('obra_autor', estadoAtual.heteronimo?.nome || '');
   localStorage.setItem('obra_ativa_texto', texto);
   localStorage.setItem('obra_ativa_texto_nome', estadoAtual.titulo);
-  localStorage.setItem('lapidar_diagramar_automatico', 'true');
+  // NÃO liga lapidar_diagramar_automatico aqui: esse flag pula direto pra
+  // exportação de PDF sem mostrar a prévia (feito pro pipeline em lote do
+  // Gerador de Livro, sem ninguém acompanhando). Aqui é o oposto — é uma
+  // pessoa clicando "Continuar para o Diagramador" bem na hora, e o
+  // roteamento automático (CeleiroRoteador) é uma classificação por
+  // contagem de linha/estrofe que PODE errar em texto editado à mão (por
+  // ex. reconhecer como soneto um parágrafo de prosa que por acaso tem
+  // 14-17 linhas). Sem a prévia, um erro de classificação virava PDF
+  // exportado errado sem chance de perceber antes — por isso agora o
+  // diagramador certo abre normal, com prévia, pra conferir/ajustar antes
+  // de exportar de propósito.
   toast(`Detectei ${resultado.nome} — redirecionando...`);
   setTimeout(() => { window.location.href = resultado.arquivo; }, 600);
 }
