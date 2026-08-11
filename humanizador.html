@@ -721,6 +721,45 @@ function toast(msg) {
   setTimeout(() => t.classList.remove('show'), 3500);
 }
 
+// ── DIVISÃO EM BLOCOS (textos longos) ──
+// Cada chamada à IA tem um teto de max_tokens de SAÍDA. Pra passagens que
+// precisam devolver o texto inteiro (voz do heterônimo) ou uma lista que
+// cresce junto com o texto (detecção de vícios), um livro/conto longo
+// (dezenas de milhares de palavras) estoura esse teto numa chamada só —
+// a IA para no meio da resposta e o restante do texto simplesmente some
+// (era exatamente isso: 18 mil palavras entrando e ~4 mil saindo, cortado
+// no limite de uma única chamada de 5000 tokens). Divide por parágrafo
+// (nunca corta frase/parágrafo ao meio) em blocos de tamanho seguro, e
+// quem chama processa bloco a bloco.
+function dividirEmBlocos(texto, alvoPalavras = 1800) {
+  const paragrafos = texto.split(/\n{2,}/);
+  const blocos = [];
+  let atual = [];
+  let palavrasAtual = 0;
+  for (const p of paragrafos) {
+    const nPalavras = p.trim() ? p.trim().split(/\s+/).length : 0;
+    if (atual.length && palavrasAtual + nPalavras > alvoPalavras) {
+      blocos.push(atual.join('\n\n'));
+      atual = [];
+      palavrasAtual = 0;
+    }
+    atual.push(p);
+    palavrasAtual += nPalavras;
+  }
+  if (atual.length) blocos.push(atual.join('\n\n'));
+  return blocos.length ? blocos : [texto];
+}
+
+// Mesma lógica, mas pra listas (trechos marcados) — passagens 2 e 3
+// processam um item por trecho detectado; um texto longo pode gerar
+// dezenas/centenas de trechos, e a lista inteira também estoura o teto
+// de saída de uma chamada só.
+function dividirEmGrupos(lista, tamanho) {
+  const grupos = [];
+  for (let i = 0; i < lista.length; i += tamanho) grupos.push(lista.slice(i, i + tamanho));
+  return grupos.length ? grupos : [lista];
+}
+
 // ── CHAMADA À API ──
 async function chamarClaude(system, user, maxTokens = 4000, schema = null) {
   const body = {
@@ -792,8 +831,17 @@ Para cada ocorrência de um vício no texto, identifique o índice do padrão, o
     required: ['marcas']
   };
 
-  const resultado = await chamarClaudeJSON(system, `Analise este texto:\n\n${texto}`, 3000, SCHEMA_DETECCAO);
-  const marcas = resultado.marcas || [];
+  // Texto longo -> lista de marcas longa -> pode estourar o teto de saída
+  // de uma chamada só (era isso que, num livro inteiro, às vezes já
+  // quebrava aqui na primeira tentativa: JSON cortado no meio). Varre em
+  // blocos e junta.
+  const blocos = dividirEmBlocos(texto, 3500);
+  let marcas = [];
+  for (let i = 0; i < blocos.length; i++) {
+    if (blocos.length > 1) setEtapa(etapaNum, 'ativa', `Varrendo o texto contra o checklist anti-IA... (parte ${i + 1}/${blocos.length})`);
+    const resultado = await chamarClaudeJSON(system, `Analise este texto:\n\n${blocos[i]}`, 4000, SCHEMA_DETECCAO);
+    marcas = marcas.concat(resultado.marcas || []);
+  }
   const score = pontuarPorChecklist(marcas.map(m => m.padrao));
   const distintos = new Set(marcas.map(m => m.padrao)).size;
   setEtapa(etapaNum, 'concluida', `${marcas.length} ocorrência(s) · ${distintos} padrão(ões) distinto(s) · Checklist: ${score}%`);
@@ -807,19 +855,6 @@ async function passagem2_gerarOpcoes(marcas) {
     return [];
   }
   setEtapa(2, 'ativa', `Escrevendo 2 opções de reescrita para cada um dos ${marcas.length} trecho(s)...`);
-
-  const listaTrechos = marcas.map((m, i) =>
-    `${i}. TRECHO: "${m.trecho}"\n   VÍCIO (${tituloPadrao(m.padrao)}): ${m.motivo}`
-  ).join('\n\n');
-
-  const system = `Você é um editor literário. Para cada trecho marcado abaixo, escreva DUAS reescritas alternativas que corrijam o vício apontado.
-
-REGRAS:
-1. Preserve o sentido e o conteúdo do trecho original — só mude a forma
-2. As duas opções devem ser diferentes entre si, não variações triviais uma da outra
-3. Corrija o vício apontado sem introduzir outro vício de IA na reescrita
-4. Mantenha o tamanho aproximado do trecho original — ele precisa encaixar no lugar de onde saiu, no meio do texto
-5. Responda com exatamente ${marcas.length} item(ns), na mesma ordem em que os trechos foram listados`;
 
   const SCHEMA_OPCOES = {
     type: 'object',
@@ -841,8 +876,30 @@ REGRAS:
     required: ['opcoes']
   };
 
-  const resultado = await chamarClaudeJSON(system, `TRECHOS MARCADOS:\n\n${listaTrechos}`, 4000, SCHEMA_OPCOES);
-  const opcoes = resultado.opcoes || [];
+  // Um texto longo pode gerar dezenas/centenas de trechos marcados — pedir
+  // 2 opções pra cada um de uma vez só também estoura o teto de saída de
+  // uma chamada. Divide em grupos.
+  const GRUPOS = dividirEmGrupos(marcas, 20);
+  let opcoes = [];
+  for (let g = 0; g < GRUPOS.length; g++) {
+    const grupo = GRUPOS[g];
+    if (GRUPOS.length > 1) setEtapa(2, 'ativa', `Escrevendo 2 opções de reescrita... (parte ${g + 1}/${GRUPOS.length})`);
+    const listaTrechos = grupo.map((m, i) =>
+      `${i}. TRECHO: "${m.trecho}"\n   VÍCIO (${tituloPadrao(m.padrao)}): ${m.motivo}`
+    ).join('\n\n');
+
+    const system = `Você é um editor literário. Para cada trecho marcado abaixo, escreva DUAS reescritas alternativas que corrijam o vício apontado.
+
+REGRAS:
+1. Preserve o sentido e o conteúdo do trecho original — só mude a forma
+2. As duas opções devem ser diferentes entre si, não variações triviais uma da outra
+3. Corrija o vício apontado sem introduzir outro vício de IA na reescrita
+4. Mantenha o tamanho aproximado do trecho original — ele precisa encaixar no lugar de onde saiu, no meio do texto
+5. Responda com exatamente ${grupo.length} item(ns), na mesma ordem em que os trechos foram listados`;
+
+    const resultado = await chamarClaudeJSON(system, `TRECHOS MARCADOS:\n\n${listaTrechos}`, 4000, SCHEMA_OPCOES);
+    opcoes = opcoes.concat(resultado.opcoes || []);
+  }
   setEtapa(2, 'concluida', `${opcoes.length} par(es) de opções gerado(s)`);
   return opcoes;
 }
@@ -859,10 +916,6 @@ async function passagem3_classificarOpcoes(marcas, opcoes) {
   setEtapa(3, 'ativa', 'Classificando cada opção contra o checklist, de forma independente...');
 
   const listaChecklist = PADROES_ANTI_IA.map((p, i) => `${i}. ${tituloPadrao(i)}`).join('\n');
-  const blocos = marcas.map((m, i) => {
-    const op = opcoes[i] || { opcao_a: m.trecho, opcao_b: m.trecho };
-    return `GRUPO ${i}\nX: "${m.trecho}"\nY: "${op.opcao_a}"\nZ: "${op.opcao_b}"`;
-  }).join('\n\n');
 
   const system = `Você é um classificador. Para cada texto curto abaixo, identifique quais dos vícios da lista fixa ele ainda contém — só os índices, sem comentário.
 
@@ -893,8 +946,22 @@ Cada texto (X, Y, Z de cada grupo) é independente — classifique cada um sozin
     required: ['classificacoes']
   };
 
-  const resultado = await chamarClaudeJSON(system, blocos, 3000, SCHEMA_CLASSIFICACAO);
-  const porGrupo = new Map((resultado.classificacoes || []).map(c => [c.grupo, c]));
+  // Mesmo estouro de teto de saída que a passagem 2 — divide em grupos,
+  // mas mantém o índice GLOBAL (i, não o local do grupo) no rótulo "GRUPO"
+  // pra bater com marcas[i]/opcoes[i] depois de juntar tudo.
+  const GRUPOS = dividirEmGrupos(marcas.map((_, i) => i), 20);
+  const porGrupo = new Map();
+  for (let g = 0; g < GRUPOS.length; g++) {
+    const idxGrupo = GRUPOS[g];
+    if (GRUPOS.length > 1) setEtapa(3, 'ativa', `Classificando cada opção contra o checklist... (parte ${g + 1}/${GRUPOS.length})`);
+    const blocos = idxGrupo.map(i => {
+      const m = marcas[i];
+      const op = opcoes[i] || { opcao_a: m.trecho, opcao_b: m.trecho };
+      return `GRUPO ${i}\nX: "${m.trecho}"\nY: "${op.opcao_a}"\nZ: "${op.opcao_b}"`;
+    }).join('\n\n');
+    const resultado = await chamarClaudeJSON(system, blocos, 4000, SCHEMA_CLASSIFICACAO);
+    (resultado.classificacoes || []).forEach(c => porGrupo.set(c.grupo, c));
+  }
 
   const trechos = marcas.map((m, i) => {
     const op = opcoes[i] || { opcao_a: m.trecho, opcao_b: m.trecho };
@@ -927,7 +994,14 @@ async function passagem4_voz(texto, het) {
   setEtapa(4, 'ativa', `Injetando a voz de ${het.nome}...`);
 
   const antiIA = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
-  const system = `Você é ${het.nome}, heterônimo literário com voz e território únicos.
+  const blocos = dividirEmBlocos(texto);
+  const partes = [];
+  for (let i = 0; i < blocos.length; i++) {
+    if (blocos.length > 1) setEtapa(4, 'ativa', `Injetando a voz de ${het.nome}... (parte ${i + 1}/${blocos.length})`);
+    const avisoBloco = blocos.length > 1
+      ? `\n\nATENÇÃO: o texto abaixo é o trecho ${i + 1} de ${blocos.length} de uma obra maior — a divisão é só um limite técnico de tamanho de resposta, ela NÃO existe na obra original. Reescreva SÓ o que está abaixo, do começo ao fim, sem resumir e sem cortar nada. Não invente uma abertura nem um fechamento de capítulo/obra — é a continuação direta do que veio antes.`
+      : '';
+    const system = `Você é ${het.nome}, heterônimo literário com voz e território únicos.
 ${het.vozBloco}
 ${antiIA}
 
@@ -937,12 +1011,15 @@ REGRAS:
 1. Mantenha TODO o conteúdo narrativo — personagens, eventos, diálogos, trama
 2. Transforme a forma completamente — vocabulário, ritmo, cadência, marcas linguísticas
 3. Insira suas peculiaridades únicas — as que um leitor reconheceria como suas
-4. Nenhuma frase deve soar como IA — cada uma deve soar como escrita à mão por você
+4. Nenhuma frase deve soar como IA — cada uma deve soar como escrita à mão por você${avisoBloco}
 
-Responda APENAS com o texto reescrito na sua voz.`;
+Responda APENAS com o texto reescrito na sua voz — nada a mais, nada a menos.`;
 
-  const resultado = await chamarClaude(system, `TEXTO PARA REESCREVER NA SUA VOZ:\n\n${texto}`, 5000);
-  setEtapa(4, 'concluida', `Voz de ${het.nome} injetada`);
+    const parte = await chamarClaude(system, `TEXTO PARA REESCREVER NA SUA VOZ:\n\n${blocos[i]}`, 8000);
+    partes.push(parte);
+  }
+  const resultado = partes.join('\n\n');
+  setEtapa(4, 'concluida', `Voz de ${het.nome} injetada${blocos.length > 1 ? ` (${blocos.length} partes)` : ''}`);
   return resultado;
 }
 
