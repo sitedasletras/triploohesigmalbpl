@@ -18,7 +18,7 @@
  */
 
 const PADROES_ANTI_IA = [
-  'Regra de três: enumerar tudo em trincas ("adjetivo, adjetivo e adjetivo" ou "frase curta, frase curta, e frase curta") pra parecer mais completo do que é. Varie o número de itens — dois, quatro, um só.',
+  'Regra de três: enumerar tudo em trincas — três adjetivos, três frases curtas separadas por vírgula, OU três sentenças fragmentadas em sequência, cada uma fechada com PONTO FINAL, imitando cadência de clímax (ex.: "A pedra. O cadeado nos animais mortos. O silêncio." — mesmo vício da trinca, só que pontuado como três frases isoladas em vez de vírgulas; é IGUALMENTE vício mesmo cada fragmento sendo gramaticalmente uma frase completa). Some tudo numa frase corrida com vírgula e "e" quando os três itens pertencem à mesma ideia (ex. de correção: "A pedra, o cadeado ainda nos animais mortos e o silêncio brutal."), ou varie o número de itens — dois, quatro, um só — em vez de forçar exatamente três.',
   'Cláusulas penduradas: gerúndio ou particípio jogado no fim da frase só pra soar mais importante, sem acrescentar informação nova ("...moldando um novo capítulo da história"). Corte, ou substitua por uma imagem concreta.',
   'Falsos espectros: construções "de X a Y" que fingem uma escala contínua onde só há duas coisas soltas e vagamente parecidas ("de encontros íntimos a movimentos globais"). Se não existe uma escala real, não finja uma.',
   'Resumo compulsivo: fechar parágrafo ou texto reafirmando o que acabou de ser dito ("em suma", "no fim das contas", "de modo geral"). Termine no último fato ou imagem, não numa síntese.',
