@@ -525,8 +525,15 @@ select option { background: var(--s1); }
     <div class="etapa-pipeline aguardando" id="etapa-6">
       <div class="etapa-circulo" id="circ-6">06</div>
       <div class="etapa-info">
-        <div class="etapa-nome">Aderência à Voz do Heterônimo</div>
+        <div class="etapa-nome">Correção Automática dos Resíduos</div>
         <div class="etapa-detalhe" id="det-6">Aguardando verificação final...</div>
+      </div>
+    </div>
+    <div class="etapa-pipeline aguardando" id="etapa-7">
+      <div class="etapa-circulo" id="circ-7">07</div>
+      <div class="etapa-info">
+        <div class="etapa-nome">Aderência à Voz do Heterônimo</div>
+        <div class="etapa-detalhe" id="det-7">Aguardando correção automática...</div>
       </div>
     </div>
 
@@ -1100,7 +1107,7 @@ async function iniciarHumanizacao() {
   document.getElementById('btn-emergencia').disabled = false;
 
   // Reset etapas
-  for (let i = 1; i <= 6; i++) setEtapa(i, 'aguardando', i === 1 ? 'Iniciando...' : `Aguardando passagem ${i-1}...`);
+  for (let i = 1; i <= 7; i++) setEtapa(i, 'aguardando', i === 1 ? 'Iniciando...' : `Aguardando passagem ${i-1}...`);
 
   try {
     // Repetições: client-side, instantâneo, não gasta chamada de API.
@@ -1308,8 +1315,76 @@ async function aplicarEscolhasEContinuar() {
   await continuarAposRevisao();
 }
 
-// ── PASSAGEM 6: ADERÊNCIA À VOZ DO HETERÔNIMO ──
-// O placar de checklist (passagem 5) mede "% sem cara de IA" — mas isso
+// ── PASSAGEM 6: CORREÇÃO AUTOMÁTICA DOS RESÍDUOS ──
+// A voz do heterônimo (passagem 4) é uma reescrita livre — mesmo com o
+// checklist inteiro no prompt, ela pode introduzir vícios novos que não
+// existiam no texto que entrou nela (visto na prática: texto que entrava
+// 100% limpo saindo com 20 ocorrências, nota caindo pra 36%). Antes, a
+// verificação final só REPORTAVA isso e sobrava pro usuário decidir o que
+// fazer. Pedido direto do Wagner: "você tem que consertar isso e não me
+// sugerir como conserto" — agora, se sobrar qualquer vício depois da voz
+// do heterônimo, corrige automaticamente (reescrevendo só os trechos
+// flagrados, preservando sentido e voz) antes de mostrar o resultado.
+async function autoCorrigirResiduos(texto, marcas, het, etapaNum) {
+  if (!marcas.length) {
+    setEtapa(etapaNum, 'concluida', 'Nenhum resíduo a corrigir');
+    return texto;
+  }
+  setEtapa(etapaNum, 'ativa', `Corrigindo ${marcas.length} ocorrência(s) residual(is) automaticamente...`);
+
+  const antiIA = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
+  const SCHEMA_CORRECAO = {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      correcoes: {
+        type: 'array',
+        items: {
+          type: 'object', additionalProperties: false,
+          properties: { reescrita: { type: 'string' } },
+          required: ['reescrita']
+        }
+      }
+    },
+    required: ['correcoes']
+  };
+
+  const GRUPOS = dividirEmGrupos(marcas, 20);
+  let corrigido = texto;
+  for (let g = 0; g < GRUPOS.length; g++) {
+    const grupo = GRUPOS[g];
+    if (GRUPOS.length > 1) setEtapa(etapaNum, 'ativa', `Corrigindo resíduos automaticamente... (parte ${g + 1}/${GRUPOS.length})`);
+    const lista = grupo.map((m, i) =>
+      `${i}. TRECHO: "${m.trecho}"\n   VÍCIO (${tituloPadrao(m.padrao)}): ${m.motivo}`
+    ).join('\n\n');
+
+    // Nada de "aqui estão 3 formas fáceis de resolver isso" — troca
+    // mecânica de pontuação (ex.: travessão virar vírgula sem mais nada)
+    // já foi flagrada como resultado ruim; a instrução é reestruturar de
+    // verdade, como um autor faria.
+    const system = `Você é um editor literário${het ? `, escrevendo na voz de ${het.nome}` : ''}. Para cada trecho abaixo, reescreva-o eliminando DE VERDADE o vício apontado — reestruture a frase como um autor faria. NÃO troque só um sinal de pontuação por outro de forma mecânica (ex.: travessão virando vírgula) — isso não elimina o vício, só disfarça.
+${antiIA}
+${het?.vozBloco || ''}
+
+REGRAS:
+1. Preserve o sentido e o conteúdo do trecho — só mude a forma
+2. Elimine o vício apontado por completo, sem introduzir nenhum outro vício da lista acima
+3. Mantenha o tamanho aproximado do trecho original — ele substitui o trecho original no meio do texto
+4. Responda com exatamente ${grupo.length} item(ns), na mesma ordem em que os trechos foram listados`;
+
+    const resultado = await chamarClaudeJSON(system, `TRECHOS A CORRIGIR:\n\n${lista}`, 4000, SCHEMA_CORRECAO);
+    const correcoes = resultado.correcoes || [];
+    grupo.forEach((m, i) => {
+      const nova = correcoes[i]?.reescrita;
+      if (nova && corrigido.includes(m.trecho)) corrigido = corrigido.replace(m.trecho, nova);
+    });
+  }
+  setEtapa(etapaNum, 'concluida', `${marcas.length} ocorrência(s) corrigida(s) automaticamente`);
+  return corrigido;
+}
+
+// ── PASSAGEM 7: ADERÊNCIA À VOZ DO HETERÔNIMO ──
+// O placar de checklist (passagem 5/6) mede "% sem cara de IA" — mas isso
 // não diz se o texto soa como O HETERÔNIMO ESPECÍFICO ou só como prosa
 // genérica sem os vícios óbvios. São eixos diferentes: um texto pode
 // zerar o checklist e ainda não ter nada da assinatura do heterônimo.
@@ -1363,13 +1438,27 @@ async function continuarAposRevisao() {
 
     // PASSAGEM 5 — verificação final com a MESMA régua da passagem 1
     if (estadoAtual.parado) return;
-    const verificacaoFinal = await detectarPadroes(comVoz, 5);
+    let verificacaoFinal = await detectarPadroes(comVoz, 5);
 
-    // PASSAGEM 6 — aderência à voz específica do heterônimo
+    // PASSAGEM 6 — a voz do heterônimo é reescrita livre e pode introduzir
+    // vícios novos que o texto revisado não tinha; corrige de verdade em
+    // vez de só reportar, e reavalia com a MESMA régua pra nunca inventar
+    // uma nota que não bate com o texto que o usuário vai receber.
     if (estadoAtual.parado) return;
-    const aderenciaVoz = await avaliarAderenciaVoz(comVoz, het, 6);
+    let textoFinal = comVoz;
+    if (verificacaoFinal.marcas.length > 0) {
+      textoFinal = await autoCorrigirResiduos(comVoz, verificacaoFinal.marcas, het, 6);
+      estadoAtual.textoPorPassagem.push(textoFinal);
+      verificacaoFinal = await detectarPadroes(textoFinal, 5);
+    } else {
+      setEtapa(6, 'concluida', 'Nenhum resíduo a corrigir');
+    }
 
-    estadoAtual.resultadoFinal = { texto: comVoz, verificacaoFinal, aderenciaVoz };
+    // PASSAGEM 7 — aderência à voz específica do heterônimo, no texto JÁ corrigido
+    if (estadoAtual.parado) return;
+    const aderenciaVoz = await avaliarAderenciaVoz(textoFinal, het, 7);
+
+    estadoAtual.resultadoFinal = { texto: textoFinal, verificacaoFinal, aderenciaVoz };
 
     estadoAtual.rodando = false;
     document.getElementById('btn-humanizar').disabled = false;
@@ -1541,14 +1630,42 @@ async function maisUmaPassagem() {
   document.getElementById('resultado-wrap').classList.remove('visivel');
   document.getElementById('placar').classList.remove('visivel');
   document.getElementById('pipeline').classList.add('visivel');
+  document.getElementById('btn-emergencia').disabled = false;
+  // Reseta os indicadores das etapas 4-7 — sem isso, se essa passagem
+  // extra falhar no meio, a tela ficava travada mostrando o placar
+  // (dados) da rodada ANTERIOR misturado com o estado da etapa em
+  // andamento agora, sem nenhum aviso de erro — foi relatado como "deu
+  // erro" sem explicação nenhuma.
+  for (let i = 4; i <= 7; i++) setEtapa(i, 'aguardando', 'Aguardando...');
 
-  const extra = het ? await passagem4_voz(textoAtual, het) : textoAtual;
-  const verificacaoFinal = await detectarPadroes(extra, 5);
-  const aderenciaVoz = await avaliarAderenciaVoz(extra, het, 6);
-  estadoAtual.resultadoFinal = { texto: extra, verificacaoFinal, aderenciaVoz };
-  estadoAtual.textoPorPassagem.push(extra);
-  renderResultado();
-  toast(`↺ Passagem extra concluída · ${verificacaoFinal.score}%`);
+  try {
+    const extra = het ? await passagem4_voz(textoAtual, het) : textoAtual;
+    let verificacaoFinal = await detectarPadroes(extra, 5);
+
+    let textoFinal = extra;
+    if (verificacaoFinal.marcas.length > 0) {
+      textoFinal = await autoCorrigirResiduos(extra, verificacaoFinal.marcas, het, 6);
+      verificacaoFinal = await detectarPadroes(textoFinal, 5);
+    } else {
+      setEtapa(6, 'concluida', 'Nenhum resíduo a corrigir');
+    }
+
+    const aderenciaVoz = await avaliarAderenciaVoz(textoFinal, het, 7);
+    estadoAtual.resultadoFinal = { texto: textoFinal, verificacaoFinal, aderenciaVoz };
+    estadoAtual.textoPorPassagem.push(textoFinal);
+    document.getElementById('btn-emergencia').disabled = true;
+    renderResultado();
+    toast(`↺ Passagem extra concluída · ${verificacaoFinal.score}%`);
+  } catch (e) {
+    document.getElementById('btn-emergencia').disabled = true;
+    toast('Erro na passagem extra — o resultado anterior continua disponível');
+    console.error(e);
+    // Volta a mostrar o resultado que já existia antes dessa tentativa —
+    // sem isso, um erro no meio deixava a tela só com o pipeline parado,
+    // sem nenhum resultado visível nem forma de continuar.
+    document.getElementById('pipeline').classList.remove('visivel');
+    renderResultado();
+  }
 }
 
 function irParaRevisao() {
