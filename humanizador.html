@@ -204,8 +204,13 @@ select option { background: var(--s1); }
 .placar.visivel { display: block; }
 .placar-titulo { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 3px; margin-bottom: 20px; }
 .placar-nota-wrap { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; }
+.placar-nota-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .placar-nota {
   font-family: var(--playfair); font-size: 80px; font-weight: 900; line-height: 1;
+}
+.placar-nota-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--muted);
+  text-transform: uppercase; text-align: center; max-width: 130px;
 }
 .placar-info { flex: 1; }
 .placar-desc { font-size: 18px; font-style: italic; color: rgba(240,232,224,0.7); line-height: 1.8; margin-bottom: 10px; }
@@ -286,19 +291,27 @@ select option { background: var(--s1); }
   padding: 12px 14px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 8px;
 }
 .opcao-card:hover { border-color: rgba(212,130,74,0.4); }
+/* O quadro (borda) fica igual sempre, escolhido ou não — só o INTERIOR
+   muda de cor quando o usuário escolhe, pedido explícito do Wagner: só a
+   borda mudando de cor era pouco visível numa lista longa de trechos. */
 .opcao-card.selecionada {
-  border-color: var(--ouro2); border-width: 2px; background: rgba(200,169,110,0.1);
-  box-shadow: 0 0 0 1px rgba(240,216,150,0.25);
+  background: var(--ouro2);
 }
+.opcao-card.selecionada .opcao-nome,
+.opcao-card.selecionada .opcao-texto { color: #1a1508; }
 .opcao-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .opcao-nome { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
 .opcao-escolhida-badge {
   font-family: var(--mono); font-size: 9px; letter-spacing: 1px; font-weight: 700;
-  color: #1a1508; background: var(--ouro2); padding: 2px 8px; border-radius: 999px;
+  color: var(--ouro2); background: #1a1508; padding: 2px 8px; border-radius: 999px;
 }
-.opcao-score { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 2px 9px; border-radius: 999px; border: 1px solid; }
+.opcao-score { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 2px 9px; border-radius: 999px; border: 1px solid; background: rgba(4,8,15,0.4); }
 .opcao-texto { font-size: 15px; line-height: 1.7; color: rgba(240,232,224,0.85); }
-.opcao-card.selecionada .opcao-texto { color: var(--texto); }
+.trecho-aplicar-todos {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px; color: var(--quente2);
+  margin-top: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+}
+.trecho-aplicar-todos:hover { color: var(--ouro2); }
 .btn-continuar {
   font-family: var(--playfair); font-size: 16px; font-weight: 900;
   padding: 14px 32px; border: 1px solid var(--verde); border-radius: 999px;
@@ -509,6 +522,13 @@ select option { background: var(--s1); }
         <div class="etapa-detalhe" id="det-5">Aguardando passagem 4...</div>
       </div>
     </div>
+    <div class="etapa-pipeline aguardando" id="etapa-6">
+      <div class="etapa-circulo" id="circ-6">06</div>
+      <div class="etapa-info">
+        <div class="etapa-nome">Aderência à Voz do Heterônimo</div>
+        <div class="etapa-detalhe" id="det-6">Aguardando verificação final...</div>
+      </div>
+    </div>
 
     <button class="btn-emergencia" id="btn-emergencia" onclick="pararEmergencia()">
       ⚠ PARADA DE EMERGÊNCIA
@@ -527,9 +547,16 @@ select option { background: var(--s1); }
 
   <!-- PLACAR DE HUMANIDADE -->
   <div class="placar" id="placar">
-    <div class="placar-titulo">// PLACAR FINAL · CONTAGEM OBJETIVA DO CHECKLIST</div>
+    <div class="placar-titulo">// PLACAR FINAL · DUAS MEDIDAS SEPARADAS: SEM CARA DE IA × VOZ DO HETERÔNIMO</div>
     <div class="placar-nota-wrap">
-      <div class="placar-nota" id="placar-nota">—</div>
+      <div class="placar-nota-item">
+        <div class="placar-nota" id="placar-nota">—</div>
+        <div class="placar-nota-label">humanizado (sem vícios de IA)</div>
+      </div>
+      <div class="placar-nota-item" id="placar-nota-voz-wrap" style="display:none">
+        <div class="placar-nota" id="placar-nota-voz">—</div>
+        <div class="placar-nota-label" id="placar-nota-voz-label">na voz do heterônimo</div>
+      </div>
       <div class="placar-info">
         <div class="placar-desc" id="placar-desc">—</div>
         <div class="placar-badges" id="placar-badges"></div>
@@ -888,12 +915,20 @@ async function passagem2_gerarOpcoes(marcas) {
       `${i}. TRECHO: "${m.trecho}"\n   VÍCIO (${tituloPadrao(m.padrao)}): ${m.motivo}`
     ).join('\n\n');
 
+    // O checklist inteiro (não só o vício específico apontado) precisa ir
+    // no prompt aqui — sem ele, a regra 3 ("sem introduzir outro vício")
+    // era só um pedido genérico, sem o modelo saber CONCRETAMENTE quais
+    // vícios evitar. Foi assim que um vício sem nome (dois-pontos de
+    // efeito, ex.: "foi mais concreto: vinte e três libras de ferro")
+    // vazou como opção de reescrita — apontado pelo Wagner num caso real.
+    const antiIA = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
     const system = `Você é um editor literário. Para cada trecho marcado abaixo, escreva DUAS reescritas alternativas que corrijam o vício apontado.
+${antiIA}
 
 REGRAS:
 1. Preserve o sentido e o conteúdo do trecho original — só mude a forma
 2. As duas opções devem ser diferentes entre si, não variações triviais uma da outra
-3. Corrija o vício apontado sem introduzir outro vício de IA na reescrita
+3. Corrija o vício apontado SEM introduzir nenhum outro vício da lista acima na reescrita — releia cada opção contra a lista antes de responder
 4. Mantenha o tamanho aproximado do trecho original — ele precisa encaixar no lugar de onde saiu, no meio do texto
 5. Responda com exatamente ${grupo.length} item(ns), na mesma ordem em que os trechos foram listados`;
 
@@ -1065,7 +1100,7 @@ async function iniciarHumanizacao() {
   document.getElementById('btn-emergencia').disabled = false;
 
   // Reset etapas
-  for (let i = 1; i <= 5; i++) setEtapa(i, 'aguardando', i === 1 ? 'Iniciando...' : `Aguardando passagem ${i-1}...`);
+  for (let i = 1; i <= 6; i++) setEtapa(i, 'aguardando', i === 1 ? 'Iniciando...' : `Aguardando passagem ${i-1}...`);
 
   try {
     // Repetições: client-side, instantâneo, não gasta chamada de API.
@@ -1106,16 +1141,17 @@ async function iniciarHumanizacao() {
 }
 
 // ── RENDER DA TELA DE REVISÃO ──
-function renderRevisao(scrollParaTopo = true) {
-  const { trechos, repeticoes } = estadoAtual;
-  const partesResumo = [];
-  if (repeticoes.length) partesResumo.push(`${repeticoes.length} repetição(ões) de texto`);
-  if (trechos.length) partesResumo.push(`${trechos.length} trecho(s) com vício de checklist`);
-  document.getElementById('revisao-resumo').textContent =
-    partesResumo.join(' e ') + '. Clique pra escolher o que entra no texto final (a opção de maior nota já vem pré-selecionada).';
-
-  const repeticoesHtml = repeticoes.map((r, i) => `
-    <div class="trecho-card" style="border-color:rgba(155,111,208,0.35)">
+// Cada card de repetição/trecho tem um id próprio (repeticao-card-N /
+// trecho-card-N) — ao escolher uma opção, só AQUELE card é reconstruído
+// (outerHTML dele mesmo), nunca a lista inteira. Além de mais rápido numa
+// lista com dezenas/centenas de trechos, isso evita qualquer chance de
+// scroll pular pro topo por reflow do container inteiro — o scrollIntoView
+// já tinha sido removido daqui, mas substituir só o pedacinho que mudou
+// (em vez de apagar e recriar a lista toda a cada clique) fecha de vez
+// qualquer outra rota pra esse "a tela sobe sozinha".
+function htmlRepeticaoCard(r, i) {
+  return `
+    <div class="trecho-card" id="repeticao-card-${i}" style="border-color:rgba(155,111,208,0.35)">
       <div class="trecho-tipo" style="color:var(--violeta)">${r.nivel.toUpperCase()} REPETIDO ${r.ocorrencias}X — NÃO É VÍCIO DE ESTILO, É TEXTO DUPLICADO</div>
       <div class="trecho-motivo">"${escaparHtml(r.texto.slice(0, 200))}${r.texto.length > 200 ? '…' : ''}"</div>
       <div class="opcoes-linha">
@@ -1129,39 +1165,57 @@ function renderRevisao(scrollParaTopo = true) {
         </div>
       </div>
     </div>
-  `).join('');
+  `;
+}
 
-  const trechosHtml = trechos.map((t, i) => {
-    const opcoesInfo = [
-      { chave: 'original', nome: 'Manter original', texto: t.original, score: t.scoreOriginal },
-      { chave: 'a', nome: 'Opção A', texto: t.opcaoA, score: t.scoreA },
-      { chave: 'b', nome: 'Opção B', texto: t.opcaoB, score: t.scoreB },
-    ];
-    return `
-      <div class="trecho-card">
-        <div class="trecho-tipo">${escaparHtml(t.titulo)}</div>
-        <div class="trecho-motivo">${escaparHtml(t.motivo)}</div>
-        <div class="opcoes-linha">
-          ${opcoesInfo.map(o => `
-            <div class="opcao-card ${t.escolha === o.chave ? 'selecionada' : ''}" onclick="escolherOpcao(${i},'${o.chave}')">
-              <div class="opcao-cabecalho">
-                <span class="opcao-nome">${o.nome}${t.escolha === o.chave ? ' <span class="opcao-escolhida-badge">✓ ESCOLHIDA</span>' : ''}</span>
-                <span class="opcao-score" style="color:${corPontuacao(o.score)};border-color:${corPontuacao(o.score)}">${o.score}%</span>
-              </div>
-              <div class="opcao-texto">${escaparHtml(o.texto)}</div>
+function htmlTrechoCard(t, i) {
+  const opcoesInfo = [
+    { chave: 'original', nome: 'Manter original', texto: t.original, score: t.scoreOriginal },
+    { chave: 'a', nome: 'Opção A', texto: t.opcaoA, score: t.scoreA },
+    { chave: 'b', nome: 'Opção B', texto: t.opcaoB, score: t.scoreB },
+  ];
+  // Quantos outros trechos têm o MESMO vício — se houver mais de um, oferece
+  // aplicar a escolha atual a todos de uma vez, em vez de obrigar a repetir
+  // a mesma decisão trecho por trecho (pedido do Wagner: texto longo pode
+  // ter o mesmo vício dezenas de vezes).
+  const irmaos = estadoAtual.trechos.filter(x => x.padrao === t.padrao).length;
+  return `
+    <div class="trecho-card" id="trecho-card-${i}">
+      <div class="trecho-tipo">${escaparHtml(t.titulo)}</div>
+      <div class="trecho-motivo">${escaparHtml(t.motivo)}</div>
+      <div class="opcoes-linha">
+        ${opcoesInfo.map(o => `
+          <div class="opcao-card ${t.escolha === o.chave ? 'selecionada' : ''}" onclick="escolherOpcao(${i},'${o.chave}')">
+            <div class="opcao-cabecalho">
+              <span class="opcao-nome">${o.nome}${t.escolha === o.chave ? ' <span class="opcao-escolhida-badge">✓ ESCOLHIDA</span>' : ''}</span>
+              <span class="opcao-score" style="color:${corPontuacao(o.score)};border-color:${corPontuacao(o.score)}">${o.score}%</span>
             </div>
-          `).join('')}
-        </div>
+            <div class="opcao-texto">${escaparHtml(o.texto)}</div>
+          </div>
+        `).join('')}
       </div>
-    `;
-  }).join('');
+      ${irmaos > 1 ? `<div class="trecho-aplicar-todos" onclick="aplicarATodasOcorrencias(${i})">↻ Aplicar esta escolha às ${irmaos} ocorrências de "${escaparHtml(t.titulo)}"</div>` : ''}
+    </div>
+  `;
+}
+
+function renderRevisao(scrollParaTopo = true) {
+  const { trechos, repeticoes } = estadoAtual;
+  const partesResumo = [];
+  if (repeticoes.length) partesResumo.push(`${repeticoes.length} repetição(ões) de texto`);
+  if (trechos.length) partesResumo.push(`${trechos.length} trecho(s) com vício de checklist`);
+  document.getElementById('revisao-resumo').textContent =
+    partesResumo.join(' e ') + '. Clique pra escolher o que entra no texto final (a opção de maior nota já vem pré-selecionada).';
+
+  const repeticoesHtml = repeticoes.map((r, i) => htmlRepeticaoCard(r, i)).join('');
+  const trechosHtml = trechos.map((t, i) => htmlTrechoCard(t, i)).join('');
 
   document.getElementById('trechos-content').innerHTML = repeticoesHtml + trechosHtml;
   document.getElementById('revisao').classList.add('visivel');
   // Só rola a tela pro topo do painel na PRIMEIRA vez que a revisão
-  // aparece — chamar isso de novo a cada clique numa opção (eram dezenas
-  // de trechos numa lista longa) jogava a tela de volta pro topo toda
-  // vez, fazendo perder o lugar onde estava lendo/escolhendo.
+  // aparece (essa função só roda de novo inteira nesse ponto agora —
+  // escolher uma opção não passa mais por aqui, ver escolherOpcao/
+  // escolherRepeticao abaixo).
   if (scrollParaTopo) {
     document.getElementById('revisao').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -1169,12 +1223,24 @@ function renderRevisao(scrollParaTopo = true) {
 
 function escolherOpcao(indice, chave) {
   estadoAtual.trechos[indice].escolha = chave;
-  renderRevisao(false);
+  const el = document.getElementById('trecho-card-' + indice);
+  if (el) el.outerHTML = htmlTrechoCard(estadoAtual.trechos[indice], indice);
+}
+
+function aplicarATodasOcorrencias(indice) {
+  const alvo = estadoAtual.trechos[indice];
+  estadoAtual.trechos.forEach((o, i) => {
+    if (o.padrao !== alvo.padrao) return;
+    o.escolha = alvo.escolha;
+    const el = document.getElementById('trecho-card-' + i);
+    if (el) el.outerHTML = htmlTrechoCard(o, i);
+  });
 }
 
 function escolherRepeticao(indice, valor) {
   estadoAtual.repeticoes[indice].escolha = valor;
-  renderRevisao(false);
+  const el = document.getElementById('repeticao-card-' + indice);
+  if (el) el.outerHTML = htmlRepeticaoCard(estadoAtual.repeticoes[indice], indice);
 }
 
 function escaparHtml(s) {
@@ -1242,6 +1308,47 @@ async function aplicarEscolhasEContinuar() {
   await continuarAposRevisao();
 }
 
+// ── PASSAGEM 6: ADERÊNCIA À VOZ DO HETERÔNIMO ──
+// O placar de checklist (passagem 5) mede "% sem cara de IA" — mas isso
+// não diz se o texto soa como O HETERÔNIMO ESPECÍFICO ou só como prosa
+// genérica sem os vícios óbvios. São eixos diferentes: um texto pode
+// zerar o checklist e ainda não ter nada da assinatura do heterônimo.
+// Pedido do Wagner: mostrar os dois números separados.
+async function avaliarAderenciaVoz(texto, het, etapaNum) {
+  if (!het || !het.vozBloco) return null;
+  setEtapa(etapaNum, 'ativa', `Medindo aderência à voz de ${het.nome}...`);
+
+  const system = `Você é um crítico literário especialista em identificar a voz autoral de heterônimos específicos.
+
+PERFIL DE VOZ DE REFERÊNCIA — ${het.nome}:
+${het.vozBloco}
+
+Leia o texto abaixo e avalie, de 0 a 100, o quanto ele soa como algo genuinamente escrito por ${het.nome} — as peculiaridades ESPECÍFICAS do perfil acima (vocabulário, ritmo, cadência, temas, marcas de assinatura), não só "está bem escrito" em geral. 100 = irreconhecível de um texto autêntico do heterônimo; 0 = nenhuma característica do perfil presente. Seja rigoroso — só dê nota alta se as peculiaridades específicas realmente aparecem no texto, não pelo tom geral.`;
+
+  const SCHEMA_VOZ = {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      aderenciaPercentual: { type: 'integer', description: '0 a 100' },
+      justificativa: { type: 'string', description: 'até 200 caracteres, o que pesou a favor ou contra' }
+    },
+    required: ['aderenciaPercentual', 'justificativa']
+  };
+
+  try {
+    // Só a leitura do texto entra como input (sem limite prático); a
+    // saída é um JSON minúsculo, não precisa de chunking aqui.
+    const resultado = await chamarClaudeJSON(system, `TEXTO A AVALIAR:\n\n${texto}`, 500, SCHEMA_VOZ);
+    const percentual = Math.max(0, Math.min(100, resultado.aderenciaPercentual ?? 0));
+    setEtapa(etapaNum, 'concluida', `${percentual}% de aderência à voz de ${het.nome}`);
+    return { percentual, justificativa: resultado.justificativa || '' };
+  } catch (e) {
+    console.error('Falha ao avaliar aderência de voz:', e);
+    setEtapa(etapaNum, 'concluida', 'Não foi possível medir (erro na avaliação)');
+    return null;
+  }
+}
+
 // ── FASE 2: VOZ DO HETERÔNIMO + VERIFICAÇÃO FINAL ──
 async function continuarAposRevisao() {
   const het = estadoAtual.heteronimo;
@@ -1257,7 +1364,12 @@ async function continuarAposRevisao() {
     // PASSAGEM 5 — verificação final com a MESMA régua da passagem 1
     if (estadoAtual.parado) return;
     const verificacaoFinal = await detectarPadroes(comVoz, 5);
-    estadoAtual.resultadoFinal = { texto: comVoz, verificacaoFinal };
+
+    // PASSAGEM 6 — aderência à voz específica do heterônimo
+    if (estadoAtual.parado) return;
+    const aderenciaVoz = await avaliarAderenciaVoz(comVoz, het, 6);
+
+    estadoAtual.resultadoFinal = { texto: comVoz, verificacaoFinal, aderenciaVoz };
 
     estadoAtual.rodando = false;
     document.getElementById('btn-humanizar').disabled = false;
@@ -1277,7 +1389,7 @@ function renderResultado() {
   const { resultadoFinal, marcasDetectadas, trechos, textoOriginal, heteronimo } = estadoAtual;
   if (!resultadoFinal) return;
 
-  const { texto, verificacaoFinal } = resultadoFinal;
+  const { texto, verificacaoFinal, aderenciaVoz } = resultadoFinal;
   const nota = verificacaoFinal.score;
   const notaInicial = pontuarPorChecklist(marcasDetectadas.map(m => m.padrao));
   const corNota = corPontuacao(nota);
@@ -1286,6 +1398,23 @@ function renderResultado() {
   document.getElementById('placar').classList.add('visivel');
   document.getElementById('placar-nota').textContent = nota + '%';
   document.getElementById('placar-nota').style.color = corNota;
+
+  // Segunda nota — aderência à voz do heterônimo. Eixo diferente do
+  // checklist: um texto pode zerar vícios de IA e mesmo assim não soar
+  // como o heterônimo escolhido. Só aparece quando a avaliação rodou
+  // (não roda em parada de emergência nem sem heterônimo selecionado).
+  const votWrap = document.getElementById('placar-nota-voz-wrap');
+  if (aderenciaVoz) {
+    const corVoz = corPontuacao(aderenciaVoz.percentual);
+    votWrap.style.display = 'flex';
+    document.getElementById('placar-nota-voz').textContent = aderenciaVoz.percentual + '%';
+    document.getElementById('placar-nota-voz').style.color = corVoz;
+    document.getElementById('placar-nota-voz-label').textContent =
+      `na voz de ${heteronimo?.nome || 'heterônimo'}${aderenciaVoz.justificativa ? ' — ' + aderenciaVoz.justificativa : ''}`;
+  } else {
+    votWrap.style.display = 'none';
+  }
+
   const escolhidas = trechos.filter(t => t.escolha !== 'original').length;
   document.getElementById('placar-desc').textContent =
     `Checklist antes da revisão: ${notaInicial}% · depois: ${nota}%. `
@@ -1415,7 +1544,8 @@ async function maisUmaPassagem() {
 
   const extra = het ? await passagem4_voz(textoAtual, het) : textoAtual;
   const verificacaoFinal = await detectarPadroes(extra, 5);
-  estadoAtual.resultadoFinal = { texto: extra, verificacaoFinal };
+  const aderenciaVoz = await avaliarAderenciaVoz(extra, het, 6);
+  estadoAtual.resultadoFinal = { texto: extra, verificacaoFinal, aderenciaVoz };
   estadoAtual.textoPorPassagem.push(extra);
   renderResultado();
   toast(`↺ Passagem extra concluída · ${verificacaoFinal.score}%`);
