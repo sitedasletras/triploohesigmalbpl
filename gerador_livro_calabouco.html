@@ -907,11 +907,24 @@ async function iniciarGeracao() {
   const destinoFinal = document.getElementById('destino-final').value;
   const contoBase = document.getElementById('conto-base').value.trim();
 
-  // ── CONTO SEMENTE OBRIGATÓRIO ──
+  // ── CONTO SEMENTE (o campo já diz "opcional mas recomendado", mas até
+  // aqui um alert() bloqueava sem dar nenhum caminho pra frente pra quem
+  // não tinha um — contradição direta com o próprio rótulo do campo, e
+  // sem saída pra quem só quer escrever um livro do zero. O código logo
+  // abaixo já sabe gerar sem conto base (a IA decide título/heterônimo),
+  // então a trava nunca devia ter bloqueado — vira uma escolha real. ──
   if (!contoBase) {
-    alert('⚠ CONTO SEMENTE OBRIGATÓRIO\n\nCole o conto semente no campo "Conto Base" antes de gerar.\n\nO gerador usa o conto semente como DNA da obra. Sem ele, a história perde coerência com o original.');
-    document.getElementById('conto-base').focus();
-    return;
+    const seguirSemSemente = confirm(
+      '⚠ Você não colou nenhum Conto Semente.\n\n' +
+      'Sem ele, a IA decide título, heterônimo e história do zero, só com o briefing/sinopse — funciona, mas sem um DNA prévio pra manter coerência com um conto que você já tenha escrito.\n\n' +
+      'OK → gera o livro direto, sem semente.\n' +
+      'Cancelar → volta pro modo "Conto Semente" pra gerar um primeiro.'
+    );
+    if (!seguirSemSemente) {
+      selecionarModo('semente');
+      document.getElementById('modo-semente').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
   }
 
   // Validar saga
