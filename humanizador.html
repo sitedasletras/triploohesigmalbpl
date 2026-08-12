@@ -285,7 +285,32 @@ select option { background: var(--s1); }
 .trecho-card { background: var(--s2); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 16px; }
 .trecho-tipo { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--rosa); text-transform: uppercase; margin-bottom: 6px; }
 .trecho-motivo { font-size: 13px; font-style: italic; color: rgba(240,232,224,0.55); margin-bottom: 14px; }
+.trecho-contexto {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 14px;
+}
+.trecho-contexto-titulo { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+.trecho-contexto-texto { font-size: 14px; line-height: 1.8; color: rgba(240,232,224,0.75); white-space: pre-wrap; }
 .opcoes-linha { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 10px; }
+.opcao-custom-fechada .opcao-texto { font-style: italic; color: var(--muted); }
+.opcao-custom-fechada.selecionada .opcao-texto { font-style: normal; }
+.opcao-custom-editando {
+  grid-column: 1 / -1; cursor: default; background: var(--bg);
+}
+.opcao-custom-editando:hover { border-color: var(--border); }
+.opcao-custom-textarea {
+  width: 100%; min-height: 90px; background: var(--s2); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--texto); font-family: var(--crimson, inherit); font-size: 15px; line-height: 1.7; padding: 10px;
+  box-sizing: border-box; resize: vertical;
+}
+.opcao-custom-acoes { display: flex; gap: 8px; margin-top: 10px; }
+.opcao-custom-acoes button {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 8px 14px; border-radius: 999px; cursor: pointer; border: 1px solid var(--border);
+  background: transparent; color: var(--texto);
+}
+.opcao-custom-acoes button:first-child { border-color: var(--verde); color: var(--verde2); }
+.opcao-custom-acoes button:hover { background: rgba(240,232,224,0.06); }
 .opcao-card {
   background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
   padding: 12px 14px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 8px;
@@ -882,6 +907,46 @@ Para cada ocorrência de um vício no texto, identifique o índice do padrão, o
   return { marcas, score };
 }
 
+// ── APRENDIZADO A PARTIR DAS SUAS CORREÇÕES ──
+// Quando nenhuma das opções geradas serve e você escreve sua própria
+// versão (ver "Escrever a minha versão" no card de trecho), isso é sinal
+// de que a geração automática errou o tom pra aquele vício especificamente.
+// Guarda o par (vício + sua correção) e reaproveita como exemplo nas
+// próximas gerações de opção do MESMO vício — assim a Humanização vai
+// convergindo pro seu jeito de corrigir, em vez de repetir o mesmo erro.
+const CHAVE_CORRECOES_APRENDIDAS = 'humanizador_correcoes_aprendidas';
+const MAX_CORRECOES_APRENDIDAS = 200;
+const MAX_EXEMPLOS_POR_PROMPT = 3;
+
+function salvarCorrecaoAprendida(trecho, correcao) {
+  try {
+    const lista = JSON.parse(localStorage.getItem(CHAVE_CORRECOES_APRENDIDAS) || '[]');
+    lista.push({
+      padrao: trecho.padrao,
+      titulo: trecho.titulo,
+      original: trecho.original,
+      correcao,
+      data: new Date().toISOString(),
+    });
+    while (lista.length > MAX_CORRECOES_APRENDIDAS) lista.shift(); // mantém só as mais recentes
+    localStorage.setItem(CHAVE_CORRECOES_APRENDIDAS, JSON.stringify(lista));
+  } catch (e) { console.error('Falha ao salvar correção aprendida:', e); }
+}
+
+// `padroes`: lista de índices de vício presentes no grupo dessa chamada —
+// só entram exemplos do(s) MESMO vício que está sendo corrigido agora,
+// não a lista toda (senão dilui o prompt com exemplos irrelevantes).
+function montarBlocoCorrecoesAprendidas(padroes) {
+  try {
+    const lista = JSON.parse(localStorage.getItem(CHAVE_CORRECOES_APRENDIDAS) || '[]');
+    if (!lista.length) return '';
+    const alvo = new Set(padroes);
+    const relevantes = lista.filter(c => alvo.has(c.padrao)).slice(-MAX_EXEMPLOS_POR_PROMPT);
+    if (!relevantes.length) return '';
+    return `\n\nEXEMPLOS DE COMO VOCÊ (O AUTOR RESPONSÁVEL POR ESSA OBRA) JÁ CORRIGIU ESSE MESMO VÍCIO ANTES — siga esse padrão de tom/estilo quando fizer sentido, não precisa repetir literalmente:\n${relevantes.map(c => `- Vício "${c.titulo}": "${c.original}" → "${c.correcao}"`).join('\n')}`;
+  } catch (e) { return ''; }
+}
+
 // ── PASSAGEM 2: GERAÇÃO DE OPÇÕES POR TRECHO ──
 async function passagem2_gerarOpcoes(marcas) {
   if (marcas.length === 0) {
@@ -929,8 +994,9 @@ async function passagem2_gerarOpcoes(marcas) {
     // efeito, ex.: "foi mais concreto: vinte e três libras de ferro")
     // vazou como opção de reescrita — apontado pelo Wagner num caso real.
     const antiIA = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
+    const exemplosAprendidos = montarBlocoCorrecoesAprendidas(grupo.map(m => m.padrao));
     const system = `Você é um editor literário. Para cada trecho marcado abaixo, escreva DUAS reescritas alternativas que corrijam o vício apontado.
-${antiIA}
+${antiIA}${exemplosAprendidos}
 
 REGRAS:
 1. Preserve o sentido e o conteúdo do trecho original — só mude a forma
@@ -1175,6 +1241,31 @@ function htmlRepeticaoCard(r, i) {
   `;
 }
 
+// Vícios de diálogo precisam de mais contexto pra avaliar do que os
+// ~70 caracteres do trecho isolado permitem — pedido do Wagner: "se for
+// diálogos, você tem que me dar um texto maior pra eu saber o que está
+// passando na cena". Identifica pelo TÍTULO (não pelo índice, que muda
+// se o checklist for reordenado).
+const VICIOS_DIALOGO = new Set(['Diálogo em fôrma fixa', 'Diálogo sem identificação de quem fala', 'Fala sem marcação']);
+function ehVicioDialogo(padrao) {
+  return VICIOS_DIALOGO.has(tituloPadrao(padrao));
+}
+
+// Busca o trecho marcado dentro do texto ORIGINAL completo (já em
+// memória, sem chamada de API) e devolve uma janela maior ao redor —
+// o bastante pra entender quem está em cena e o que está acontecendo.
+function extrairContextoCena(trechoOriginal, janela = 500) {
+  const texto = estadoAtual.textoOriginal || '';
+  const idx = texto.indexOf(trechoOriginal);
+  if (idx === -1) return null;
+  const inicio = Math.max(0, idx - janela);
+  const fim = Math.min(texto.length, idx + trechoOriginal.length + janela);
+  let recorte = texto.slice(inicio, fim);
+  if (inicio > 0) recorte = '(…) ' + recorte;
+  if (fim < texto.length) recorte = recorte + ' (…)';
+  return recorte;
+}
+
 function htmlTrechoCard(t, i) {
   const opcoesInfo = [
     { chave: 'original', nome: 'Manter original', texto: t.original, score: t.scoreOriginal },
@@ -1186,10 +1277,38 @@ function htmlTrechoCard(t, i) {
   // a mesma decisão trecho por trecho (pedido do Wagner: texto longo pode
   // ter o mesmo vício dezenas de vezes).
   const irmaos = estadoAtual.trechos.filter(x => x.padrao === t.padrao).length;
+  const contexto = ehVicioDialogo(t.padrao) ? extrairContextoCena(t.original) : null;
+
+  // "Escrever a minha versão" — quarta opção além de original/A/B, pra
+  // quando nenhuma das duas serve. Pedido do Wagner: um lugar pra editar
+  // a resposta na hora, em vez de só escolher entre opções prontas.
+  const cardCustom = t._editando
+    ? `
+      <div class="opcao-card opcao-custom-editando">
+        <div class="opcao-cabecalho"><span class="opcao-nome">✎ Escrever a minha versão</span></div>
+        <textarea class="opcao-custom-textarea" id="custom-textarea-${i}">${escaparHtml(t.escolha === 'custom' ? t.textoCustom : t.original)}</textarea>
+        <div class="opcao-custom-acoes">
+          <button type="button" onclick="salvarEdicaoTrecho(${i})">💾 Salvar minha versão</button>
+          <button type="button" onclick="cancelarEdicaoTrecho(${i})">Cancelar</button>
+        </div>
+      </div>`
+    : `
+      <div class="opcao-card opcao-custom-fechada ${t.escolha === 'custom' ? 'selecionada' : ''}" onclick="alternarEdicaoTrecho(${i})">
+        <div class="opcao-cabecalho">
+          <span class="opcao-nome">✎ Escrever a minha versão${t.escolha === 'custom' ? ' <span class="opcao-escolhida-badge">✓ ESCOLHIDA</span>' : ''}</span>
+        </div>
+        <div class="opcao-texto">${t.escolha === 'custom' ? escaparHtml(t.textoCustom) : 'Clique pra escrever sua própria correção, se nenhuma opção acima servir.'}</div>
+      </div>`;
+
   return `
     <div class="trecho-card" id="trecho-card-${i}">
       <div class="trecho-tipo">${escaparHtml(t.titulo)}</div>
       <div class="trecho-motivo">${escaparHtml(t.motivo)}</div>
+      ${contexto ? `
+        <div class="trecho-contexto">
+          <div class="trecho-contexto-titulo">// CONTEXTO DA CENA (pra entender quem fala e o que está acontecendo)</div>
+          <div class="trecho-contexto-texto">${escaparHtml(contexto)}</div>
+        </div>` : ''}
       <div class="opcoes-linha">
         ${opcoesInfo.map(o => `
           <div class="opcao-card ${t.escolha === o.chave ? 'selecionada' : ''}" onclick="escolherOpcao(${i},'${o.chave}')">
@@ -1200,8 +1319,9 @@ function htmlTrechoCard(t, i) {
             <div class="opcao-texto">${escaparHtml(o.texto)}</div>
           </div>
         `).join('')}
+        ${cardCustom}
       </div>
-      ${irmaos > 1 ? `<div class="trecho-aplicar-todos" onclick="aplicarATodasOcorrencias(${i})">↻ Aplicar esta escolha às ${irmaos} ocorrências de "${escaparHtml(t.titulo)}"</div>` : ''}
+      ${irmaos > 1 && t.escolha !== 'custom' ? `<div class="trecho-aplicar-todos" onclick="aplicarATodasOcorrencias(${i})">↻ Aplicar esta escolha às ${irmaos} ocorrências de "${escaparHtml(t.titulo)}"</div>` : ''}
     </div>
   `;
 }
@@ -1234,8 +1354,39 @@ function escolherOpcao(indice, chave) {
   if (el) el.outerHTML = htmlTrechoCard(estadoAtual.trechos[indice], indice);
 }
 
+function alternarEdicaoTrecho(indice) {
+  estadoAtual.trechos[indice]._editando = true;
+  const el = document.getElementById('trecho-card-' + indice);
+  if (el) el.outerHTML = htmlTrechoCard(estadoAtual.trechos[indice], indice);
+  document.getElementById('custom-textarea-' + indice)?.focus();
+}
+
+function cancelarEdicaoTrecho(indice) {
+  estadoAtual.trechos[indice]._editando = false;
+  const el = document.getElementById('trecho-card-' + indice);
+  if (el) el.outerHTML = htmlTrechoCard(estadoAtual.trechos[indice], indice);
+}
+
+function salvarEdicaoTrecho(indice) {
+  const t = estadoAtual.trechos[indice];
+  const valor = document.getElementById('custom-textarea-' + indice).value.trim();
+  if (!valor) { toast('Escreva algo antes de salvar'); return; }
+  t.escolha = 'custom';
+  t.textoCustom = valor;
+  t._editando = false;
+  salvarCorrecaoAprendida(t, valor);
+  const el = document.getElementById('trecho-card-' + indice);
+  if (el) el.outerHTML = htmlTrechoCard(t, indice);
+  toast('✎ Sua versão salva — a Humanização vai levar isso em conta em correções futuras desse vício');
+}
+
 function aplicarATodasOcorrencias(indice) {
   const alvo = estadoAtual.trechos[indice];
+  // "custom" é um texto escrito à mão pra ESSE trecho específico — não faz
+  // sentido colar o mesmo texto literal no lugar de outro trecho com
+  // conteúdo original diferente. O link some da tela nesse caso (ver
+  // htmlTrechoCard), isso aqui é só a segunda trava.
+  if (alvo.escolha === 'custom') return;
   estadoAtual.trechos.forEach((o, i) => {
     if (o.padrao !== alvo.padrao) return;
     o.escolha = alvo.escolha;
@@ -1297,7 +1448,7 @@ function montarTextoComEscolhas() {
   let resultado = '';
   estadoAtual.trechos.forEach(t => {
     if (t.escolha === 'original') return; // nada a trocar
-    const substituto = t.escolha === 'a' ? t.opcaoA : t.opcaoB;
+    const substituto = t.escolha === 'custom' ? t.textoCustom : (t.escolha === 'a' ? t.opcaoA : t.opcaoB);
     const idx = texto.indexOf(t.original, cursor);
     if (idx === -1) return; // trecho não encontrado (removido junto com uma repetição, por ex.) — deixa como está
     resultado += texto.slice(cursor, idx) + substituto;
