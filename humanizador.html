@@ -1358,11 +1358,14 @@ async function autoCorrigirResiduos(texto, marcas, het, etapaNum) {
       `${i}. TRECHO: "${m.trecho}"\n   VÍCIO (${tituloPadrao(m.padrao)}): ${m.motivo}`
     ).join('\n\n');
 
-    // Nada de "aqui estão 3 formas fáceis de resolver isso" — troca
-    // mecânica de pontuação (ex.: travessão virar vírgula sem mais nada)
-    // já foi flagrada como resultado ruim; a instrução é reestruturar de
-    // verdade, como um autor faria.
-    const system = `Você é um editor literário${het ? `, escrevendo na voz de ${het.nome}` : ''}. Para cada trecho abaixo, reescreva-o eliminando DE VERDADE o vício apontado — reestruture a frase como um autor faria. NÃO troque só um sinal de pontuação por outro de forma mecânica (ex.: travessão virando vírgula) — isso não elimina o vício, só disfarça.
+    // Correção anterior (baseada em leitura errada do exemplo do Wagner):
+    // proibia trocar só a pontuação. Errado — pra travessão-como-parêntese
+    // ("patente — estava"), a troca por vírgula ("patente, estava") É a
+    // correção certa e mais simples, foi o próprio Wagner quem confirmou.
+    // A instrução agora é: elimine o vício de verdade (não deixe passar
+    // batido), mas sem se recusar a usar a solução mais simples quando
+    // ela já resolve — não force reescrita rebuscada onde não precisa.
+    const system = `Você é um editor literário${het ? `, escrevendo na voz de ${het.nome}` : ''}. Para cada trecho abaixo, reescreva-o eliminando DE VERDADE o vício apontado. Use a correção mais simples que resolva bem — troca de pontuação (ex.: travessão de parêntese virando vírgula) é válida quando já lê natural; não force uma reestruturação rebuscada onde a solução simples já funciona. O que não pode é deixar o vício disfarçado — se só trocar o sinal e o problema continuar lá, reescreva de verdade.
 ${antiIA}
 ${het?.vozBloco || ''}
 
