@@ -562,7 +562,24 @@ function baixar() {
 
 function enviarCatapulta() {
   if (!lapidacaoAtual) return;
-  localStorage.setItem('catapulta_texto_lapidado', JSON.stringify(lapidacaoAtual));
+  // catapulta.html lê o array catapulta_manuais, não uma chave dedicada
+  // pro texto lapidado — catapulta_texto_lapidado nunca era lida por
+  // ninguém, então o texto lapidado desaparecia silenciosamente ao clicar
+  // aqui, apesar do toast dizer "Enviado". campo `conteudo` é o que
+  // catapulta.html de fato repassa pro diagramador ao disparar o livro.
+  const manuais = JSON.parse(localStorage.getItem('catapulta_manuais') || '[]');
+  manuais.push({
+    id: 'lapidado_' + Date.now(),
+    titulo: lapidacaoAtual.titulo || 'Obra lapidada',
+    autor: lapidacaoAtual.autor || '',
+    eixo: 'Prosa',
+    sinopse: (lapidacaoAtual.lap?.texto_lapidado || '').slice(0, 240),
+    conteudo: lapidacaoAtual.lap?.texto_lapidado || '',
+    adicionadoEm: new Date().toISOString(),
+    catapultado: false,
+    origem: 'lapidacao_psicologica',
+  });
+  localStorage.setItem('catapulta_manuais', JSON.stringify(manuais));
   toast('→ Enviado para a Catapulta');
 }
 

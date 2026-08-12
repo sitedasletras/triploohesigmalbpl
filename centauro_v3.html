@@ -14,10 +14,8 @@
 <script src="motor_pretextuais_v2.js"></script>
 <script src="motor_juncao_v1.js"></script>
 <script src="motores_lapidar/motor_upload_manuscrito_v1.js"></script>
-<script src="motores_lapidar/motor_exportacao_pdf_v1.js"></script>
 <script src="motores_lapidar/finais/motor_paginacao_real_v1.js"></script>
 <script src="motores_lapidar/finais/motor_exportacao_final_pdf_epub_v1.js"></script>
-<script src="motores_lapidar/finais/motor_decoracao_editorial_v1.js"></script>
 <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -485,6 +483,7 @@ function getCfg(){
     // Prévia do Sumário.
     alinhamentosCapitulo,
     hifenizacao:$('hifenizacao').value==='true',
+    viuvasOrfas:$('viuvasOrfas').value,
     correcao:$('correcao').value,
     numeracao:$('numeracao').value,
   };

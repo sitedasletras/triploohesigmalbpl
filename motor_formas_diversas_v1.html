@@ -274,7 +274,7 @@ Roubando o sono, ferindo a paciência</textarea>
    NÚCLEO DE SILABIZAÇÃO — PORTUGUÊS (idêntico aos outros dois motores)
    ========================================================= */
 const VOGAIS = "aeiouáéíóúâêîôûãõàAEIOUÁÉÍÓÚÂÊÎÔÛÃÕÀ";
-const VOGAIS_ACENTUADAS_HIATO = "íóúÍÓÚ";
+const VOGAIS_ACENTUADAS_HIATO = "íóúÍÓÚâêôÂÊÔ";
 const DIGRAFOS_INSEPARAVEIS = ["ch","lh","nh"];
 const ENCONTROS_PERMITIDOS = ["bl","cl","fl","gl","pl","tl","br","cr","dr","fr","gr","pr","tr","vr"];
 
@@ -289,7 +289,7 @@ function ehDitongo(v1, v2){
   if (VOGAIS_ACENTUADAS_HIATO.indexOf(v2) !== -1) return false;
   if (VOGAIS_ACENTUADAS_HIATO.indexOf(v1) !== -1 && "aeo".indexOf(semAcento(v2))!==-1) return false;
   if (semAcento(v1) === semAcento(v2)) return false;
-  const ditongosBase = ["ai","au","ei","eu","oi","ou","ui","iu","ao","ão","õe","ãe","ãi"];
+  const ditongosBase = ["ai","au","ei","eu","oi","ou","ui","iu","ia","ie","io","ao","ão","õe","ãe","ãi"];
   return ditongosBase.indexOf(semAcento(v1)+semAcento(v2)) !== -1 || (v1+v2).indexOf("ã")!==-1 || (v1+v2).indexOf("õ")!==-1;
 }
 

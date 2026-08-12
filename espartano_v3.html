@@ -14,7 +14,6 @@
 <script src="motor_pretextuais_v2.js"></script>
 <script src="motor_juncao_v1.js"></script>
 <script src="motores_lapidar/motor_upload_manuscrito_v1.js"></script>
-<script src="motores_lapidar/motor_exportacao_pdf_v1.js"></script>
 <script src="motores_lapidar/finais/motor_paginacao_real_v1.js"></script>
 <script src="motores_lapidar/finais/motor_exportacao_final_pdf_epub_v1.js"></script>
 <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
@@ -218,11 +217,12 @@ label{display:block;font-size:.72rem;font-weight:700;color:#9bb8e0;letter-spacin
       <option value="true" selected>Ativa</option>
       <option value="false">Desativada</option>
     </select>
-    <label>Viúvas e Órfãs</label>
-    <select class="sel" id="viuvasOrfas">
-      <option value="corrigir" selected>Corrigir automaticamente</option>
-      <option value="off">Ignorar</option>
-    </select>
+    <!-- Sem controle de Viúvas/Órfãs de propósito: o Espartano pagina por
+         paginarEstrofista() (agrupa exatamente 7 estrofes por conjunto de
+         página, sempre), não pelo paginar()+corrigirViuvasOrfas() dos
+         outros diagramadores — não existe linha órfã pra corrigir nesse
+         agrupamento por contagem fixa. Um controle aqui nunca teria efeito
+         nenhum (era o caso antes desta correção). -->
     <label>Numeração</label>
     <select class="sel" id="numeracao">
       <option value="espelho" selected>Espelho (recto/verso)</option>
@@ -621,7 +621,7 @@ function exportarTXT(){
 
 // ── EVENT LISTENERS ───────────────────────────────────────
 ['formato','fontSize','lineHeight','margem','fontFamily','recuo',
- 'paragraphGap','capitular','hifenizacao','viuvasOrfas','correcao','numeracao']
+ 'paragraphGap','capitular','hifenizacao','correcao','numeracao']
   .forEach(id=>{
     $(id).addEventListener('change',()=>{render();});
   });

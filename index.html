@@ -2966,8 +2966,15 @@ function enviarParaFila(tipo) {
   const ref = document.getElementById('maq-referencia').value;
   const instr = document.getElementById('maq-instrucoes').value;
   metaCaracteres = parseInt(document.getElementById('maq-meta-tamanho').value) || null;
+  // Versos por estrofe (cordel) — o próprio prompt de sistema da IA (REGRA
+  // 4) espera essa informação em DETALHES pra saber se é sextilha/setilha/
+  // oitava/décima; sem isso aqui, a escolha do usuário nunca chegava lá e
+  // o motor sempre caía no padrão de 6 versos.
+  const versosBox = document.getElementById('maq-versos-box');
+  const versos = (versosBox && versosBox.style.display !== 'none') ? document.getElementById('maq-versos').value : '';
   meta = `${cat || 'Categoria a definir'} · ${het || 'Fernando Peçanha decide'}` +
     (fmto ? ` · Formato: ${fmto}` : '') +
+    (versos ? ` · Versos por estrofe: ${versos}` : '') +
     (metaCaracteres ? ` · Meta: ~${metaCaracteres.toLocaleString('pt-BR')} caracteres` : '') +
     (cen ? ` · Cenário: ${cen}` : '') +
     (pers ? ` · Personagem: ${pers}` : '') +
@@ -2999,8 +3006,11 @@ function enviarParaFila(tipo) {
     titulo = (document.getElementById('des-ideia')?.value || '').substring(0, 80) || 'Desafio sem descrição';
     const desFmto = document.getElementById('des-formato')?.value || '';
     metaCaracteres = parseInt(document.getElementById('des-meta-tamanho')?.value) || null;
+    const desVersosBox = document.getElementById('des-versos-box');
+    const desVersos = (desVersosBox && desVersosBox.style.display !== 'none') ? document.getElementById('des-versos')?.value : '';
     meta = `Urgência: ${document.getElementById('des-urgencia')?.value || 'não definida'} · Modo Desafio` +
       (desFmto ? ` · Formato: ${desFmto}` : '') +
+      (desVersos ? ` · Versos por estrofe: ${desVersos}` : '') +
       (metaCaracteres ? ` · Meta: ~${metaCaracteres.toLocaleString('pt-BR')} caracteres` : '');
     destino = 'calabouco';
   }
@@ -3033,10 +3043,14 @@ function enviarParaFila(tipo) {
   if (tipo === 'edital') {
     const prazoStr = document.getElementById('ed-prazo').value;
     const tipoEdital = document.getElementById('ed-tipo').value || '—';
+    const categoriaExigida = document.getElementById('ed-categoria')?.value || '';
+    const linkEdital = document.getElementById('ed-link')?.value || '';
     estado.concursos.push({
       id: item.id,
       titulo,
       tipoEdital,
+      categoriaExigida: categoriaExigida || null,
+      link: linkEdital || null,
       prazo: prazoStr || null,
       status: 'aberto',
       dataEntrada: new Date().toISOString()
@@ -3112,7 +3126,7 @@ function renderizarConcursos() {
       <div class="fila-idx">${String(i+1).padStart(2,'0')}</div>
       <div class="fila-info">
         <div class="fila-titulo">${c.titulo}</div>
-        <div class="fila-meta">${c.tipoEdital} · registrado em ${new Date(c.dataEntrada).toLocaleDateString('pt-BR')}</div>
+        <div class="fila-meta">${c.tipoEdital}${c.categoriaExigida ? ' · Categoria: ' + c.categoriaExigida : ''} · registrado em ${new Date(c.dataEntrada).toLocaleDateString('pt-BR')}${c.link ? ` · <a href="${c.link}" target="_blank" rel="noopener" style="color:inherit;">🔗 edital</a>` : ''}</div>
       </div>
       <div class="fila-status ${statusClasse}">${statusTexto}</div>
       <div class="fila-acoes">

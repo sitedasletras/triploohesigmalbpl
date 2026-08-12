@@ -324,6 +324,13 @@ footer p{font-size:13px;line-height:1.8}
 // ══════════════════════════════════════════════════════════
 // MAPEAMENTO DE TODAS AS CHAVES DO TRIPLOOHESIGMALBPL
 // ══════════════════════════════════════════════════════════
+// Fila/Masmorra/Calabouço do Triplo principal vivem dentro de UM objeto só
+// em localStorage['sigmal_hq'] (estado.fila/estado.masmorra/estado.calabouco
+// — arrays no nível raiz, gravados por index.html) — não em chaves soltas
+// no nível raiz do localStorage. As listas CHAVES_* abaixo continuam como
+// chutes de compatibilidade (formatos antigos/alternativos que podem não
+// existir mais), mas a leitura de verdade passa por lerSigmalHQSecao() nas
+// funções lerFila()/lerMasmorra()/lerCalabouco() logo abaixo.
 const CHAVES_OHE = [
   'ohe_fila','ohe_processados','ohe_fila_itens','fernando_fila',
   'pecanha_fila','ohe_entradas','sigmal_fila','pecanha_obras',
@@ -336,19 +343,22 @@ const CHAVES_MASMORRA = [
 ]
 const CHAVES_CALABOUCO = [
   'calabouco_obras','calabouco','patrimonio_literario',
-  'obras_consolidadas','calabouco_itens','livros_calabouco',
+  'obras_consolidadas','calabouco_itens','calabouco_livros',
   'acervo_calabouco','obras_finais'
 ]
+// Chaves reais confirmadas em maestro_aaron_curadoria.html/sistema.html
+// (antes: sigmal_studios, sigmal_singles etc. — nenhuma dessas existia de
+// verdade em lugar nenhum do repo, a aba SIGMAL Music nunca mostrava nada).
 const CHAVES_SIGMAL = [
-  'sigmal_studios','sigmal_singles','sigmal_artistas',
-  'sigmal_music_gerados','sigmal_music_convs','sigmal_lps',
-  'silo_music_gerados','silo_music_convs','estudio_sigmal',
-  'sigmal_producoes','condor_repertorio','maestro_interpretes'
+  'maestro_obras','maestro_aaron_acervo','maestro_aaron_corsi',
 ]
+// Chaves reais confirmadas em charlton_heston_curadoria.html/sistema.html e
+// bpl_banco_personagens_literarios.html (antes: nucleo_producoes,
+// charlton_producoes etc. — não existiam; só bpl_convocacoes/
+// bpl_artistas_gerados batiam de verdade).
 const CHAVES_NUCLEO = [
-  'nucleo_producoes','nucleo_elenco','charlton_producoes',
-  'bpl_convocacoes','bpl_artistas_gerados','nucleo_n',
-  'elenco_producoes','nucleon_itens'
+  'charlton_convocacoes','charlton_acervo','charlton_corsi',
+  'bpl_convocacoes','bpl_artistas_gerados',
 ]
 
 let modalTextoAtual = ''
@@ -379,6 +389,23 @@ function lerChaves(chaves) {
   })
   return itens
 }
+
+// ── LÊ UMA SEÇÃO (fila/masmorra/calabouco) DE DENTRO DE localStorage['sigmal_hq'] ──
+// É onde index.html de fato guarda esses três arrays — chave única com um
+// objeto aninhado, não chaves soltas no nível raiz do localStorage.
+function lerSigmalHQSecao(secao) {
+  try {
+    const estado = JSON.parse(localStorage.getItem('sigmal_hq') || '{}')
+    const arr = estado[secao]
+    if (!Array.isArray(arr)) return []
+    return arr.map(item => (item && typeof item === 'object')
+      ? {...item, _chave: 'sigmal_hq.' + secao}
+      : {titulo: String(item), conteudo: String(item), _chave: 'sigmal_hq.' + secao})
+  } catch(e) { return [] }
+}
+function lerFila()      { return [...lerSigmalHQSecao('fila'), ...lerChaves(CHAVES_OHE)] }
+function lerMasmorra()  { return [...lerSigmalHQSecao('masmorra'), ...lerChaves(CHAVES_MASMORRA)] }
+function lerCalabouco() { return [...lerSigmalHQSecao('calabouco'), ...lerChaves(CHAVES_CALABOUCO)] }
 
 // ── EXTRAI O MELHOR TÍTULO ──
 function titulo(item) {
@@ -499,8 +526,8 @@ function exportarModal() {
 }
 
 function buscar(tipo, q) {
-  const mapa = {fila:CHAVES_OHE, masmorra:CHAVES_MASMORRA, calabouco:CHAVES_CALABOUCO, sigmal:CHAVES_SIGMAL, nucleo:CHAVES_NUCLEO}
-  const tudo = lerChaves(mapa[tipo] || [])
+  const mapa = {fila:lerFila, masmorra:lerMasmorra, calabouco:lerCalabouco, sigmal:()=>lerChaves(CHAVES_SIGMAL), nucleo:()=>lerChaves(CHAVES_NUCLEO)}
+  const tudo = (mapa[tipo] || (()=>[]))()
   const filtrado = q ? tudo.filter(i => JSON.stringify(i).toLowerCase().includes(q.toLowerCase())) : tudo
   renderLista('lista-' + tipo, filtrado, tipo)
 }
@@ -561,9 +588,9 @@ function exportarTudo() {
 
 function exportarTexto() {
   const todas = [
-    ...lerChaves(CHAVES_OHE),
-    ...lerChaves(CHAVES_MASMORRA),
-    ...lerChaves(CHAVES_CALABOUCO),
+    ...lerFila(),
+    ...lerMasmorra(),
+    ...lerCalabouco(),
     ...lerChaves(CHAVES_SIGMAL),
     ...lerChaves(CHAVES_NUCLEO),
   ]
@@ -576,17 +603,33 @@ function exportarTexto() {
 
 function copiarTudo() {
   const todas = [
-    ...lerChaves(CHAVES_OHE),
-    ...lerChaves(CHAVES_MASMORRA),
-    ...lerChaves(CHAVES_CALABOUCO),
+    ...lerFila(),
+    ...lerMasmorra(),
+    ...lerCalabouco(),
   ]
   if (!todas.length) { alert('Nenhum conteúdo encontrado.'); return }
   const txt = todas.map(i => `${titulo(i)}\n\n${conteudo(i)}`).join('\n\n' + '═'.repeat(40) + '\n\n')
   navigator.clipboard.writeText(txt).then(() => alert('✅ Tudo copiado para a área de transferência!'))
 }
 
+// ── LÊ/GRAVA sigmal_hq (Fila/Masmorra/Calabouço reais do Triplo principal) ──
+function _lerEstadoSigmalHQ() {
+  try { return JSON.parse(localStorage.getItem('sigmal_hq') || '{}') } catch(e) { return {} }
+}
+function _salvarEstadoSigmalHQ(estado) {
+  localStorage.setItem('sigmal_hq', JSON.stringify(estado))
+}
+
 function limparFila() {
   if (!confirm('Limpar toda a fila OHE processada? Esta ação não pode ser desfeita.')) return
+  let removidos = 0
+  const estado = _lerEstadoSigmalHQ()
+  if (Array.isArray(estado.fila)) {
+    const antes = estado.fila.length
+    estado.fila = estado.fila.filter(i => !i.processado && !i.concluido)
+    removidos += antes - estado.fila.length
+    _salvarEstadoSigmalHQ(estado)
+  }
   CHAVES_OHE.forEach(k => {
     const val = localStorage.getItem(k)
     if (val) {
@@ -594,18 +637,36 @@ function limparFila() {
         const arr = JSON.parse(val)
         if (Array.isArray(arr)) {
           const restantes = arr.filter(i => !i.processado && !i.concluido)
+          removidos += arr.length - restantes.length
           localStorage.setItem(k, JSON.stringify(restantes))
         }
       } catch(e) {}
     }
   })
   carregar()
-  alert('Fila limpa.')
+  alert(removidos ? `${removidos} item(ns) processado(s) removido(s) da fila.` : 'Nenhum item processado encontrado na fila.')
 }
 
 function moverMasmorraCalabouço() {
   if (!confirm('Mover todos os itens liberados da Masmorra para o Calabouço?')) return
   const hoje = new Date()
+  let totalLiberados = 0
+
+  const estado = _lerEstadoSigmalHQ()
+  if (Array.isArray(estado.masmorra)) {
+    const liberados = estado.masmorra.filter(i => {
+      if (!i.em && !i.data) return false
+      const dias = (hoje - new Date(i.em || i.data)) / (1000 * 60 * 60 * 24)
+      return dias >= 750
+    })
+    if (liberados.length) {
+      estado.calabouco = [...(estado.calabouco || []), ...liberados]
+      estado.masmorra = estado.masmorra.filter(i => !liberados.includes(i))
+      _salvarEstadoSigmalHQ(estado)
+      totalLiberados += liberados.length
+    }
+  }
+
   CHAVES_MASMORRA.forEach(k => {
     const val = localStorage.getItem(k)
     if (!val) return
@@ -623,13 +684,13 @@ function moverMasmorraCalabouço() {
         localStorage.setItem('calabouco_obras', JSON.stringify([...calabouco, ...liberados]))
         const restantes = arr.filter(i => !liberados.includes(i))
         localStorage.setItem(k, JSON.stringify(restantes))
-        alert(`${liberados.length} obra(s) liberada(s) da Masmorra para o Calabouço.`)
-      } else {
-        alert('Nenhuma obra completou os 750 dias ainda.')
+        totalLiberados += liberados.length
       }
     } catch(e) {}
   })
+
   carregar()
+  alert(totalLiberados ? `${totalLiberados} obra(s) liberada(s) da Masmorra para o Calabouço.` : 'Nenhuma obra completou os 750 dias ainda.')
 }
 
 // ── UTILITÁRIOS ──
@@ -648,9 +709,9 @@ function mudarAba(id) {
 }
 
 function carregar() {
-  const filaItens      = lerChaves(CHAVES_OHE)
-  const masmorraItens  = lerChaves(CHAVES_MASMORRA)
-  const calaboucoItens = lerChaves(CHAVES_CALABOUCO)
+  const filaItens      = lerFila()
+  const masmorraItens  = lerMasmorra()
+  const calaboucoItens = lerCalabouco()
   const sigmalItens    = lerChaves(CHAVES_SIGMAL)
   const nucleoItens    = lerChaves(CHAVES_NUCLEO)
 

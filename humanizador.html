@@ -204,8 +204,13 @@ select option { background: var(--s1); }
 .placar.visivel { display: block; }
 .placar-titulo { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 3px; margin-bottom: 20px; }
 .placar-nota-wrap { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; }
+.placar-nota-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .placar-nota {
   font-family: var(--playfair); font-size: 80px; font-weight: 900; line-height: 1;
+}
+.placar-nota-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--muted);
+  text-transform: uppercase; text-align: center; max-width: 130px;
 }
 .placar-info { flex: 1; }
 .placar-desc { font-size: 18px; font-style: italic; color: rgba(240,232,224,0.7); line-height: 1.8; margin-bottom: 10px; }
@@ -286,12 +291,27 @@ select option { background: var(--s1); }
   padding: 12px 14px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 8px;
 }
 .opcao-card:hover { border-color: rgba(212,130,74,0.4); }
-.opcao-card.selecionada { border-color: var(--verde); background: rgba(76,175,122,0.06); }
+/* O quadro (borda) fica igual sempre, escolhido ou não — só o INTERIOR
+   muda de cor quando o usuário escolhe, pedido explícito do Wagner: só a
+   borda mudando de cor era pouco visível numa lista longa de trechos. */
+.opcao-card.selecionada {
+  background: var(--ouro2);
+}
+.opcao-card.selecionada .opcao-nome,
+.opcao-card.selecionada .opcao-texto { color: #1a1508; }
 .opcao-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .opcao-nome { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
-.opcao-score { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 2px 9px; border-radius: 999px; border: 1px solid; }
+.opcao-escolhida-badge {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px; font-weight: 700;
+  color: var(--ouro2); background: #1a1508; padding: 2px 8px; border-radius: 999px;
+}
+.opcao-score { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 2px 9px; border-radius: 999px; border: 1px solid; background: rgba(4,8,15,0.4); }
 .opcao-texto { font-size: 15px; line-height: 1.7; color: rgba(240,232,224,0.85); }
-.opcao-card.selecionada .opcao-texto { color: var(--texto); }
+.trecho-aplicar-todos {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px; color: var(--quente2);
+  margin-top: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+}
+.trecho-aplicar-todos:hover { color: var(--ouro2); }
 .btn-continuar {
   font-family: var(--playfair); font-size: 16px; font-weight: 900;
   padding: 14px 32px; border: 1px solid var(--verde); border-radius: 999px;
@@ -502,6 +522,20 @@ select option { background: var(--s1); }
         <div class="etapa-detalhe" id="det-5">Aguardando passagem 4...</div>
       </div>
     </div>
+    <div class="etapa-pipeline aguardando" id="etapa-6">
+      <div class="etapa-circulo" id="circ-6">06</div>
+      <div class="etapa-info">
+        <div class="etapa-nome">Correção Automática dos Resíduos</div>
+        <div class="etapa-detalhe" id="det-6">Aguardando verificação final...</div>
+      </div>
+    </div>
+    <div class="etapa-pipeline aguardando" id="etapa-7">
+      <div class="etapa-circulo" id="circ-7">07</div>
+      <div class="etapa-info">
+        <div class="etapa-nome">Aderência à Voz do Heterônimo</div>
+        <div class="etapa-detalhe" id="det-7">Aguardando correção automática...</div>
+      </div>
+    </div>
 
     <button class="btn-emergencia" id="btn-emergencia" onclick="pararEmergencia()">
       ⚠ PARADA DE EMERGÊNCIA
@@ -520,9 +554,16 @@ select option { background: var(--s1); }
 
   <!-- PLACAR DE HUMANIDADE -->
   <div class="placar" id="placar">
-    <div class="placar-titulo">// PLACAR FINAL · CONTAGEM OBJETIVA DO CHECKLIST</div>
+    <div class="placar-titulo">// PLACAR FINAL · DUAS MEDIDAS SEPARADAS: SEM CARA DE IA × VOZ DO HETERÔNIMO</div>
     <div class="placar-nota-wrap">
-      <div class="placar-nota" id="placar-nota">—</div>
+      <div class="placar-nota-item">
+        <div class="placar-nota" id="placar-nota">—</div>
+        <div class="placar-nota-label">humanizado (sem vícios de IA)</div>
+      </div>
+      <div class="placar-nota-item" id="placar-nota-voz-wrap" style="display:none">
+        <div class="placar-nota" id="placar-nota-voz">—</div>
+        <div class="placar-nota-label" id="placar-nota-voz-label">na voz do heterônimo</div>
+      </div>
       <div class="placar-info">
         <div class="placar-desc" id="placar-desc">—</div>
         <div class="placar-badges" id="placar-badges"></div>
@@ -714,6 +755,45 @@ function toast(msg) {
   setTimeout(() => t.classList.remove('show'), 3500);
 }
 
+// ── DIVISÃO EM BLOCOS (textos longos) ──
+// Cada chamada à IA tem um teto de max_tokens de SAÍDA. Pra passagens que
+// precisam devolver o texto inteiro (voz do heterônimo) ou uma lista que
+// cresce junto com o texto (detecção de vícios), um livro/conto longo
+// (dezenas de milhares de palavras) estoura esse teto numa chamada só —
+// a IA para no meio da resposta e o restante do texto simplesmente some
+// (era exatamente isso: 18 mil palavras entrando e ~4 mil saindo, cortado
+// no limite de uma única chamada de 5000 tokens). Divide por parágrafo
+// (nunca corta frase/parágrafo ao meio) em blocos de tamanho seguro, e
+// quem chama processa bloco a bloco.
+function dividirEmBlocos(texto, alvoPalavras = 1800) {
+  const paragrafos = texto.split(/\n{2,}/);
+  const blocos = [];
+  let atual = [];
+  let palavrasAtual = 0;
+  for (const p of paragrafos) {
+    const nPalavras = p.trim() ? p.trim().split(/\s+/).length : 0;
+    if (atual.length && palavrasAtual + nPalavras > alvoPalavras) {
+      blocos.push(atual.join('\n\n'));
+      atual = [];
+      palavrasAtual = 0;
+    }
+    atual.push(p);
+    palavrasAtual += nPalavras;
+  }
+  if (atual.length) blocos.push(atual.join('\n\n'));
+  return blocos.length ? blocos : [texto];
+}
+
+// Mesma lógica, mas pra listas (trechos marcados) — passagens 2 e 3
+// processam um item por trecho detectado; um texto longo pode gerar
+// dezenas/centenas de trechos, e a lista inteira também estoura o teto
+// de saída de uma chamada só.
+function dividirEmGrupos(lista, tamanho) {
+  const grupos = [];
+  for (let i = 0; i < lista.length; i += tamanho) grupos.push(lista.slice(i, i + tamanho));
+  return grupos.length ? grupos : [lista];
+}
+
 // ── CHAMADA À API ──
 async function chamarClaude(system, user, maxTokens = 4000, schema = null) {
   const body = {
@@ -729,12 +809,23 @@ async function chamarClaude(system, user, maxTokens = 4000, schema = null) {
     body: JSON.stringify(body)
   });
   const data = await resp.json();
+  if (!data.content) throw new Error(data.error?.message || `Resposta sem conteúdo da API (status ${resp.status}).`);
   return data.content.map(c => c.text || '').join('');
 }
 
+// Uma tentativa extra automática se o JSON vier truncado/malformado — isso
+// acontece de vez em quando com saída estruturada longa (ex.: texto com
+// muitos trechos marcados) e, até agora, exigia o usuário perceber o erro
+// e clicar em humanizar de novo na mão. Só repete a MESMA chamada; se
+// falhar de novo, sobe o erro normalmente pro try/catch de quem chamou.
 async function chamarClaudeJSON(system, user, maxTokens = 3000, schema = null) {
   const txt = await chamarClaude(system, user, maxTokens, schema);
-  return JSON.parse(txt.trim());
+  try {
+    return JSON.parse(txt.trim());
+  } catch (e) {
+    const txt2 = await chamarClaude(system, user, maxTokens, schema);
+    return JSON.parse(txt2.trim());
+  }
 }
 
 // ── PASSAGEM 1: DETECÇÃO ──
@@ -774,8 +865,17 @@ Para cada ocorrência de um vício no texto, identifique o índice do padrão, o
     required: ['marcas']
   };
 
-  const resultado = await chamarClaudeJSON(system, `Analise este texto:\n\n${texto}`, 3000, SCHEMA_DETECCAO);
-  const marcas = resultado.marcas || [];
+  // Texto longo -> lista de marcas longa -> pode estourar o teto de saída
+  // de uma chamada só (era isso que, num livro inteiro, às vezes já
+  // quebrava aqui na primeira tentativa: JSON cortado no meio). Varre em
+  // blocos e junta.
+  const blocos = dividirEmBlocos(texto, 3500);
+  let marcas = [];
+  for (let i = 0; i < blocos.length; i++) {
+    if (blocos.length > 1) setEtapa(etapaNum, 'ativa', `Varrendo o texto contra o checklist anti-IA... (parte ${i + 1}/${blocos.length})`);
+    const resultado = await chamarClaudeJSON(system, `Analise este texto:\n\n${blocos[i]}`, 4000, SCHEMA_DETECCAO);
+    marcas = marcas.concat(resultado.marcas || []);
+  }
   const score = pontuarPorChecklist(marcas.map(m => m.padrao));
   const distintos = new Set(marcas.map(m => m.padrao)).size;
   setEtapa(etapaNum, 'concluida', `${marcas.length} ocorrência(s) · ${distintos} padrão(ões) distinto(s) · Checklist: ${score}%`);
@@ -789,19 +889,6 @@ async function passagem2_gerarOpcoes(marcas) {
     return [];
   }
   setEtapa(2, 'ativa', `Escrevendo 2 opções de reescrita para cada um dos ${marcas.length} trecho(s)...`);
-
-  const listaTrechos = marcas.map((m, i) =>
-    `${i}. TRECHO: "${m.trecho}"\n   VÍCIO (${tituloPadrao(m.padrao)}): ${m.motivo}`
-  ).join('\n\n');
-
-  const system = `Você é um editor literário. Para cada trecho marcado abaixo, escreva DUAS reescritas alternativas que corrijam o vício apontado.
-
-REGRAS:
-1. Preserve o sentido e o conteúdo do trecho original — só mude a forma
-2. As duas opções devem ser diferentes entre si, não variações triviais uma da outra
-3. Corrija o vício apontado sem introduzir outro vício de IA na reescrita
-4. Mantenha o tamanho aproximado do trecho original — ele precisa encaixar no lugar de onde saiu, no meio do texto
-5. Responda com exatamente ${marcas.length} item(ns), na mesma ordem em que os trechos foram listados`;
 
   const SCHEMA_OPCOES = {
     type: 'object',
@@ -823,8 +910,38 @@ REGRAS:
     required: ['opcoes']
   };
 
-  const resultado = await chamarClaudeJSON(system, `TRECHOS MARCADOS:\n\n${listaTrechos}`, 4000, SCHEMA_OPCOES);
-  const opcoes = resultado.opcoes || [];
+  // Um texto longo pode gerar dezenas/centenas de trechos marcados — pedir
+  // 2 opções pra cada um de uma vez só também estoura o teto de saída de
+  // uma chamada. Divide em grupos.
+  const GRUPOS = dividirEmGrupos(marcas, 20);
+  let opcoes = [];
+  for (let g = 0; g < GRUPOS.length; g++) {
+    const grupo = GRUPOS[g];
+    if (GRUPOS.length > 1) setEtapa(2, 'ativa', `Escrevendo 2 opções de reescrita... (parte ${g + 1}/${GRUPOS.length})`);
+    const listaTrechos = grupo.map((m, i) =>
+      `${i}. TRECHO: "${m.trecho}"\n   VÍCIO (${tituloPadrao(m.padrao)}): ${m.motivo}`
+    ).join('\n\n');
+
+    // O checklist inteiro (não só o vício específico apontado) precisa ir
+    // no prompt aqui — sem ele, a regra 3 ("sem introduzir outro vício")
+    // era só um pedido genérico, sem o modelo saber CONCRETAMENTE quais
+    // vícios evitar. Foi assim que um vício sem nome (dois-pontos de
+    // efeito, ex.: "foi mais concreto: vinte e três libras de ferro")
+    // vazou como opção de reescrita — apontado pelo Wagner num caso real.
+    const antiIA = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
+    const system = `Você é um editor literário. Para cada trecho marcado abaixo, escreva DUAS reescritas alternativas que corrijam o vício apontado.
+${antiIA}
+
+REGRAS:
+1. Preserve o sentido e o conteúdo do trecho original — só mude a forma
+2. As duas opções devem ser diferentes entre si, não variações triviais uma da outra
+3. Corrija o vício apontado SEM introduzir nenhum outro vício da lista acima na reescrita — releia cada opção contra a lista antes de responder
+4. Mantenha o tamanho aproximado do trecho original — ele precisa encaixar no lugar de onde saiu, no meio do texto
+5. Responda com exatamente ${grupo.length} item(ns), na mesma ordem em que os trechos foram listados`;
+
+    const resultado = await chamarClaudeJSON(system, `TRECHOS MARCADOS:\n\n${listaTrechos}`, 4000, SCHEMA_OPCOES);
+    opcoes = opcoes.concat(resultado.opcoes || []);
+  }
   setEtapa(2, 'concluida', `${opcoes.length} par(es) de opções gerado(s)`);
   return opcoes;
 }
@@ -841,10 +958,6 @@ async function passagem3_classificarOpcoes(marcas, opcoes) {
   setEtapa(3, 'ativa', 'Classificando cada opção contra o checklist, de forma independente...');
 
   const listaChecklist = PADROES_ANTI_IA.map((p, i) => `${i}. ${tituloPadrao(i)}`).join('\n');
-  const blocos = marcas.map((m, i) => {
-    const op = opcoes[i] || { opcao_a: m.trecho, opcao_b: m.trecho };
-    return `GRUPO ${i}\nX: "${m.trecho}"\nY: "${op.opcao_a}"\nZ: "${op.opcao_b}"`;
-  }).join('\n\n');
 
   const system = `Você é um classificador. Para cada texto curto abaixo, identifique quais dos vícios da lista fixa ele ainda contém — só os índices, sem comentário.
 
@@ -875,8 +988,22 @@ Cada texto (X, Y, Z de cada grupo) é independente — classifique cada um sozin
     required: ['classificacoes']
   };
 
-  const resultado = await chamarClaudeJSON(system, blocos, 3000, SCHEMA_CLASSIFICACAO);
-  const porGrupo = new Map((resultado.classificacoes || []).map(c => [c.grupo, c]));
+  // Mesmo estouro de teto de saída que a passagem 2 — divide em grupos,
+  // mas mantém o índice GLOBAL (i, não o local do grupo) no rótulo "GRUPO"
+  // pra bater com marcas[i]/opcoes[i] depois de juntar tudo.
+  const GRUPOS = dividirEmGrupos(marcas.map((_, i) => i), 20);
+  const porGrupo = new Map();
+  for (let g = 0; g < GRUPOS.length; g++) {
+    const idxGrupo = GRUPOS[g];
+    if (GRUPOS.length > 1) setEtapa(3, 'ativa', `Classificando cada opção contra o checklist... (parte ${g + 1}/${GRUPOS.length})`);
+    const blocos = idxGrupo.map(i => {
+      const m = marcas[i];
+      const op = opcoes[i] || { opcao_a: m.trecho, opcao_b: m.trecho };
+      return `GRUPO ${i}\nX: "${m.trecho}"\nY: "${op.opcao_a}"\nZ: "${op.opcao_b}"`;
+    }).join('\n\n');
+    const resultado = await chamarClaudeJSON(system, blocos, 4000, SCHEMA_CLASSIFICACAO);
+    (resultado.classificacoes || []).forEach(c => porGrupo.set(c.grupo, c));
+  }
 
   const trechos = marcas.map((m, i) => {
     const op = opcoes[i] || { opcao_a: m.trecho, opcao_b: m.trecho };
@@ -909,7 +1036,14 @@ async function passagem4_voz(texto, het) {
   setEtapa(4, 'ativa', `Injetando a voz de ${het.nome}...`);
 
   const antiIA = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
-  const system = `Você é ${het.nome}, heterônimo literário com voz e território únicos.
+  const blocos = dividirEmBlocos(texto);
+  const partes = [];
+  for (let i = 0; i < blocos.length; i++) {
+    if (blocos.length > 1) setEtapa(4, 'ativa', `Injetando a voz de ${het.nome}... (parte ${i + 1}/${blocos.length})`);
+    const avisoBloco = blocos.length > 1
+      ? `\n\nATENÇÃO: o texto abaixo é o trecho ${i + 1} de ${blocos.length} de uma obra maior — a divisão é só um limite técnico de tamanho de resposta, ela NÃO existe na obra original. Reescreva SÓ o que está abaixo, do começo ao fim, sem resumir e sem cortar nada. Não invente uma abertura nem um fechamento de capítulo/obra — é a continuação direta do que veio antes.`
+      : '';
+    const system = `Você é ${het.nome}, heterônimo literário com voz e território únicos.
 ${het.vozBloco}
 ${antiIA}
 
@@ -919,12 +1053,15 @@ REGRAS:
 1. Mantenha TODO o conteúdo narrativo — personagens, eventos, diálogos, trama
 2. Transforme a forma completamente — vocabulário, ritmo, cadência, marcas linguísticas
 3. Insira suas peculiaridades únicas — as que um leitor reconheceria como suas
-4. Nenhuma frase deve soar como IA — cada uma deve soar como escrita à mão por você
+4. Nenhuma frase deve soar como IA — cada uma deve soar como escrita à mão por você${avisoBloco}
 
-Responda APENAS com o texto reescrito na sua voz.`;
+Responda APENAS com o texto reescrito na sua voz — nada a mais, nada a menos.`;
 
-  const resultado = await chamarClaude(system, `TEXTO PARA REESCREVER NA SUA VOZ:\n\n${texto}`, 5000);
-  setEtapa(4, 'concluida', `Voz de ${het.nome} injetada`);
+    const parte = await chamarClaude(system, `TEXTO PARA REESCREVER NA SUA VOZ:\n\n${blocos[i]}`, 8000);
+    partes.push(parte);
+  }
+  const resultado = partes.join('\n\n');
+  setEtapa(4, 'concluida', `Voz de ${het.nome} injetada${blocos.length > 1 ? ` (${blocos.length} partes)` : ''}`);
   return resultado;
 }
 
@@ -970,7 +1107,7 @@ async function iniciarHumanizacao() {
   document.getElementById('btn-emergencia').disabled = false;
 
   // Reset etapas
-  for (let i = 1; i <= 5; i++) setEtapa(i, 'aguardando', i === 1 ? 'Iniciando...' : `Aguardando passagem ${i-1}...`);
+  for (let i = 1; i <= 7; i++) setEtapa(i, 'aguardando', i === 1 ? 'Iniciando...' : `Aguardando passagem ${i-1}...`);
 
   try {
     // Repetições: client-side, instantâneo, não gasta chamada de API.
@@ -1011,7 +1148,65 @@ async function iniciarHumanizacao() {
 }
 
 // ── RENDER DA TELA DE REVISÃO ──
-function renderRevisao() {
+// Cada card de repetição/trecho tem um id próprio (repeticao-card-N /
+// trecho-card-N) — ao escolher uma opção, só AQUELE card é reconstruído
+// (outerHTML dele mesmo), nunca a lista inteira. Além de mais rápido numa
+// lista com dezenas/centenas de trechos, isso evita qualquer chance de
+// scroll pular pro topo por reflow do container inteiro — o scrollIntoView
+// já tinha sido removido daqui, mas substituir só o pedacinho que mudou
+// (em vez de apagar e recriar a lista toda a cada clique) fecha de vez
+// qualquer outra rota pra esse "a tela sobe sozinha".
+function htmlRepeticaoCard(r, i) {
+  return `
+    <div class="trecho-card" id="repeticao-card-${i}" style="border-color:rgba(155,111,208,0.35)">
+      <div class="trecho-tipo" style="color:var(--violeta)">${r.nivel.toUpperCase()} REPETIDO ${r.ocorrencias}X — NÃO É VÍCIO DE ESTILO, É TEXTO DUPLICADO</div>
+      <div class="trecho-motivo">"${escaparHtml(r.texto.slice(0, 200))}${r.texto.length > 200 ? '…' : ''}"</div>
+      <div class="opcoes-linha">
+        <div class="opcao-card ${r.escolha === 'remover' ? 'selecionada' : ''}" onclick="escolherRepeticao(${i},'remover')">
+          <div class="opcao-cabecalho"><span class="opcao-nome">Remover repetição(ões)</span>${r.escolha === 'remover' ? '<span class="opcao-escolhida-badge">✓ ESCOLHIDA</span>' : ''}</div>
+          <div class="opcao-texto">Mantém só a primeira ocorrência, remove as demais.</div>
+        </div>
+        <div class="opcao-card ${r.escolha === 'manter' ? 'selecionada' : ''}" onclick="escolherRepeticao(${i},'manter')">
+          <div class="opcao-cabecalho"><span class="opcao-nome">Manter tudo</span>${r.escolha === 'manter' ? '<span class="opcao-escolhida-badge">✓ ESCOLHIDA</span>' : ''}</div>
+          <div class="opcao-texto">Deixa as repetições como estão no texto.</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function htmlTrechoCard(t, i) {
+  const opcoesInfo = [
+    { chave: 'original', nome: 'Manter original', texto: t.original, score: t.scoreOriginal },
+    { chave: 'a', nome: 'Opção A', texto: t.opcaoA, score: t.scoreA },
+    { chave: 'b', nome: 'Opção B', texto: t.opcaoB, score: t.scoreB },
+  ];
+  // Quantos outros trechos têm o MESMO vício — se houver mais de um, oferece
+  // aplicar a escolha atual a todos de uma vez, em vez de obrigar a repetir
+  // a mesma decisão trecho por trecho (pedido do Wagner: texto longo pode
+  // ter o mesmo vício dezenas de vezes).
+  const irmaos = estadoAtual.trechos.filter(x => x.padrao === t.padrao).length;
+  return `
+    <div class="trecho-card" id="trecho-card-${i}">
+      <div class="trecho-tipo">${escaparHtml(t.titulo)}</div>
+      <div class="trecho-motivo">${escaparHtml(t.motivo)}</div>
+      <div class="opcoes-linha">
+        ${opcoesInfo.map(o => `
+          <div class="opcao-card ${t.escolha === o.chave ? 'selecionada' : ''}" onclick="escolherOpcao(${i},'${o.chave}')">
+            <div class="opcao-cabecalho">
+              <span class="opcao-nome">${o.nome}${t.escolha === o.chave ? ' <span class="opcao-escolhida-badge">✓ ESCOLHIDA</span>' : ''}</span>
+              <span class="opcao-score" style="color:${corPontuacao(o.score)};border-color:${corPontuacao(o.score)}">${o.score}%</span>
+            </div>
+            <div class="opcao-texto">${escaparHtml(o.texto)}</div>
+          </div>
+        `).join('')}
+      </div>
+      ${irmaos > 1 ? `<div class="trecho-aplicar-todos" onclick="aplicarATodasOcorrencias(${i})">↻ Aplicar esta escolha às ${irmaos} ocorrências de "${escaparHtml(t.titulo)}"</div>` : ''}
+    </div>
+  `;
+}
+
+function renderRevisao(scrollParaTopo = true) {
   const { trechos, repeticoes } = estadoAtual;
   const partesResumo = [];
   if (repeticoes.length) partesResumo.push(`${repeticoes.length} repetição(ões) de texto`);
@@ -1019,61 +1214,40 @@ function renderRevisao() {
   document.getElementById('revisao-resumo').textContent =
     partesResumo.join(' e ') + '. Clique pra escolher o que entra no texto final (a opção de maior nota já vem pré-selecionada).';
 
-  const repeticoesHtml = repeticoes.map((r, i) => `
-    <div class="trecho-card" style="border-color:rgba(155,111,208,0.35)">
-      <div class="trecho-tipo" style="color:var(--violeta)">${r.nivel.toUpperCase()} REPETIDO ${r.ocorrencias}X — NÃO É VÍCIO DE ESTILO, É TEXTO DUPLICADO</div>
-      <div class="trecho-motivo">"${escaparHtml(r.texto.slice(0, 200))}${r.texto.length > 200 ? '…' : ''}"</div>
-      <div class="opcoes-linha">
-        <div class="opcao-card ${r.escolha === 'remover' ? 'selecionada' : ''}" onclick="escolherRepeticao(${i},'remover')">
-          <div class="opcao-cabecalho"><span class="opcao-nome">Remover repetição(ões)</span></div>
-          <div class="opcao-texto">Mantém só a primeira ocorrência, remove as demais.</div>
-        </div>
-        <div class="opcao-card ${r.escolha === 'manter' ? 'selecionada' : ''}" onclick="escolherRepeticao(${i},'manter')">
-          <div class="opcao-cabecalho"><span class="opcao-nome">Manter tudo</span></div>
-          <div class="opcao-texto">Deixa as repetições como estão no texto.</div>
-        </div>
-      </div>
-    </div>
-  `).join('');
-
-  const trechosHtml = trechos.map((t, i) => {
-    const opcoesInfo = [
-      { chave: 'original', nome: 'Manter original', texto: t.original, score: t.scoreOriginal },
-      { chave: 'a', nome: 'Opção A', texto: t.opcaoA, score: t.scoreA },
-      { chave: 'b', nome: 'Opção B', texto: t.opcaoB, score: t.scoreB },
-    ];
-    return `
-      <div class="trecho-card">
-        <div class="trecho-tipo">${escaparHtml(t.titulo)}</div>
-        <div class="trecho-motivo">${escaparHtml(t.motivo)}</div>
-        <div class="opcoes-linha">
-          ${opcoesInfo.map(o => `
-            <div class="opcao-card ${t.escolha === o.chave ? 'selecionada' : ''}" onclick="escolherOpcao(${i},'${o.chave}')">
-              <div class="opcao-cabecalho">
-                <span class="opcao-nome">${o.nome}</span>
-                <span class="opcao-score" style="color:${corPontuacao(o.score)};border-color:${corPontuacao(o.score)}">${o.score}%</span>
-              </div>
-              <div class="opcao-texto">${escaparHtml(o.texto)}</div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  }).join('');
+  const repeticoesHtml = repeticoes.map((r, i) => htmlRepeticaoCard(r, i)).join('');
+  const trechosHtml = trechos.map((t, i) => htmlTrechoCard(t, i)).join('');
 
   document.getElementById('trechos-content').innerHTML = repeticoesHtml + trechosHtml;
   document.getElementById('revisao').classList.add('visivel');
-  document.getElementById('revisao').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Só rola a tela pro topo do painel na PRIMEIRA vez que a revisão
+  // aparece (essa função só roda de novo inteira nesse ponto agora —
+  // escolher uma opção não passa mais por aqui, ver escolherOpcao/
+  // escolherRepeticao abaixo).
+  if (scrollParaTopo) {
+    document.getElementById('revisao').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 function escolherOpcao(indice, chave) {
   estadoAtual.trechos[indice].escolha = chave;
-  renderRevisao();
+  const el = document.getElementById('trecho-card-' + indice);
+  if (el) el.outerHTML = htmlTrechoCard(estadoAtual.trechos[indice], indice);
+}
+
+function aplicarATodasOcorrencias(indice) {
+  const alvo = estadoAtual.trechos[indice];
+  estadoAtual.trechos.forEach((o, i) => {
+    if (o.padrao !== alvo.padrao) return;
+    o.escolha = alvo.escolha;
+    const el = document.getElementById('trecho-card-' + i);
+    if (el) el.outerHTML = htmlTrechoCard(o, i);
+  });
 }
 
 function escolherRepeticao(indice, valor) {
   estadoAtual.repeticoes[indice].escolha = valor;
-  renderRevisao();
+  const el = document.getElementById('repeticao-card-' + indice);
+  if (el) el.outerHTML = htmlRepeticaoCard(estadoAtual.repeticoes[indice], indice);
 }
 
 function escaparHtml(s) {
@@ -1141,6 +1315,118 @@ async function aplicarEscolhasEContinuar() {
   await continuarAposRevisao();
 }
 
+// ── PASSAGEM 6: CORREÇÃO AUTOMÁTICA DOS RESÍDUOS ──
+// A voz do heterônimo (passagem 4) é uma reescrita livre — mesmo com o
+// checklist inteiro no prompt, ela pode introduzir vícios novos que não
+// existiam no texto que entrou nela (visto na prática: texto que entrava
+// 100% limpo saindo com 20 ocorrências, nota caindo pra 36%). Antes, a
+// verificação final só REPORTAVA isso e sobrava pro usuário decidir o que
+// fazer. Pedido direto do Wagner: "você tem que consertar isso e não me
+// sugerir como conserto" — agora, se sobrar qualquer vício depois da voz
+// do heterônimo, corrige automaticamente (reescrevendo só os trechos
+// flagrados, preservando sentido e voz) antes de mostrar o resultado.
+async function autoCorrigirResiduos(texto, marcas, het, etapaNum) {
+  if (!marcas.length) {
+    setEtapa(etapaNum, 'concluida', 'Nenhum resíduo a corrigir');
+    return texto;
+  }
+  setEtapa(etapaNum, 'ativa', `Corrigindo ${marcas.length} ocorrência(s) residual(is) automaticamente...`);
+
+  const antiIA = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
+  const SCHEMA_CORRECAO = {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      correcoes: {
+        type: 'array',
+        items: {
+          type: 'object', additionalProperties: false,
+          properties: { reescrita: { type: 'string' } },
+          required: ['reescrita']
+        }
+      }
+    },
+    required: ['correcoes']
+  };
+
+  const GRUPOS = dividirEmGrupos(marcas, 20);
+  let corrigido = texto;
+  for (let g = 0; g < GRUPOS.length; g++) {
+    const grupo = GRUPOS[g];
+    if (GRUPOS.length > 1) setEtapa(etapaNum, 'ativa', `Corrigindo resíduos automaticamente... (parte ${g + 1}/${GRUPOS.length})`);
+    const lista = grupo.map((m, i) =>
+      `${i}. TRECHO: "${m.trecho}"\n   VÍCIO (${tituloPadrao(m.padrao)}): ${m.motivo}`
+    ).join('\n\n');
+
+    // Correção anterior (baseada em leitura errada do exemplo do Wagner):
+    // proibia trocar só a pontuação. Errado — pra travessão-como-parêntese
+    // ("patente — estava"), a troca por vírgula ("patente, estava") É a
+    // correção certa e mais simples, foi o próprio Wagner quem confirmou.
+    // A instrução agora é: elimine o vício de verdade (não deixe passar
+    // batido), mas sem se recusar a usar a solução mais simples quando
+    // ela já resolve — não force reescrita rebuscada onde não precisa.
+    const system = `Você é um editor literário${het ? `, escrevendo na voz de ${het.nome}` : ''}. Para cada trecho abaixo, reescreva-o eliminando DE VERDADE o vício apontado. Use a correção mais simples que resolva bem — troca de pontuação (ex.: travessão de parêntese virando vírgula) é válida quando já lê natural; não force uma reestruturação rebuscada onde a solução simples já funciona. O que não pode é deixar o vício disfarçado — se só trocar o sinal e o problema continuar lá, reescreva de verdade.
+${antiIA}
+${het?.vozBloco || ''}
+
+REGRAS:
+1. Preserve o sentido e o conteúdo do trecho — só mude a forma
+2. Elimine o vício apontado por completo, sem introduzir nenhum outro vício da lista acima
+3. Mantenha o tamanho aproximado do trecho original — ele substitui o trecho original no meio do texto
+4. Responda com exatamente ${grupo.length} item(ns), na mesma ordem em que os trechos foram listados`;
+
+    const resultado = await chamarClaudeJSON(system, `TRECHOS A CORRIGIR:\n\n${lista}`, 4000, SCHEMA_CORRECAO);
+    const correcoes = resultado.correcoes || [];
+    grupo.forEach((m, i) => {
+      const nova = correcoes[i]?.reescrita;
+      if (nova && corrigido.includes(m.trecho)) corrigido = corrigido.replace(m.trecho, nova);
+    });
+  }
+  setEtapa(etapaNum, 'concluida', `${marcas.length} ocorrência(s) corrigida(s) automaticamente`);
+  return corrigido;
+}
+
+// ── PASSAGEM 7: ADERÊNCIA À VOZ DO HETERÔNIMO ──
+// O placar de checklist (passagem 5/6) mede "% sem cara de IA" — mas isso
+// não diz se o texto soa como O HETERÔNIMO ESPECÍFICO ou só como prosa
+// genérica sem os vícios óbvios. São eixos diferentes: um texto pode
+// zerar o checklist e ainda não ter nada da assinatura do heterônimo.
+// Pedido do Wagner: mostrar os dois números separados.
+async function avaliarAderenciaVoz(texto, het, etapaNum) {
+  if (!het || !het.vozBloco) return null;
+  setEtapa(etapaNum, 'ativa', `Medindo aderência à voz de ${het.nome}...`);
+
+  const system = `Você é um crítico literário especialista em identificar a voz autoral de heterônimos específicos.
+
+PERFIL DE VOZ DE REFERÊNCIA — ${het.nome}:
+${het.vozBloco}
+
+Leia o texto abaixo e avalie, de 0 a 100, o quanto ele soa como algo genuinamente escrito por ${het.nome} — as peculiaridades ESPECÍFICAS do perfil acima (vocabulário, ritmo, cadência, temas, marcas de assinatura), não só "está bem escrito" em geral. 100 = irreconhecível de um texto autêntico do heterônimo; 0 = nenhuma característica do perfil presente. Seja rigoroso — só dê nota alta se as peculiaridades específicas realmente aparecem no texto, não pelo tom geral.`;
+
+  const SCHEMA_VOZ = {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      aderenciaPercentual: { type: 'integer', description: '0 a 100' },
+      justificativa: { type: 'string', description: 'até 200 caracteres, o que pesou a favor ou contra' }
+    },
+    required: ['aderenciaPercentual', 'justificativa']
+  };
+
+  try {
+    // Só a leitura do texto entra como input (sem limite prático); a
+    // saída é um JSON minúsculo, não precisa de chunking aqui.
+    const resultado = await chamarClaudeJSON(system, `TEXTO A AVALIAR:\n\n${texto}`, 500, SCHEMA_VOZ);
+    const percentual = Math.max(0, Math.min(100, resultado.aderenciaPercentual ?? 0));
+    setEtapa(etapaNum, 'concluida', `${percentual}% de aderência à voz de ${het.nome}`);
+    return { percentual, justificativa: resultado.justificativa || '' };
+  } catch (e) {
+    console.error('Falha ao avaliar aderência de voz:', e);
+    setEtapa(etapaNum, 'concluida', 'Não foi possível medir (erro na avaliação)');
+    return null;
+  }
+}
+
 // ── FASE 2: VOZ DO HETERÔNIMO + VERIFICAÇÃO FINAL ──
 async function continuarAposRevisao() {
   const het = estadoAtual.heteronimo;
@@ -1155,8 +1441,27 @@ async function continuarAposRevisao() {
 
     // PASSAGEM 5 — verificação final com a MESMA régua da passagem 1
     if (estadoAtual.parado) return;
-    const verificacaoFinal = await detectarPadroes(comVoz, 5);
-    estadoAtual.resultadoFinal = { texto: comVoz, verificacaoFinal };
+    let verificacaoFinal = await detectarPadroes(comVoz, 5);
+
+    // PASSAGEM 6 — a voz do heterônimo é reescrita livre e pode introduzir
+    // vícios novos que o texto revisado não tinha; corrige de verdade em
+    // vez de só reportar, e reavalia com a MESMA régua pra nunca inventar
+    // uma nota que não bate com o texto que o usuário vai receber.
+    if (estadoAtual.parado) return;
+    let textoFinal = comVoz;
+    if (verificacaoFinal.marcas.length > 0) {
+      textoFinal = await autoCorrigirResiduos(comVoz, verificacaoFinal.marcas, het, 6);
+      estadoAtual.textoPorPassagem.push(textoFinal);
+      verificacaoFinal = await detectarPadroes(textoFinal, 5);
+    } else {
+      setEtapa(6, 'concluida', 'Nenhum resíduo a corrigir');
+    }
+
+    // PASSAGEM 7 — aderência à voz específica do heterônimo, no texto JÁ corrigido
+    if (estadoAtual.parado) return;
+    const aderenciaVoz = await avaliarAderenciaVoz(textoFinal, het, 7);
+
+    estadoAtual.resultadoFinal = { texto: textoFinal, verificacaoFinal, aderenciaVoz };
 
     estadoAtual.rodando = false;
     document.getElementById('btn-humanizar').disabled = false;
@@ -1176,7 +1481,7 @@ function renderResultado() {
   const { resultadoFinal, marcasDetectadas, trechos, textoOriginal, heteronimo } = estadoAtual;
   if (!resultadoFinal) return;
 
-  const { texto, verificacaoFinal } = resultadoFinal;
+  const { texto, verificacaoFinal, aderenciaVoz } = resultadoFinal;
   const nota = verificacaoFinal.score;
   const notaInicial = pontuarPorChecklist(marcasDetectadas.map(m => m.padrao));
   const corNota = corPontuacao(nota);
@@ -1185,6 +1490,23 @@ function renderResultado() {
   document.getElementById('placar').classList.add('visivel');
   document.getElementById('placar-nota').textContent = nota + '%';
   document.getElementById('placar-nota').style.color = corNota;
+
+  // Segunda nota — aderência à voz do heterônimo. Eixo diferente do
+  // checklist: um texto pode zerar vícios de IA e mesmo assim não soar
+  // como o heterônimo escolhido. Só aparece quando a avaliação rodou
+  // (não roda em parada de emergência nem sem heterônimo selecionado).
+  const votWrap = document.getElementById('placar-nota-voz-wrap');
+  if (aderenciaVoz) {
+    const corVoz = corPontuacao(aderenciaVoz.percentual);
+    votWrap.style.display = 'flex';
+    document.getElementById('placar-nota-voz').textContent = aderenciaVoz.percentual + '%';
+    document.getElementById('placar-nota-voz').style.color = corVoz;
+    document.getElementById('placar-nota-voz-label').textContent =
+      `na voz de ${heteronimo?.nome || 'heterônimo'}${aderenciaVoz.justificativa ? ' — ' + aderenciaVoz.justificativa : ''}`;
+  } else {
+    votWrap.style.display = 'none';
+  }
+
   const escolhidas = trechos.filter(t => t.escolha !== 'original').length;
   document.getElementById('placar-desc').textContent =
     `Checklist antes da revisão: ${notaInicial}% · depois: ${nota}%. `
@@ -1311,13 +1633,42 @@ async function maisUmaPassagem() {
   document.getElementById('resultado-wrap').classList.remove('visivel');
   document.getElementById('placar').classList.remove('visivel');
   document.getElementById('pipeline').classList.add('visivel');
+  document.getElementById('btn-emergencia').disabled = false;
+  // Reseta os indicadores das etapas 4-7 — sem isso, se essa passagem
+  // extra falhar no meio, a tela ficava travada mostrando o placar
+  // (dados) da rodada ANTERIOR misturado com o estado da etapa em
+  // andamento agora, sem nenhum aviso de erro — foi relatado como "deu
+  // erro" sem explicação nenhuma.
+  for (let i = 4; i <= 7; i++) setEtapa(i, 'aguardando', 'Aguardando...');
 
-  const extra = het ? await passagem4_voz(textoAtual, het) : textoAtual;
-  const verificacaoFinal = await detectarPadroes(extra, 5);
-  estadoAtual.resultadoFinal = { texto: extra, verificacaoFinal };
-  estadoAtual.textoPorPassagem.push(extra);
-  renderResultado();
-  toast(`↺ Passagem extra concluída · ${verificacaoFinal.score}%`);
+  try {
+    const extra = het ? await passagem4_voz(textoAtual, het) : textoAtual;
+    let verificacaoFinal = await detectarPadroes(extra, 5);
+
+    let textoFinal = extra;
+    if (verificacaoFinal.marcas.length > 0) {
+      textoFinal = await autoCorrigirResiduos(extra, verificacaoFinal.marcas, het, 6);
+      verificacaoFinal = await detectarPadroes(textoFinal, 5);
+    } else {
+      setEtapa(6, 'concluida', 'Nenhum resíduo a corrigir');
+    }
+
+    const aderenciaVoz = await avaliarAderenciaVoz(textoFinal, het, 7);
+    estadoAtual.resultadoFinal = { texto: textoFinal, verificacaoFinal, aderenciaVoz };
+    estadoAtual.textoPorPassagem.push(textoFinal);
+    document.getElementById('btn-emergencia').disabled = true;
+    renderResultado();
+    toast(`↺ Passagem extra concluída · ${verificacaoFinal.score}%`);
+  } catch (e) {
+    document.getElementById('btn-emergencia').disabled = true;
+    toast('Erro na passagem extra — o resultado anterior continua disponível');
+    console.error(e);
+    // Volta a mostrar o resultado que já existia antes dessa tentativa —
+    // sem isso, um erro no meio deixava a tela só com o pipeline parado,
+    // sem nenhum resultado visível nem forma de continuar.
+    document.getElementById('pipeline').classList.remove('visivel');
+    renderResultado();
+  }
 }
 
 function irParaRevisao() {
@@ -1350,7 +1701,17 @@ function irParaDiagramador() {
   localStorage.setItem('obra_autor', estadoAtual.heteronimo?.nome || '');
   localStorage.setItem('obra_ativa_texto', texto);
   localStorage.setItem('obra_ativa_texto_nome', estadoAtual.titulo);
-  localStorage.setItem('lapidar_diagramar_automatico', 'true');
+  // NÃO liga lapidar_diagramar_automatico aqui: esse flag pula direto pra
+  // exportação de PDF sem mostrar a prévia (feito pro pipeline em lote do
+  // Gerador de Livro, sem ninguém acompanhando). Aqui é o oposto — é uma
+  // pessoa clicando "Continuar para o Diagramador" bem na hora, e o
+  // roteamento automático (CeleiroRoteador) é uma classificação por
+  // contagem de linha/estrofe que PODE errar em texto editado à mão (por
+  // ex. reconhecer como soneto um parágrafo de prosa que por acaso tem
+  // 14-17 linhas). Sem a prévia, um erro de classificação virava PDF
+  // exportado errado sem chance de perceber antes — por isso agora o
+  // diagramador certo abre normal, com prévia, pra conferir/ajustar antes
+  // de exportar de propósito.
   toast(`Detectei ${resultado.nome} — redirecionando...`);
   setTimeout(() => { window.location.href = resultado.arquivo; }, 600);
 }

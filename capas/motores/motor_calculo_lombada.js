@@ -4,14 +4,28 @@
 */
 
 (function(){
+  // Espessura por página em cm — calibrado pra bater com motor_plataformas_pod_v1.js
+  // (grafica_propria.papeis), que já é o valor confiável usado no restante do
+  // sistema e confere exatamente com a fórmula oficial publicada pela Amazon
+  // KDP (0,0572mm/pág pro papel bookcel). Os valores antigos aqui (offset75:
+  // 0,0021 etc.) estavam entre 3x e 5x abaixo do correto — provavelmente
+  // portados de uma tabela em polegadas/página sem converter pra cm, ou de
+  // uma fonte com metodologia diferente — e faziam a "Ficha técnica (motor
+  // oficial Polimata)" do OKapista Polimata mostrar uma lombada bem mais
+  // fina do que a real (uma capa desenhada nessa medida erraria feio contra
+  // a lombada de verdade na gráfica). polen80/polen90 não têm correspondente
+  // na outra tabela — estimados por interpolação linear a partir da mesma
+  // curva de offset75/90 (pólen tende a ser um pouco mais encorpado que
+  // offset na mesma gramatura); confirme com a gráfica antes de fechar um
+  // arquivo final com esses dois papéis específicos.
   const fatoresPadrao = {
-    offset75: 0.0021,
-    offset90: 0.0025,
-    polen80: 0.0023,
-    polen90: 0.0027,
-    couche115: 0.0030,
-    couche150: 0.0038,
-    manual: 0.0021
+    offset75: 0.010,
+    offset90: 0.012,
+    polen80: 0.0107,
+    polen90: 0.0125,
+    couche115: 0.010,
+    couche150: 0.013,
+    manual: 0.010
   };
 
   const formatosPadrao = {

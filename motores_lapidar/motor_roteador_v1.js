@@ -30,15 +30,27 @@ const DESTINOS = {
 // ═══════════════════════════════════════════════════════════
 // Helpers de bloco: cada "bloco" vira { versos, nVersos, mediaChars }
 // ═══════════════════════════════════════════════════════════
+// Mesmo padrão usado em motor_celeiro_v3.js pra reconhecer início de fala
+// (travessão/hífen + espaço) — um parágrafo de diálogo colado sem linha em
+// branco entre falas (comum em texto colado/editado à mão) tem várias
+// linhas curtas, exatamente a forma que um bloco de soneto/estrofe também
+// tem por contagem pura de linha. Sem checar isso, uma cena de diálogo com
+// 14-17 falas virava "soneto monostrófico" pro roteador — bug real: o
+// texto ia pro Apolo (diagramador de soneto) em vez do Pólux (prosa),
+// aplicando regra de verso numa coisa que é diálogo comum.
+const RE_INICIO_FALA=/^[-–—]\s/;
 function analisarBloco(b){
   const versos = b.split('\n').map(l=>l.trim()).filter(Boolean);
   const mediaChars = versos.length ? versos.reduce((s,l)=>s+l.length,0)/versos.length : 0;
-  return { versos, nVersos: versos.length, mediaChars };
+  const nFala = versos.filter(l=>RE_INICIO_FALA.test(l)).length;
+  const pareceDialogo = versos.length>0 && (nFala/versos.length) > 0.4;
+  return { versos, nVersos: versos.length, mediaChars, pareceDialogo };
 }
 
 // Um bloco "parece" verso curto de forma oriental (haicai/tanka) —
 // linhas curtas, sem pontuação de frase encerrando cada linha.
 function blocoPareceOriental(analise){
+  if(analise.pareceDialogo) return null;
   if(analise.nVersos===3 && analise.mediaChars<=28) return 'haicai_curto';
   if(analise.nVersos===3 && analise.mediaChars>28) return 'sijo';
   if(analise.nVersos===5 && analise.mediaChars<=30) return 'tanka';
@@ -55,15 +67,17 @@ function blocoPareceOriental(analise){
 function encontrarJanelaSoneto(analises, usados){
   for(let i=0;i<analises.length;i++){
     if(usados.has(i)) continue;
-    // Monostrófico: um bloco só, 14-17 versos
+    // Monostrófico: um bloco só, 14-17 versos — mas só se não parecer um
+    // parágrafo de diálogo colado (ver comentário em analisarBloco).
     const n0 = analises[i].nVersos;
-    if(n0>=14 && n0<=17 && !usados.has(i)){
+    if(n0>=14 && n0<=17 && !usados.has(i) && !analises[i].pareceDialogo){
       return { inicio:i, fim:i, subtipo:'monostrofico', totalVersos:n0 };
     }
     // Janela de 5 blocos primeiro (estrambótico: 4 blocos-base de 14 + 1 extra
     // de 1-3) — precisa vir ANTES da janela de 4 blocos, senão o casamento
     // de 4,4,3,3 "ganha" cedo demais e o 5º bloco nunca é reivindicado.
-    if(i+4<analises.length && ![i,i+1,i+2,i+3,i+4].some(k=>usados.has(k))){
+    if(i+4<analises.length && ![i,i+1,i+2,i+3,i+4].some(k=>usados.has(k))
+       && ![i,i+1,i+2,i+3,i+4].some(k=>analises[k].pareceDialogo)){
       const base = [analises[i].nVersos,analises[i+1].nVersos,analises[i+2].nVersos,analises[i+3].nVersos];
       const somaBase = base.reduce((a,b)=>a+b,0);
       const extra = analises[i+4].nVersos;
@@ -74,7 +88,8 @@ function encontrarJanelaSoneto(analises, usados){
       }
     }
     // Janelas de 4 blocos (petrarquiano / shakespeariano)
-    if(i+3<analises.length && ![i,i+1,i+2,i+3].some(k=>usados.has(k))){
+    if(i+3<analises.length && ![i,i+1,i+2,i+3].some(k=>usados.has(k))
+       && ![i,i+1,i+2,i+3].some(k=>analises[k].pareceDialogo)){
       const seq = [analises[i].nVersos,analises[i+1].nVersos,analises[i+2].nVersos,analises[i+3].nVersos];
       if(seq[0]===4&&seq[1]===4&&seq[2]===3&&seq[3]===3){
         return { inicio:i, fim:i+3, subtipo:'petrarquiano', totalVersos:14 };
@@ -95,6 +110,7 @@ function encontrarJanelaEstrofista(analises, usados){
   for(let i=0;i+6<analises.length;i++){
     const janela=[i,i+1,i+2,i+3,i+4,i+5,i+6];
     if(janela.some(k=>usados.has(k))) continue;
+    if(janela.some(k=>analises[k].pareceDialogo)) continue;
     const bate = V3.LOSANGO.every((esperado,off)=>analises[i+off].nVersos===esperado);
     if(bate) return { inicio:i, fim:i+6, totalVersos: V3.LOSANGO.reduce((a,b)=>a+b,0) };
   }

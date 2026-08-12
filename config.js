@@ -65,6 +65,7 @@ const CAMINHOS_PROXY_PAGO = [
   '/api/claude', '/api/gerar-imagem', '/api/stability-imagem',
   '/api/elevenlabs-music', '/api/fishaudio-tts', '/api/fishaudio-model',
   '/api/fishaudio-voice-design', '/api/gemini-avaliar-voz', '/api/ia-gratuita',
+  '/api/github-contents',
 ];
 (function() {
   const _fetch = window.fetch;
