@@ -478,6 +478,12 @@
   </div>
 </div>
 
+<!-- O QUE ISSO GERA -->
+<div style="font-family:monospace;font-size:0.5rem;color:#6a7d90;text-align:center;margin-bottom:0.6rem;opacity:0.8;letter-spacing:0.04em;line-height:1.6;">
+  ✦ Gera um texto CURTO e fechado nessa mesma chamada — conto/crônica de 500 a 1.500 palavras em Prosa, ou um poema na forma escolhida em Poesia.<br>
+  Não é o Conto Semente (3.700–4.500 palavras, gerado no Gerador de Livro) nem um livro completo — é uma peça pronta, independente.
+</div>
+
 <!-- BOTÃO -->
 <button class="btn-lancar" id="btn-lancar" onclick="lancar()" disabled>
   ✦ LANÇAR DESAFIO
@@ -640,11 +646,15 @@ function selecionarModo(modo) {
 function selForma(forma) {
   _formaPoesia = forma;
   document.querySelectorAll('.forma-btn').forEach(b => b.classList.remove('ativo'));
-  // Ativar o botão clicado
-  event && event.target && event.target.classList.add('ativo');
-  if (forma === 'pecanha_decide') {
-    document.getElementById('btn-pecanha-decide').classList.add('ativo');
-  }
+  // Marca o botão pelo próprio onclick, em vez de depender do global
+  // `window.event` -- quando selForma() é chamado programaticamente (não
+  // por clique real, ex.: init no DOMContentLoaded ou selecionarModo()
+  // trocando pra "Peçanha decide"), `event` podia apontar pro evento
+  // ERRADO (ex.: o próprio DOMContentLoaded, cujo target é `document`,
+  // sem `classList`) e quebrava a página inteira com um erro não tratado
+  // logo no carregamento.
+  const btn = document.querySelector(`[onclick="selForma('${forma}')"]`);
+  if (btn) btn.classList.add('ativo');
 }
 
 // ── CONTROLES ─────────────────────────────────────────────────────────────────
