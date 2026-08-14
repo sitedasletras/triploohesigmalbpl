@@ -411,6 +411,7 @@ select option { background: var(--s1); }
 </style>
 <script src="config.js"></script>
 <script src="checklist_antiia.js"></script>
+<script src="motor_humanizador_master.js"></script>
 <script src="heteronimos_roster.js"></script>
 <script src="perfis_voz.js"></script>
 <script src="motor_celeiro_v3.js"></script>
@@ -1098,32 +1099,31 @@ Cada texto (X, Y, Z de cada grupo) é independente — classifique cada um sozin
 }
 
 // ── PASSAGEM 4: VOZ DO HETERÔNIMO (obrigatória) ──
+// System prompt vem de motor_humanizador_master.js — o "PROMPT UNIVERSAL —
+// HUMANIZADOR LITERÁRIO DO HETERÔNIMO" fornecido pelo Wagner como
+// referência oficial pra essa passagem (a que reescreve o texto inteiro
+// respeitando a voz do heterônimo). Esse documento já cobre travessão,
+// dois-pontos, diálogo/dicendi e vícios de IA em detalhe muito maior que
+// o checklist_antiia.js genérico — por isso NÃO injeta mais o antiIA
+// aqui (evita redundância/conflito entre dois textos falando da mesma
+// coisa); o checklist genérico continua servindo as outras passagens
+// (detecção, geração de opções, classificação, correção de resíduos).
 async function passagem4_voz(texto, het) {
   setEtapa(4, 'ativa', `Injetando a voz de ${het.nome}...`);
 
-  const antiIA = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA() : '';
+  const promptMaster = (typeof montarPromptHumanizadorMaster === 'function')
+    ? montarPromptHumanizadorMaster(het)
+    : `Você é ${het.nome}, heterônimo literário com voz e território únicos.\n${het.vozBloco}`;
   const blocos = dividirEmBlocos(texto);
   const partes = [];
   for (let i = 0; i < blocos.length; i++) {
     if (blocos.length > 1) setEtapa(4, 'ativa', `Injetando a voz de ${het.nome}... (parte ${i + 1}/${blocos.length})`);
     const avisoBloco = blocos.length > 1
-      ? `\n\nATENÇÃO: o texto abaixo é o trecho ${i + 1} de ${blocos.length} de uma obra maior — a divisão é só um limite técnico de tamanho de resposta, ela NÃO existe na obra original. Reescreva SÓ o que está abaixo, do começo ao fim, sem resumir e sem cortar nada. Não invente uma abertura nem um fechamento de capítulo/obra — é a continuação direta do que veio antes.`
+      ? `\n\n---\n\nATENÇÃO: o texto abaixo é o trecho ${i + 1} de ${blocos.length} de uma obra maior — a divisão é só um limite técnico de tamanho de resposta, ela NÃO existe na obra original. Reescreva SÓ o que está abaixo, do começo ao fim, sem resumir e sem cortar nada. Não invente uma abertura nem um fechamento de capítulo/obra — é a continuação direta do que veio antes.`
       : '';
-    const system = `Você é ${het.nome}, heterônimo literário com voz e território únicos.
-${het.vozBloco}
-${antiIA}
+    const system = `${promptMaster}${avisoBloco}`;
 
-MISSÃO: Reescreva o texto integralmente na SUA voz. O texto deve soar como se VOCÊ o tivesse escrito do zero — não como uma adaptação. As regras de "NUNCA FAZ" do seu Perfil de Voz são absolutas — nenhuma delas pode aparecer no resultado.
-
-REGRAS:
-1. Mantenha TODO o conteúdo narrativo — personagens, eventos, diálogos, trama
-2. Transforme a forma completamente — vocabulário, ritmo, cadência, marcas linguísticas
-3. Insira suas peculiaridades únicas — as que um leitor reconheceria como suas
-4. Nenhuma frase deve soar como IA — cada uma deve soar como escrita à mão por você${avisoBloco}
-
-Responda APENAS com o texto reescrito na sua voz — nada a mais, nada a menos.`;
-
-    const parte = await chamarClaude(system, `TEXTO PARA REESCREVER NA SUA VOZ:\n\n${blocos[i]}`, 8000);
+    const parte = await chamarClaude(system, `TEXTO PARA REVISAR E HUMANIZAR:\n\n${blocos[i]}`, 8000);
     partes.push(parte);
   }
   const resultado = partes.join('\n\n');
