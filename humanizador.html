@@ -1254,9 +1254,26 @@ function ehVicioDialogo(padrao) {
 // Busca o trecho marcado dentro do texto ORIGINAL completo (já em
 // memória, sem chamada de API) e devolve uma janela maior ao redor —
 // o bastante pra entender quem está em cena e o que está acontecendo.
-function extrairContextoCena(trechoOriginal, janela = 500) {
+//
+// Recebe o índice do trecho dentro de estadoAtual.trechos (mesma ordem
+// de aparição no documento já usada em montarTextoComEscolhas) e anda
+// com um cursor pelos trechos ANTERIORES até achar a ocorrência certa.
+// Um texto.indexOf(trechoOriginal) sozinho sempre acha a PRIMEIRA
+// ocorrência do trecho no documento inteiro — se a mesma fala/frase se
+// repetir mais de uma vez na obra e o trecho marcado for uma repetição
+// mais adiante, o contexto de cena mostrado seria do lugar errado.
+function extrairContextoCena(trechoOriginal, indice, janela = 500) {
   const texto = estadoAtual.textoOriginal || '';
-  const idx = texto.indexOf(trechoOriginal);
+  let cursor = 0;
+  if (typeof indice === 'number') {
+    for (let k = 0; k < indice; k++) {
+      const anterior = estadoAtual.trechos[k];
+      if (!anterior) continue;
+      const idxAnterior = texto.indexOf(anterior.original, cursor);
+      if (idxAnterior !== -1) cursor = idxAnterior + anterior.original.length;
+    }
+  }
+  const idx = texto.indexOf(trechoOriginal, cursor);
   if (idx === -1) return null;
   const inicio = Math.max(0, idx - janela);
   const fim = Math.min(texto.length, idx + trechoOriginal.length + janela);
@@ -1277,7 +1294,7 @@ function htmlTrechoCard(t, i) {
   // a mesma decisão trecho por trecho (pedido do Wagner: texto longo pode
   // ter o mesmo vício dezenas de vezes).
   const irmaos = estadoAtual.trechos.filter(x => x.padrao === t.padrao).length;
-  const contexto = ehVicioDialogo(t.padrao) ? extrairContextoCena(t.original) : null;
+  const contexto = ehVicioDialogo(t.padrao) ? extrairContextoCena(t.original, i) : null;
 
   // "Escrever a minha versão" — quarta opção além de original/A/B, pra
   // quando nenhuma das duas serve. Pedido do Wagner: um lugar pra editar
