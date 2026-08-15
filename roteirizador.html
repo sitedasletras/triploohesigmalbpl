@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roteirizador · OHE-Peçanha</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060508;
+  --s1: #0c0a10;
+  --s2: #141218;
+  --border: #2a2535;
+  --quente: #d4824a;
+  --quente2: #f0b080;
+  --quente3: rgba(212,130,74,0.12);
+  --ouro: #c8a96e;
+  --ouro2: #f0d896;
+  --verde: #4caf7a;
+  --verde2: #80ffb0;
+  --rosa: #d4689a;
+  --violeta: #9b6fd0;
+  --texto: #f0e8e0;
+  --muted: #5a5060;
+  --crimson: 'Crimson Pro', serif;
+  --playfair: 'Playfair Display', serif;
+  --mono: 'DM Mono', monospace;
+  --r: 18px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--crimson);
+  background: var(--bg); color: var(--texto); min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 60% 40% at 30% 0%, rgba(212,130,74,0.07), transparent),
+    radial-gradient(ellipse 40% 50% at 80% 100%, rgba(200,169,110,0.05), transparent);
+}
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,5,8,0.97); border-bottom: 1px solid rgba(212,130,74,0.2);
+  backdrop-filter: blur(14px); padding: 12px 28px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.marca { font-family: var(--mono); font-size: 12px; color: var(--quente2); letter-spacing: 3px; }
+.marca small { display: block; font-size: 9px; color: var(--muted); letter-spacing: 2px; margin-top: 2px; }
+.tnav { display: flex; gap: 6px; flex-wrap: wrap; }
+.tnav a {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--muted);
+  text-decoration: none; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.2s;
+}
+.tnav a:hover { color: var(--quente2); border-color: var(--quente); background: var(--quente3); }
+
+.hero { padding: 60px 28px 50px; text-align: center; border-bottom: 1px solid rgba(212,130,74,0.12); }
+.hero h1 { font-family: var(--playfair); font-size: 42px; font-weight: 900; color: var(--ouro2); margin-bottom: 10px; }
+.hero-sub { font-family: var(--mono); font-size: 10px; letter-spacing: 4px; color: var(--muted); margin-bottom: 18px; }
+.hero-desc { font-size: 17px; font-style: italic; color: rgba(240,232,224,0.6); max-width: 680px; margin: 0 auto; line-height: 1.9; }
+
+.wrap { max-width: 1100px; margin: auto; padding: 40px 28px 100px; display: flex; flex-direction: column; gap: 28px; }
+
+.painel { background: var(--s1); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.painel-header { padding: 20px 26px; border-bottom: 1px solid var(--border); }
+.painel-titulo { font-family: var(--playfair); font-size: 20px; color: var(--ouro2); letter-spacing: 1px; }
+.painel-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-top: 3px; }
+.painel-body { padding: 24px 26px; display: flex; flex-direction: column; gap: 18px; }
+
+.campo-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; display: block; margin-bottom: 8px; }
+textarea, input, select {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  color: var(--texto); font-family: var(--crimson); font-size: 17px;
+  padding: 12px 16px; border-radius: 10px; outline: none; transition: border-color 0.2s; line-height: 1.8;
+}
+textarea { resize: vertical; min-height: 140px; }
+textarea:focus, input:focus, select:focus { border-color: var(--quente); }
+textarea::placeholder { color: var(--muted); font-style: italic; }
+select, input { font-family: var(--mono); font-size: 12px; }
+select option { background: var(--s1); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+@media (max-width: 720px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+
+.status-linha { font-family: var(--mono); font-size: 11px; letter-spacing: 0.5px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); }
+.status-ok { color: var(--verde); border-color: rgba(76,175,122,0.3); background: rgba(76,175,122,0.06); }
+.status-aviso { color: var(--ouro); border-color: rgba(200,169,110,0.3); background: rgba(200,169,110,0.06); }
+
+.btn-humanizar {
+  font-family: var(--playfair); font-size: 17px; font-weight: 900;
+  padding: 18px 40px; border: 1px solid var(--quente2); border-radius: 999px;
+  color: var(--quente2); background: var(--quente3); cursor: pointer;
+  transition: all 0.3s; width: 100%; letter-spacing: 2px;
+}
+.btn-humanizar:hover { background: rgba(212,130,74,0.2); border-color: var(--ouro2); color: var(--ouro2); box-shadow: 0 0 50px rgba(212,130,74,0.2); }
+.btn-humanizar:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.btn-acao {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  padding: 10px 20px; border: 1px solid var(--border); border-radius: 999px;
+  color: var(--texto); background: transparent; cursor: pointer; transition: all 0.2s;
+}
+.btn-dl { border-color: var(--verde); color: var(--verde); }
+.btn-dl:hover { background: rgba(76,175,122,0.1); }
+.btn-bib { border-color: var(--ouro); color: var(--ouro); }
+.btn-bib:hover { background: rgba(200,169,110,0.1); }
+
+.progresso { display: none; font-family: var(--mono); font-size: 11px; color: var(--quente2); letter-spacing: 1px; padding: 14px 0; text-align: center; }
+.progresso.visivel { display: block; }
+
+.resultado-wrap { background: var(--s1); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; display: none; }
+.resultado-wrap.visivel { display: block; }
+.texto-roteiro {
+  font-family: var(--crimson); font-size: 17px; line-height: 1.9;
+  color: rgba(240,232,224,0.9); white-space: pre-wrap; padding: 4px;
+}
+.btns-resultado { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="marca">OHE-PEÇANHA<small>ROTEIRIZADOR</small></div>
+  <nav class="tnav">
+    <a href="index.html">← Hall</a>
+    <a href="biblioteca.html">Biblioteca</a>
+    <a href="humanizador.html">Humanizador</a>
+  </nav>
+</div>
+
+<header class="hero">
+  <h1>🎬 Roteirizador</h1>
+  <div class="hero-sub">PROSA → ROTEIRO PROFISSIONAL</div>
+  <p class="hero-desc">Pega um livro/conto JÁ ESCRITO da Biblioteca (ou colado na hora) e adapta pra roteiro de cinema/TV/teatro profissional — cabeçalho de cena, ação e diálogo marcado por personagem — preservando fielmente enredo, personagens e falas da obra original. Isto é adaptação, não criação nova.</p>
+</header>
+
+<main class="wrap">
+
+  <!-- FONTE DA OBRA -->
+  <div class="painel">
+    <div class="painel-header">
+      <div class="painel-titulo">Fonte da obra</div>
+      <div class="painel-sub">DE ONDE VEM O TEXTO A ADAPTAR</div>
+    </div>
+    <div class="painel-body">
+      <div>
+        <label class="campo-label">Carregar da Biblioteca (opcional)</label>
+        <select id="obra-biblioteca-select" onchange="carregarObraDaBiblioteca()">
+          <option value="">— colar manualmente abaixo —</option>
+        </select>
+      </div>
+      <div id="obra-status" class="status-linha status-aviso">Nenhuma obra selecionada — cole o texto abaixo ou escolha uma da Biblioteca.</div>
+      <div>
+        <label class="campo-label">Texto completo (colado ou carregado da Biblioteca)</label>
+        <textarea id="obra-texto" placeholder="Cole aqui o texto completo do livro/conto a adaptar, ou selecione uma obra da Biblioteca acima..." oninput="atualizarStatusObra()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIGURAÇÃO -->
+  <div class="painel">
+    <div class="painel-header">
+      <div class="painel-titulo">Configuração do roteiro</div>
+      <div class="painel-sub">FORMATO, GÊNERO, TOM E ENTREGA</div>
+    </div>
+    <div class="painel-body">
+      <div class="grid3">
+        <div>
+          <label class="campo-label">Formato</label>
+          <select id="rot-formato">
+            <option>Curta-metragem</option>
+            <option>Longa-metragem</option>
+            <option>Série WebTV</option>
+            <option>Episódio piloto</option>
+            <option>Documentário</option>
+            <option>Peça de Teatro</option>
+            <option>Novela</option>
+            <option>Minissérie</option>
+          </select>
+        </div>
+        <div>
+          <label class="campo-label">Tom narrativo</label>
+          <select id="rot-tom">
+            <option>Realista</option>
+            <option>Poético / Contemplativo</option>
+            <option>Tenso / Urgente</option>
+            <option>Sombrio / Noir</option>
+            <option>Leve / Otimista</option>
+            <option>Épico / Grandioso</option>
+            <option>Documental / Neutro</option>
+          </select>
+        </div>
+        <div>
+          <label class="campo-label">Entrega desejada</label>
+          <select id="rot-entrega">
+            <option>Roteiro completo</option>
+            <option>Escaleta (cena a cena)</option>
+            <option>Roteiro — ato completo</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="campo-label">Heterônimo adaptador (opcional)</label>
+        <input type="text" id="rot-heteronimo" list="lista-heteronimos-rot" placeholder="Ex: Mórigan Voss — deixe em branco pra roteiro sem assinatura" oninput="atualizarAvisoVozRot()">
+        <datalist id="lista-heteronimos-rot"></datalist>
+        <div id="rot-voz-aviso" style="display:none;margin-top:6px;font-family:var(--mono);font-size:10px;color:var(--verde)"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-humanizar" onclick="adaptarObraParaRoteiro()">🎬 Adaptar pra Roteiro</button>
+  <div class="progresso" id="rot-progresso"></div>
+
+  <div class="resultado-wrap" id="rot-resultado">
+    <div class="painel-header">
+      <div class="painel-titulo" id="rot-resultado-titulo">Roteiro adaptado</div>
+    </div>
+    <div class="painel-body">
+      <div class="texto-roteiro" id="rot-saida"></div>
+      <div class="btns-resultado">
+        <button class="btn-acao btn-dl" onclick="copiarRoteiro()">📋 Copiar</button>
+        <button class="btn-acao btn-bib" onclick="baixarRoteiro()">⬇ Baixar .txt</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script src="config.js"></script>
+<script src="checklist_antiia.js"></script>
+<script src="heteronimos_roster.js"></script>
+<script src="perfis_voz.js"></script>
+<script>
+// ---------- Chamada à IA (mesmo padrão do humanizador.html) ----------
+async function chamarClaude(system, user, maxTokens = 4000) {
+  const body = { model: 'claude-sonnet-4-6', max_tokens: maxTokens, system, messages: [{ role: 'user', content: user }] };
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify(body)
+  });
+  const data = await resp.json();
+  if (!data.content) throw new Error(data.error?.message || `Resposta sem conteúdo da API (status ${resp.status}).`);
+  return data.content.map(c => c.text || '').join('');
+}
+
+// ---------- Chunking + contexto rolante (mesmo padrão de silo_hq.html/
+// silo_cinematografico.html no CeleiroLiterario) — texto quebrado em
+// blocos por parágrafo (~1.300 palavras cada), cada bloco processado
+// numa chamada separada, levando a cauda do bloco anterior como
+// contexto pra manter continuidade de cena sem repetir nem perder o fio. ----------
+const LIMITE_PALAVRAS_ROTEIRIZACAO = 30000;
+const TAMANHO_BLOCO_ROTEIRIZACAO = 8000; // ~1.300 palavras por bloco/chamada
+
+function dividirEmBlocosRoteirizacao(texto, tamanhoAlvo) {
+  const paragrafos = texto.split(/\n+/).filter(Boolean);
+  const blocos = [];
+  let atual = '';
+  for (const par of paragrafos) {
+    if (atual && (atual.length + par.length + 1) > tamanhoAlvo) {
+      blocos.push(atual);
+      atual = par;
+    } else {
+      atual = atual ? atual + '\n' + par : par;
+    }
+    while (atual.length > tamanhoAlvo * 1.5) {
+      let corte = atual.lastIndexOf('. ', tamanhoAlvo);
+      if (corte < tamanhoAlvo * 0.5) corte = tamanhoAlvo;
+      blocos.push(atual.slice(0, corte + 1));
+      atual = atual.slice(corte + 1).trim();
+    }
+  }
+  if (atual) blocos.push(atual);
+  return blocos.length ? blocos : [texto];
+}
+
+// ---------- Biblioteca ----------
+function popularSelectBiblioteca() {
+  const sel = document.getElementById('obra-biblioteca-select');
+  if (!sel) return;
+  let obras = [];
+  try { obras = JSON.parse(localStorage.getItem('biblioteca_obras') || '[]'); } catch (e) { obras = []; }
+  obras.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o.id;
+    opt.textContent = `${o.titulo} — ${o.autor}`;
+    sel.appendChild(opt);
+  });
+}
+
+function carregarObraDaBiblioteca() {
+  const sel = document.getElementById('obra-biblioteca-select');
+  const id = sel.value;
+  if (!id) return;
+  let obras = [];
+  try { obras = JSON.parse(localStorage.getItem('biblioteca_obras') || '[]'); } catch (e) { obras = []; }
+  const obra = obras.find(o => o.id === id);
+  if (!obra) return;
+  document.getElementById('obra-texto').value = obra.texto || '';
+  if (obra.autor && obra.autor !== 'Anônimo') document.getElementById('rot-heteronimo').value = obra.autor;
+  atualizarAvisoVozRot();
+  atualizarStatusObra();
+}
+
+function atualizarStatusObra() {
+  const status = document.getElementById('obra-status');
+  const texto = document.getElementById('obra-texto').value.trim();
+  if (!texto) {
+    status.className = 'status-linha status-aviso';
+    status.textContent = 'Nenhuma obra selecionada — cole o texto acima ou escolha uma da Biblioteca.';
+    return;
+  }
+  const palavras = texto.split(/\s+/).filter(Boolean).length;
+  status.className = 'status-linha status-ok';
+  status.textContent = `✓ Obra pronta pra adaptar — ${palavras.toLocaleString('pt-BR')} palavras.`;
+}
+
+// ---------- Heterônimo adaptador ----------
+document.addEventListener('DOMContentLoaded', () => {
+  popularSelectBiblioteca();
+  const dl = document.getElementById('lista-heteronimos-rot');
+  if (dl && typeof getRosterCompleto === 'function') {
+    getRosterCompleto().slice().sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).forEach(h => {
+      const opt = document.createElement('option');
+      opt.value = h.nome;
+      dl.appendChild(opt);
+    });
+  }
+});
+
+function atualizarAvisoVozRot() {
+  const campo = document.getElementById('rot-heteronimo');
+  const aviso = document.getElementById('rot-voz-aviso');
+  const nome = campo.value.trim();
+  if (!nome || typeof getPerfilVozPorNome !== 'function') { aviso.style.display = 'none'; return; }
+  const perfil = getPerfilVozPorNome(nome);
+  aviso.style.display = 'block';
+  aviso.textContent = perfil
+    ? `✦ Perfil de voz encontrado — a adaptação leva a tradição/estilo de ${nome}.`
+    : `${nome} ainda não tem Perfil de Voz — roteiro sai assinado só pelo nome.`;
+}
+
+// ---------- Adaptação principal ----------
+let adaptandoObraEmAndamento = false;
+async function adaptarObraParaRoteiro() {
+  if (adaptandoObraEmAndamento) { alert('Já tem uma adaptação em andamento — espera terminar antes de clicar de novo.'); return; }
+
+  const obra = document.getElementById('obra-texto').value.trim();
+  if (!obra) { alert('Cole o texto completo do livro/conto, ou selecione uma obra da Biblioteca.'); return; }
+
+  const formato = document.getElementById('rot-formato').value;
+  const tom = document.getElementById('rot-tom').value;
+  const entrega = document.getElementById('rot-entrega').value;
+  const heteronimo = document.getElementById('rot-heteronimo').value.trim();
+  const blocoVoz = (heteronimo && typeof montarBlocoPerfilVoz === 'function') ? montarBlocoPerfilVoz(heteronimo) : '';
+  // Esta função SEMPRE produz roteiro (é a função inteira dela) — não
+  // depende de nenhum outro campo pra liberar a convenção de cabeçalho
+  // de personagem no lugar de travessão.
+  const blocoAntiIA = (typeof montarBlocoAntiIA === 'function') ? montarBlocoAntiIA({ formatoRoteiro: true }) : '';
+
+  const LIMITE_CARACTERES = LIMITE_PALAVRAS_ROTEIRIZACAO * 6;
+  let obraTruncada = obra;
+  if (obra.length > LIMITE_CARACTERES) {
+    const palavras = obra.trim().split(/\s+/).length;
+    const continuar = confirm(`⚠ Essa obra tem ${palavras.toLocaleString('pt-BR')} palavras — acima do teto atual de ${LIMITE_PALAVRAS_ROTEIRIZACAO.toLocaleString('pt-BR')} por adaptação.\n\nSe continuar, só as primeiras ~${LIMITE_PALAVRAS_ROTEIRIZACAO.toLocaleString('pt-BR')} palavras (o começo da obra) viram roteiro — o resto fica de fora.\n\n[OK] = Adaptar só o começo\n[Cancelar] = Voltar`);
+    if (!continuar) return;
+    obraTruncada = obra.slice(0, LIMITE_CARACTERES);
+  }
+
+  adaptandoObraEmAndamento = true;
+  const btn = document.querySelector('.btn-humanizar');
+  btn.disabled = true;
+  const progresso = document.getElementById('rot-progresso');
+  progresso.classList.add('visivel');
+
+  try {
+    const blocos = dividirEmBlocosRoteirizacao(obraTruncada, TAMANHO_BLOCO_ROTEIRIZACAO);
+    let contextoAnterior = '';
+    const partesRoteiro = [];
+    let blocosComErro = 0;
+
+    const systemPromptAdaptacao = `Você é um roteirista profissional especializado em ADAPTAR prosa literária já pronta pra roteiro de ${formato} — ${entrega}, tom ${tom}. Isso é ADAPTAÇÃO, não criação: preserve fielmente o enredo, os personagens, as falas e a ordem dos eventos do texto original — não invente cenas, personagens ou diálogos novos que não estejam implícitos no trecho recebido. Converta narração/descrição em cabeçalho de cena (INT./EXT. LOCAL — DIA/NOITE) seguido de linhas de ação em tempo presente, e converta falas em diálogo marcado por CABEÇALHO DE PERSONAGEM (nome em maiúsculas numa linha própria, acima da fala) — formato profissional de mercado.${blocoVoz}${blocoAntiIA}`;
+
+    for (let b = 0; b < blocos.length; b++) {
+      progresso.textContent = `Adaptando bloco ${b + 1} de ${blocos.length}...`;
+      const blocoTexto = blocos[b];
+      const userMsg = `${contextoAnterior ? 'Isto é a continuação da mesma obra — já foi adaptado até aqui (só de contexto, NÃO repita nem regere essas cenas):\n' + contextoAnterior + '\n\n' : ''}Adapte o trecho de prosa abaixo pra roteiro, cena por cena, cobrindo o trecho INTEIRO até a última frase:\n\nTRECHO:\n${blocoTexto}`;
+
+      let resultadoBloco = null, ultimoErro = null;
+      for (let tentativa = 1; tentativa <= 2; tentativa++) {
+        try {
+          const texto = await chamarClaude(systemPromptAdaptacao, userMsg, 8000);
+          if (!texto) throw new Error('A IA devolveu resposta vazia.');
+          resultadoBloco = texto;
+          break;
+        } catch (e) {
+          ultimoErro = e;
+          resultadoBloco = null;
+          if (tentativa === 1) progresso.textContent = `⚠ Bloco ${b + 1} de ${blocos.length} falhou (${e.message}) — tentando de novo...`;
+        }
+      }
+
+      if (resultadoBloco) {
+        partesRoteiro.push(resultadoBloco);
+        contextoAnterior = resultadoBloco.slice(-600);
+      } else {
+        console.error('Falha no bloco ' + (b + 1) + ' de ' + blocos.length + ' (2 tentativas):', ultimoErro);
+        blocosComErro++;
+        partesRoteiro.push(`\n\n[⚠ ESTE TRECHO FALHOU NA ADAPTAÇÃO — bloco ${b + 1} de ${blocos.length}, tente gerar de novo separadamente]\n\n`);
+      }
+    }
+
+    const roteiroFinal = partesRoteiro.join('\n\n');
+    document.getElementById('rot-resultado-titulo').textContent = `Roteiro adaptado — ${formato}${heteronimo ? ' · ' + heteronimo : ''}`;
+    document.getElementById('rot-saida').textContent = roteiroFinal;
+    document.getElementById('rot-resultado').classList.add('visivel');
+    document.getElementById('rot-resultado').scrollIntoView({ behavior: 'smooth' });
+    progresso.textContent = blocosComErro
+      ? `✓ Adaptação concluída com ${blocosComErro} bloco(s) com falha (marcados no texto) de ${blocos.length}.`
+      : `✓ Adaptação concluída — ${blocos.length} bloco(s) processado(s).`;
+  } catch (e) {
+    alert('Erro de conexão. Tente novamente.');
+  } finally {
+    adaptandoObraEmAndamento = false;
+    btn.disabled = false;
+  }
+}
+
+function copiarRoteiro() {
+  const texto = document.getElementById('rot-saida').textContent;
+  navigator.clipboard.writeText(texto).then(() => alert('Roteiro copiado!'));
+}
+
+function baixarRoteiro() {
+  const texto = document.getElementById('rot-saida').textContent;
+  const titulo = document.getElementById('rot-resultado-titulo').textContent.replace(/[^\w\s-]/g, '').trim() || 'roteiro';
+  const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = titulo + '.txt';
+  a.click();
+}
+</script>
+</body>
+</html>
