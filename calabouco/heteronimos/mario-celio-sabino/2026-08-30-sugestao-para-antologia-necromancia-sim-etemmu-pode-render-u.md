@@ -10,66 +10,156 @@ Sim. Etemmu pode render um conto excelent
 
 ---
 
-**O Peso que Carrega o Nome**
+**ETEMMU**
 
-O menino tinha sete anos quando aprendeu que os mortos também tinham fome.
+---
 
-Não era ensinamento de escola, não estava em nenhum livro que a professora trouxesse na pasta desgastada. Era coisa que o avô dizia em voz baixa, quase rezando, enquanto colocava pão e cerveja perto da porta antes de dormir. Dizia que os antigos chamavam essa fome de *etemmu*, e que um espírito sem tumbamento direito, sem nome falado pelos vivos, ficava vagando pela beira das casas, furioso e necessitado como mendigo em noite fria.
+O padre foi o primeiro a sentir o cheiro.
 
-O menino se chamava Dorival.
+Não era cheiro de morte, que ele já conhecia bem, tinha acompanhado enterros suficientes para saber o que a decomposição cheira em cada estação do ano. Era outra coisa: cobre velho misturado com terra de cemitério e com aquela umidade específica que precede tempestade, mas que naquela noite não havia nuvem nenhuma no céu de Pedralina.
 
-E Dorival não esqueceu.
+Ele estava trancando o portão lateral da Igreja de São Bento quando sentiu o cheiro. Parou com a chave na mão, olhou para o beco vazio e ficou esperando alguma coisa que não sabia nomear.
 
-Quando o avô morreu, um março de chuva miúda, a família não fez nenhum ritual. Não porque não quisesse, mas porque não sabia mais como. Três gerações de evangélicos tinham apagado isso com a mesma firmeza com que se apaga giz de lousa. A mãe de Dorival chorou no enterro, abraçou as primas, aceitou o caruru que alguém trouxe no vasilhame de alumínio. Na volta para casa, ninguém falou o nome do velho em voz alta. Era como se nomeá-lo pudesse atrair alguma coisa ruim, e não como se a ausência do nome fosse, ela própria, a coisa ruim.
+A chave tremeu entre os dedos.
 
-Dorival tinha trinta e dois anos quando a porta do quarto de casal começou a abrir sozinha.
+Padre Silvério tinha sessenta e três anos e nunca havia temido o sobrenatural com sinceridade. Temeu Deus, que era o que se esperava dele, temeu a velhice que chegava com pontualidade irritante, temeu o bispo e seu olhar de quem guarda contabilidades. Mas espectros, assombrações, o que as velhas paroquianas chamavam de almas em pena? Isso nunca lhe pareceu coisa real.
 
-Não todas as noites. Às vezes passava uma semana inteira sem nada, e Dorival já começava a racionalizar, a lembrar que o piso era velho e torto e que a maçaneta precisava de troca desde o governo anterior. Mas aí a porta abria de novo, devagar, sem pressa nenhuma, como quem não quer susto, só presença.
+Pareceu naquela noite.
 
-Ele não acordava a Cláudia para não assustar. Ficava deitado olhando o retângulo de escuro que a porta aberta recortava no escuro maior do quarto, e sentia um frio que não era do ar-condicionado porque o ar-condicionado estava desligado.
+Não porque viu alguma coisa no beco. Porque não havia nada no beco e o cheiro continuava muito forte, como se a origem dele estivesse a menos de um metro de distância, no nível do seu próprio rosto.
 
-A fome que chegava com aquele frio não era de comida.
+Ele entrou na sacristia e fechou a porta.
 
-Era de nome.
+---
 
-Ele entendeu isso no dia em que esqueceu, pela primeira vez, o nome completo do avô. Estava preenchendo um formulário no banco, um campo que perguntava por referências familiares, e ficou olhando para a tela por quase um minuto. O primeiro nome ele tinha: Joaquim. Mas o sobrenome do meio, aquele que vinha antes do Santos, ficou em branco dentro dele como buraco num dente.
+A mulher que apareceu três dias depois na porta da delegacia se chamava Neide Queirós e era filha de pai espírita e mãe umbandista, o que a tornava, segundo ela mesma dizia, "preparada pra essas coisas". Chegou com uma pasta plástica cheia de papéis xerocados, pediu para falar com o delegado e foi informada de que o delegado não atendia assuntos sobrenaturais.
 
-Naquela noite, a porta abriu três vezes.
+— Não é sobrenatural — disse ela, sentada na cadeira de frente ao investigador Pedroso sem ter sido convidada. — É uma morte que ainda não foi registrada como morte.
 
-Dorival se levantou na terceira. Não por coragem, mas porque a Cláudia tinha dado uma voltinha na cama que podia virar despertar a qualquer momento, e ele preferia encarar o que quer que fosse a ter que explicar.
+Pedroso tinha aprendido a não subestimar mulheres com pastas plásticas. Deixou ela falar.
 
-Saiu para o corredor.
+Neide explicou que a vizinha dela, Dona Cida, havia parado de dar sinais de vida há dezoito dias, que a correspondência acumulava na fenda da porta, que o cachorro do apartamento do lado latia para a parede divisória todo dia às três da madrugada, e que ela mesma havia acordado duas noites seguidas com a sensação de que alguém estava sentado no canto do quarto esperando alguma coisa.
 
-Estava frio. Mais frio do que devia. A casa tinha aquele silêncio específico das três da manhã, que não é ausência de som, mas uma textura própria, densa, como tecido grosso em cima de tudo.
+— Isso é pressão baixa — disse Pedroso.
 
-No final do corredor, perto da cozinha, havia uma forma.
+— Isso é etemmu — disse Neide.
 
-Não era o avô. Isso Dorival percebeu antes mesmo de entender por quê, porque a forma não tinha a altura certa, nem o jeito de ficar de pé do velho, que sempre ficara com o ombro direito um pouco caído por causa do trabalho na lavoura. A forma era disforme, era uma coisa que tentava ser gente mas não tinha referência suficiente para conseguir. Como alguém esculpindo rosto de memória sem nunca ter visto o rosto.
+Ele ergueu a cabeça dos papéis que não estava lendo.
 
-Era o etemmu.
+— É o quê?
 
-O espírito sem nome falado.
+— Etemmu. — Ela pronunciou as duas sílabas finais com cuidado, como se fossem frágeis. — Espírito dos mortos sem sepultura. Dos que não foram enterrados do jeito certo. Ficam presos entre o lugar onde morreram e o mundo dos mortos, precisando de alguém que faça os ritos pra eles passarem.
 
-Dorival não gritou. A garganta fechou antes de qualquer som sair. Ficou parado, sentindo o frio de todo o corredor se concentrando ali naquele metro de passagem, e então fez a única coisa que o avô tinha ensinado, de passagem, como quem não ensina nada:
+Pedroso olhou para ela por um tempo considerável.
 
-Falou o nome.
+— Dona Neide, eu não tenho jurisdição sobre o mundo dos mortos.
 
-Não o nome da forma que estava na frente dele. Falou o nome do velho.
+— Mas tem sobre o apartamento da Dona Cida.
 
-Falou Joaquim. Falou o sobrenome que voltou inteiro, repentino, como coisa que não estava perdida mas escondida. Falou o apelido que só a família usava. Falou o nome que o avô recebera no batismo, diferente do nome de registro, porque nos anos trinta as coisas eram assim. Falou tudo o que sabia, tudo o que lembrava, todas as camadas do nome, como se o nome de um homem fosse uma cebola e cada camada fosse uma vida diferente.
+Tinha.
 
-A forma no corredor diminuiu.
+---
 
-Não desapareceu de uma vez. Foi como ver fumaça se desfazendo, lenta, quase relutante. Mas diminuiu. E o frio diminuiu junto, até restar só a temperatura normal de uma casa com janelas fechadas em noite de março.
+O corpo de Cida Aparecida Munhoz, sessenta e um anos, foi encontrado no banheiro do apartamento 47 do Edifício Solar Pleno na tarde da quarta-feira seguinte. A causa da morte foi atestada como parada cardíaca. Ela estava no chão com a mão ainda segurando a borda da banheira, como se tivesse tentado se levantar e desistido no meio do movimento.
 
-Dorival ficou parado por um tempo longo antes de voltar para a cama.
+O investigador Pedroso ficou na porta do banheiro olhando para aquela mão por mais tempo do que a situação exigia profissionalmente.
 
-Na manhã seguinte, disse para Cláudia que ia ligar para a tia Neusa, a mais velha, a que ainda guardava as histórias. Disse que precisava saber mais sobre o avô. Os filhos, quando vieram na semana seguinte, ouviram. A menina mais nova ficou entediada. O mais velho fez perguntas.
+Havia qualquer coisa naquela posição que parecia menos morta do que congelada. Como se o gesto não tivesse terminado. Como se o corpo estivesse esperando que alguém dissesse que podia largar a borda agora.
 
-Dorival contou tudo o que sabia e inventou uma desculpa razoável para o que não sabia. Mas disse o nome do avô várias vezes. Com cuidado. Como quem rega uma planta.
+Ele saiu do apartamento e ligou para Neide Queirós.
 
-A porta do quarto não abriu mais.
+— Encontramos ela — disse.
 
-Mas Dorival continuou dizendo o nome, toda semana, porque o avô tinha ensinado que os mortos também tinham fome, e que a pior forma de deixar alguém morrer de vez era esquecer de pronunciar o que ele havia sido em voz alta, entre os vivos, onde o som pudesse durar um pouco mais do que a carne.
+— Eu sei — respondeu Neide. — Ela passou aqui ontem à noite.
+
+Pedroso ficou em silêncio.
+
+— Não passou de verdade — acrescentou Neide. — Mas eu acordei e havia um cheiro de água de flor-de-laranjeira no quarto, que era o perfume dela, e a janela que eu tinha certeza que fechei estava aberta. Ela veio se despedir, provavelmente. Ou veio cobrar os ritos.
+
+— Que ritos?
+
+— Os que impedem que ela fique.
+
+Pedroso estava do lado de fora do edifício, na calçada, olhando para o céu que não tinha nuvem nenhuma. Sentiu um cheiro que não soube identificar. Cobre velho, talvez. Terra de cemitério.
+
+Desligou o telefone sem dizer mais nada.
+
+---
+
+Padre Silvério e Neide Queirós se conheceram numa circunstância que nenhum dos dois soube explicar adequadamente depois: ele foi comprar pão na padaria da rua Campos Verdes numa quinta-feira cedo e ela estava sentada do lado de fora tomando café, com a pasta plástica na mesa.
+
+Ele pediu licença para sentar na mesa ao lado e ela disse, sem ele ter falado nada sobre o assunto:
+
+— Você também sentiu o cheiro.
+
+Não era pergunta.
+
+Padre Silvério colocou o saco de pão na mesa e ficou olhando para ela.
+
+— Sim — disse depois de um momento. — Sentei com aquilo no nariz por uns dois dias.
+
+— Etemmu não abandona quem ela marcou. — Neide envolveu a xícara com as duas mãos. — A Dona Cida era sozinha demais. Morreu sozinha, ficou dezoito dias sem ninguém saber. Isso cria uma marca. O espírito fica à procura de alguém que possa fechar o que ficou aberto.
+
+O padre olhou para a pasta plástica com desconfiança profissional.
+
+— O que ficou aberto?
+
+— O luto. A despedida. Alguém precisa fazer o ritual de soltura. Pode ser uma missa, pode ser uma oferenda, pode ser só dizer o nome dela em voz alta três vezes num lugar que ela conhecia. O importante é que alguém faça isso de propósito, com atenção, sabendo o que está fazendo.
+
+— A Igreja não reconhece — começou ele.
+
+— A Igreja não precisa reconhecer. O espírito dela não é membro da diocese.
+
+Padre Silvério ficou quieto por um tempo, olhando para a calçada.
+
+— Você conhecia ela?
+
+— Era minha vizinha havia onze anos. Nunca soube o nome dela completo até ver no jornal.
+
+Ele entendeu alguma coisa nessa frase que não quis nomear em voz alta.
+
+---
+
+Fizeram o ritual na noite de sábado, no corredor do quarto andar do Edifício Solar Pleno, em frente ao apartamento 47. Foram os três: Neide, o padre Silvério e o investigador Pedroso, que apareceu às oito da noite com uma expressão de quem havia tomado uma decisão irracional e pretendia honrá-la.
+
+Neide acendeu uma vela branca. Colocou um copo d'água com uma folha de guiné dentro. Abriu a pasta plástica e tirou uma foto três por quatro de Cida Aparecida Munhoz, que havia pedido emprestada da sobrinha que veio de Ribeirão para reconhecer o corpo.
+
+— A gente vai dizer o nome dela. Três vezes. E depois a gente fala o que ficou por dizer. Qualquer coisa. O que importa é que seja verdade.
+
+Padre Silvério cruzou os braços e depois descruzou, sem saber o que fazer com as mãos.
+
+— Cida Aparecida Munhoz — disse Neide. — Cida Aparecida Munhoz. Cida Aparecida Munhoz.
+
+O corredor estava quieto. O cachorro do apartamento do lado não latiu.
+
+— Eu não te conhecia direito — disse Neide. — Eu devia ter batido na sua porta mais vezes. Me desculpa por isso.
+
+Pedroso olhou para a foto por um tempo. Disse, com a voz que usava para registrar depoimentos, firme e sem ornamento:
+
+— Você merecia ter sido encontrada antes.
+
+Padre Silvério ficou um longo momento em silêncio.
+
+Depois rezou. Não a fórmula de praxe, mas uma oração de improviso, curta e sem latim, pedindo descanso para uma mulher que havia vivido sozinha demais e morrido sozinha demais e que merecia ter alguém que soubesse o seu nome agora.
+
+O cheiro de cobre desapareceu ainda durante a oração. Gradualmente, como quando a chuva para.
+
+O cachorro do apartamento ao lado ficou quieto pela primeira vez em dezoito noites.
+
+Neide soprou a vela.
+
+Pedroso recolheu a foto com cuidado, como se fosse prova de alguma coisa.
+
+Padre Silvério saiu do edifício, parou na calçada e olhou para o céu sem nuvem. Não havia cheiro nenhum. Só o ar parado da noite, que era apenas ar, sem mensagem nenhuma, sem presença nenhuma.
+
+Ele ficou lá parado mais um pouco assim mesmo.
+
+---
+
+Dois dias depois, no arquivo da paróquia, padre Silvério achou o registro de batismo de Aparecida de Jesus Munhoz, trinta de setembro de 1963, madrinha Eunice, padrinho João. A letra era da sua própria mão, feita quando ele ainda era diácono e achava que ia salvar almas antes do café da manhã.
+
+Ele ficou olhando para o nome dela no papel durante um longo tempo.
+
+Depois fechou o livro, apagou a luz e foi para casa.
 
 ---
